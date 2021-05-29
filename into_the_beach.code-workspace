@@ -5,5 +5,11 @@
 		}
 	],
 	"settings": {
+		"python.linting.pylintArgs": [
+			"--extension-pkg-whitelist=pygame"
+		],
+		"python.autoComplete.extraPaths": ["/home/alba/.local/lib/python3.8/site-packages"],
+		
+
 	}
 }

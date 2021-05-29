@@ -1,5 +1,8 @@
 class TileBase:
-    name = "-"
+    def __init__(self):
+        self.pos = [None, None]
+        self.id = 0
+        self.onfire = False
 
     def on_enter(self, unit):
         pass
@@ -9,8 +12,9 @@ class TileBase:
 
 
 class TileForest(TileBase):
-    name = "t"
-    onfire = False
+    def __init__(self):
+        super().__init__()
+        self.id = 1
 
     def on_enter(self, unit):
         print("test")
@@ -19,8 +23,9 @@ class TileForest(TileBase):
         self.onfire = True
 
 class TileSea(TileBase):
-    name = "~"
-    onfire = False
+    def __init__(self):
+        super().__init__()
+        self.id = 2
 
     def on_enter(self, unit):
         assert isinstance(unit, UnitBase)
@@ -29,15 +34,16 @@ class TileSea(TileBase):
 
 
 class Grid:
-    def __init__(self):
-        self.height = 6
-        self.width = 5
-        self.tiles = [None]*self.width*self.height
-        self.units = [None]*self.width*self.height
+    def __init__(self, width:int=10, height:int=10):
+        self.height = width
+        self.width = height
+        self.tiles = [None]*width*height
+        self.units = [None]*width*height
 
     def add_tile(self, x:int, y:int, tiletype:TileBase=TileBase):
         assert issubclass(tiletype, TileBase)
         newtile = tiletype()
+        newtile.pos = [x,y]
         self.tiles[self.width*y+x] = newtile
 
     def add_unit(self,x,y):
@@ -73,7 +79,7 @@ class Grid:
             for y in range(self.height):
                 tile = self.tiles[self.width*y+x]
                 if tile:
-                    text += tile.name
+                    text += str(tile.id)
                 else:
                     text += " "
             text += "\n"
@@ -94,26 +100,3 @@ class UnitBase:
         print("I drowned :(")
         self.grid.remove_unit(*self.pos)
     
-
-grid = Grid()
-grid2 = Grid()
-userinputwhattodo = ""
-
-grid.add_tile(2, 3, tiletype=TileForest)
-grid.add_tile(2, 4, tiletype=TileSea)
-grid.add_unit(2,3)
-grid.move_unit(2,3,2,4)
-
-print(grid.is_space_empty(True, 2, 3))
-print(grid2.is_space_empty(True, 2, 3))
-exit()
-
-while userinputwhattodo != "x":
-    grid.show()
-    print("enter ...")
-    userinputwhattodo = input()
-    if userinputwhattodo == "new tile":
-        print("insert x and y")
-        userinputx = int(input())
-        userinputy = int(input())
-        grid.add_tile(userinputx,userinputy)
