@@ -10,6 +10,9 @@ class TileBase:
     def on_damage(self, damage:int):
         pass
 
+    def tick(self, dt:float):
+        pass
+
 
 class TileForest(TileBase):
     def __init__(self):
@@ -33,18 +36,45 @@ class TileSea(TileBase):
             unit.drown()
 
 
+class EffectBase:
+    def __init__(self):
+        self.id = 0
+        self.pos = [None, None]
+
+    def tick(self, dt:float):
+        pass
+
+
+class EffectFire(EffectBase):
+    def __init__(self):
+        super().__init__()
+        self.id = 1
+        self.time = 0
+
+    def tick(self, dt:float):
+        self.time += dt
+        self.id = 1 + int(self.time)%2
+
+
 class Grid:
     def __init__(self, width:int=10, height:int=10):
         self.height = width
         self.width = height
         self.tiles = [None]*width*height
         self.units = [None]*width*height
+        self.effects = [None]*width*height
 
     def add_tile(self, x:int, y:int, tiletype:TileBase=TileBase):
         assert issubclass(tiletype, TileBase)
         newtile = tiletype()
         newtile.pos = [x,y]
         self.tiles[self.width*y+x] = newtile
+
+    def add_effect(self, x:int, y:int, effecttype:EffectBase=EffectBase):
+        assert issubclass(effecttype, EffectBase)
+        neweffect = effecttype()
+        neweffect.pos = [x,y]
+        self.effects[self.width*y+x] = neweffect
 
     def add_unit(self,x,y):
         newunit = UnitBase(grid=self, name="rudolf")
@@ -72,6 +102,14 @@ class Grid:
     def is_space_empty(self, tiles:bool, x:int, y:int)->bool:
         return x>=0 and x<self.width and y>=0 and y<self.height \
             and not (self.tiles if tiles else self.units)[self.width*y+x]
+
+    def tick(self, dt:float):
+        for t in self.tiles:
+            if t:
+                t.tick(dt)
+        for e in self.effects:
+            if e:
+                e.tick(dt)
 
     def show(self):
         text = ""

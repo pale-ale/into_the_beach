@@ -17,20 +17,22 @@ class GridUI(pygame.sprite.Sprite):
         self.height = height
         self.grid = grid
 
-    def redraw_grid(self):
-        for tile in self.grid.tiles:
-            if tile:
-                assert isinstance(tile, Grid.TileBase)
-                tile = cast(Grid.TileBase, tile)
-                assert tile.id in Tex.mappings.keys()
-                texture = pygame.image.load(Tex.texturepath + Tex.mappings[tile.id])
-                tilex, tiley = tile.pos
-                screenx,screeny = (tilex*-32 + tiley*32, tilex*16 + tiley*16)
+    def tick(self, dt:float):
+        self.grid.tick(dt)
+        self.redraw_grid()
+
+    def draw_group(self, gridgroup, mapping):
+        for part in gridgroup:
+            if part:
+                texture = pygame.image.load(Tex.texturepath + mapping[part.id])
+                partx, party = part.pos
+                screenx,screeny = (partx*-32 + party*32, partx*16 + party*16)
                 self.image.blit(texture, 
                     (
                     screenx+self.width*.5-32, 
                     screeny+self.height*.5-self.grid.height*16
                     )
                 )
-       
-    
+    def redraw_grid(self):
+        self.draw_group(self.grid.tiles, Tex.tilemapping)
+        self.draw_group(self.grid.effects, Tex.effectmapping)

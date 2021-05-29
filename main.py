@@ -37,13 +37,16 @@ grid.add_tile(7,8, tiletype=Grid.TileSea)
 grid.add_tile(8,5, tiletype=Grid.TileSea)
 grid.add_tile(8,6, tiletype=Grid.TileSea)
 grid.add_tile(8,7, tiletype=Grid.TileSea)
+grid.add_effect(0,1, effecttype=Grid.EffectFire)
 
 gridui = GridUI.GridUI(grid)
 gridui.redraw_grid()
 sprites.add(gridui)
 running = True
+lasttime = 0
 while running:
-    clock.tick(FPS)
+    dt = clock.tick(FPS)/1000.0
+    gridui.tick(dt)
     world.fill((70,20,20))
     sprites.draw(world)
     screen.blit(world, (0,0))
