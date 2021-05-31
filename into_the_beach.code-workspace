@@ -8,7 +8,12 @@
 		"python.linting.pylintArgs": [
 			"--extension-pkg-whitelist=pygame"
 		],
-		"python.autoComplete.extraPaths": ["/home/alba/.local/lib/python3.8/site-packages"],
+		"python.autoComplete.extraPaths": [
+			"/home/alba/.local/lib/python3.8/site-packages"
+		],
+		"python.analysis.extraPaths": [
+			"/home/alba/.local/lib/python3.8/site-packages"
+		],
 		
 
 	}
