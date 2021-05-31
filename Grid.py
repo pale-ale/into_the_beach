@@ -1,60 +1,6 @@
-class TileBase:
-    def __init__(self):
-        self.pos = [None, None]
-        self.id = 0
-        self.onfire = False
-
-    def on_enter(self, unit):
-        pass
-
-    def on_damage(self, damage:int):
-        pass
-
-    def tick(self, dt:float):
-        pass
-
-
-class TileForest(TileBase):
-    def __init__(self):
-        super().__init__()
-        self.id = 1
-
-    def on_enter(self, unit):
-        print("test")
-
-    def on_damage(self, damage:int):
-        self.onfire = True
-
-class TileSea(TileBase):
-    def __init__(self):
-        super().__init__()
-        self.id = 2
-
-    def on_enter(self, unit):
-        assert isinstance(unit, UnitBase)
-        if not unit.canswim:
-            unit.drown()
-
-
-class EffectBase:
-    def __init__(self):
-        self.id = 0
-        self.pos = [None, None]
-
-    def tick(self, dt:float):
-        pass
-
-
-class EffectFire(EffectBase):
-    def __init__(self):
-        super().__init__()
-        self.id = 1
-        self.time = 0
-
-    def tick(self, dt:float):
-        self.time += dt
-        self.id = 1 + int(self.time)%2
-
+from Tiles import TileBase
+from Effects import EffectBase
+from Units import UnitBase
 
 class Grid:
     def __init__(self, width:int=10, height:int=10):
@@ -98,6 +44,12 @@ class Grid:
             unit.pos = [targetx, targety]
             self.tiles[self.width*targety+targetx].on_enter(unit)
             print(unit.pos)
+
+    def get_tile(self, x:int, y:int):
+        return self.tiles[self.width*y+x]
+   
+    def get_effect(self, x:int, y:int):
+        return self.effects[self.width*y+x]
             
     def is_space_empty(self, tiles:bool, x:int, y:int)->bool:
         return x>=0 and x<self.width and y>=0 and y<self.height \
@@ -121,20 +73,4 @@ class Grid:
                 else:
                     text += " "
             text += "\n"
-        print(text)   
-
-
-class UnitBase:
-    
-    def __init__(self, grid:Grid, name:str="p", hitpoints:int=5, canswim:bool=False):
-        assert isinstance(grid, Grid)
-        self.name = name
-        self.hitpoints = hitpoints
-        self.canswim = canswim
-        self.grid = grid
-        self.pos = [None, None]
-
-    def drown(self):
-        print("I drowned :(")
-        self.grid.remove_unit(*self.pos)
-    
+        print(text)
