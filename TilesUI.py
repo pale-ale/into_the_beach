@@ -1,28 +1,23 @@
 import pygame.sprite
-import pygame.rect
-import pygame.image
 
-from Tiles import TileBase
 from Globals import Textures
+from GridElementUI import GridElementUI
+from Tiles import TileBase
 
-class TileBaseUI(pygame.sprite.Sprite):
-    def __init__(self, tile:TileBase, width:int=64, height:int=64):  
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.surface.Surface((width, height), pygame.SRCALPHA)
-        self.image.fill((100,100,100))
-        self.rect = self.image.get_rect()
-        self.width = width
-        self.height = height
+class TileBaseUI(GridElementUI):
+    def __init__(self, tile:TileBase, width:int=64, height:int=64):
+        super().__init__() 
         self.visible = bool(tile)
         self._tile = tile
-        self._textures = []                
+        self._textures = []   
 
     def update_texture_source(self):
         self._textures.clear()
         if self._tile:
             path_suffixes = Textures.tilemapping[self._tile.id]
             for path_suffix in path_suffixes:
-                self._textures.append(pygame.image.load(Textures.texturepath + path_suffix))
+                self._textures.append(pygame.image.load(Textures.texturepath + path_suffix).convert_alpha())
+        self.needsredraw = True
 
     def update_tile(self, newtile):
         self._tile = newtile

@@ -1,11 +1,11 @@
-import pygame.time
-import pygame.sprite
 import pygame
+import pygame.sprite
+import pygame.time
 
-import GridUI
-import Grid
-import Tiles
 import Effects
+import Grid
+import GridUI
+import Tiles
 
 WIDTH = 1000
 HEIGHT = 700
@@ -14,10 +14,12 @@ GREEN = [0, 255, 0]
 RED = [255, 0, 0]
 FPS = 30
 
-pygame.init()
+BACKGROUND = pygame.Surface((WIDTH, HEIGHT))
+BACKGROUND.fill((70,20,20))
+
+pygame.display.init()
 pygame.display.set_caption("Into The Bleach (for covid purposes only)")
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-world = pygame.surface.Surface((WIDTH,HEIGHT))
 
 sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
@@ -50,9 +52,8 @@ lasttime = 0
 while running:
     dt = clock.tick(FPS)/1000.0
     gridui.tick(dt)
-    world.fill((70,20,20))
-    sprites.draw(world)
-    screen.blit(world, (0,0))
+    screen.blit(BACKGROUND, (0,0))
+    screen.blit(gridui.image, (0,0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False

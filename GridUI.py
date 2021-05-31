@@ -1,10 +1,9 @@
-from EffectsUI import EffectBaseUI
 from Effects import EffectBase
-from TilesUI import TileBaseUI
+from EffectsUI import EffectBaseUI
 from Tiles import TileBase
+from TilesUI import TileBaseUI
+
 import pygame.sprite
-import pygame.rect
-import pygame.image
 
 import Grid
 
@@ -43,15 +42,12 @@ class GridUI(pygame.sprite.Sprite):
     def draw_group(self, gridgroup):
         for part in gridgroup:
             part.update()
-            if part.visible:
+            if part.visible and part.needsredraw:
                 partx, party = part.get_position()
                 screenx,screeny = self.transform_grid_screen(partx, party)
-                self.image.blit(part.image, 
-                    (
-                    screenx+self.width*.5-32, 
-                    screeny+self.height*.5-self.grid.height*16
-                    )
-                )
+                topleft = (screenx+self.width*.5-32, screeny+self.height*.5-self.grid.height*16)
+                self.image.blit(part.image, topleft, (0,0,64,64))
+                part.needsredraw = False
 
     def redraw_grid(self):
         self.draw_group(self.uitiles)
