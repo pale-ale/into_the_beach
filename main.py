@@ -1,48 +1,40 @@
 import pygame
 import pygame.sprite
 import pygame.time
+import pygame.transform
+import pygame.display
 
 import Effects
 import Grid
 import GridUI
 import Tiles
 
-WIDTH = 1000
-HEIGHT = 700
 BLACK = [0, 0, 0] 
 GREEN = [0, 255, 0]
 RED = [255, 0, 0]
 FPS = 30
 
-BACKGROUND = pygame.Surface((WIDTH, HEIGHT))
-BACKGROUND.fill((70,20,20))
 
 pygame.display.init()
 pygame.display.set_caption("Into The Bleach (for covid purposes only)")
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+info = pygame.display.Info()
+print(info.current_w, info.current_h)
+screen = pygame.display.set_mode((info.current_w, info.current_h), pygame.NOFRAME)
+
+BACKGROUND = pygame.Surface((info.current_w, info.current_w))
+BACKGROUND.fill((70,20,20))
 
 sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 
 grid = Grid.Grid()
 gridui = GridUI.GridUI(grid)
-gridui.add_tile(0,1)
-gridui.add_tile(0,2)
-gridui.add_tile(0,3)
-gridui.add_tile(0,4, tiletype=Tiles.TileSea)
-gridui.add_tile(1,0, tiletype=Tiles.TileSea)
-gridui.add_tile(2,0, tiletype=Tiles.TileSea)
-gridui.add_tile(3,0, tiletype=Tiles.TileSea)
-gridui.add_tile(4,0)
-gridui.add_tile(3,4)
-gridui.add_tile(4,3)
-gridui.add_tile(5,8, tiletype=Tiles.TileSea)
-gridui.add_tile(6,8, tiletype=Tiles.TileSea)
-gridui.add_tile(7,8, tiletype=Tiles.TileSea)
-gridui.add_tile(8,5, tiletype=Tiles.TileSea)
-gridui.add_tile(8,6, tiletype=Tiles.TileSea)
-gridui.add_tile(8,7, tiletype=Tiles.TileSea)
-gridui.add_effect(0,1, effecttype=Effects.EffectFire)
+gridui.add_tile(0,0)
+gridui.add_tile(0,9)
+gridui.add_tile(9,9)
+gridui.add_tile(9,0)
+gridui.add_effect(0,0, effecttype=Effects.EffectFire)
+gridui.add_effect(9,0, effecttype=Effects.EffectFire)
 
 gridui.redraw_grid()
 sprites.add(gridui)
@@ -53,12 +45,12 @@ while running:
     dt = clock.tick(FPS)/1000.0
     gridui.tick(dt)
     screen.blit(BACKGROUND, (0,0))
-    screen.blit(gridui.image, (0,0))
+    pygame.transform.scale(gridui.image,(info.current_w,info.current_h), screen)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
-    pygame.display.flip()
+    pygame.display.update()
 pygame.quit()

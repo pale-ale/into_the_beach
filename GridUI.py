@@ -4,17 +4,21 @@ from Tiles import TileBase
 from TilesUI import TileBaseUI
 
 import pygame.sprite
+import pygame.transform
 
 import Grid
 
 class GridUI(pygame.sprite.Sprite):
-    def __init__(self, grid:Grid.Grid, width=1000, height=1000):  
+    def __init__(self, grid:Grid.Grid):  
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.surface.Surface((width, height), pygame.SRCALPHA)
-        self.rect = self.image.get_rect()
-        self.width = width
-        self.height = height
         self.grid = grid
+        lefttile = self.transform_grid_screen(grid.width-1, 0)
+        righttile = self.transform_grid_screen(0, grid.height-1)
+        bottomtile = self.transform_grid_screen(grid.width-1, grid.height-1)
+        self.width = righttile[0] - lefttile[0]
+        self.height = bottomtile[1]
+        self.image = pygame.surface.Surface((self.width+64,self.height+64), pygame.SRCALPHA)
+        self.rect = self.image.get_rect()
         self.uitiles = [TileBaseUI(None) for i in range(grid.width*grid.height)]
         self.uieffects = [EffectBaseUI(None) for i in range(grid.width*grid.height)]
 
@@ -45,8 +49,7 @@ class GridUI(pygame.sprite.Sprite):
             if part.visible and part.needsredraw:
                 partx, party = part.get_position()
                 screenx,screeny = self.transform_grid_screen(partx, party)
-                topleft = (screenx+self.width*.5-32, screeny+self.height*.5-self.grid.height*16)
-                self.image.blit(part.image, topleft, (0,0,64,64))
+                self.image.blit(part.image, (screenx+self.width*.5, screeny), (0,0,64,64))
                 part.needsredraw = False
 
     def redraw_grid(self):
