@@ -7,6 +7,7 @@ class UnitBase(GridElement):
         self.hitpoints = hitpoints
         self.canswim = canswim
         self.grid = grid
+        self.id = 0
 
     def drown(self):
         print("I drowned :(")

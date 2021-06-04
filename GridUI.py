@@ -2,6 +2,8 @@ from Effects import EffectBase
 from EffectsUI import EffectBaseUI
 from Tiles import TileBase
 from TilesUI import TileBaseUI
+from Units import UnitBase
+from UnitsUI import UnitBaseUI
 
 import pygame.sprite
 import pygame.transform
@@ -21,6 +23,7 @@ class GridUI(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.uitiles = [TileBaseUI(None) for i in range(grid.width*grid.height)]
         self.uieffects = [EffectBaseUI(None) for i in range(grid.width*grid.height)]
+        self.uiunits = [UnitBaseUI(None) for i in range(grid.width*grid.height)]
 
     def add_tile(self, x:int, y:int, tiletype=TileBase):
         self.grid.add_tile(x, y, tiletype)
@@ -35,7 +38,14 @@ class GridUI(pygame.sprite.Sprite):
         uieffect = self.uieffects[self.grid.width*y+x]
         uieffect.update_effect(neweffect)
         uieffect.visible = True
-        
+    
+    def add_unit(self, x:int, y:int, unittype=UnitBase):
+        self.grid.add_unit(x, y, unittype)
+        newunit = self.grid.get_unit(x,y)
+        uiunit = self.uiunits[self.grid.width*y+x]
+        uiunit.update_unit(newunit)
+        uiunit.visible = True
+   
     def tick(self, dt:float):
         self.grid.tick(dt)
         self.redraw_grid()
@@ -46,7 +56,7 @@ class GridUI(pygame.sprite.Sprite):
     def draw_group(self, gridgroup):
         for part in gridgroup:
             part.update()
-            if part.visible and part.needsredraw:
+            if part.visible:
                 partx, party = part.get_position()
                 screenx,screeny = self.transform_grid_screen(partx, party)
                 self.image.blit(part.image, (screenx+self.width*.5, screeny), (0,0,64,64))
@@ -55,3 +65,4 @@ class GridUI(pygame.sprite.Sprite):
     def redraw_grid(self):
         self.draw_group(self.uitiles)
         self.draw_group(self.uieffects)
+        self.draw_group(self.uiunits)

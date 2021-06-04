@@ -35,6 +35,7 @@ gridui.add_tile(9,9)
 gridui.add_tile(9,0)
 gridui.add_effect(0,0, effecttype=Effects.EffectFire)
 gridui.add_effect(9,0, effecttype=Effects.EffectFire)
+gridui.add_unit(0,9)
 
 gridui.redraw_grid()
 sprites.add(gridui)

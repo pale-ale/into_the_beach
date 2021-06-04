@@ -22,10 +22,10 @@ class Grid:
         neweffect.pos = [x,y]
         self.effects[self.width*y+x] = neweffect
 
-    def add_unit(self,x,y):
-        newunit = UnitBase(grid=self, name="rudolf")
-        self.units[self.width*y+x] = newunit
+    def add_unit(self, x, y, unittype:UnitBase=UnitBase):
+        newunit = unittype(grid=self, name=" ")
         newunit.pos = [x, y]
+        self.units[self.width*y+x] = newunit
             
     def remove_unit(self, x:int, y:int):
         if self.is_space_empty(False, x, y):
@@ -50,7 +50,10 @@ class Grid:
    
     def get_effect(self, x:int, y:int):
         return self.effects[self.width*y+x]
-            
+    
+    def get_unit(self, x:int, y:int):
+        return self.units[self.width*y+x]
+
     def is_space_empty(self, tiles:bool, x:int, y:int)->bool:
         return x>=0 and x<self.width and y>=0 and y<self.height \
             and not (self.tiles if tiles else self.units)[self.width*y+x]
