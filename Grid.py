@@ -1,6 +1,9 @@
 from Tiles import TileBase
 from Effects import EffectBase
 from Units import UnitBase
+from Maps import Map
+
+from Globals import Classes
 
 class Grid:
     def __init__(self, width:int=10, height:int=10):
@@ -9,6 +12,10 @@ class Grid:
         self.tiles = [None]*width*height
         self.units = [None]*width*height
         self.effects = [None]*width*height
+
+    def load_map(self, map:Map):
+        for x, y, tileid in map.iterate_tiles():
+            self.add_tile(x, y, tiletype=Classes.tileclassmapping[tileid])
 
     def add_tile(self, x:int, y:int, tiletype:TileBase=TileBase):
         assert issubclass(tiletype, TileBase)

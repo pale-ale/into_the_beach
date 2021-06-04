@@ -14,7 +14,7 @@ class TileBaseUI(GridElementUI):
     def update_texture_source(self):
         self._textures.clear()
         if self._tile:
-            path_suffixes = Textures.tilemapping[self._tile.id]
+            path_suffixes = Textures.tiletexturemapping[self._tile.id]
             for path_suffix in path_suffixes:
                 self._textures.append(pygame.image.load(Textures.texturepath + path_suffix).convert_alpha())
         self.needsredraw = True

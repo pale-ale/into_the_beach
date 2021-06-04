@@ -4,6 +4,8 @@ from Tiles import TileBase
 from TilesUI import TileBaseUI
 from Units import UnitBase
 from UnitsUI import UnitBaseUI
+from Maps import Map
+from Globals import Classes
 
 import pygame.sprite
 import pygame.transform
@@ -24,6 +26,16 @@ class GridUI(pygame.sprite.Sprite):
         self.uitiles = [TileBaseUI(None) for i in range(grid.width*grid.height)]
         self.uieffects = [EffectBaseUI(None) for i in range(grid.width*grid.height)]
         self.uiunits = [UnitBaseUI(None) for i in range(grid.width*grid.height)]
+
+    def load_map(self, map:Map):
+        for x, y, tileid, unitid, effectid in map.iterate_tiles():
+            #IDs may be zero, so <if xxid: ... > wont work
+            if tileid is not None:
+                self.add_tile(x, y, tiletype=Classes.tileclassmapping[tileid])
+            if unitid is not None:
+                self.add_unit(x, y, unittype=Classes.unitclassmapping[unitid])
+            if effectid is not None:
+                self.add_effect(x, y, effecttype=Classes.effectclassmapping[effectid])
 
     def add_tile(self, x:int, y:int, tiletype=TileBase):
         self.grid.add_tile(x, y, tiletype)

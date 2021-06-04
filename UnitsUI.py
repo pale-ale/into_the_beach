@@ -11,7 +11,7 @@ class UnitBaseUI(GridElementUI):
 
     def update_texture_source(self):
         self._textures = []
-        for suffix in Textures.unitmapping[self._unit.id]:
+        for suffix in Textures.unittexturemapping[self._unit.id]:
             path = Textures.texturepath + suffix
             self._textures.append(pygame.image.load(path).convert_alpha())
         
