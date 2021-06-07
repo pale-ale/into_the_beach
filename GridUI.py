@@ -44,6 +44,9 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         uiunit = self.uiunits[self.grid.width*y+x]
         uiunit.update_unit(unit)
         uiunit.visible = True
+
+    def on_remove_unit(self, x, y):
+        self.uiunits[self.grid.c_to_i(x,y)].update_unit(None)
    
     def tick(self, dt:float):
         self.grid.tick(dt)

@@ -12,9 +12,10 @@ class UnitBaseUI(GridElementUI):
 
     def update_texture_source(self):
         self._textures = []
-        for suffix in Textures.unittexturemapping[self._unit.id]:
-            path = Textures.texturepath + suffix
-            self._textures.append(pygame.image.load(path).convert_alpha())
+        if self._unit:
+            for suffix in Textures.unittexturemapping[self._unit.id]:
+                path = Textures.texturepath + suffix
+                self._textures.append(pygame.image.load(path).convert_alpha())
         
     def update(self):
         if self.visible:
@@ -22,6 +23,7 @@ class UnitBaseUI(GridElementUI):
     
     def update_unit(self, newunit):
         self._unit = newunit
+        self.visible = bool(newunit)
         self.update_texture_source()
 
     def get_position(self):

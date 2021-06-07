@@ -48,6 +48,6 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 running = False
             if event.key == pygame.K_t:
-                gridui.grid.units[gridui.grid.width*9+9].attack([9,8],5)
+                gridui.grid.units[94].attack([5,9],5)
     pygame.display.update()
 pygame.quit()

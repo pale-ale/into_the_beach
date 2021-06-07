@@ -14,9 +14,10 @@ class UnitBase(GridElement):
         self.grid.remove_unit(*self.pos)
 
     def attack(self, target, damage:int):
-        self.grid.units[self.grid.width*(target[1]) + target[0]].being_attacked(damage)
+        if self.grid.get_unit(*target):
+            self.grid.units[self.grid.width*(target[1]) + target[0]].on_take_damage(damage)
     
-    def being_attacked(self, damage:int):
+    def on_take_damage(self, damage:int):
         self.hitpoints -= damage
         if self.hitpoints <= 0:
             self.dying()

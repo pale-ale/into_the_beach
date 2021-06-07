@@ -75,6 +75,9 @@ class Grid:
     def get_unit(self, x:int, y:int):
         return self.units[self.width*y+x]
 
+    def c_to_i(self, x, y):
+        return self.width*y + x
+
     def is_space_empty(self, tiles:bool, x:int, y:int)->bool:
         return x>=0 and x<self.width and y>=0 and y<self.height \
             and not (self.tiles if tiles else self.units)[self.width*y+x]
