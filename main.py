@@ -29,7 +29,8 @@ clock = pygame.time.Clock()
 
 grid = Grid.Grid()
 gridui = GridUI.GridUI(grid)
-gridui.load_map(MapGrasslands())
+grid.update_observer(gridui)
+grid.load_map(MapGrasslands())
 gridui.redraw_grid()
 sprites.add(gridui)
 running = True

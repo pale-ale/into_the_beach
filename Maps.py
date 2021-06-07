@@ -9,7 +9,9 @@ class Map:
     def iterate_tiles(self):
         for y in range(self.height):
             for x in range(self.width):
-                yield x,y,self.tileids[y*self.width+x],self.unitids[y*self.width+x],self.effectids[y*self.width+x]
+                yield x,y,self.tileids[y*self.width+x],\
+                    self.effectids[y*self.width+x],\
+                    self.unitids[y*self.width+x]
 
 class MapGrasslands(Map):
     def __init__(self):

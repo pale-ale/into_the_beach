@@ -9,10 +9,10 @@ from Globals import Classes
 
 import pygame.sprite
 import pygame.transform
-
+import IGridObserver
 import Grid
 
-class GridUI(pygame.sprite.Sprite):
+class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
     def __init__(self, grid:Grid.Grid):  
         pygame.sprite.Sprite.__init__(self)
         self.grid = grid
@@ -27,35 +27,22 @@ class GridUI(pygame.sprite.Sprite):
         self.uieffects = [EffectBaseUI(None) for i in range(grid.width*grid.height)]
         self.uiunits = [UnitBaseUI(None) for i in range(grid.width*grid.height)]
 
-    def load_map(self, map:Map):
-        for x, y, tileid, unitid, effectid in map.iterate_tiles():
-            #IDs may be zero, so <if xxid: ... > wont work
-            if tileid is not None:
-                self.add_tile(x, y, tiletype=Classes.tileclassmapping[tileid])
-            if unitid is not None:
-                self.add_unit(x, y, unittype=Classes.unitclassmapping[unitid])
-            if effectid is not None:
-                self.add_effect(x, y, effecttype=Classes.effectclassmapping[effectid])
-
-    def add_tile(self, x:int, y:int, tiletype=TileBase):
-        self.grid.add_tile(x, y, tiletype)
-        newtile = self.grid.get_tile(x,y)
+    def on_add_tile(self, tile):
+        x,y = tile.get_position()
         uitile = self.uitiles[self.grid.width*y+x]
-        uitile.update_tile(newtile)
+        uitile.update_tile(tile)
         uitile.visible = True
-   
-    def add_effect(self, x:int, y:int, effecttype=EffectBase):
-        self.grid.add_effect(x, y, effecttype)
-        neweffect = self.grid.get_effect(x,y)
+
+    def on_add_effect(self, effect):
+        x,y = effect.get_position()
         uieffect = self.uieffects[self.grid.width*y+x]
-        uieffect.update_effect(neweffect)
+        uieffect.update_effect(effect)
         uieffect.visible = True
     
-    def add_unit(self, x:int, y:int, unittype=UnitBase):
-        self.grid.add_unit(x, y, unittype)
-        newunit = self.grid.get_unit(x,y)
+    def on_add_unit(self, unit):
+        x,y = unit.get_position()
         uiunit = self.uiunits[self.grid.width*y+x]
-        uiunit.update_unit(newunit)
+        uiunit.update_unit(unit)
         uiunit.visible = True
    
     def tick(self, dt:float):
