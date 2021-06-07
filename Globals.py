@@ -10,5 +10,7 @@ class Textures:
         1:["EffectFire1.png", "EffectFire2.png"]
     }
     unitmapping = {
-        0:["Unit1.png","Unit2.png","Unit3.png","Unit4.png"]
+        0:["Unit1.png","Unit2.png","Unit3.png","Unit4.png"],
+        1:["UnitMagician1.png","UnitMagician2.png","UnitMagician3.png","UnitMagician4.png"],
+        2:["UnitBarbarian1.png","UnitBarbarian2.png","UnitBarbarian3.png","UnitBarbarian4.png"]
     }

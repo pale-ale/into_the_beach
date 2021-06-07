@@ -26,7 +26,7 @@ class Grid:
         newunit = unittype(grid=self, name=" ")
         newunit.pos = [x, y]
         self.units[self.width*y+x] = newunit
-            
+
     def remove_unit(self, x:int, y:int):
         if self.is_space_empty(False, x, y):
             print(f"error try to remove unit at {x} {y} which does not exist.")

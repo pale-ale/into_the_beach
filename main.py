@@ -8,6 +8,7 @@ import Effects
 import Grid
 import GridUI
 import Tiles
+import Units
 
 BLACK = [0, 0, 0] 
 GREEN = [0, 255, 0]
@@ -33,9 +34,12 @@ gridui.add_tile(0,0)
 gridui.add_tile(0,9)
 gridui.add_tile(9,9)
 gridui.add_tile(9,0)
+gridui.add_tile(9,8)
 gridui.add_effect(0,0, effecttype=Effects.EffectFire)
 gridui.add_effect(9,0, effecttype=Effects.EffectFire)
 gridui.add_unit(0,9)
+gridui.add_unit(9,9, unittype = Units.UnitMagician)
+gridui.add_unit(9,8, unittype = Units.UnitBarbarian)
 
 gridui.redraw_grid()
 sprites.add(gridui)
@@ -53,5 +57,7 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
+            if event.key == pygame.K_t:
+                gridui.grid.units[gridui.grid.width*9+9].attack([9,8],5)
     pygame.display.update()
 pygame.quit()
