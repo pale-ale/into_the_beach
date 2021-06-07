@@ -9,17 +9,16 @@ import Grid
 import GridUI
 import Tiles
 import Units
+from Maps import MapGrasslands
 
 BLACK = [0, 0, 0] 
 GREEN = [0, 255, 0]
 RED = [255, 0, 0]
 FPS = 30
 
-
 pygame.display.init()
 pygame.display.set_caption("Into The Bleach (for covid purposes only)")
 info = pygame.display.Info()
-print(info.current_w, info.current_h)
 screen = pygame.display.set_mode((info.current_w, info.current_h), pygame.NOFRAME)
 
 BACKGROUND = pygame.Surface((info.current_w, info.current_w))
@@ -30,17 +29,7 @@ clock = pygame.time.Clock()
 
 grid = Grid.Grid()
 gridui = GridUI.GridUI(grid)
-gridui.add_tile(0,0)
-gridui.add_tile(0,9)
-gridui.add_tile(9,9)
-gridui.add_tile(9,0)
-gridui.add_tile(9,8)
-gridui.add_effect(0,0, effecttype=Effects.EffectFire)
-gridui.add_effect(9,0, effecttype=Effects.EffectFire)
-gridui.add_unit(0,9)
-gridui.add_unit(9,9, unittype = Units.UnitMagician)
-gridui.add_unit(9,8, unittype = Units.UnitBarbarian)
-
+gridui.load_map(MapGrasslands())
 gridui.redraw_grid()
 sprites.add(gridui)
 running = True
