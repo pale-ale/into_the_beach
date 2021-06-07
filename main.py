@@ -1,3 +1,4 @@
+from Selector import Selector
 import pygame
 import pygame.sprite
 import pygame.time
@@ -28,6 +29,7 @@ sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 
 grid = Grid.Grid()
+selector = Selector(grid)
 gridui = GridUI.GridUI(grid)
 grid.update_observer(gridui)
 grid.load_map(MapGrasslands())
@@ -40,14 +42,16 @@ while running:
     dt = clock.tick(FPS)/1000.0
     gridui.tick(dt)
     screen.blit(BACKGROUND, (0,0))
+    cursorPos = gridui.transform_grid_screen(*selector.cursorposition)
+    # anything selector related has to go into another file, like HUD.py
+    gridui.image.blit(selector.image, (cursorPos[0] + gridui.width/2, cursorPos[1]))
+    gridui.image.blit(gridui.uitiles[grid.c_to_i(*selector.cursorposition)].image, (gridui.width*.95, gridui.height*.9))
+
     pygame.transform.scale(gridui.image,(info.current_w,info.current_h), screen)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                running = False
-            if event.key == pygame.K_t:
-                gridui.grid.units[94].attack([5,9],5)
+        if event.type == pygame.KEYDOWN or pygame.KEYUP:
+            selector.handle_input(event)
     pygame.display.update()
 pygame.quit()

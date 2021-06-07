@@ -78,9 +78,11 @@ class Grid:
     def c_to_i(self, x, y):
         return self.width*y + x
 
+    def is_coord_in_bounds(self, x, y):
+        return x>=0 and x<self.width and y>=0 and y<self.height
+
     def is_space_empty(self, tiles:bool, x:int, y:int)->bool:
-        return x>=0 and x<self.width and y>=0 and y<self.height \
-            and not (self.tiles if tiles else self.units)[self.width*y+x]
+        return self.is_coord_in_bounds(x,y) and not (self.tiles if tiles else self.units)[self.width*y+x]
 
     def tick(self, dt:float):
         for t in self.tiles:
