@@ -1,4 +1,3 @@
-from Selector import Selector
 import pygame
 import pygame.sprite
 import pygame.time
@@ -10,7 +9,9 @@ import Grid
 import GridUI
 import Tiles
 import Units
+from HUD import Hud
 from Maps import MapGrasslands
+from Selector import Selector
 
 BLACK = [0, 0, 0] 
 GREEN = [0, 255, 0]
@@ -22,16 +23,18 @@ pygame.display.set_caption("Into The Bleach (for covid purposes only)")
 info = pygame.display.Info()
 screen = pygame.display.set_mode((info.current_w, info.current_h), pygame.NOFRAME)
 
-BACKGROUND = pygame.Surface((info.current_w, info.current_w))
+BACKGROUND = pygame.Surface((info.current_w, info.current_h))
 BACKGROUND.fill((70,20,20))
 
 sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 
 grid = Grid.Grid()
-selector = Selector(grid)
 gridui = GridUI.GridUI(grid)
+hud = Hud(gridui.width, gridui.height, gridui)
 grid.update_observer(gridui)
+selector = Selector(grid, hud)
+
 grid.load_map(MapGrasslands())
 gridui.redraw_grid()
 sprites.add(gridui)
@@ -44,7 +47,7 @@ while running:
     screen.blit(BACKGROUND, (0,0))
     cursorPos = gridui.transform_grid_screen(*selector.cursorposition)
     # anything selector related has to go into another file, like HUD.py
-    gridui.image.blit(selector.image, (cursorPos[0] + gridui.width/2, cursorPos[1]))
+    gridui.image.blit(hud.image, (0, 0))
     gridui.image.blit(gridui.uitiles[grid.c_to_i(*selector.cursorposition)].image, (gridui.width*.95, gridui.height*.9))
 
     pygame.transform.scale(gridui.image,(info.current_w,info.current_h), screen)

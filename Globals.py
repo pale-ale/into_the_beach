@@ -4,7 +4,8 @@ from Tiles import *
 
 class Textures:
     texturepath = "./sprites/"
-    previewtexture = "SelectionPreview.png"
+    selectionpreviewtexture = "SelectionPreview.png"
+    movementpreviewtexture = "MovementPreview.png"
     tiletexturemapping = {
         0:["TileDirt.png"],
         1:["TileForest.png"],

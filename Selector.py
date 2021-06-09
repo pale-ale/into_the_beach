@@ -1,20 +1,16 @@
 from typing import Text
-import pygame.image
 import pygame
 
-from Globals import Textures
-from pygame.constants import K_UP
-
 class Selector:
-    def __init__(self, grid):
+    def __init__(self, grid, hud):
         self.grid = grid
-        self.image =  pygame.image.load(Textures.texturepath + Textures.previewtexture).convert_alpha()
         self.up = False
         self.left = False
         self.down = False
         self.right = False
         self.cursorposition = [0,0]
-    
+        self.hud = hud
+
     def add(self, a, b):
         return a[0] + b[0], a[1] + b[1]
     
@@ -22,6 +18,9 @@ class Selector:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 exit()
+            if event.key == pygame.K_SPACE:
+                self.hud.select(self.cursorposition)
+                return
             # navigate the grid
             elif event.key == pygame.K_UP:
                 self.up = True
@@ -35,8 +34,10 @@ class Selector:
         
         elif event.type == pygame.KEYUP:
             delta = (0,0)
+            if event.key == pygame.K_SPACE:
+                return
             # navigate the grid
-            if event.key == pygame.K_UP:
+            elif event.key == pygame.K_UP:
                 self.up = False
                 delta = (-1,0)
             elif event.key == pygame.K_LEFT:
@@ -52,4 +53,5 @@ class Selector:
             testpos = self.add(self.cursorposition, delta)
             if self.grid.is_coord_in_bounds(*testpos):
                 self.cursorposition = testpos
+                self.hud.update_cursor(testpos)
             return
