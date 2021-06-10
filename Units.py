@@ -1,4 +1,5 @@
 from GridElement import GridElement
+from Abilities import MovementAbility
 
 class UnitBase(GridElement):
     def __init__(self, grid, name:str="p", hitpoints:int=5, canswim:bool=False):
@@ -8,6 +9,22 @@ class UnitBase(GridElement):
         self.canswim = canswim
         self.grid = grid
         self.id = 0
+        self.moverange = 2
+        self.actionhooks = dict()
+        self.abilities = {"MovementAbility":MovementAbility(self)}
+    
+    def register_hook(self, hookname, function):
+        if hookname not in self.actionhooks:
+            self.actionhooks[hookname] = [function]
+            return
+        self.actionhooks[hookname].append(function)
+    
+    def trigger_hook(self, hookname):
+        if hookname in self.actionhooks:
+            for hook in self.actionhooks[hookname]:
+                hook()
+            return len(self.actionhooks[hookname])
+        return 0  
 
     def drown(self):
         print("I drowned :(")

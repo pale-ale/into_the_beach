@@ -46,8 +46,8 @@ while running:
     gridui.tick(dt)
     screen.blit(BACKGROUND, (0,0))
     cursorPos = gridui.transform_grid_screen(*selector.cursorposition)
-    # anything selector related has to go into another file, like HUD.py
     gridui.image.blit(hud.image, (0, 0))
+    # TODO: move next line into HUD.py
     gridui.image.blit(gridui.uitiles[grid.c_to_i(*selector.cursorposition)].image, (gridui.width*.95, gridui.height*.9))
 
     pygame.transform.scale(gridui.image,(info.current_w,info.current_h), screen)

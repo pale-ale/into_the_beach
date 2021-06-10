@@ -84,6 +84,14 @@ class Grid:
     def is_space_empty(self, tiles:bool, x:int, y:int)->bool:
         return self.is_coord_in_bounds(x,y) and not (self.tiles if tiles else self.units)[self.width*y+x]
 
+    def get_ordinal_neighbors(self, x, y):
+        assert isinstance(x, int) and isinstance(y, int)
+        up = (x-1,y)
+        right = (x,y+1)
+        down = (x+1,y)
+        left = (x,y-1)
+        return [n for n in (up, right, down, left) if self.is_coord_in_bounds(*n)]
+
     def tick(self, dt:float):
         for t in self.tiles:
             if t:
