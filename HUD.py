@@ -11,7 +11,9 @@ class Hud(pygame.sprite.Sprite):
         self.gridui = gridui
         self.selectiontexture = pygame.image.load(Textures.texturepath+Textures.selectionpreviewtexture)
         self.movementtexture = pygame.image.load(Textures.texturepath+Textures.movementpreviewtexture)
-        self.cursorpos = (0,0)
+        self.targetmovementtexture = pygame.image.load(Textures.texturepath+Textures.targetmovementpreviewtexture)
+        self.cursorgridpos = (0,0)
+        self.cursorscreenpos = (0,0)
 
     def select(self, position):
         unit = self.gridui.grid.get_unit(*position)
@@ -29,8 +31,14 @@ class Hud(pygame.sprite.Sprite):
             for movementoption in self.selectedunit.abilities["MovementAbility"].movementinfo:
                 x,y = self.gridui.transform_grid_screen(*movementoption)
                 self.image.blit(self.movementtexture, (x,y))
-        self.image.blit(self.selectiontexture, self.cursorpos)
+
+        if self.selectedunit:
+            print(self.selectedunit.name, self.cursorgridpos)
+        self.image.blit(self.targetmovementtexture if self.selectedunit and 
+            (self.cursorgridpos in self.selectedunit.abilities["MovementAbility"].movementinfo)
+            else self.selectiontexture, self.cursorscreenpos)
 
     def update_cursor(self, position):
-        self.cursorpos = self.gridui.transform_grid_screen(*position)
+        self.cursorgridpos = position
+        self.cursorscreenpos = self.gridui.transform_grid_screen(*position)
         self.redraw()

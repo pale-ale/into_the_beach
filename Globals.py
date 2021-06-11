@@ -6,6 +6,7 @@ class Textures:
     texturepath = "./sprites/"
     selectionpreviewtexture = "SelectionPreview.png"
     movementpreviewtexture = "MovementPreview.png"
+    targetmovementpreviewtexture = "TargetMovementPreview.png"
     tiletexturemapping = {
         0:["TileDirt.png"],
         1:["TileForest.png"],
