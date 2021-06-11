@@ -30,20 +30,20 @@ class Grid:
     def add_tile(self, x:int, y:int, tiletype:TileBase=TileBase):
         assert issubclass(tiletype, TileBase)
         newtile = tiletype()
-        newtile.pos = [x,y]
+        newtile.set_position((x,y))
         self.tiles[self.width*y+x] = newtile
         self.observer.on_add_tile(newtile)
 
     def add_effect(self, x:int, y:int, effecttype:EffectBase=EffectBase):
         assert issubclass(effecttype, EffectBase)
         neweffect = effecttype()
-        neweffect.pos = [x,y]
+        neweffect.set_position((x,y))
         self.effects[self.width*y+x] = neweffect
         self.observer.on_add_effect(neweffect)
 
     def add_unit(self, x, y, unittype:UnitBase=UnitBase):
         newunit = unittype(grid=self, name="Frigmund Seud")
-        newunit.pos = [x, y]
+        newunit.set_position((x, y))
         self.units[self.width*y+x] = newunit
         self.observer.on_add_unit(newunit)
 
@@ -60,11 +60,12 @@ class Grid:
             exit(1)    
         if self.is_space_empty(False, targetx, targety) and not \
                 self.is_space_empty(True, targetx, targety):
-            unit = self.units.pop(self.width*y+x)
+            unit = self.units[self.width*y+x]
+            self.units[self.width*y+x] = None
             self.units[self.width*targety+targetx] = unit
-            unit.pos = [targetx, targety]
+            unit.set_position((targetx, targety))
             self.tiles[self.width*targety+targetx].on_enter(unit)
-            self.observer.on_move_unit(x, y)
+            self.observer.on_move_unit(x, y, targetx, targety)
 
     def get_tile(self, x:int, y:int):
         return self.tiles[self.width*y+x]

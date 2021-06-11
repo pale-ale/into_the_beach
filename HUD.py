@@ -15,7 +15,7 @@ class Hud(pygame.sprite.Sprite):
         self.cursorgridpos = (0,0)
         self.cursorscreenpos = (0,0)
 
-    def select(self, position):
+    def unitselect(self, position):
         unit = self.gridui.grid.get_unit(*position)
         if unit != self.selectedunit:
             if self.selectedunit:
@@ -25,6 +25,18 @@ class Hud(pygame.sprite.Sprite):
             unit.trigger_hook("OnSelect")
         self.redraw()
     
+    def targetselect(self, position):
+        unit = self.gridui.grid.get_unit(*position)
+        if unit:
+            return
+        if self.selectedunit and self.cursorgridpos \
+        in self.selectedunit.abilities["MovementAbility"].movementinfo:
+            fromxy = self.selectedunit.get_position()
+            self.gridui.grid.move_unit(*fromxy, *position)
+            self.selectedunit.trigger_hook("OnDeselect")
+            self.selectedunit = None
+            self.redraw()
+
     def redraw(self):
         self.image.fill((0,0,0,0))
         if self.selectedunit:
@@ -32,8 +44,6 @@ class Hud(pygame.sprite.Sprite):
                 x,y = self.gridui.transform_grid_screen(*movementoption)
                 self.image.blit(self.movementtexture, (x,y))
 
-        if self.selectedunit:
-            print(self.selectedunit.name, self.cursorgridpos)
         self.image.blit(self.targetmovementtexture if self.selectedunit and 
             (self.cursorgridpos in self.selectedunit.abilities["MovementAbility"].movementinfo)
             else self.selectiontexture, self.cursorscreenpos)

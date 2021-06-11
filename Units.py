@@ -14,7 +14,7 @@ class UnitBase(GridElement):
         self.abilities = {"MovementAbility":MovementAbility(self)}
     
     def register_hook(self, hookname, function):
-        if hookname not in self.actionhooks:
+        if hookname not in self.actionhooks.keys():
             self.actionhooks[hookname] = [function]
             return
         self.actionhooks[hookname].append(function)

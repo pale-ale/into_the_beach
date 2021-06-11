@@ -16,7 +16,10 @@ class Selector:
             if event.key == pygame.K_ESCAPE:
                 exit()
             if event.key == pygame.K_SPACE:
-                self.hud.select(self.cursorposition)
+                self.hud.unitselect(self.cursorposition)
+                return
+            if event.key == pygame.K_RETURN:
+                self.hud.targetselect(self.cursorposition)
                 return
             # navigate the grid
             delta = (0,0)

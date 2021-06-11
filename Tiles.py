@@ -19,7 +19,7 @@ class TileForest(TileBase):
         self.id = 1
 
     def on_enter(self, unit):
-        print("test")
+        pass
 
     def on_damage(self, damage:int):
         self.onfire = True
