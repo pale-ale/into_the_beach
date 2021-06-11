@@ -7,7 +7,7 @@ class GridElement:
         self.age += dt
 
     def get_position(self):
-        return self.pos[:]
+        return self.pos[0], self.pos[1]
     
     def set_position(self, newposition:"tuple[int,int]"):
         self._pos = [c for c in newposition]

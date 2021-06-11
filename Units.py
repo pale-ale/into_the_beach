@@ -9,7 +9,7 @@ class UnitBase(GridElement):
         self.canswim = canswim
         self.grid = grid
         self.id = 0
-        self.moverange = 2
+        self.moverange = 5
         self.actionhooks = dict()
         self.abilities = {"MovementAbility":MovementAbility(self)}
     
@@ -24,6 +24,7 @@ class UnitBase(GridElement):
             for hook in self.actionhooks[hookname]:
                 hook()
             return len(self.actionhooks[hookname])
+        print(hookname, "has no bound actions")
         return 0  
 
     def drown(self):
