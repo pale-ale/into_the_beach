@@ -9,7 +9,7 @@ class TileBaseUI(GridElementUI):
         super().__init__() 
         self.visible = bool(tile)
         self._tile = tile
-        self._textures = []   
+        self._textures = []
 
     def update_texture_source(self):
         self._textures.clear()

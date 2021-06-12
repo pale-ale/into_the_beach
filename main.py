@@ -3,6 +3,7 @@ import pygame.sprite
 import pygame.time
 import pygame.transform
 import pygame.display
+import pygame.font
 
 import Effects
 import Grid
@@ -19,6 +20,7 @@ RED = [255, 0, 0]
 FPS = 30
 
 pygame.display.init()
+pygame.font.init()
 pygame.display.set_caption("Into The Bleach (for covid purposes only)")
 info = pygame.display.Info()
 screen = pygame.display.set_mode((info.current_w, info.current_h), pygame.NOFRAME)
@@ -38,6 +40,8 @@ selector = Selector(grid, hud)
 grid.load_map(MapGrasslands())
 gridui.redraw_grid()
 sprites.add(gridui)
+
+hud.redraw()
 running = True
 lasttime = 0
 
@@ -47,9 +51,6 @@ while running:
     screen.blit(BACKGROUND, (0,0))
     cursorPos = gridui.transform_grid_screen(*selector.cursorposition)
     gridui.image.blit(hud.image, (0, 0))
-    # TODO: move next line into HUD.py
-    gridui.image.blit(gridui.uitiles[grid.c_to_i(*selector.cursorposition)].image, (gridui.width*.95, gridui.height*.9))
-
     pygame.transform.scale(gridui.image,(info.current_w,info.current_h), screen)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
