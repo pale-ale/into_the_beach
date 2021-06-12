@@ -1,5 +1,5 @@
 from GridElement import GridElement
-from Abilities import MovementAbility
+from Abilities import MovementAbility, PunchAbility
 
 class UnitBase(GridElement):
     def __init__(self, grid, name:str="p", hitpoints:int=5, canswim:bool=False):
@@ -11,18 +11,31 @@ class UnitBase(GridElement):
         self.id = 0
         self.moverange = 5
         self.actionhooks = dict()
-        self.abilities = {"MovementAbility":MovementAbility(self)}
+        self.userActions ={1:None, 2:None, 3:None, 4:None}
+        self.abilities = {"MovementAbility":MovementAbility(self), "PunchAbility":PunchAbility(self)}
     
     def register_hook(self, hookname, function):
+        if hookname == "UserAction":
+            for slot in self.userActions.keys():
+                if not self.userActions[slot]:
+                    self.userActions[slot] = function
+                    return
+            print("Couldn't register UserAction: No free slots available for", self.name)
+            return
         if hookname not in self.actionhooks.keys():
             self.actionhooks[hookname] = [function]
             return
         self.actionhooks[hookname].append(function)
     
-    def trigger_hook(self, hookname):
-        if hookname in self.actionhooks:
+    def trigger_hook(self, hookname, *args):
+        if hookname.startswith("UserAction"):
+            ability = self.userActions[int(hookname[-1])]
+            if ability:
+                ability(*args)
+                return 1
+        elif hookname in self.actionhooks:
             for hook in self.actionhooks[hookname]:
-                hook()
+                hook(*args)
             return len(self.actionhooks[hookname])
         print(hookname, "has no bound actions")
         return 0  
@@ -42,7 +55,7 @@ class UnitBase(GridElement):
     
     def dying(self):
         print("I died :(")
-        self.grid.remove_unit(*self.pos)
+        self.grid.remove_unit(*self.get_position())
 
 
 class UnitMagician(UnitBase):

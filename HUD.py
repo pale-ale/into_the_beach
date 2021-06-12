@@ -31,40 +31,46 @@ class Hud(pygame.sprite.Sprite):
         self.redraw()
     
     def targetselect(self, position):
-        unit = self.gridui.grid.get_unit(*position)
-        if unit:
-            return
-        if self.selectedunit and self.cursorgridpos \
-        in self.selectedunit.abilities["MovementAbility"].movementinfo:
-            fromxy = self.selectedunit.get_position()
-            self.gridui.grid.move_unit(*fromxy, *position)
+        if self.selectedunit:
+            self.selectedunit.trigger_hook("TargetSelected", [position])
             self.selectedunit.trigger_hook("OnDeselect")
             self.selectedunit = None
             self.redraw()
 
-    def redraw(self):
-        self.image.fill((0,0,0,0))
+    def activate_ability(self, slot:int):
         if self.selectedunit:
-            for movementoption in self.selectedunit.abilities["MovementAbility"].movementinfo:
-                x,y = self.gridui.transform_grid_screen(*movementoption)
-                self.image.blit(self.movementtexture, (x,y))
+            self.selectedunit.trigger_hook("UserAction" + str(slot))
+            self.redraw()
 
-        self.image.blit(self.targetmovementtexture if self.selectedunit and 
-            (self.cursorgridpos in self.selectedunit.abilities["MovementAbility"].movementinfo)
-            else self.selectiontexture, self.cursorscreenpos)
-
-        tile = self.gridui.uitiles[self.gridui.grid.c_to_i(*self.cursorgridpos)]
-        unit = self.gridui.uiunits[self.gridui.grid.c_to_i(*self.cursorgridpos)]
-        self.tilefontdisplay.fill((0,0,0,0))
+    def display_unit(self, pos):
         self.unitfontdisplay.fill((0,0,0,0))
-        if tile.visible:
-            self.tilefontdisplay.blit(self.font.render(type(tile._tile).__name__, True, (255,255,255,255)), (0,0))
-            self.image.blit(tile.image, (self.gridui.width*.8, self.gridui.height*.95), (0,0,64,64))
+        unit = self.gridui.uiunits[self.gridui.grid.c_to_i(*pos)]
         if unit.visible:
             self.unitfontdisplay.blit(self.font.render(type(unit._unit).__name__, True, (255,255,255,255)), (0,0))
             self.image.blit(unit.image, (self.gridui.width*.8, self.gridui.height*.1), (0,0,64,64))
-        self.image.blit(self.tilefontdisplay, (self.gridui.width*.92, self.gridui.height*.87))
         self.image.blit(self.unitfontdisplay, (self.gridui.width*.92, self.gridui.height*.22))
+    
+    def display_tile(self, pos):
+        self.tilefontdisplay.fill((0,0,0,0))
+        tile = self.gridui.uitiles[self.gridui.grid.c_to_i(*pos)]
+        if tile.visible:
+            self.tilefontdisplay.blit(self.font.render(type(tile._tile).__name__, True, (255,255,255,255)), (0,0))
+            self.image.blit(tile.image, (self.gridui.width*.8, self.gridui.height*.95), (0,0,64,64))
+        self.image.blit(self.tilefontdisplay, (self.gridui.width*.92, self.gridui.height*.87))
+
+    def redraw(self):
+        self.image.fill((0,0,0,0))
+        if self.selectedunit:
+            for ability in self.selectedunit.abilities.values():
+                for tilepos in ability.area_of_effect:
+                    x,y = self.gridui.transform_grid_screen(*tilepos)
+                    self.image.blit(self.movementtexture, (x,y))
+        self.image.blit(self.targetmovementtexture if self.selectedunit and 
+            (self.cursorgridpos in self.selectedunit.abilities["MovementAbility"].area_of_effect)
+            else self.selectiontexture, self.cursorscreenpos)
+
+        self.display_tile(self.cursorgridpos)
+        self.display_unit(self.cursorgridpos)
 
     def update_cursor(self, position):
         self.cursorgridpos = position

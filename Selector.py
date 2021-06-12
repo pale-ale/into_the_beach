@@ -13,6 +13,7 @@ class Selector:
     
     def handle_input(self, event):
         if event.type == pygame.KEYDOWN:
+            # exit game
             if event.key == pygame.K_ESCAPE:
                 exit()
             if event.key == pygame.K_SPACE:
@@ -21,6 +22,12 @@ class Selector:
             if event.key == pygame.K_RETURN:
                 self.hud.targetselect(self.cursorposition)
                 return
+
+            # active abilities
+            if event.unicode and event.unicode in "1234":
+                self.hud.activate_ability(int(event.unicode))
+                return
+            
             # navigate the grid
             delta = (0,0)
             if event.key == pygame.K_UP:
