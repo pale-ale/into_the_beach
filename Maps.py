@@ -26,7 +26,7 @@ class MapGrasslands(Map):
             self.effectids[x] = 1
         for x in range(13, 16):
             self.effectids[x] = 1
-        self.unitids[94] = 0
-        self.unitids[95] = 0
+        self.unitids[30] = 0
+        self.unitids[31] = 0
         self.unitids[96] = 0
        

@@ -7,6 +7,7 @@ class AbilityBase:
         self.register_hooks()
         self.needstarget = False
         self.area_of_effect = set()
+        self.id = -1
     
     def targets_chosen(self, targets):
         print("Please override function targets_chosen in class", type(self).__name__)
@@ -53,6 +54,7 @@ class MovementAbility(AbilityBase):
 class PunchAbility(AbilityBase):
     def __init__(self, unit):
         super().__init__(unit)
+        self.id = 0
 
     def register_hooks(self):
         self._unit.register_hook("UserAction", self.collect_target_info)

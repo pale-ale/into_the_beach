@@ -1,3 +1,4 @@
+from typing import Text
 from Tiles import TileForest
 import pygame
 import pygame.sprite
@@ -44,10 +45,17 @@ class Hud(pygame.sprite.Sprite):
 
     def display_unit(self, pos):
         self.unitfontdisplay.fill((0,0,0,0))
-        unit = self.gridui.uiunits[self.gridui.grid.c_to_i(*pos)]
-        if unit.visible:
-            self.unitfontdisplay.blit(self.font.render(type(unit._unit).__name__, True, (255,255,255,255)), (0,0))
-            self.image.blit(unit.image, (self.gridui.width*.8, self.gridui.height*.1), (0,0,64,64))
+        unitui = self.gridui.uiunits[self.gridui.grid.c_to_i(*pos)]
+        if unitui.visible:
+            self.unitfontdisplay.blit(self.font.render(type(unitui._unit).__name__, True, (255,255,255,255)), (0,0))
+            self.image.blit(unitui.image, (self.gridui.width*.8, self.gridui.height*.1), (0,0,64,64))
+            abilities = unitui._unit.abilities.values()
+            for ability in abilities:
+                if ability.id in Textures.abilitytexturemapping.keys():
+                    abilityimage = pygame.image.load(Textures.texturepath+Textures.abilitytexturemapping[ability.id])
+                    self.image.blit(abilityimage, (self.gridui.width*.8, self.gridui.height*.1), (0,0,16,16))
+
+                print(ability.id)
         self.image.blit(self.unitfontdisplay, (self.gridui.width*.92, self.gridui.height*.22))
     
     def display_tile(self, pos):

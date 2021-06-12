@@ -21,8 +21,8 @@ class Textures:
         1:["UnitMagician1.png","UnitMagician2.png","UnitMagician3.png","UnitMagician4.png"],
         2:["UnitBarbarian1.png","UnitBarbarian2.png","UnitBarbarian3.png","UnitBarbarian4.png"]
     }
-    abailitytexturemapping = {
-        0:"AbilityPunch.png"
+    abilitytexturemapping = {
+        0:"PunchAbility.png"
     }
 
 
