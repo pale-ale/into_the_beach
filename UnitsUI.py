@@ -6,7 +6,8 @@ class UnitBaseUI(GridElementUI):
     def __init__(self, unit):
         super().__init__()
         self._unit = unit
-        self._textures = []
+        self._textures = dict()
+        self.texkey = 0
         self.visible = bool(unit)
         self.direction = 0
 

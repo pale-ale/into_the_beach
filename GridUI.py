@@ -5,7 +5,7 @@ from TilesUI import TileBaseUI
 from Units import UnitBase
 from UnitsUI import UnitBaseUI
 from Maps import Map
-from Globals import Classes
+from Globals import ClassMapping
 
 import pygame.sprite
 import pygame.transform

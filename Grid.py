@@ -3,7 +3,7 @@ from Effects import EffectBase
 from Units import UnitBase
 from Maps import Map
 
-from Globals import Classes
+from Globals import ClassMapping
 from IGridObserver import IGridObserver
 
 class Grid:
@@ -21,11 +21,11 @@ class Grid:
     def load_map(self, map:Map):
         for x, y, tileid, effectid, unitid in map.iterate_tiles():
             if tileid is not None:
-                self.add_tile(x, y, tiletype=Classes.tileclassmapping[tileid])
+                self.add_tile(x, y, tiletype=ClassMapping.tileclassmapping[tileid])
             if effectid is not None:
-                self.add_effect(x, y, effecttype=Classes.effectclassmapping[effectid])
+                self.add_effect(x, y, effecttype=ClassMapping.effectclassmapping[effectid])
             if unitid is not None:
-                self.add_unit(x, y, unittype=Classes.unitclassmapping[unitid])
+                self.add_unit(x, y, unittype=ClassMapping.unitclassmapping[unitid])
 
     def add_tile(self, x:int, y:int, tiletype:TileBase=TileBase):
         assert issubclass(tiletype, TileBase)
