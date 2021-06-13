@@ -4,6 +4,7 @@ class TileBase(GridElement):
     def __init__(self):
         super().__init__()
         self.id = 0
+        self.name = "TileDirt"
         self.onfire = False
 
     def on_enter(self, unit):
@@ -16,6 +17,7 @@ class TileBase(GridElement):
 class TileForest(TileBase):
     def __init__(self):
         super().__init__()
+        self.name = "TileForest"
         self.id = 1
 
     def on_enter(self, unit):

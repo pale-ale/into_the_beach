@@ -10,21 +10,35 @@ class Textures:
     textures = {"Units":{}, "Tiles":{}, "Effects":{}, "Other":{}}
 
     @classmethod
-    def get_spritesheet(cls, unitname:str, animname:str, orientation:str):
+    def get_unit_spritesheet(cls, unitname:str, animname:str, orientation:str):
         return cls.textures["Units"][unitname][animname][orientation]
+    
+    @classmethod
+    def get_tile_effect_spritesheet(cls, tile:bool, name:str, animname:str):
+        return cls.textures["Tiles" if tile else "Effects"][name][animname]
 
     @staticmethod
-    def get_texture_key(gridelementname:str, animname:str, orientation:str, framenumber:int=0):
-        assert orientation in ["ne","se","sw","nw"] and framenumber >= 0
-        return gridelementname + orientation.upper() + animname + framenumber + ".png"
-
-    @staticmethod 
     def loadtextures():
-        LoaderMethods.prepare_unit_texture_space(Textures.textures["Units"], "UnitBase", "Idle")
-        LoaderMethods.load_unit_textures(Textures.textures["Units"], "UnitBase", "Idle", "ne", 1)
-        LoaderMethods.load_unit_textures(Textures.textures["Units"], "UnitBase", "Idle", "se", 1)
-        LoaderMethods.load_unit_textures(Textures.textures["Units"], "UnitBase", "Idle", "sw", 1)
-        LoaderMethods.load_unit_textures(Textures.textures["Units"], "UnitBase", "Idle", "nw", 1)
+        unitdict = Textures.textures["Units"]
+        LoaderMethods.prepare_unit_texture_space(unitdict, "UnitBase", "Idle")
+        LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", "ne", 1)
+        LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", "se", 1)
+        LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", "sw", 1)
+        LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", "nw", 1)
+
+        tiledict = Textures.textures["Tiles"]
+        LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileForest", "Default")
+        LoaderMethods.load_tile_effect_textures(tiledict, "TileForest", "Default")
+        LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileDirt", "Default")
+        LoaderMethods.load_tile_effect_textures(tiledict, "TileDirt", "Default")
+        
+        effectdict = Textures.textures["Effects"]
+        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectFire", "Default")
+        LoaderMethods.load_tile_effect_textures(effectdict, "EffectFire", "Default", 2)
+        
+        effectdict = Textures.textures["Effects"]
+        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectTrees", "Default")
+        LoaderMethods.load_tile_effect_textures(effectdict, "EffectTrees", "Default")
         # Filenames are built the following way:
         #       <UnitName> + <Orientation> + <AnimationName> + <Framenumber(>=0)> + .png
         # e.g.: UnitSaucer + SW            + Idle            + 0                  + .png
@@ -41,23 +55,6 @@ class Textures:
     # Textures have the same name as the texture they point to, without the extension
     # e.g.: UnitSaucerSWIdle
 
-    tiletexturemapping = {
-        0:["TileDirt.png"],
-        1:["TileForest.png"],
-        2:["TileWater.png"]
-    }
-    effecttexturemapping = {
-        0:["EffectTrees.png"],
-        1:["EffectFire1.png", "EffectFire2.png"]
-    }
-    unittexturemapping = {
-        0:["Unit1.png","Unit2.png","Unit3.png","Unit4.png"],
-        1:["UnitMagician1.png","UnitMagician2.png","UnitMagician3.png","UnitMagician4.png"],
-        2:["UnitBarbarian1.png","UnitBarbarian2.png","UnitBarbarian3.png","UnitBarbarian4.png"]
-    }
-    unitanimationmapping = {
-        0:["UnitSaucerIdle1.png", "UnitSaucerIdle2.png"]
-    }
     abilitytexturemapping = {
         0:"MoveAbility.png",
         1:"PunchAbility.png"
@@ -74,12 +71,27 @@ class LoaderMethods():
         for orientation in ["ne","se","sw","nw"]:
             if orientation not in indict[unitname][animname].keys():
                 indict[unitname][animname][orientation] = []
+    
+    @staticmethod
+    def prepare_tile_effect_texture_space(indict:dict, name:str, animname:str):
+        if name not in indict.keys():
+            indict[name] = {}
+        if animname not in indict[name].keys():
+            indict[name][animname] = []
 
+    @staticmethod
     def load_unit_textures(indict:dict, unitname:str, animname:str, orientation:str, framecount:int=1):
         for i in range(framecount):
             path = Textures.texturepath + unitname + orientation.upper() + animname + str(i) + ".png"
             print(f"Loading '{path}'")
             indict[unitname][animname][orientation].append(pygame.image.load(path))
+   
+    @staticmethod
+    def load_tile_effect_textures(indict:dict, name:str, animname:str, framecount:int=1):
+        for i in range(framecount):
+            path = Textures.texturepath + name + animname + str(i) + ".png"
+            print(f"Loading '{path}'")
+            indict[name][animname].append(pygame.image.load(path))
 
 
 class ClassMapping:

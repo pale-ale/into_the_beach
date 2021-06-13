@@ -14,9 +14,7 @@ class TileBaseUI(GridElementUI):
     def update_texture_source(self):
         self._textures.clear()
         if self._tile:
-            path_suffixes = Textures.tiletexturemapping[self._tile.id]
-            for path_suffix in path_suffixes:
-                self._textures.append(pygame.image.load(Textures.texturepath + path_suffix).convert_alpha())
+            self._textures = Textures.get_tile_effect_spritesheet(True, self._tile.name, "Default")
         self.needsredraw = True
 
     def update_tile(self, newtile):

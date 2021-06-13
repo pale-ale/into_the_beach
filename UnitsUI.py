@@ -20,7 +20,7 @@ class UnitBaseUI(GridElementUI):
         self._unit = newunit
         self.visible = bool(newunit)
         if self._unit:
-            self._textures = Textures.get_spritesheet(self._unit.name, "Idle", self._unit.orientation)
+            self._textures = Textures.get_unit_spritesheet(self._unit.name, "Idle", self._unit.orientation)
         self.update()
 
     def get_position(self):
