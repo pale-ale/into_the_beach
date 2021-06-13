@@ -10,6 +10,7 @@ import Grid
 import GridUI
 import Tiles
 import Units
+from Globals import Textures
 from HUD import Hud
 from Maps import MapGrasslands
 from Selector import Selector
@@ -25,6 +26,8 @@ pygame.font.init()
 pygame.display.set_caption("Into The Bleach (for covid purposes only)")
 info = pygame.display.Info()
 screen = pygame.display.set_mode((info.current_w, info.current_h), pygame.NOFRAME)
+
+Textures.loadtextures()
 
 BACKGROUND = pygame.Surface((info.current_w, info.current_h))
 BACKGROUND.fill((70,20,20))

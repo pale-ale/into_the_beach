@@ -42,7 +42,7 @@ class Grid:
         self.observer.on_add_effect(neweffect)
 
     def add_unit(self, x, y, unittype:UnitBase=UnitBase):
-        newunit = unittype(grid=self, name="Frigmund Seud")
+        newunit = unittype(grid=self)
         newunit.set_position((x, y))
         self.units[self.width*y+x] = newunit
         self.observer.on_add_unit(newunit)

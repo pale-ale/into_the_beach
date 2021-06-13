@@ -1,3 +1,4 @@
+from typing import Text
 import pygame
 from GridElementUI import GridElementUI
 from Globals import Textures
@@ -11,22 +12,16 @@ class UnitBaseUI(GridElementUI):
         self.visible = bool(unit)
         self.direction = 0
 
-    def update_texture_source(self):
-        self._textures = []
-        if self._unit:
-            for suffix in Textures.unittexturemapping[self._unit.id]:
-                path = Textures.texturepath + suffix
-                self._textures.append(pygame.image.load(path).convert_alpha())
-            self.update()
-        
     def update(self):
         if self.visible:
-            self.image = self._textures[self.direction]
+            self.image = self._textures[0]
     
     def update_unit(self, newunit):
         self._unit = newunit
         self.visible = bool(newunit)
-        self.update_texture_source()
+        if self._unit:
+            self._textures = Textures.get_spritesheet(self._unit.name, "Idle", self._unit.orientation)
+        self.update()
 
     def get_position(self):
         return self._unit.get_position()

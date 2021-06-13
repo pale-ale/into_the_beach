@@ -2,7 +2,7 @@ from GridElement import GridElement
 from Abilities import MovementAbility, PunchAbility
 
 class UnitBase(GridElement):
-    def __init__(self, grid, name:str="p", hitpoints:int=5, canswim:bool=False):
+    def __init__(self, grid, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
         super().__init__()
         self.name = name
         self.hitpoints = hitpoints
@@ -10,6 +10,7 @@ class UnitBase(GridElement):
         self.grid = grid
         self.id = 0
         self.moverange = 5
+        self.orientation = "sw"
         self.actionhooks = dict()
         self.userActions ={1:None, 2:None, 3:None, 4:None}
         self.abilities = {"MovementAbility":MovementAbility(self), "PunchAbility":PunchAbility(self)}
