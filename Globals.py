@@ -1,7 +1,7 @@
 from typing import Text
 from pygame import image
 import pygame
-from Units import UnitBase
+from Units import UnitBase, UnitSaucer
 from Effects import EffectBase, EffectFire
 from Tiles import *
 
@@ -21,11 +21,12 @@ class Textures:
     def loadtextures():
         unitdict = Textures.textures["Units"]
         LoaderMethods.prepare_unit_texture_space(unitdict, "UnitBase", "Idle")
-        LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", "ne", 1)
-        LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", "se", 1)
-        LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", "sw", 1)
-        LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", "nw", 1)
-
+        [LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", o, 1)
+            for o in ["ne","se","sw","nw"]]
+        LoaderMethods.prepare_unit_texture_space(unitdict, "UnitSaucer", "Idle")
+        [LoaderMethods.load_unit_textures(unitdict, "UnitSaucer", "Idle", o, 2)
+            for o in ["sw"]]
+        
         tiledict = Textures.textures["Tiles"]
         LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileForest", "Default")
         LoaderMethods.load_tile_effect_textures(tiledict, "TileForest", "Default")
@@ -105,6 +106,7 @@ class ClassMapping:
         1:EffectFire
     }
     unitclassmapping = {
-        0:UnitBase
+        0:UnitBase,
+        1:UnitSaucer
     }
     

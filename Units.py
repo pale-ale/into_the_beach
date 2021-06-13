@@ -59,13 +59,16 @@ class UnitBase(GridElement):
         self.grid.remove_unit(*self.get_position())
 
 
+class UnitSaucer(UnitBase):
+    def __init__(self, grid, name:str="UnitSaucer"):
+        super().__init__(grid, name)
+
+
 class UnitMagician(UnitBase):
     def __init__(self, grid, name:str="m"):
         super().__init__(grid, name)
-        self.id = 1
 
 
 class UnitBarbarian(UnitBase):
     def __init__(self, grid, name:str="b"):
         super().__init__(grid, name)
-        self.id = 2

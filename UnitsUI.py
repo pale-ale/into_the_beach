@@ -14,7 +14,8 @@ class UnitBaseUI(GridElementUI):
 
     def update(self):
         if self.visible:
-            self.image = self._textures[0]
+            imageindex = int(self._unit.age % len(self._textures))
+            self.image = self._textures[imageindex]
     
     def update_unit(self, newunit):
         self._unit = newunit

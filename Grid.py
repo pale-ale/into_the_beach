@@ -94,6 +94,9 @@ class Grid:
         return [n for n in (up, right, down, left) if self.is_coord_in_bounds(*n)]
 
     def tick(self, dt:float):
+        for u in self.units:
+            if u:
+                u.tick(dt)
         for t in self.tiles:
             if t:
                 t.tick(dt)
