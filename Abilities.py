@@ -19,6 +19,7 @@ class AbilityBase:
 class MovementAbility(AbilityBase):
     def __init__(self, unit):
         super().__init__(unit)
+        self.id = 0
         #contains all the tilepositions the bound unit could move to
     
     def register_hooks(self):
@@ -54,7 +55,7 @@ class MovementAbility(AbilityBase):
 class PunchAbility(AbilityBase):
     def __init__(self, unit):
         super().__init__(unit)
-        self.id = 0
+        self.id = 1
 
     def register_hooks(self):
         self._unit.register_hook("UserAction", self.collect_target_info)

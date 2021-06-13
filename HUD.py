@@ -12,14 +12,17 @@ class Hud(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.selectedunit = None
         self.gridui = gridui
-        self.font = pygame.font.SysFont('universalisadfstd', 22)
+        self.font = pygame.font.SysFont('latinmodernmono', 15)
         self.selectiontexture = pygame.image.load(Textures.texturepath+Textures.selectionpreviewtexture)
         self.movementtexture = pygame.image.load(Textures.texturepath+Textures.movementpreviewtexture)
         self.targetmovementtexture = pygame.image.load(Textures.texturepath+Textures.targetmovementpreviewtexture)
         self.cursorgridpos = (0,0)
         self.cursorscreenpos = (0,0)
         self.tilefontdisplay = pygame.Surface((100,20))
-        self.unitfontdisplay = pygame.Surface((100,20))
+        self.unitfontdisplay = pygame.Surface((96,20))
+        self.unitimagedisplay = pygame.Surface((64,64))
+        self.abilitiesdisplay = pygame.Surface((96,20))
+        self.abilitiesnumbers = pygame.Surface((96,20))
 
     def unitselect(self, position):
         unit = self.gridui.grid.get_unit(*position)
@@ -36,27 +39,38 @@ class Hud(pygame.sprite.Sprite):
             self.selectedunit.trigger_hook("TargetSelected", [position])
             self.selectedunit.trigger_hook("OnDeselect")
             self.selectedunit = None
-            self.redraw()
+        self.redraw()
 
     def activate_ability(self, slot:int):
         if self.selectedunit:
             self.selectedunit.trigger_hook("UserAction" + str(slot))
-            self.redraw()
+        self.redraw()
 
     def display_unit(self, pos):
-        self.unitfontdisplay.fill((0,0,0,0))
+        self.unitfontdisplay.fill((60,60,60,255))
+        self.abilitiesdisplay.fill((60,60,60,255))
+        self.unitimagedisplay.fill((100,0,0,0))
+        self.abilitiesnumbers.fill((0,0,0,0))
         unitui = self.gridui.uiunits[self.gridui.grid.c_to_i(*pos)]
         if unitui.visible:
+            self.unitimagedisplay.blit(unitui.image, (0,16), (0,0,64,64))
             self.unitfontdisplay.blit(self.font.render(type(unitui._unit).__name__, True, (255,255,255,255)), (0,0))
-            self.image.blit(unitui.image, (self.gridui.width*.8, self.gridui.height*.1), (0,0,64,64))
             abilities = unitui._unit.abilities.values()
+            index = 0
+            numbers = ""
             for ability in abilities:
                 if ability.id in Textures.abilitytexturemapping.keys():
                     abilityimage = pygame.image.load(Textures.texturepath+Textures.abilitytexturemapping[ability.id])
-                    self.image.blit(abilityimage, (self.gridui.width*.8, self.gridui.height*.1), (0,0,16,16))
-
-                print(ability.id)
-        self.image.blit(self.unitfontdisplay, (self.gridui.width*.92, self.gridui.height*.22))
+                    self.abilitiesdisplay.blit(abilityimage, (16*index, 2), (0,0,16,16))
+                    numbers += str(index+1) + " "
+                    index += 1
+                if unitui._unit == self.selectedunit:
+                    numberimage = self.font.render(numbers.strip(), True, (255,255,255,255))
+                    self.abilitiesnumbers.blit(numberimage, (0,0))
+        self.image.blit(self.unitimagedisplay, (self.gridui.width*.82, self.gridui.height*.03))
+        self.image.blit(self.abilitiesnumbers, (self.gridui.width*.94+5, self.gridui.height*.22+22))
+        self.image.blit(self.abilitiesdisplay, (self.gridui.width*.94, self.gridui.height*.22))
+        self.image.blit(self.unitfontdisplay, (self.gridui.width*.94, self.gridui.height*.03))
     
     def display_tile(self, pos):
         self.tilefontdisplay.fill((0,0,0,0))
