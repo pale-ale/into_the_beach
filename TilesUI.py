@@ -3,27 +3,19 @@ import pygame.sprite
 from Globals import Textures
 from GridElementUI import GridElementUI
 from Tiles import TileBase
+from pygame.display import update
 
 class TileBaseUI(GridElementUI):
     def __init__(self, tile:TileBase, width:int=64, height:int=64):
-        super().__init__() 
-        self.visible = bool(tile)
-        self._tile = tile
-        self._textures = []
-
-    def update_texture_source(self):
-        self._textures.clear()
-        if self._tile:
-            self._textures = Textures.get_tile_effect_spritesheet(True, self._tile.name, "Default")
-        self.needsredraw = True
+        super().__init__(parentelement=tile) 
 
     def update_tile(self, newtile):
-        self._tile = newtile
-        self.update_texture_source()
+        self._parentelement = newtile
+        self.visible = bool(newtile)
+        if self._parentelement:
+            self.update_texture_source(
+                Textures.get_spritesheet("Tile", newtile.name, "Default")
+            )
 
-    def update(self):
-        if self.visible:
-            self.image = self._textures[int(self._tile.age % len(self._textures))]
-    
     def get_position(self):
-        return self._tile.get_position()
+        return self._parentelement.get_position()

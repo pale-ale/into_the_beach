@@ -19,9 +19,9 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         lefttile = self.transform_grid_world(grid.width-1, 0)
         righttile = self.transform_grid_world(0, grid.height-1)
         bottomtile = self.transform_grid_world(grid.width-1, grid.height-1)
-        self.width = righttile[0] - lefttile[0]
-        self.height = bottomtile[1]
-        self.image = pygame.surface.Surface((self.width+64,self.height+64), pygame.SRCALPHA)
+        self.width = righttile[0] - lefttile[0] + 64
+        self.height = bottomtile[1] + 64
+        self.image = pygame.surface.Surface((self.width,self.height), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.uitiles = [TileBaseUI(None) for i in range(grid.width*grid.height)]
         self.uieffects = [EffectBaseUI(None) for i in range(grid.width*grid.height)]
@@ -31,19 +31,16 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         x,y = tile.get_position()
         uitile = self.uitiles[self.grid.width*y+x]
         uitile.update_tile(tile)
-        uitile.visible = True
 
     def on_add_effect(self, effect):
         x,y = effect.get_position()
         uieffect = self.uieffects[self.grid.width*y+x]
         uieffect.update_effect(effect)
-        uieffect.visible = True
     
     def on_add_unit(self, unit):
         x,y = unit.get_position()
         uiunit = self.uiunits[self.grid.width*y+x]
         uiunit.update_unit(unit)
-        uiunit.visible = True
 
     def on_move_unit(self, x, y, targetx, targety):
         unit = self.grid.get_unit(targetx,targety)
@@ -61,16 +58,16 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         return (gridx*-32 + gridy*32, gridx*16 + gridy*16)
 
     def transform_grid_screen(self, gridx:int, gridy:int):
-        return (gridx*-32 + gridy*32 + self.width/2, gridx*16 + gridy*16)
+        return (gridx*-32 + gridy*32 + (self.width-64)/2, gridx*16 + gridy*16)
 
     def draw_group(self, gridgroup):
         for part in gridgroup:
-            part.update()
+            part.update_image()
             if part.visible:
+                part.needsredraw = False
                 partx, party = part.get_position()
                 screenx,screeny = self.transform_grid_screen(partx, party)
                 self.image.blit(part.image, (screenx, screeny), (0,0,64,64))
-                part.needsredraw = False
 
     def redraw_grid(self):
         self.draw_group(self.uitiles)

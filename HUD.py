@@ -8,7 +8,7 @@ from Globals import Textures
 class Hud(pygame.sprite.Sprite):
     def __init__(self, width, height, gridui):
         super().__init__()
-        self.image = pygame.Surface((width+64, height+64), pygame.SRCALPHA)
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.selectedunit = None
         self.gridui = gridui
@@ -54,8 +54,13 @@ class Hud(pygame.sprite.Sprite):
         unitui = self.gridui.uiunits[self.gridui.grid.c_to_i(*pos)]
         if unitui.visible:
             self.unitimagedisplay.blit(unitui.image, (0,16), (0,0,64,64))
-            self.unitfontdisplay.blit(self.font.render(type(unitui._unit).__name__, True, (255,255,255,255)), (0,0))
-            abilities = unitui._unit.abilities.values()
+            self.unitfontdisplay.blit(
+                self.font.render(
+                    type(unitui._parentelement).__name__, True, (255,255,255,255)
+                ), 
+                (0,0)
+            )
+            abilities = unitui._parentelement.abilities.values()
             index = 0
             numbers = ""
             for ability in abilities:
@@ -64,21 +69,26 @@ class Hud(pygame.sprite.Sprite):
                     self.abilitiesdisplay.blit(abilityimage, (16*index, 2), (0,0,16,16))
                     numbers += str(index+1) + " "
                     index += 1
-                if unitui._unit == self.selectedunit:
+                if unitui._parentelement == self.selectedunit:
                     numberimage = self.font.render(numbers.strip(), True, (255,255,255,255))
                     self.abilitiesnumbers.blit(numberimage, (0,0))
-        self.image.blit(self.unitimagedisplay, (self.gridui.width*.82, self.gridui.height*.03))
-        self.image.blit(self.abilitiesnumbers, (self.gridui.width*.94+5, self.gridui.height*.22+22))
-        self.image.blit(self.abilitiesdisplay, (self.gridui.width*.94, self.gridui.height*.22))
-        self.image.blit(self.unitfontdisplay, (self.gridui.width*.94, self.gridui.height*.03))
+        self.image.blit(self.unitimagedisplay, (self.gridui.width*.75, self.gridui.height*.03))
+        self.image.blit(self.unitfontdisplay, (self.gridui.width*.855, self.gridui.height*.03))
+        self.image.blit(self.abilitiesdisplay, (self.gridui.width*.855, self.gridui.height*.1))
+        self.image.blit(self.abilitiesnumbers, (self.gridui.width*.855+5, self.gridui.height*.1+22))
     
     def display_tile(self, pos):
         self.tilefontdisplay.fill((0,0,0,0))
         tile = self.gridui.uitiles[self.gridui.grid.c_to_i(*pos)]
         if tile.visible:
-            self.tilefontdisplay.blit(self.font.render(type(tile._tile).__name__, True, (255,255,255,255)), (0,0))
-            self.image.blit(tile.image, (self.gridui.width*.8, self.gridui.height*.95), (0,0,64,64))
-        self.image.blit(self.tilefontdisplay, (self.gridui.width*.92, self.gridui.height*.87))
+            self.tilefontdisplay.blit(
+                self.font.render(type(tile._parentelement).__name__, 
+                True, 
+                (255,255,255,255)), 
+                (0,0)
+            )
+            self.image.blit(tile.image, (self.gridui.width*.75, self.gridui.height*.75), (0,0,64,64))
+        self.image.blit(self.tilefontdisplay, (self.gridui.width*.85, self.gridui.height*.7))
 
     def redraw(self):
         self.image.fill((0,0,0,0))

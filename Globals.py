@@ -1,4 +1,3 @@
-from typing import Text
 from pygame import image
 import pygame
 from Units import UnitBase, UnitSaucer
@@ -10,13 +9,14 @@ class Textures:
     textures = {"Units":{}, "Tiles":{}, "Effects":{}, "Other":{}}
 
     @classmethod
-    def get_unit_spritesheet(cls, unitname:str, animname:str, orientation:str):
-        return cls.textures["Units"][unitname][animname][orientation]
+    def get_spritesheet(cls, type:str, name:str, animname:str, orientation:str="sw"):
+        if type == "Unit":
+            return cls.textures["Units"][name][animname][orientation]
+        if type == "Tile":
+            return cls.textures["Tiles"][name][animname]
+        if type == "Effect":
+            return cls.textures["Effects"][name][animname]
     
-    @classmethod
-    def get_tile_effect_spritesheet(cls, tile:bool, name:str, animname:str):
-        return cls.textures["Tiles" if tile else "Effects"][name][animname]
-
     @staticmethod
     def loadtextures():
         unitdict = Textures.textures["Units"]

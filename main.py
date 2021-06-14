@@ -29,8 +29,6 @@ screen = pygame.display.set_mode((info.current_w, info.current_h), pygame.NOFRAM
 
 Textures.loadtextures()
 
-BACKGROUND = pygame.Surface((info.current_w, info.current_h))
-BACKGROUND.fill((70,20,20))
 
 sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
@@ -45,6 +43,10 @@ grid.load_map(MapGrasslands())
 gridui.redraw_grid()
 sprites.add(gridui)
 
+BACKGROUND = pygame.Surface((gridui.width, gridui.height))
+BACKGROUND.fill((70,20,20))
+camera = pygame.Surface((gridui.width, gridui.height))
+
 hud.redraw()
 running = True
 lasttime = 0
@@ -52,10 +54,9 @@ lasttime = 0
 while running:
     dt = clock.tick(FPS)/1000.0
     gridui.tick(dt)
-    screen.blit(BACKGROUND, (0,0))
-    cursorPos = gridui.transform_grid_screen(*selector.cursorposition)
-    gridui.image.blit(hud.image, (0, 0))
-    pygame.transform.scale(gridui.image,(info.current_w,info.current_h), screen)
+    camera.blit(gridui.image, (0,0))
+    camera.blit(hud.image, (0,0))
+    pygame.transform.scale(camera,(info.current_w,info.current_h), screen)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
