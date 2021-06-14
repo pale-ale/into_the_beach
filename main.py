@@ -27,7 +27,7 @@ pygame.display.set_caption("Into The Bleach (for covid purposes only)")
 info = pygame.display.Info()
 screen = pygame.display.set_mode((info.current_w, info.current_h), pygame.NOFRAME)
 
-Textures.loadtextures()
+Textures.load_textures()
 
 
 sprites = pygame.sprite.Group()

@@ -43,6 +43,7 @@ class Hud(pygame.sprite.Sprite):
 
     def activate_ability(self, slot:int):
         if self.selectedunit:
+            self.selectedunit.trigger_hook("OnDeselect")
             self.selectedunit.trigger_hook("UserAction" + str(slot))
         self.redraw()
 
@@ -65,7 +66,8 @@ class Hud(pygame.sprite.Sprite):
             numbers = ""
             for ability in abilities:
                 if ability.id in Textures.abilitytexturemapping.keys():
-                    abilityimage = pygame.image.load(Textures.texturepath+Textures.abilitytexturemapping[ability.id])
+                    abilityimage = pygame.image.load(
+                        Textures.texturepath+Textures.abilitytexturemapping[ability.id])
                     self.abilitiesdisplay.blit(abilityimage, (16*index, 2), (0,0,16,16))
                     numbers += str(index+1) + " "
                     index += 1

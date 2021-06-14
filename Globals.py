@@ -18,7 +18,7 @@ class Textures:
             return cls.textures["Effects"][name][animname]
     
     @staticmethod
-    def loadtextures():
+    def load_textures():
         unitdict = Textures.textures["Units"]
         LoaderMethods.prepare_unit_texture_space(unitdict, "UnitBase", "Idle")
         [LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", o, 1)
@@ -58,7 +58,8 @@ class Textures:
 
     abilitytexturemapping = {
         0:"MoveAbility.png",
-        1:"PunchAbility.png"
+        1:"PunchAbility.png",
+        2:"PunchAbility.png"
     }
 
 

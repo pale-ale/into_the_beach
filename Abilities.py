@@ -72,3 +72,40 @@ class PunchAbility(AbilityBase):
         if target in self.area_of_effect:
             self._unit.attack(target, 10)
             self.area_of_effect.clear()
+
+    
+class RangedAttackAbility(AbilityBase):
+    def __init__(self, unit):
+        super().__init__(unit)
+        self.id = 2
+
+    def register_hooks(self):
+        self._unit.register_hook("UserAction", self.collect_target_info)
+        self._unit.register_hook("OnDeselect", lambda: self.area_of_effect.clear())
+    
+    def get_ordinals(self):
+        x,y = self._unit.get_position()
+        width = self._unit.grid.width
+        height = self._unit.grid.height
+        ordinals = set()
+        for i in range (width):
+            ordinals.add((i,y))
+        for i in range (height):
+            ordinals.add((x,i))
+        ordinals.remove((x,y))
+        return ordinals
+
+    def collect_target_info(self):
+        pos = self._unit.get_position()
+        self.area_of_effect = self.get_ordinals()
+        self.area_of_effect = self.area_of_effect.difference(self._unit.grid.get_ordinal_neighbors(*pos))
+        self._unit.register_hook("TargetSelected", self.targets_chosen)
+
+    def targets_chosen(self, targets):
+        assert len(targets) == 1
+        target = targets[0]
+        if target in self.area_of_effect:
+            self._unit.attack(target, 10)
+            self.area_of_effect.clear()
+
+    

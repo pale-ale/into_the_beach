@@ -1,5 +1,5 @@
 from GridElement import GridElement
-from Abilities import MovementAbility, PunchAbility
+from Abilities import MovementAbility, PunchAbility, RangedAttackAbility
 
 class UnitBase(GridElement):
     def __init__(self, grid, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
@@ -13,7 +13,10 @@ class UnitBase(GridElement):
         self.orientation = "sw"
         self.actionhooks = dict()
         self.userActions ={1:None, 2:None, 3:None, 4:None}
-        self.abilities = {"MovementAbility":MovementAbility(self), "PunchAbility":PunchAbility(self)}
+        self.abilities = {"MovementAbility":MovementAbility(self), 
+            "PunchAbility":PunchAbility(self),
+            "RangedAttackAbility":RangedAttackAbility(self)
+        }
     
     def register_hook(self, hookname, function):
         if hookname == "UserAction":
