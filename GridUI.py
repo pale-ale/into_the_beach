@@ -73,3 +73,5 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.draw_group(self.uitiles)
         self.draw_group(self.uieffects)
         self.draw_group(self.uiunits)
+    
+    

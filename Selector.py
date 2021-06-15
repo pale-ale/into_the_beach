@@ -1,3 +1,4 @@
+from random import randint
 from typing import Text
 import pygame
 
@@ -27,6 +28,10 @@ class Selector:
             if event.unicode and event.unicode in "1234":
                 self.hud.activate_ability(int(event.unicode))
                 return
+
+            # end turn / next turn
+            if event.key == pygame.K_n:
+                self.grid.update_player_turn(randint(12,13))
             
             # navigate the grid
             delta = (0,0)

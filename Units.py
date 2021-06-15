@@ -9,6 +9,8 @@ class UnitBase(GridElement):
         self.canswim = canswim
         self.grid = grid
         self.id = 0
+        self.owningplayerid = None
+        self.myturn = False
         self.moverange = 5
         self.orientation = "sw"
         self.actionhooks = dict()
@@ -17,6 +19,7 @@ class UnitBase(GridElement):
             "PunchAbility":PunchAbility(self),
             "RangedAttackAbility":RangedAttackAbility(self)
         }
+        self.register_hook("OnStartTurn", self.on_start_turn)
     
     def register_hook(self, hookname, function):
         if hookname == "UserAction":
@@ -60,6 +63,12 @@ class UnitBase(GridElement):
     def dying(self):
         print("I died :(")
         self.grid.remove_unit(*self.get_position())
+    
+    def set_owner(self, ownerplayerid):
+        self.owningplayerid = ownerplayerid
+
+    def on_start_turn(self, playerid):
+        self.myturn = playerid == self.owningplayerid
 
 
 class UnitSaucer(UnitBase):

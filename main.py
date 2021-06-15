@@ -5,15 +5,12 @@ import pygame.transform
 import pygame.display
 import pygame.font
 
-import Effects
-import Grid
 import GridUI
-import Tiles
-import Units
 from Globals import Textures
 from HUD import Hud
-from Maps import MapGrasslands
 from Selector import Selector
+from Player import Player
+from Game import Game
 
 
 BLACK = [0, 0, 0] 
@@ -29,17 +26,22 @@ screen = pygame.display.set_mode((info.current_w, info.current_h), pygame.NOFRAM
 
 Textures.load_textures()
 
-
 sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 
-grid = Grid.Grid()
-gridui = GridUI.GridUI(grid)
-hud = Hud(gridui.width, gridui.height, gridui)
-grid.update_observer(gridui)
-selector = Selector(grid, hud)
+player1 = Player(12)
+player2 = Player(13)
+game = Game()
+newsession = game.create_session()
+newsession.add_player(player1)
+newsession.add_player(player2)
+gridui = GridUI.GridUI(newsession._grid)
+newsession._grid.update_observer(gridui)
+newsession.start_game()
 
-grid.load_map(MapGrasslands())
+hud = Hud(gridui.width, gridui.height, gridui)
+selector = Selector(newsession._grid, hud)
+
 gridui.redraw_grid()
 sprites.add(gridui)
 
@@ -49,7 +51,8 @@ camera = pygame.Surface((gridui.width, gridui.height))
 
 hud.redraw()
 running = True
-lasttime = 0
+
+gridui.grid.update_player_turn(player1.id)
 
 while running:
     dt = clock.tick(FPS)/1000.0

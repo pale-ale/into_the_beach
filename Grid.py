@@ -6,6 +6,8 @@ from Maps import Map
 from Globals import ClassMapping
 from IGridObserver import IGridObserver
 
+import random
+
 class Grid:
     def __init__(self, observer=None, width:int=10, height:int=10):
         self.height = width
@@ -17,6 +19,11 @@ class Grid:
 
     def update_observer(self, observer):
         self.observer = observer
+    
+    def update_player_turn(self, newturnplayerid):
+        for unit in self.units:
+            if unit:
+                unit.trigger_hook("OnStartTurn", newturnplayerid)
 
     def load_map(self, map:Map):
         for x, y, tileid, effectid, unitid in map.iterate_tiles():
@@ -32,20 +39,24 @@ class Grid:
         newtile = tiletype()
         newtile.set_position((x,y))
         self.tiles[self.width*y+x] = newtile
-        self.observer.on_add_tile(newtile)
+        if self.observer:
+            self.observer.on_add_tile(newtile)
 
     def add_effect(self, x:int, y:int, effecttype:EffectBase=EffectBase):
         assert issubclass(effecttype, EffectBase)
         neweffect = effecttype()
         neweffect.set_position((x,y))
         self.effects[self.width*y+x] = neweffect
-        self.observer.on_add_effect(neweffect)
+        if self.observer:
+            self.observer.on_add_effect(neweffect)
 
     def add_unit(self, x, y, unittype:UnitBase=UnitBase):
         newunit = unittype(grid=self)
         newunit.set_position((x, y))
+        newunit.set_owner(random.randint(12,13))
         self.units[self.width*y+x] = newunit
-        self.observer.on_add_unit(newunit)
+        if self.observer:
+            self.observer.on_add_unit(newunit)
 
     def remove_unit(self, x:int, y:int):
         if self.is_space_empty(False, x, y):
