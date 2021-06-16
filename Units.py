@@ -1,5 +1,5 @@
 from GridElement import GridElement
-from Abilities import MovementAbility, PunchAbility, RangedAttackAbility
+from Abilities import MovementAbility, PunchAbility, RangedAttackAbility, PushAbility
 
 class UnitBase(GridElement):
     def __init__(self, grid, ownerid, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
@@ -16,7 +16,8 @@ class UnitBase(GridElement):
         self.userActions ={1:None, 2:None, 3:None, 4:None}
         self.abilities = {"MovementAbility":MovementAbility(self), 
             "PunchAbility":PunchAbility(self),
-            "RangedAttackAbility":RangedAttackAbility(self)
+            "RangedAttackAbility":RangedAttackAbility(self),
+            "PushAbility":PushAbility(self)
         }
     
     def register_hook(self, hookname, function):

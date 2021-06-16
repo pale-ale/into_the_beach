@@ -55,7 +55,8 @@ class Textures:
     abilitytexturemapping = {
         0:"MoveAbility.png",
         1:"PunchAbility.png",
-        2:"PunchAbility.png"
+        2:"PunchAbility.png",
+        3:"PunchAbility.png"
     }
 
 class LoaderMethods():
