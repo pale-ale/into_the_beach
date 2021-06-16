@@ -16,16 +16,16 @@ class Grid:
         self.units = [None]*width*height
         self.effects = [None]*width*height
         self.observer = observer
-        self.turnplayerid = None
+        self.phase = 0
 
     def update_observer(self, observer):
         self.observer = observer
     
-    def update_player_turn(self, newturnplayerid):
-        self.turnplayerid = newturnplayerid
+    def update_phase(self, newphase):
+        self.phase = newphase
         for unit in self.units:
             if unit:
-                unit.trigger_hook("OnStartTurn", newturnplayerid)
+                unit.trigger_hook("OnUpdatePhase", newphase)
 
     def load_map(self, map:Map):
         for x, y, tileid, effectid, unitid in map.iterate_tiles():

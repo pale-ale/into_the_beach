@@ -1,3 +1,4 @@
+from EPhases import PHASES
 from random import randint
 from typing import Text
 import pygame
@@ -29,10 +30,11 @@ class Selector:
                 self.hud.activate_ability(int(event.unicode))
                 return
 
-            # end turn / next turn
+            # end phase / next phase
             if event.key == pygame.K_n:
-                tpid = self.grid.turnplayerid
-                self.grid.update_player_turn((tpid + 1)%2 + 12)
+                currentphase = self.grid.phase
+                maxphase = len(PHASES)
+                self.grid.update_phase((currentphase+1)%maxphase)
             
             # navigate the grid
             delta = (0,0)

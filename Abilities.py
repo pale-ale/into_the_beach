@@ -1,38 +1,40 @@
+from hashlib import new
 from EPhases import PHASES
 import random
 
 class AbilityBase:
     def __init__(self, unit):
         self._unit = unit
-        self.register_hooks()
         self.needstarget = False
         self.area_of_effect = set()
+        self.selected_targets = list()
         self.id = -1
-        self.phase = random.randint(0,3) #PHASES.keys()...
+        self.phase = 2
+        self.register_hooks()
+    
+    def activate(self):
+        print("Activated", type(self).__name__)
     
     def targets_chosen(self, targets):
-        print("Please override function targets_chosen in class", type(self).__name__)
+        print("Targets chosen for " + type(self).__name__ + ":", targets)
 
     def register_hooks(self):
-        self._unit.register_hook("OnStartPrephase", self.on_start_prephase)
-        self._unit.register_hook("OnStartBattlephase", self.on_start_battlephase)
-        print("Please override function register_hooks in class", type(self).__name__)
+        self._unit.register_hook("OnUpdatePhase", self.on_update_phase)
     
-    def on_start_prephase(self):
-        print("Please override function on_start_prephase in class", type(self).__name__)
+    def on_update_phase(self, newphase):
+        if newphase == self.phase:
+            self.activate()
     
-    def on_start_battlephase(self):
-        print("Please override function on_start_battlephase in class", type(self).__name__)
-
-
 
 class MovementAbility(AbilityBase):
     def __init__(self, unit):
         super().__init__(unit)
         self.id = 0
+        self.phase = 0
         #contains all the tilepositions the bound unit could move to
     
     def register_hooks(self):
+        super().register_hooks()
         self._unit.register_hook("UserAction", self.collect_movement_info)
         self._unit.register_hook("OnDeselect", lambda: self.area_of_effect.clear())
 
@@ -55,19 +57,29 @@ class MovementAbility(AbilityBase):
         self._unit.register_hook("TargetSelected", self.targets_chosen)
     
     def targets_chosen(self, targets):
-        assert len(targets) == 1
+        assert isinstance(targets, list) and len(targets) == 1
         target = targets[0]
         if target in self.area_of_effect:
-            fromxy = self._unit.get_position()
-            self._unit.grid.move_unit(*fromxy, *target)
+            self.selected_targets = [target]
+            
+    def activate(self):
+        super().activate()
+        fromxy = self._unit.get_position()
+        if len(self.selected_targets) > 0:
+            self._unit.grid.move_unit(*fromxy, *self.selected_targets[0])
 
 
 class PunchAbility(AbilityBase):
     def __init__(self, unit):
         super().__init__(unit)
         self.id = 1
+        self.phase = 2
+    
+    def on_update_phase(self, newphase):
+        super().on_update_phase(newphase)
 
     def register_hooks(self):
+        super().register_hooks()
         self._unit.register_hook("UserAction", self.collect_target_info)
         self._unit.register_hook("OnDeselect", lambda: self.area_of_effect.clear())
     
@@ -80,7 +92,12 @@ class PunchAbility(AbilityBase):
         assert len(targets) == 1
         target = targets[0]
         if target in self.area_of_effect:
-            self._unit.attack(target, 10)
+            self.selected_targets = [target]
+            
+    def activate(self):
+        super().activate()
+        if len(self.selected_targets) > 0:
+            self._unit.attack(self.selected_targets[0], 10)
             self.area_of_effect.clear()
 
     
@@ -88,8 +105,10 @@ class RangedAttackAbility(AbilityBase):
     def __init__(self, unit):
         super().__init__(unit)
         self.id = 2
+        self.phase = 2
 
     def register_hooks(self):
+        super().register_hooks()
         self._unit.register_hook("UserAction", self.collect_target_info)
         self._unit.register_hook("OnDeselect", lambda: self.area_of_effect.clear())
     
@@ -115,7 +134,11 @@ class RangedAttackAbility(AbilityBase):
         assert len(targets) == 1
         target = targets[0]
         if target in self.area_of_effect:
-            self._unit.attack(target, 10)
+            self.selected_targets = [target]
             self.area_of_effect.clear()
 
+    def activate(self):
+        super().activate()
+        if len(self.selected_targets) > 0:
+            self._unit.attack(self.selected_targets[0], 10)
     

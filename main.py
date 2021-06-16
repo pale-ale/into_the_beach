@@ -52,8 +52,6 @@ camera = pygame.Surface((gridui.width, gridui.height))
 hud.redraw()
 running = True
 
-gridui.grid.update_player_turn(player1.id)
-
 while running:
     dt = clock.tick(FPS)/1000.0
     gridui.tick(dt)
