@@ -118,4 +118,33 @@ class RangedAttackAbility(AbilityBase):
             self._unit.attack(target, 10)
             self.area_of_effect.clear()
 
+
+class PushAbility(AbilityBase):
+    def __init__(self, unit):
+        super().__init__(unit)
+        self.id = 3
+
+    def register_hooks(self):
+        self._unit.register_hook("UserAction", self.collect_target_info)
+        self._unit.register_hook("OnDeselect", lambda: self.area_of_effect.clear())
     
+    def collect_target_info(self):
+        pos = self._unit.get_position()
+        self.area_of_effect = self._unit.grid.get_ordinal_neighbors(*pos)
+        self._unit.register_hook("TargetSelected", self.targets_chosen)
+
+    def targets_chosen(self, targets):
+        assert len(targets) == 1
+        target = targets[0]
+        unitposx, unitposy = self._unit.get_position()
+        newpos = [2*target[0]-unitposx, 2*target[1]-unitposy]
+        if target in self.area_of_effect:
+            if not self._unit.grid.is_coord_in_bounds(*newpos) or \
+            self._unit.grid.is_space_empty(True ,*newpos):
+                pass # unit falls from grid
+            else:
+                if self._unit.grid.is_space_empty(False ,*newpos):
+                    self._unit.grid.move_unit(*target, *newpos)
+                else:
+                    pass # units collide
+        self.area_of_effect.clear()
