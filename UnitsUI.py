@@ -20,8 +20,3 @@ class UnitBaseUI(GridElementUI):
 
     def get_position(self):
         return self._parentelement.get_position()
-
-    def update_image(self):
-        if self.visible:
-            super().update_image(not self._parentelement.myturn)
-      
