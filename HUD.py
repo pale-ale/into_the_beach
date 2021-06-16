@@ -3,7 +3,8 @@ from Tiles import TileForest
 import pygame
 import pygame.sprite
 import pygame.font
-from Globals import Textures
+from TextureManager import Textures
+from EPhases import PHASES
 
 class Hud(pygame.sprite.Sprite):
     def __init__(self, width, height, gridui):
@@ -18,11 +19,19 @@ class Hud(pygame.sprite.Sprite):
         self.targetmovementtexture = pygame.image.load(Textures.texturepath+Textures.targetmovementpreviewtexture)
         self.cursorgridpos = (0,0)
         self.cursorscreenpos = (0,0)
+        # display for unit's stats and icons/numbers of abilities
         self.tilefontdisplay = pygame.Surface((100,20))
         self.unitfontdisplay = pygame.Surface((96,20))
         self.unitimagedisplay = pygame.Surface((64,64))
         self.abilitiesdisplay = pygame.Surface((96,20))
-        self.abilitiesnumbers = pygame.Surface((96,20))
+        self.abilitiesnumbers = pygame.Surface((96,20)).convert_alpha()
+        # colorful display of ability phasees
+        self.phasemarkersdisplay = pygame.Surface((96,20))
+        self.phasemarkers = []
+        for color in ((75,75,255,255), (50,255,50,255), (255,50,50,255), (255,200,0,255)):
+            marker = pygame.Surface((16,20))
+            marker.fill(color)
+            self.phasemarkers.append(marker)
 
     def unitselect(self, position):
         unit = self.gridui.grid.get_unit(*position)
@@ -52,6 +61,7 @@ class Hud(pygame.sprite.Sprite):
         self.abilitiesdisplay.fill((60,60,60,255))
         self.unitimagedisplay.fill((100,0,0,0))
         self.abilitiesnumbers.fill((0,0,0,0))
+        self.phasemarkersdisplay.fill((0,0,0,0))
         unitui = self.gridui.uiunits[self.gridui.grid.c_to_i(*pos)]
         if unitui.visible:
             self.unitimagedisplay.blit(unitui.image, (0,16), (0,0,64,64))
@@ -69,6 +79,8 @@ class Hud(pygame.sprite.Sprite):
                     abilityimage = pygame.image.load(
                         Textures.texturepath+Textures.abilitytexturemapping[ability.id])
                     self.abilitiesdisplay.blit(abilityimage, (16*index, 2), (0,0,16,16))
+                    self.phasemarkersdisplay.blit(self.phasemarkers[ability.phase], 
+                        (16*index, 0))
                     numbers += str(index+1) + " "
                     index += 1
                 if unitui._parentelement == self.selectedunit:
@@ -77,7 +89,8 @@ class Hud(pygame.sprite.Sprite):
         self.image.blit(self.unitimagedisplay, (self.gridui.width*.75, self.gridui.height*.03))
         self.image.blit(self.unitfontdisplay, (self.gridui.width*.855, self.gridui.height*.03))
         self.image.blit(self.abilitiesdisplay, (self.gridui.width*.855, self.gridui.height*.1))
-        self.image.blit(self.abilitiesnumbers, (self.gridui.width*.855+5, self.gridui.height*.1+22))
+        self.image.blit(self.phasemarkersdisplay, (self.gridui.width*.855,self.gridui.height*.1+18))
+        self.image.blit(self.abilitiesnumbers, (self.gridui.width*.855+5, self.gridui.height*.1+18))
     
     def display_tile(self, pos):
         self.tilefontdisplay.fill((0,0,0,0))

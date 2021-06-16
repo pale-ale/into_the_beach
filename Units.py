@@ -2,15 +2,14 @@ from GridElement import GridElement
 from Abilities import MovementAbility, PunchAbility, RangedAttackAbility
 
 class UnitBase(GridElement):
-    def __init__(self, grid, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
+    def __init__(self, grid, ownerid, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
         super().__init__()
         self.name = name
         self.hitpoints = hitpoints
         self.canswim = canswim
         self.grid = grid
         self.id = 0
-        self.owningplayerid = None
-        self.myturn = False
+        self.ownerid = ownerid
         self.moverange = 5
         self.orientation = "sw"
         self.actionhooks = dict()
@@ -19,7 +18,6 @@ class UnitBase(GridElement):
             "PunchAbility":PunchAbility(self),
             "RangedAttackAbility":RangedAttackAbility(self)
         }
-        self.register_hook("OnStartTurn", self.on_start_turn)
     
     def register_hook(self, hookname, function):
         if hookname == "UserAction":
@@ -64,26 +62,16 @@ class UnitBase(GridElement):
         print("I died :(")
         self.grid.remove_unit(*self.get_position())
     
-    def set_owner(self, ownerplayerid):
-        self.owningplayerid = ownerplayerid
-
-    def on_start_turn(self, playerid):
-        self.myturn = playerid == self.owningplayerid
-        print(playerid, self.owningplayerid)
-        if self.myturn:
-            print("yay")
-
-
 class UnitSaucer(UnitBase):
-    def __init__(self, grid, name:str="UnitSaucer"):
-        super().__init__(grid, name)
+    def __init__(self, grid, ownerid, name:str="UnitSaucer"):
+        super().__init__(grid, ownerid, name)
 
 
 class UnitMagician(UnitBase):
-    def __init__(self, grid, name:str="m"):
-        super().__init__(grid, name)
+    def __init__(self, grid, ownerid, name:str="m"):
+        super().__init__(grid, ownerid, name)
 
 
 class UnitBarbarian(UnitBase):
-    def __init__(self, grid, name:str="b"):
-        super().__init__(grid, name)
+    def __init__(self, grid, ownerid, name:str="b"):
+        super().__init__(grid, ownerid, name)

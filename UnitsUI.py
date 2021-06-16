@@ -1,7 +1,6 @@
-from typing import Text
 import pygame
 from GridElementUI import GridElementUI
-from Globals import Textures
+from TextureManager import Textures
 
 class UnitBaseUI(GridElementUI):
     def __init__(self, unit):

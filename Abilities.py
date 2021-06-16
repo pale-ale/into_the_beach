@@ -1,5 +1,5 @@
-from typing import Iterable
-
+from EPhases import PHASES
+import random
 
 class AbilityBase:
     def __init__(self, unit):
@@ -8,12 +8,22 @@ class AbilityBase:
         self.needstarget = False
         self.area_of_effect = set()
         self.id = -1
+        self.phase = random.randint(0,3) #PHASES.keys()...
     
     def targets_chosen(self, targets):
         print("Please override function targets_chosen in class", type(self).__name__)
 
     def register_hooks(self):
+        self._unit.register_hook("OnStartPrephase", self.on_start_prephase)
+        self._unit.register_hook("OnStartBattlephase", self.on_start_battlephase)
         print("Please override function register_hooks in class", type(self).__name__)
+    
+    def on_start_prephase(self):
+        print("Please override function on_start_prephase in class", type(self).__name__)
+    
+    def on_start_battlephase(self):
+        print("Please override function on_start_battlephase in class", type(self).__name__)
+
 
 
 class MovementAbility(AbilityBase):

@@ -6,11 +6,11 @@ import pygame.display
 import pygame.font
 
 import GridUI
-from Globals import Textures
 from HUD import Hud
 from Selector import Selector
 from Player import Player
 from Game import Game
+from TextureManager import Textures
 
 
 BLACK = [0, 0, 0] 

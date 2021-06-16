@@ -1,6 +1,6 @@
 from Effects import EffectBase
 from GridElementUI import GridElementUI
-from Globals import Textures
+from TextureManager import Textures
 
 class EffectBaseUI(GridElementUI):
     def __init__(self, effect:EffectBase, width:int=64, height:int=64):  

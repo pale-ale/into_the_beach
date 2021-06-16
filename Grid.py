@@ -53,9 +53,8 @@ class Grid:
             self.observer.on_add_effect(neweffect)
 
     def add_unit(self, x, y, unittype:UnitBase=UnitBase):
-        newunit = unittype(grid=self)
+        newunit = unittype(self, random.randint(12,13))
         newunit.set_position((x, y))
-        newunit.set_owner(random.randint(12,13))
         self.units[self.width*y+x] = newunit
         if self.observer:
             self.observer.on_add_unit(newunit)
