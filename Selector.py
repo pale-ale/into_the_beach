@@ -31,7 +31,8 @@ class Selector:
 
             # end turn / next turn
             if event.key == pygame.K_n:
-                self.grid.update_player_turn(randint(12,13))
+                tpid = self.grid.turnplayerid
+                self.grid.update_player_turn((tpid + 1)%2 + 12)
             
             # navigate the grid
             delta = (0,0)

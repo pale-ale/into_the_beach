@@ -69,6 +69,9 @@ class UnitBase(GridElement):
 
     def on_start_turn(self, playerid):
         self.myturn = playerid == self.owningplayerid
+        print(playerid, self.owningplayerid)
+        if self.myturn:
+            print("yay")
 
 
 class UnitSaucer(UnitBase):

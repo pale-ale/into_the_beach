@@ -16,11 +16,13 @@ class Grid:
         self.units = [None]*width*height
         self.effects = [None]*width*height
         self.observer = observer
+        self.turnplayerid = None
 
     def update_observer(self, observer):
         self.observer = observer
     
     def update_player_turn(self, newturnplayerid):
+        self.turnplayerid = newturnplayerid
         for unit in self.units:
             if unit:
                 unit.trigger_hook("OnStartTurn", newturnplayerid)
