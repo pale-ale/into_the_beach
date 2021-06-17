@@ -18,24 +18,18 @@ class Selector:
             # exit game
             if event.key == pygame.K_ESCAPE:
                 exit()
-            if event.key == pygame.K_SPACE:
+            if event.key == pygame.K_SPACE and self.hud.gridui.grid.phase == 0:
                 self.hud.unitselect(self.cursorposition)
                 return
-            if event.key == pygame.K_RETURN:
+            if event.key == pygame.K_RETURN and self.hud.gridui.grid.phase == 0:
                 self.hud.targetselect(self.cursorposition)
                 return
 
             # active abilities
-            if event.unicode and event.unicode in "1234":
+            if event.unicode and event.unicode in "1234" and self.hud.gridui.grid.phase == 0:
                 self.hud.activate_ability(int(event.unicode))
                 return
 
-            # end phase / next phase
-            if event.key == pygame.K_n:
-                currentphase = self.grid.phase
-                maxphase = len(PHASES)
-                self.grid.update_phase((currentphase+1)%maxphase)
-            
             # navigate the grid
             delta = (0,0)
             if event.key == pygame.K_UP:

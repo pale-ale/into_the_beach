@@ -55,6 +55,8 @@ while running:
     gridui.tick(dt)
     camera.blit(hud.background, (0,0))
     camera.blit(gridui.image, (0,0))
+    hud.tick(dt)
+    hud.redraw()
     camera.blit(hud.image, (0,0))
     pygame.transform.scale(camera,(info.current_w,info.current_h), screen)
     for event in pygame.event.get():

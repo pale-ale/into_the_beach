@@ -13,6 +13,7 @@ class Hud(pygame.sprite.Sprite):
         self.background = pygame.Surface((gridui.width, gridui.height))
         self.rect = self.image.get_rect()
         self.selectedunit = None
+        self.timer = 10.0
         self.gridui = gridui
         self.font = pygame.font.SysFont('latinmodernmono', 15)
         self.selectiontexture = pygame.image.load(Textures.texturepath+Textures.selectionpreviewtexture)
@@ -26,6 +27,7 @@ class Hud(pygame.sprite.Sprite):
         self.unitimagedisplay = pygame.Surface((64,64))
         self.abilitiesdisplay = pygame.Surface((96,20))
         self.abilitiesnumbers = pygame.Surface((96,20)).convert_alpha()
+        self.timerdisplay = pygame.Surface((96,20)).convert_alpha()
         # colorful display of ability phasees
         self.phasemarkersdisplay = pygame.Surface((96,20))
         self.phasemarkers = []
@@ -118,6 +120,8 @@ class Hud(pygame.sprite.Sprite):
         self.image.blit(self.targetmovementtexture if self.selectedunit and 
             (self.cursorgridpos in self.selectedunit.abilities["MovementAbility"].area_of_effect)
             else self.selectiontexture, self.cursorscreenpos)
+        self.timerdisplay = self.font.render(str(round(self.timer, 1)), True, (255,255,255,255))
+        self.image.blit(self.timerdisplay, (10,10))
 
         self.display_tile(self.cursorgridpos)
         self.display_unit(self.cursorgridpos)
@@ -126,3 +130,16 @@ class Hud(pygame.sprite.Sprite):
         self.cursorgridpos = position
         self.cursorscreenpos = self.gridui.transform_grid_screen(*position)
         self.redraw()
+    
+    def tick(self, dt:float):
+        grid = self.gridui.grid
+        if grid.phase == 0:
+            if self.timer <= 0:
+                grid.advance_phase()
+                self.timer = 10.0
+            else:
+                self.timer -= dt
+            return
+        if grid.everybody_done():
+            grid.advance_phase()
+        

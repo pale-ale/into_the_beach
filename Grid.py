@@ -4,6 +4,7 @@ from Units import UnitBase
 from Maps import Map
 
 from Globals import ClassMapping
+from EPhases import PHASES
 from IGridObserver import IGridObserver
 
 import random
@@ -21,11 +22,20 @@ class Grid:
     def update_observer(self, observer):
         self.observer = observer
     
-    def update_phase(self, newphase):
-        self.phase = newphase
+    def everybody_done(self):
+        everybodydone = True
+        for group in (self.units, self.tiles, self.effects):    
+            for member in group:
+                if member and not member.done:
+                    return False
+        return True
+
+    def advance_phase(self):
+        maxphase = len(PHASES)
+        self.phase = (self.phase+1)%maxphase
         for unit in self.units:
             if unit:
-                unit.trigger_hook("OnUpdatePhase", newphase)
+                unit.trigger_hook("OnUpdatePhase", self.phase)
 
     def load_map(self, map:Map):
         for x, y, tileid, effectid, unitid in map.iterate_tiles():
