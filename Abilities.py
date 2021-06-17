@@ -30,7 +30,7 @@ class MovementAbility(AbilityBase):
     def __init__(self, unit):
         super().__init__(unit)
         self.id = 0
-        self.phase = 0
+        self.phase = 3
         #contains all the tilepositions the bound unit could move to
     
     def register_hooks(self):

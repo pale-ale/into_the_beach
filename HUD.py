@@ -10,6 +10,7 @@ class Hud(pygame.sprite.Sprite):
     def __init__(self, width, height, gridui):
         super().__init__()
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        self.background = pygame.Surface((gridui.width, gridui.height))
         self.rect = self.image.get_rect()
         self.selectedunit = None
         self.gridui = gridui
@@ -106,6 +107,8 @@ class Hud(pygame.sprite.Sprite):
         self.image.blit(self.tilefontdisplay, (self.gridui.width*.85, self.gridui.height*.7))
 
     def redraw(self):
+        bgcolors = [(25,25,150,255), (25,150,25,255), (150,25,25,255), (150,100,0,255)]
+        self.background.fill(bgcolors[self.gridui.grid.phase])
         self.image.fill((0,0,0,0))
         if self.selectedunit:
             for ability in self.selectedunit.abilities.values():

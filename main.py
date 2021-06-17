@@ -45,8 +45,6 @@ selector = Selector(newsession._grid, hud)
 gridui.redraw_grid()
 sprites.add(gridui)
 
-BACKGROUND = pygame.Surface((gridui.width, gridui.height))
-BACKGROUND.fill((70,20,20))
 camera = pygame.Surface((gridui.width, gridui.height))
 
 hud.redraw()
@@ -55,6 +53,7 @@ running = True
 while running:
     dt = clock.tick(FPS)/1000.0
     gridui.tick(dt)
+    camera.blit(hud.background, (0,0))
     camera.blit(gridui.image, (0,0))
     camera.blit(hud.image, (0,0))
     pygame.transform.scale(camera,(info.current_w,info.current_h), screen)
