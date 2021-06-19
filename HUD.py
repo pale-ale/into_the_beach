@@ -49,13 +49,10 @@ class Hud(pygame.sprite.Sprite):
     def targetselect(self, position):
         if self.selectedunit:
             self.selectedunit.trigger_hook("TargetSelected", [position])
-            self.selectedunit.trigger_hook("OnDeselect")
-            self.selectedunit = None
         self.redraw()
 
     def activate_ability(self, slot:int):
         if self.selectedunit:
-            self.selectedunit.trigger_hook("OnDeselect")
             self.selectedunit.trigger_hook("UserAction" + str(slot))
         self.redraw()
 

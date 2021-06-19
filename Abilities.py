@@ -1,7 +1,3 @@
-from hashlib import new
-from EPhases import PHASES
-import random
-
 class AbilityBase:
     def __init__(self, unit):
         self._unit = unit
@@ -11,6 +7,9 @@ class AbilityBase:
         self.id = -1
         self.phase = 2
         self.register_hooks()
+    
+    def tick(self, dt):
+        pass
     
     def activate(self):
         print("Activated", type(self).__name__)
@@ -31,42 +30,66 @@ class MovementAbility(AbilityBase):
         super().__init__(unit)
         self.id = 0
         self.phase = 3
-        #contains all the tilepositions the bound unit could move to
+        self.timinginfo = unit.age
+        self.durationperstep = .5 #seconds
+        self.path = []
     
     def register_hooks(self):
         super().register_hooks()
-        self._unit.register_hook("UserAction", self.collect_movement_info)
-        self._unit.register_hook("OnDeselect", lambda: self.area_of_effect.clear())
-
-    def collect_movement_info(self):     
-        self.area_of_effect = set()
-        newtiles = {self._unit.get_position()}
-        tmpnewtiles = set()
-        rangefromstart = 0
-        while rangefromstart <= self._unit.moverange:
-            self.area_of_effect = self.area_of_effect.union(newtiles)
-            while len(newtiles) > 0:
-                newtilepos = newtiles.pop()
-                self.area_of_effect.add(newtilepos)
-                for neighborpos in self._unit.grid.get_ordinal_neighbors(*newtilepos):
-                    if neighborpos not in self.area_of_effect:
-                        tmpnewtiles.add(neighborpos)
-            newtiles = tmpnewtiles.copy()
-            tmpnewtiles.clear()
-            rangefromstart += 1
+        self._unit.register_hook("UserAction", self.collect_movement_info2)
+        #self._unit.register_hook("OnDeselect", lambda: self.area_of_effect.clear())
         self._unit.register_hook("TargetSelected", self.targets_chosen)
+
+    def collect_movement_info2(self):
+        self.area_of_effect = set()
+        pathwithself = [self._unit.get_position()] + self.path
+        if len(self.path) <= self._unit.moverange:
+            for neighbor in self._unit.grid.get_ordinal_neighbors(*pathwithself[-1]):
+                self.area_of_effect.add(neighbor)
+
+    # def collect_movement_info(self):     
+    #     self.area_of_effect = set()
+    #     newtiles = {self._unit.get_position()}
+    #     tmpnewtiles = set()
+    #     rangefromstart = 0
+    #     while rangefromstart <= self._unit.moverange:
+    #         self.area_of_effect = self.area_of_effect.union(newtiles)
+    #         while len(newtiles) > 0:
+    #             newtilepos = newtiles.pop()
+    #             self.area_of_effect.add(newtilepos)
+    #             for neighborpos in self._unit.grid.get_ordinal_neighbors(*newtilepos):
+    #                 if neighborpos not in self.area_of_effect:
+    #                     tmpnewtiles.add(neighborpos)
+    #         newtiles = tmpnewtiles.copy()
+    #         tmpnewtiles.clear()
+    #         rangefromstart += 1
+    #     self._unit.register_hook("TargetSelected", self.targets_chosen)
     
     def targets_chosen(self, targets):
         assert isinstance(targets, list) and len(targets) == 1
         target = targets[0]
         if target in self.area_of_effect:
-            self.selected_targets = [target]
-            
+            if target not in self.path:
+                self.path.append(target)
+                self.area_of_effect.add(target)
+                self.selected_targets.append(target)
+        self.collect_movement_info2()
+    
+    def tick(self, dt):
+        if not self._unit.done:
+            if self.timinginfo + self.durationperstep <= self._unit.age:
+                fromxy = self._unit.get_position()
+                if len(self.selected_targets) > 0:
+                    self._unit.grid.move_unit(*fromxy, *self.selected_targets[0])
+                    self.selected_targets.pop(0)
+                    self.timinginfo += self.durationperstep
+                else:
+                    self._unit.done = True
+
     def activate(self):
         super().activate()
-        fromxy = self._unit.get_position()
-        if len(self.selected_targets) > 0:
-            self._unit.grid.move_unit(*fromxy, *self.selected_targets[0])
+        self.timinginfo = self._unit.age
+        self._unit.done = False
 
 
 class PunchAbility(AbilityBase):

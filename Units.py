@@ -20,6 +20,11 @@ class UnitBase(GridElement):
             "PushAbility":PushAbility(self)
         }
     
+    def tick(self, dt: float):
+        super().tick(dt)
+        for ability in self.abilities.values():
+            ability.tick(dt)
+    
     def register_hook(self, hookname, function):
         if hookname == "UserAction":
             for slot in self.userActions.keys():
