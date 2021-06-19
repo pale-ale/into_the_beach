@@ -61,7 +61,7 @@ class MovementAbility(AbilityBase):
         self.area_of_effect = set()
         pathwithself = [self._unit.get_position()] + self.path
         if len(self.path) <= self._unit.moverange:
-            pos = self._unit.get_position()
+            pos = self._unit.get_position() if len(pathwithself)<2 else pathwithself[-1]
             for neighbor in self._unit.grid.get_ordinal_neighbors(*pathwithself[-1]):
                 delta = (neighbor[0] - pos[0], neighbor[1] - pos[1])
                 coordwithpreviewid = (neighbor, PREVIEWS[delta])
@@ -70,13 +70,13 @@ class MovementAbility(AbilityBase):
     def targets_chosen(self, targets):
         assert isinstance(targets, list) and len(targets) == 1
         target = targets[0]
-        if target in self.area_of_effect:
+        positions = [x[0] for x in self.area_of_effect]
+        if target in positions:
             if target not in self.path:
                 self.path.append(target)
                 self.area_of_effect.add(target)
                 self.selected_targets.append(target)
-                print("adding target")
-        self.collect_movement_info()
+                self.collect_movement_info()
     
     def tick(self, dt):
         if not self._unit.done and self.timinginfo + self.durationperstep <= self._unit.age:
@@ -108,13 +108,14 @@ class PunchAbility(AbilityBase):
     def on_select_ability(self):
         super().on_select_ability()
         pos = self._unit.get_position()
-        self.area_of_effect = self._unit.grid.get_ordinal_neighbors(*pos)
-        self._unit.register_hook("TargetSelected", self.targets_chosen)
+        for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
+            self.area_of_effect.add((neighbor, PREVIEWS[0]))
 
     def targets_chosen(self, targets):
         assert len(targets) == 1
         target = targets[0]
-        if target in self.area_of_effect:
+        positions = [x[0] for x in self.area_of_effect]
+        if target in positions:
             self.selected_targets = [target]
             self.area_of_effect.clear()
             
@@ -133,11 +134,6 @@ class RangedAttackAbility(AbilityBase):
         self.id = 2
         self.phase = 2
 
-    def register_hooks(self):
-        super().register_hooks()
-        self._unit.register_hook("UserAction", self.collect_target_info)
-        self._unit.register_hook("OnDeselect", lambda: self.area_of_effect.clear())
-    
     def get_ordinals(self):
         x,y = self._unit.get_position()
         width = self._unit.grid.width
@@ -150,16 +146,19 @@ class RangedAttackAbility(AbilityBase):
         ordinals.remove((x,y))
         return ordinals
 
-    def collect_target_info(self):
+    def on_select_ability(self):
+        super().on_select_ability()
         pos = self._unit.get_position()
-        self.area_of_effect = self.get_ordinals()
-        self.area_of_effect = self.area_of_effect.difference(self._unit.grid.get_ordinal_neighbors(*pos))
-        self._unit.register_hook("TargetSelected", self.targets_chosen)
+        coords = self.get_ordinals()
+        coords = coords.difference(self._unit.grid.get_ordinal_neighbors(*pos))
+        for coord in coords:
+            self.area_of_effect.add((coord, PREVIEWS[0]))
 
     def targets_chosen(self, targets):
         assert len(targets) == 1
         target = targets[0]
-        if target in self.area_of_effect:
+        positions = [x[0] for x in self.area_of_effect]
+        if target in positions:
             self.selected_targets = [target]
             self.area_of_effect.clear()
 
@@ -175,21 +174,27 @@ class PushAbility(AbilityBase):
         super().__init__(unit)
         self.id = 3
 
-    def register_hooks(self):
-        self._unit.register_hook("UserAction", self.collect_target_info)
-        self._unit.register_hook("OnDeselect", lambda: self.area_of_effect.clear())
-    
-    def collect_target_info(self):
-        pos = self._unit.get_position()
-        self.area_of_effect = self._unit.grid.get_ordinal_neighbors(*pos)
-        self._unit.register_hook("TargetSelected", self.targets_chosen)
-
     def targets_chosen(self, targets):
+        super().targets_chosen(targets)
         assert len(targets) == 1
+        positions = [x[0] for x in self.area_of_effect]
         target = targets[0]
-        unitposx, unitposy = self._unit.get_position()
-        newpos = [2*target[0]-unitposx, 2*target[1]-unitposy]
-        if target in self.area_of_effect:
+        if target in positions:
+            self.selected_targets = [target]
+        self.area_of_effect.clear()
+
+    def on_select_ability(self):
+        super().on_select_ability()
+        pos = self._unit.get_position()
+        for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
+            self.area_of_effect.add((neighbor, PREVIEWS[0]))
+
+    def activate(self):
+        super().activate()
+        if len(self.selected_targets):
+            unitposx, unitposy = self._unit.get_position()
+            target = self.selected_targets[0]
+            newpos = [2*target[0]-unitposx, 2*target[1]-unitposy]
             if not self._unit.grid.is_coord_in_bounds(*newpos) or \
             self._unit.grid.is_space_empty(True ,*newpos):
                 pass # unit falls from grid
@@ -197,8 +202,9 @@ class PushAbility(AbilityBase):
                 if self._unit.grid.is_space_empty(False ,*newpos):
                     self._unit.grid.move_unit(*target, *newpos)
                 else:
-                    targetint = self._unit.grid.c_to_i(target)
-                    self._unit.grid.units(targetint).on_take_damage(1, "collosion")
-                    newposint = self._unit.grid.c_to_i(newpos)
-                    self._unit.grid.units(newposint).on_take_damage(1, "collosion")
+                    targetint = self._unit.grid.c_to_i(*target)
+                    self._unit.grid.units[targetint].on_take_damage(1, "collision")
+                    newposint = self._unit.grid.c_to_i(*newpos)
+                    self._unit.grid.units[newposint].on_take_damage(1, "collision")
+        self.selected_targets.clear()
         self.area_of_effect.clear()

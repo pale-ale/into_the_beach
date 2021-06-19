@@ -60,7 +60,7 @@ class Textures:
         0:"MoveAbility.png",
         1:"PunchAbility.png",
         2:"PunchAbility.png",
-        3:"PunchAbility.png"
+        3:"PushAbility.png"
     }
 
 class LoaderMethods():
