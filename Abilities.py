@@ -1,3 +1,5 @@
+from Enums import PREVIEWS
+
 class AbilityBase:
     def __init__(self, unit):
         self._unit = unit
@@ -59,8 +61,11 @@ class MovementAbility(AbilityBase):
         self.area_of_effect = set()
         pathwithself = [self._unit.get_position()] + self.path
         if len(self.path) <= self._unit.moverange:
+            pos = self._unit.get_position()
             for neighbor in self._unit.grid.get_ordinal_neighbors(*pathwithself[-1]):
-                self.area_of_effect.add(neighbor)
+                delta = (neighbor[0] - pos[0], neighbor[1] - pos[1])
+                coordwithpreviewid = (neighbor, PREVIEWS[delta])
+                self.area_of_effect.add(coordwithpreviewid)
 
     def targets_chosen(self, targets):
         assert isinstance(targets, list) and len(targets) == 1
@@ -96,10 +101,6 @@ class PunchAbility(AbilityBase):
         self.id = 1
         self.phase = 2
     
-    def register_hooks(self):
-        super().register_hooks()
-        self._unit.register_hook("UserAction", self.on_select_ability)
-
     def on_deselect_abilities(self):
         super().on_deselect_abilities()
         self.area_of_effect.clear()

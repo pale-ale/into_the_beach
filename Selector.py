@@ -1,6 +1,3 @@
-from EPhases import PHASES
-from random import randint
-from typing import Text
 import pygame
 
 class Selector:
@@ -34,12 +31,12 @@ class Selector:
             delta = (0,0)
             if event.key == pygame.K_UP:
                 delta = (-1,0)
-            elif event.key == pygame.K_LEFT:
-                delta = (0,-1)
-            elif event.key == pygame.K_DOWN:
-                delta = (1,0)
             elif event.key == pygame.K_RIGHT:
                 delta = (0,1)
+            elif event.key == pygame.K_DOWN:
+                delta = (1,0)
+            elif event.key == pygame.K_LEFT:
+                delta = (0,-1)
             testpos = self.add(self.cursorposition, delta)
             if self.grid.is_coord_in_bounds(*testpos):
                 self.cursorposition = testpos

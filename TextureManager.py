@@ -1,4 +1,5 @@
 import pygame
+from Enums import PREVIEWS
 
 class Textures:
     texturepath = "./sprites/"
@@ -44,10 +45,13 @@ class Textures:
         # load the files into textures once, then use them all over the game
         # this could take a while, depending on the amount of image data to load
 
-    selectionpreviewtexture = "SelectionPreview.png"
-    movementpreviewtexture = "MovementPreview.png"
-    targetmovementpreviewtexture = "TargetMovementPreview.png"
-    
+        for previewfilename in PREVIEWS.values():
+            #since the same name is used multiple times
+            if previewfilename not in Textures.textures["Other"]:
+                Textures.textures["Other"][previewfilename] = pygame.image.load(
+                    Textures.texturepath + previewfilename
+                )
+                print("loading preview", Textures.texturepath + previewfilename)
 
     # Textures have the same name as the texture they point to, without the extension
     # e.g.: UnitSaucerSWIdle

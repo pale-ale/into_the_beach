@@ -4,7 +4,7 @@ from Units import UnitBase
 from Maps import Map
 
 from Globals import ClassMapping
-from EPhases import PHASES
+from Enums import PHASES
 from IGridObserver import IGridObserver
 
 import random

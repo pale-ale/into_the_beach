@@ -4,7 +4,7 @@ import pygame
 import pygame.sprite
 import pygame.font
 from TextureManager import Textures
-from EPhases import PHASES
+from Enums import PHASES, PREVIEWS
 
 class Hud(pygame.sprite.Sprite):
     def __init__(self, width, height, gridui):
@@ -16,9 +16,6 @@ class Hud(pygame.sprite.Sprite):
         self.timer = 10.0
         self.gridui = gridui
         self.font = pygame.font.SysFont('latinmodernmono', 15)
-        self.selectiontexture = pygame.image.load(Textures.texturepath+Textures.selectionpreviewtexture)
-        self.movementtexture = pygame.image.load(Textures.texturepath+Textures.movementpreviewtexture)
-        self.targetmovementtexture = pygame.image.load(Textures.texturepath+Textures.targetmovementpreviewtexture)
         self.cursorgridpos = (0,0)
         self.cursorscreenpos = (0,0)
         # display for unit's stats and icons/numbers of abilities
@@ -116,14 +113,15 @@ class Hud(pygame.sprite.Sprite):
         self.image.fill((0,0,0,0))
         if self.selectedunitui and self.selectedunitui._parentelement:
             for ability in self.selectedunitui._parentelement.abilities.values():
-                for tilepos in ability.area_of_effect:
-                    x,y = self.gridui.transform_grid_screen(*tilepos)
-                    self.image.blit(self.movementtexture, (x,y))
+                for previewinfo in ability.area_of_effect:
+                    pos, previewid = previewinfo
+                    x,y = self.gridui.transform_grid_screen(*pos)
+                    self.image.blit(Textures.textures["Other"][previewid], (x,y))
         if self.selectedunitui and self.selectedunitui._parentelement and\
         self.cursorgridpos in self.selectedunitui._parentelement.abilities["MovementAbility"].area_of_effect:
-            self.image.blit(self.targetmovementtexture, self.cursorscreenpos)
+            self.image.blit(Textures.textures["Other"][PREVIEWS[2]], self.cursorscreenpos)
         else:
-            self.image.blit(self.selectiontexture, self.cursorscreenpos)
+            self.image.blit(Textures.textures["Other"][PREVIEWS[0]], self.cursorscreenpos)
         self.timerdisplay = self.font.render(str(round(self.timer, 1)), True, (255,255,255,255))
         self.image.blit(self.timerdisplay, (10,10))
 
