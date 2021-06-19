@@ -44,8 +44,8 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
 
     def on_move_unit(self, x, y, targetx, targety):
         unit = self.grid.get_unit(targetx,targety)
-        self.uiunits[self.grid.width*targety+targetx].update_unit(unit)
         self.uiunits[self.grid.width*y+x].update_unit(None)
+        self.uiunits[self.grid.width*targety+targetx].update_unit(unit)
 
     def on_remove_unit(self, x, y):
         self.uiunits[self.grid.c_to_i(x,y)].update_unit(None)

@@ -21,13 +21,17 @@ class GridElementUI(pygame.sprite.Sprite):
         self._textures = source
         self.update_image()
         self.needsredraw = True
+        self.animframe = -1
 
     def update_image(self):
         if self.visible:
-            newanimframe = int(self._parentelement.age % len(self._textures))
+            newanimframe = int(self._parentelement.age) % len(self._textures)
             if self.animframe != newanimframe:
                 self.image = self._textures[newanimframe]
                 self.animframe = newanimframe
                 self.needsredraw = True
                 return True
         return False
+    
+    def get_position(self):
+        return self._parentelement.get_position()
