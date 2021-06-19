@@ -53,6 +53,9 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
     def tick(self, dt:float):
         self.grid.tick(dt)
         self.redraw_grid()
+    
+    def get_unitui(self, x:int, y:int):
+        return self.uiunits[self.grid.width*y+x]
 
     def transform_grid_world(self, gridx:int, gridy:int):
         return (gridx*-32 + gridy*32, gridx*16 + gridy*16)

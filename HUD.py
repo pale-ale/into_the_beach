@@ -12,7 +12,7 @@ class Hud(pygame.sprite.Sprite):
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         self.background = pygame.Surface((gridui.width, gridui.height))
         self.rect = self.image.get_rect()
-        self.selectedunit = None
+        self.selectedunitui = None
         self.timer = 10.0
         self.gridui = gridui
         self.font = pygame.font.SysFont('latinmodernmono', 15)
@@ -37,23 +37,26 @@ class Hud(pygame.sprite.Sprite):
             self.phasemarkers.append(marker)
 
     def unitselect(self, position):
-        unit = self.gridui.grid.get_unit(*position)
-        if unit != self.selectedunit:
-            if self.selectedunit:
-                self.selectedunit.trigger_hook("OnDeselect")
-        if unit:
-            self.selectedunit = unit
-            unit.trigger_hook("OnSelect")
+        unitui = self.gridui.get_unitui(*position)
+        if unitui != self.selectedunitui:
+            if self.selectedunitui and self.selectedunitui._parentelement:
+                self.selectedunitui._parentelement.trigger_hook("OnDeselectUnit")
+        if unitui and unitui._parentelement:
+            self.selectedunitui = unitui
+            unitui._parentelement.trigger_hook("OnSelect")
+        else:
+            self.selectedunitui = None
         self.redraw()
     
     def targetselect(self, position):
-        if self.selectedunit:
-            self.selectedunit.trigger_hook("TargetSelected", [position])
+        if self.selectedunitui:
+            self.selectedunitui._parentelement.trigger_hook("TargetSelected", [position])
         self.redraw()
 
     def activate_ability(self, slot:int):
-        if self.selectedunit:
-            self.selectedunit.trigger_hook("UserAction" + str(slot))
+        if self.selectedunitui:
+            self.selectedunitui._parentelement.trigger_hook("OnDeselectAbilities")
+            self.selectedunitui._parentelement.trigger_hook("UserAction" + str(slot))
         self.redraw()
 
     def display_unit(self, pos):
@@ -63,6 +66,8 @@ class Hud(pygame.sprite.Sprite):
         self.abilitiesnumbers.fill((0,0,0,0))
         self.phasemarkersdisplay.fill((0,0,0,0))
         unitui = self.gridui.uiunits[self.gridui.grid.c_to_i(*pos)]
+        if not unitui._parentelement and self.selectedunitui:
+            unitui = self.selectedunitui
         if unitui.visible:
             self.unitimagedisplay.blit(unitui.image, (0,16), (0,0,64,64))
             self.unitfontdisplay.blit(
@@ -83,7 +88,7 @@ class Hud(pygame.sprite.Sprite):
                         (16*index, 0))
                     numbers += str(index+1) + " "
                     index += 1
-                if unitui._parentelement == self.selectedunit:
+                if unitui == self.selectedunitui:
                     numberimage = self.font.render(numbers.strip(), True, (255,255,255,255))
                     self.abilitiesnumbers.blit(numberimage, (0,0))
         self.image.blit(self.unitimagedisplay, (self.gridui.width*.75, self.gridui.height*.03))
@@ -109,14 +114,16 @@ class Hud(pygame.sprite.Sprite):
         bgcolors = [(25,25,150,255), (25,150,25,255), (150,25,25,255), (150,100,0,255)]
         self.background.fill(bgcolors[self.gridui.grid.phase])
         self.image.fill((0,0,0,0))
-        if self.selectedunit:
-            for ability in self.selectedunit.abilities.values():
+        if self.selectedunitui and self.selectedunitui._parentelement:
+            for ability in self.selectedunitui._parentelement.abilities.values():
                 for tilepos in ability.area_of_effect:
                     x,y = self.gridui.transform_grid_screen(*tilepos)
                     self.image.blit(self.movementtexture, (x,y))
-        self.image.blit(self.targetmovementtexture if self.selectedunit and 
-            (self.cursorgridpos in self.selectedunit.abilities["MovementAbility"].area_of_effect)
-            else self.selectiontexture, self.cursorscreenpos)
+        if self.selectedunitui and self.selectedunitui._parentelement and\
+        self.cursorgridpos in self.selectedunitui._parentelement.abilities["MovementAbility"].area_of_effect:
+            self.image.blit(self.targetmovementtexture, self.cursorscreenpos)
+        else:
+            self.image.blit(self.selectiontexture, self.cursorscreenpos)
         self.timerdisplay = self.font.render(str(round(self.timer, 1)), True, (255,255,255,255))
         self.image.blit(self.timerdisplay, (10,10))
 
