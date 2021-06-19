@@ -120,7 +120,8 @@ class PunchAbility(AbilityBase):
     def activate(self):
         super().activate()
         if len(self.selected_targets) > 0:
-            self._unit.attack(self.selected_targets[0], 10)
+            damage = [self._unit.baseattack["physical"], "physical"]
+            self._unit.attack(self.selected_targets[0], *damage)
             self.area_of_effect.clear()
             self.selected_targets.clear()
 
@@ -164,7 +165,8 @@ class RangedAttackAbility(AbilityBase):
     def activate(self):
         super().activate()
         if len(self.selected_targets) > 0:
-            self._unit.attack(self.selected_targets[0], 10)
+            damage = [self._unit.baseattack["physical"], "physical"]
+            self._unit.attack(self.selected_targets[0], *damage)
     
 
 class PushAbility(AbilityBase):
@@ -194,5 +196,8 @@ class PushAbility(AbilityBase):
                 if self._unit.grid.is_space_empty(False ,*newpos):
                     self._unit.grid.move_unit(*target, *newpos)
                 else:
-                    pass # units collide
+                    targetint = self._unit.grid.c_to_i(target)
+                    self._unit.grid.units(targetint).on_take_damage(1, "collosion")
+                    newposint = self._unit.grid.c_to_i(newpos)
+                    self._unit.grid.units(newposint).on_take_damage(1, "collosion")
         self.area_of_effect.clear()

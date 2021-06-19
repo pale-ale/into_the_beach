@@ -6,6 +6,8 @@ class UnitBase(GridElement):
         super().__init__()
         self.name = name
         self.hitpoints = hitpoints
+        self.defense = {"physical": 0, "magical": 0, "collision": 0}
+        self.baseattack = {"physical": 10, "magical": 0}
         self.canswim = canswim
         self.grid = grid
         self.id = 0
@@ -55,12 +57,13 @@ class UnitBase(GridElement):
         print("I drowned :(")
         self.grid.remove_unit(*self.pos)
 
-    def attack(self, target, damage:int):
+    def attack(self, target, damage:int, damagetype:str):
         if self.grid.get_unit(*target):
-            self.grid.units[self.grid.width*(target[1]) + target[0]].on_take_damage(damage)
+            self.grid.units[self.grid.width*(target[1]) + target[0]].on_take_damage(damage, damagetype)
     
-    def on_take_damage(self, damage:int):
-        self.hitpoints -= damage
+    def on_take_damage(self, damage:int, damagetype:str):
+        reduceddamage = damage - self.defense[damagetype]
+        self.hitpoints -= (abs(reduceddamage)+reduceddamage)/2
         if self.hitpoints <= 0:
             self.dying()
     
