@@ -6,6 +6,7 @@ class AbilityBase:
         self.needstarget = False
         self.area_of_effect = set()
         self.selected_targets = list()
+        self.selected = False
         self.id = -1
         self.phase = 2
         self.register_hooks()
@@ -14,16 +15,25 @@ class AbilityBase:
         pass
 
     def on_select_ability(self):
-        print("Selected", type(self).__name__)
+        if not self.selected:
+            self.selected = True
+            print("Selected", type(self).__name__)
     
     def on_deselect_abilities(self):
-        print("Deselected", type(self).__name__)
+        if self.selected:
+            self.selected = False
+            print("Deselected", type(self).__name__)
     
     def activate(self):
         print("Activated", type(self).__name__)
     
     def targets_chosen(self, targets):
-        print("Targets chosen for " + type(self).__name__ + ":", targets)
+        if self.selected:
+            print("Targets chosen for " + type(self).__name__ + ":", targets)
+    
+    def on_update_cursor(self, newcursorpos):
+        if self.selected:
+            print("User moved cursor to", newcursorpos)
 
     def register_hooks(self):
         self._unit.register_hook("UserAction", self.on_select_ability)
@@ -31,6 +41,7 @@ class AbilityBase:
         self._unit.register_hook("OnDeselectAbilities", self.on_deselect_abilities)
         self._unit.register_hook("OnDeselectUnit", self.on_deselect_abilities)
         self._unit.register_hook("OnUpdatePhase", self.on_update_phase)
+        self._unit.register_hook("OnUpdateCursor", self.on_update_cursor)
     
     def on_update_phase(self, newphase):
         if newphase == self.phase:
@@ -52,10 +63,11 @@ class MovementAbility(AbilityBase):
     
     def on_select_ability(self):
         super().on_select_ability()
-        self.path.clear()
-        self.area_of_effect.clear()
-        self.selected_targets.clear()
-        self.collect_movement_info()
+        if  self.selected:
+            self.path.clear()
+            self.area_of_effect.clear()
+            self.selected_targets.clear()
+            self.collect_movement_info()
 
     def collect_movement_info(self):
         self.area_of_effect = set()
@@ -68,15 +80,22 @@ class MovementAbility(AbilityBase):
                 self.area_of_effect.add(coordwithpreviewid)
 
     def targets_chosen(self, targets):
+        super().targets_chosen(targets)
         assert isinstance(targets, list) and len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
         if target in positions:
-            if target not in self.path:
+            pathwithself = [self._unit.get_position()] + self.path
+            if target != pathwithself[-1]:
                 self.path.append(target)
                 self.area_of_effect.add(target)
                 self.selected_targets.append(target)
                 self.collect_movement_info()
+    
+    def on_update_cursor(self, newcursorpos):
+        super().on_update_cursor(newcursorpos)
+        if self.selected:
+            self.targets_chosen([newcursorpos])
     
     def tick(self, dt):
         if not self._unit.done and self.timinginfo + self.durationperstep <= self._unit.age:

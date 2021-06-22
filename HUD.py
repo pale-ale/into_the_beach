@@ -1,3 +1,4 @@
+from UnitsUI import UnitBaseUI
 from typing import Text
 from Tiles import TileForest
 import pygame
@@ -5,6 +6,7 @@ import pygame.sprite
 import pygame.font
 from TextureManager import Textures
 from Enums import PHASES, PREVIEWS
+from Units import UnitBase
 
 class Hud(pygame.sprite.Sprite):
     def __init__(self, width, height, gridui):
@@ -12,7 +14,7 @@ class Hud(pygame.sprite.Sprite):
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         self.background = pygame.Surface((gridui.width, gridui.height))
         self.rect = self.image.get_rect()
-        self.selectedunitui = None
+        self.selectedunitui:UnitBaseUI = None
         self.timer = 10.0
         self.gridui = gridui
         self.font = pygame.font.SysFont('latinmodernmono', 15)
@@ -54,7 +56,7 @@ class Hud(pygame.sprite.Sprite):
         if self.selectedunitui:
             self.selectedunitui._parentelement.trigger_hook("OnDeselectAbilities")
             self.selectedunitui._parentelement.trigger_hook("UserAction" + str(slot))
-        self.redraw()
+            self.redraw()
 
     def display_unit(self, pos):
         self.unitfontdisplay.fill((60,60,60,255))
@@ -131,6 +133,8 @@ class Hud(pygame.sprite.Sprite):
     def update_cursor(self, position):
         self.cursorgridpos = position
         self.cursorscreenpos = self.gridui.transform_grid_screen(*position)
+        if self.selectedunitui:
+            self.selectedunitui._parentelement.trigger_hook("OnUpdateCursor", position)
         self.redraw()
     
     def tick(self, dt:float):
