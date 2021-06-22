@@ -102,6 +102,7 @@ class Grid:
         return self.width*y + x
 
     def is_coord_in_bounds(self, x, y):
+        assert isinstance(x,int) and isinstance(y,int)
         return x>=0 and x<self.width and y>=0 and y<self.height
 
     def is_space_empty(self, tiles:bool, x:int, y:int)->bool:
