@@ -133,7 +133,7 @@ class Hud(pygame.sprite.Sprite):
     def update_cursor(self, position):
         self.cursorgridpos = position
         self.cursorscreenpos = self.gridui.transform_grid_screen(*position)
-        if self.selectedunitui:
+        if self.selectedunitui and self.selectedunitui._parentelement:
             self.selectedunitui._parentelement.trigger_hook("OnUpdateCursor", position)
         self.redraw()
     

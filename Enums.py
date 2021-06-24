@@ -14,12 +14,16 @@ PREVIEWS = {
     (-1,0):"MovementPreviewArrowNE.png",
     #Straight1: NE <-> SW
     (-1,0,-1,0):"MovementPreviewStraight1.png",
+    (-1,0,1,0):"MovementPreviewStraight1.png",
     (1,0,1,0):"MovementPreviewStraight1.png",
+    (1,0,-1,0):"MovementPreviewStraight1.png",
     4:"MovementPreviewArrowSE.png",
     (0,1):"MovementPreviewArrowSE.png",
     #Straight2: NW <-> SE
-    (0,1,0,1):"MovementPreviewStraight2.png",
+    (0,-11,0,1):"MovementPreviewStraight2.png",
     (0,-1,0,-1):"MovementPreviewStraight2.png",
+    (0,1,0,1):"MovementPreviewStraight2.png",
+    (0,1,0,-1):"MovementPreviewStraight2.png",
     5:"MovementPreviewArrowSW.png",
     (1,0):"MovementPreviewArrowSW.png",
     6:"MovementPreviewArrowNW.png",

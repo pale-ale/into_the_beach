@@ -81,28 +81,29 @@ class MovementAbility(AbilityBase):
 
     def targets_chosen(self, targets):
         super().targets_chosen(targets)
+        if len(self.path) > self._unit.moverange:
+            return
         assert isinstance(targets, list) and len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
         if target in positions:
             pathwithself = [self._unit.get_position()] + self.path
             pos = pathwithself[-1]
+            print(target, pathwithself)
             if target != pathwithself[-1]:
                 #SE = 0,1, NE = -1,0
                 if len(pathwithself)>1:
                     prevdelta = (pathwithself[-1][0] - pathwithself[-2][0],
                         pathwithself[-1][1] - pathwithself[-2][1])
                     delta = (target[0] - pos[0], target[1] - pos[1], *prevdelta)
-                    print("Path", self.area_of_effect)
                     self.area_of_effect[-5] = (self.area_of_effect[-5][0], PREVIEWS[delta])
                     self.selected_targets[-1] = (self.selected_targets[-1][0], PREVIEWS[delta])
-                    print("Set", self.area_of_effect[-5], delta)
                 else:
                     prevdelta = (target[0] - pos[0], target[1] - pos[1])
                     delta = (target[0] - pos[0], target[1] - pos[1], *prevdelta)
-                self.selected_targets.append((target, PREVIEWS[delta]))
+                self.selected_targets.append((target, PREVIEWS[1]))
                 self.path.append(target)
-                self.area_of_effect.append((target, PREVIEWS[delta]))
+                self.area_of_effect.append((target, PREVIEWS[1]))
                 self.collect_movement_info()
     
     def on_update_cursor(self, newcursorpos):
