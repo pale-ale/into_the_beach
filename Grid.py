@@ -13,6 +13,8 @@ class Grid:
     def __init__(self, observer=None, width:int=10, height:int=10):
         self.height = width
         self.width = height
+        self.phasetime = 0
+        self.gametime = 0
         self.tiles = [None]*width*height
         self.units = [None]*width*height
         self.effects = [None]*width*height
@@ -30,57 +32,61 @@ class Grid:
                     return False
         return True
 
+    def update_unit_movement(self):
+        movingunits = []
+        obstacles = []
+        #filter units that cannot move
+        for unit in self.units:
+            if unit:
+                if not "MovementAbility" in unit.abilities.keys() or \
+                len(unit.abilities["MovementAbility"].selected_targets) == 0:
+                    obstacles.append(unit.get_position())
+                    unit.done = True
+                else:
+                    movingunits.append(unit)
+        if len(movingunits) > 0:
+            nextpositions = {} #position:[units that want to go here]
+            # remove units whose path is already exhausted
+            # and add their positions into obstacles
+            for unit in movingunits[:]:
+                path = unit.abilities["MovementAbility"].selected_targets
+                if len(path) == 0:
+                    movingunits.remove(unit)
+                    unit.done = True
+                    obstacles.append(unit.get_position())
+            # add each unit and their next move to the dict
+            # and remove first path element
+            for unit in movingunits[:]:
+                nextpos = unit.abilities["MovementAbility"].selected_targets.pop(0)[0]
+                if nextpos in obstacles:
+                    movingunits.remove(unit)
+                    unit.done = True
+                    obstacles.append(unit.get_position())
+                if nextpos in nextpositions.keys():
+                    nextpositions[nextpos].append(unit)
+                else:
+                    nextpositions[nextpos] = [unit]
+            # if multiple units are registered for the same tile at
+            # the same time, both are stopped and turned into obstacles
+            for position in nextpositions.keys():
+                units = nextpositions[position]
+                if len(units) > 1:
+                    for unit in units:
+                        if unit in movingunits:
+                            movingunits.remove(unit)
+                            obstacles.append(unit.get_position())
+                            unit.done = True
+                elif len(units) == 1:
+                    self.move_unit(*units[0].get_position(), *position)
+
+
     def advance_phase(self):
         maxphase = len(PHASES)
         self.phase = (self.phase+1)%maxphase
+        self.phasetime = self.gametime
         for unit in self.units:
             if unit:
                 unit.trigger_hook("OnUpdatePhase", self.phase)
-        if self.phase == 3:
-            movingunits = []
-            obstacles = []
-            #filter units that cannot move
-            for unit in self.units:
-                if unit:
-                    if not "MovementAbility" in unit.abilities.keys() or \
-                    len(unit.abilities["MovementAbility"].selected_targets) == 0:
-                        obstacles.append(unit.get_position())
-                    else:
-                        movingunits.append(unit)
-            while len(movingunits) > 0:
-                nextpositions = {} #position:[units that want to go here]
-                # remove units whose path is already exhausted
-                # and add their positions into obstacles
-                for unit in movingunits[:]:
-                    path = unit.abilities["MovementAbility"].selected_targets
-                    if len(path) == 0:
-                        movingunits.remove(unit)
-                        obstacles.append(unit.get_position())
-                # add each unit and their next move to the dict
-                # and remove first path element
-                for unit in movingunits[:]:
-                    nextpos = unit.abilities["MovementAbility"].selected_targets.pop(0)[0]
-                    if nextpos in obstacles:
-                        movingunits.remove(unit)
-                        obstacles.append(unit.get_position())
-                    if nextpos in nextpositions.keys():
-                        nextpositions[nextpos].append(unit)
-                    else:
-                        nextpositions[nextpos] = [unit]
-                # if multiple units are registered for the same tile at
-                # the same time, both are stopped and turned into obstacles
-                for position in nextpositions.keys():
-                    units = nextpositions[position]
-                    if len(units) > 1:
-                        for unit in units:
-                            if unit in movingunits:
-                                movingunits.remove(unit)
-                                obstacles.append(unit.get_position())
-                                unit.done = True
-                    elif len(units) == 1:
-                        self.move_unit(*units[0].get_position(), *position)
-
-
 
     def load_map(self, map:Map):
         for x, y, tileid, effectid, unitid in map.iterate_tiles():
@@ -162,6 +168,7 @@ class Grid:
         return [n for n in (up, right, down, left) if self.is_coord_in_bounds(*n)]
 
     def tick(self, dt:float):
+        self.gametime += dt
         for u in self.units:
             if u:
                 u.tick(dt)
@@ -171,6 +178,10 @@ class Grid:
         for e in self.effects:
             if e:
                 e.tick(dt)
+        if self.phase == 3 and not self.everybody_done():
+            if self.phasetime + 0.5 < self.gametime:
+                self.phasetime += .5
+                self.update_unit_movement()
 
     def show(self):
         text = ""

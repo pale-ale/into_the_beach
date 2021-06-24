@@ -110,15 +110,6 @@ class MovementAbility(AbilityBase):
         if self.selected:
             self.targets_chosen([newcursorpos])
     
-    def tick(self, dt):
-        if not self._unit.done and self.timinginfo + self.durationperstep <= self._unit.age:
-            fromxy = self._unit.get_position()
-            if len(self.selected_targets) > 0:
-                toxy = self.selected_targets[0][0]
-                self.timinginfo += self.durationperstep
-            else:
-                self._unit.done = True
-
     def activate(self):
         super().activate()
         self.area_of_effect.clear()
