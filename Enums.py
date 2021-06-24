@@ -20,7 +20,7 @@ PREVIEWS = {
     4:"MovementPreviewArrowSE.png",
     (0,1):"MovementPreviewArrowSE.png",
     #Straight2: NW <-> SE
-    (0,-11,0,1):"MovementPreviewStraight2.png",
+    (0,-1,0,1):"MovementPreviewStraight2.png",
     (0,-1,0,-1):"MovementPreviewStraight2.png",
     (0,1,0,1):"MovementPreviewStraight2.png",
     (0,1,0,-1):"MovementPreviewStraight2.png",

@@ -89,14 +89,13 @@ class MovementAbility(AbilityBase):
         if target in positions:
             pathwithself = [self._unit.get_position()] + self.path
             pos = pathwithself[-1]
-            print(target, pathwithself)
             if target != pathwithself[-1]:
                 #SE = 0,1, NE = -1,0
                 if len(pathwithself)>1:
                     prevdelta = (pathwithself[-1][0] - pathwithself[-2][0],
                         pathwithself[-1][1] - pathwithself[-2][1])
                     delta = (target[0] - pos[0], target[1] - pos[1], *prevdelta)
-                    self.area_of_effect[-5] = (self.area_of_effect[-5][0], PREVIEWS[delta])
+                    self.area_of_effect[len(self.path)] = (self.area_of_effect[len(self.path)][0], PREVIEWS[delta])
                     self.selected_targets[-1] = (self.selected_targets[-1][0], PREVIEWS[delta])
                 else:
                     prevdelta = (target[0] - pos[0], target[1] - pos[1])
@@ -115,8 +114,7 @@ class MovementAbility(AbilityBase):
         if not self._unit.done and self.timinginfo + self.durationperstep <= self._unit.age:
             fromxy = self._unit.get_position()
             if len(self.selected_targets) > 0:
-                self._unit.grid.move_unit(*fromxy, *self.selected_targets[0][0])
-                self.selected_targets.pop(0)
+                toxy = self.selected_targets[0][0]
                 self.timinginfo += self.durationperstep
             else:
                 self._unit.done = True

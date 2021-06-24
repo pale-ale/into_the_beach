@@ -36,6 +36,39 @@ class Grid:
         for unit in self.units:
             if unit:
                 unit.trigger_hook("OnUpdatePhase", self.phase)
+        if self.phase == 3:
+            positions = []
+            obstacles = []
+            movingunits = []
+            for unit in self.units:
+                if unit:
+                    if not "MovementAbility" in unit.abilities.keys() or \
+                    len(unit.abilities["MovementAbility"].selected_targets) == 0:
+                        obstacles.append(unit.get_position())
+                    else:
+                        path = unit.abilities["MovementAbility"].selected_targets
+                        positions.append([x[0] for x in path])
+                        movingunits.append(unit)
+            while len(movingunits)>0:
+                poscopy = positions[:]
+                movcopy = movingunits[:]
+                for unitindex in range(len(movcopy)):
+                    nextpos = poscopy[unitindex][1]
+                    unit = movcopy[unitindex]
+                    othernextpos = [poscopy[x][1] for x in range(len(movcopy)) if x != unitindex]
+                    if nextpos in othernextpos or nextpos in obstacles:
+                        movingunits.remove(unit)
+                        positions.remove(unit)
+                        obstacles.append(unit.get_position())
+                poscopy = positions[:]
+                movcopy = movingunits[:]
+                for unitindex in range(len(movcopy)):
+                    self.move_unit(*poscopy[unitindex][0], *poscopy[unitindex][1])
+                    positions[unitindex].pop()
+                    if len(positions[unitindex]) == 0:
+                        positions.remove([])
+                        movingunits.remove(movcopy[unitindex])                    
+
 
     def load_map(self, map:Map):
         for x, y, tileid, effectid, unitid in map.iterate_tiles():
