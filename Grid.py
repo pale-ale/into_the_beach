@@ -37,37 +37,49 @@ class Grid:
             if unit:
                 unit.trigger_hook("OnUpdatePhase", self.phase)
         if self.phase == 3:
-            positions = []
-            obstacles = []
             movingunits = []
+            obstacles = []
+            #filter units that cannot move
             for unit in self.units:
                 if unit:
                     if not "MovementAbility" in unit.abilities.keys() or \
                     len(unit.abilities["MovementAbility"].selected_targets) == 0:
                         obstacles.append(unit.get_position())
                     else:
-                        path = unit.abilities["MovementAbility"].selected_targets
-                        positions.append([x[0] for x in path])
                         movingunits.append(unit)
-            while len(movingunits)>0:
-                poscopy = positions[:]
-                movcopy = movingunits[:]
-                for unitindex in range(len(movcopy)):
-                    nextpos = poscopy[unitindex][1]
-                    unit = movcopy[unitindex]
-                    othernextpos = [poscopy[x][1] for x in range(len(movcopy)) if x != unitindex]
-                    if nextpos in othernextpos or nextpos in obstacles:
+            while len(movingunits) > 0:
+                nextpositions = {} #position:[units that want to go here]
+                # remove units whose path is already exhausted
+                # and add their positions into obstacles
+                for unit in movingunits[:]:
+                    path = unit.abilities["MovementAbility"].selected_targets
+                    if len(path) == 0:
                         movingunits.remove(unit)
-                        positions.remove(unit)
                         obstacles.append(unit.get_position())
-                poscopy = positions[:]
-                movcopy = movingunits[:]
-                for unitindex in range(len(movcopy)):
-                    self.move_unit(*poscopy[unitindex][0], *poscopy[unitindex][1])
-                    positions[unitindex].pop()
-                    if len(positions[unitindex]) == 0:
-                        positions.remove([])
-                        movingunits.remove(movcopy[unitindex])                    
+                # add each unit and their next move to the dict
+                # and remove first path element
+                for unit in movingunits[:]:
+                    nextpos = unit.abilities["MovementAbility"].selected_targets.pop(0)[0]
+                    if nextpos in obstacles:
+                        movingunits.remove(unit)
+                        obstacles.append(unit.get_position())
+                    if nextpos in nextpositions.keys():
+                        nextpositions[nextpos].append(unit)
+                    else:
+                        nextpositions[nextpos] = [unit]
+                # if multiple units are registered for the same tile at
+                # the same time, both are stopped and turned into obstacles
+                for position in nextpositions.keys():
+                    units = nextpositions[position]
+                    if len(units) > 1:
+                        for unit in units:
+                            if unit in movingunits:
+                                movingunits.remove(unit)
+                                obstacles.append(unit.get_position())
+                                unit.done = True
+                    elif len(units) == 1:
+                        self.move_unit(*units[0].get_position(), *position)
+
 
 
     def load_map(self, map:Map):
