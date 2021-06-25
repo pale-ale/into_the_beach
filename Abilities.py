@@ -22,6 +22,7 @@ class AbilityBase:
     def on_deselect_abilities(self):
         if self.selected:
             self.selected = False
+            self.area_of_effect.clear()
             print("Deselected", type(self).__name__)
     
     def activate(self):
@@ -56,10 +57,6 @@ class MovementAbility(AbilityBase):
         self.timinginfo = unit.age
         self.durationperstep = .5 #seconds
         self.path = []
-    
-    def on_deselect_abilities(self):
-        super().on_deselect_abilities()
-        self.area_of_effect.clear()
     
     def on_select_ability(self):
         super().on_select_ability()
@@ -122,16 +119,12 @@ class PunchAbility(AbilityBase):
         super().__init__(unit)
         self.id = 1
         self.phase = 2
-    
-    def on_deselect_abilities(self):
-        super().on_deselect_abilities()
-        self.area_of_effect.clear()
 
     def on_select_ability(self):
         super().on_select_ability()
         pos = self._unit.get_position()
         for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
-            self.area_of_effect.add((neighbor, PREVIEWS[0]))
+            self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
     def targets_chosen(self, targets):
         assert len(targets) == 1
@@ -166,7 +159,8 @@ class RangedAttackAbility(AbilityBase):
         for i in range (height):
             ordinals.add((x,i))
         ordinals.remove((x,y))
-        return ordinals
+        return ordinals#
+    
 
     def on_select_ability(self):
         super().on_select_ability()
@@ -174,9 +168,10 @@ class RangedAttackAbility(AbilityBase):
         coords = self.get_ordinals()
         coords = coords.difference(self._unit.grid.get_ordinal_neighbors(*pos))
         for coord in coords:
-            self.area_of_effect.add((coord, PREVIEWS[0]))
+            self.area_of_effect.append((coord, PREVIEWS[0]))
 
     def targets_chosen(self, targets):
+        super().targets_chosen(targets)
         assert len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
@@ -209,7 +204,7 @@ class PushAbility(AbilityBase):
         super().on_select_ability()
         pos = self._unit.get_position()
         for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
-            self.area_of_effect.add((neighbor, PREVIEWS[0]))
+            self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
     def activate(self):
         super().activate()

@@ -7,7 +7,7 @@ class UnitBase(GridElement):
         self.name = name
         self.hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
-        self.baseattack = {"physical": 10, "magical": 0}
+        self.baseattack = {"physical": 4, "magical": 0}
         self.canswim = canswim
         self.grid = grid
         self.id = 0
@@ -63,7 +63,7 @@ class UnitBase(GridElement):
     
     def on_take_damage(self, damage:int, damagetype:str):
         reduceddamage = damage - self.defense[damagetype]
-        self.hitpoints -= (abs(reduceddamage)+reduceddamage)/2
+        self.hitpoints -= max(0,reduceddamage)
         if self.hitpoints <= 0:
             self.dying()
     

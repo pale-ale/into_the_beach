@@ -27,6 +27,10 @@ class Hud(pygame.sprite.Sprite):
         self.abilitiesdisplay = pygame.Surface((96,20))
         self.abilitiesnumbers = pygame.Surface((96,20)).convert_alpha()
         self.timerdisplay = pygame.Surface((96,20)).convert_alpha()
+        self.hitpoint = pygame.Surface((16,16))
+        self.hitpoint.fill((0,200,0,255))
+        self.hitpointdisplay = pygame.Surface((20,20))
+        self.hitpointdisplay.fill((0,0,0,255))
         # colorful display of ability phasees
         self.phasemarkersdisplay = pygame.Surface((96,20))
         self.phasemarkers = []
@@ -53,7 +57,7 @@ class Hud(pygame.sprite.Sprite):
         self.redraw()
 
     def activate_ability(self, slot:int):
-        if self.selectedunitui:
+        if self.selectedunitui and self.selectedunitui._parentelement:
             self.selectedunitui._parentelement.trigger_hook("OnDeselectAbilities")
             self.selectedunitui._parentelement.trigger_hook("UserAction" + str(slot))
             self.redraw()
@@ -75,26 +79,43 @@ class Hud(pygame.sprite.Sprite):
                 ), 
                 (0,0)
             )
-            abilities = unitui._parentelement.abilities.values()
-            index = 0
-            numbers = ""
-            for ability in abilities:
-                if ability.id in Textures.abilitytexturemapping.keys():
-                    abilityimage = pygame.image.load(
-                        Textures.texturepath+Textures.abilitytexturemapping[ability.id])
-                    self.abilitiesdisplay.blit(abilityimage, (16*index, 2), (0,0,16,16))
-                    self.phasemarkersdisplay.blit(self.phasemarkers[ability.phase], 
-                        (16*index, 0))
-                    numbers += str(index+1) + " "
-                    index += 1
-                if unitui == self.selectedunitui:
-                    numberimage = self.font.render(numbers.strip(), True, (255,255,255,255))
-                    self.abilitiesnumbers.blit(numberimage, (0,0))
+            self.display_abilities(unitui._parentelement)
+            self.display_healthbar(unitui._parentelement)
         self.image.blit(self.unitimagedisplay, (self.gridui.width*.75, self.gridui.height*.03))
         self.image.blit(self.unitfontdisplay, (self.gridui.width*.855, self.gridui.height*.03))
         self.image.blit(self.abilitiesdisplay, (self.gridui.width*.855, self.gridui.height*.1))
         self.image.blit(self.phasemarkersdisplay, (self.gridui.width*.855,self.gridui.height*.1+18))
         self.image.blit(self.abilitiesnumbers, (self.gridui.width*.855+5, self.gridui.height*.1+18))
+
+    def display_abilities(self, unit):
+        abilities = unit.abilities.values()
+        index = 0
+        numbers = ""
+        for ability in abilities:
+            if ability.id in Textures.abilitytexturemapping.keys():
+                abilityimage = pygame.image.load(
+                    Textures.texturepath+Textures.abilitytexturemapping[ability.id])
+                self.abilitiesdisplay.blit(abilityimage, (16*index, 2), (0,0,16,16))
+                self.phasemarkersdisplay.blit(self.phasemarkers[ability.phase], 
+                    (16*index, 0))
+                numbers += str(index+1) + " "
+                index += 1
+            if self.selectedunitui and unit == self.selectedunitui._parentelement:
+                numberimage = self.font.render(numbers.strip(), True, (255,255,255,255))
+                self.abilitiesnumbers.blit(numberimage, (0,0))
+
+    def display_healthbar(self, unit):
+        x,y = self.gridui.transform_grid_screen(*unit.get_position())
+        barwidth = 32
+        hitpoints = unit.hitpoints
+        slotwidth = min(10, max(4, barwidth/hitpoints))
+        for hp in range(hitpoints):
+            self.image.blit(self.hitpointdisplay,
+                (x+32+slotwidth*hp-slotwidth/2*hitpoints,y-16),
+                (0,0,slotwidth+2,8))
+            self.image.blit(self.hitpoint, 
+                (x+33+slotwidth*hp-slotwidth/2*hitpoints,y-15), 
+                (0,0,slotwidth,6))
     
     def display_tile(self, pos):
         self.tilefontdisplay.fill((0,0,0,0))
