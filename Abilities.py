@@ -225,3 +225,10 @@ class PushAbility(AbilityBase):
                     self._unit.grid.units[newposint].on_take_damage(1, "collision")
         self.selected_targets.clear()
         self.area_of_effect.clear()
+
+class ObjectiveAbility(AbilityBase):        
+    def register_hooks(self):
+        self._unit.register_hook("OnDeath", self.on_death)
+    
+    def on_death(self):
+        print("I lost..")

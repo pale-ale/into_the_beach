@@ -29,4 +29,5 @@ class MapGrasslands(Map):
         self.unitids[30] = 0
         self.unitids[31] = 1
         self.unitids[96] = 0
+        self.unitids[55] = 2
        

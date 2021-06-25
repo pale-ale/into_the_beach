@@ -1,5 +1,10 @@
 from GridElement import GridElement
-from Abilities import MovementAbility, PunchAbility, RangedAttackAbility, PushAbility
+from Abilities import AbilityBase, \
+    MovementAbility, \
+    ObjectiveAbility, \
+    PunchAbility, \
+    PushAbility, \
+    RangedAttackAbility 
 
 class UnitBase(GridElement):
     def __init__(self, grid, ownerid, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
@@ -18,8 +23,6 @@ class UnitBase(GridElement):
         self.userActions ={1:None, 2:None, 3:None, 4:None}
         self.abilities = {"MovementAbility":MovementAbility(self), 
             "PunchAbility":PunchAbility(self),
-            "RangedAttackAbility":RangedAttackAbility(self),
-            "PushAbility":PushAbility(self)
         }
     
     def tick(self, dt: float):
@@ -53,6 +56,17 @@ class UnitBase(GridElement):
         print(hookname, "has no bound actions")
         return 0  
 
+    def add_ability(self, name:str, ability_class:AbilityBase):
+        if name in self.abilities.keys():
+            print("error! ability with name", name, "already exists")
+            exit(1)
+        self.abilities[name] = ability_class(self)
+
+    def remove_ability(self, name:str):
+        if name in self.abilities.keys():
+            self.abilities.pop(name)
+            print("TODO: remove hooks")
+
     def drown(self):
         print("I drowned :(")
         self.grid.remove_unit(*self.pos)
@@ -68,12 +82,14 @@ class UnitBase(GridElement):
             self.dying()
     
     def dying(self):
-        print("I died :(")
+        self.trigger_hook("OnDeath")
         self.grid.remove_unit(*self.get_position())
     
 class UnitSaucer(UnitBase):
     def __init__(self, grid, ownerid, name:str="UnitSaucer"):
         super().__init__(grid, ownerid, name)
+        self.add_ability("RangedAttackAbility", RangedAttackAbility)
+        self.add_ability("PushAbility", PushAbility)
 
 
 class UnitMagician(UnitBase):
@@ -82,5 +98,12 @@ class UnitMagician(UnitBase):
 
 
 class UnitBarbarian(UnitBase):
-    def __init__(self, grid, ownerid, name:str="b"):
+    def __init__(self, grid, ownerid, name:str="U"):
         super().__init__(grid, ownerid, name)
+
+class UnitHomebase(UnitBase):
+    def __init__(self, grid, ownerid, name:str="UnitSaucer"):
+        super().__init__(grid, ownerid, name)
+        self.add_ability("ObjectiveAbility", ObjectiveAbility)
+        self.remove_ability("MovementAbility")
+        self.remove_ability("PunchAbility")

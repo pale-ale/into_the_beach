@@ -1,4 +1,4 @@
-from Units import UnitBase, UnitSaucer
+from Units import UnitBase, UnitSaucer, UnitHomebase
 from Effects import EffectBase, EffectFire
 from Tiles import *
 
@@ -14,5 +14,6 @@ class ClassMapping:
     }
     unitclassmapping = {
         0:UnitBase,
-        1:UnitSaucer
+        1:UnitSaucer,
+        2:UnitHomebase
     }
