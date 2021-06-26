@@ -1,8 +1,8 @@
 import pygame.sprite
 
-from TextureManager import Textures
-from GridElementUI import GridElementUI
-from Tiles import TileBase
+from ..ui.TextureManager import Textures
+from .GridElementUI import GridElementUI
+from .Tiles import TileBase
 from pygame.display import update
 
 class TileBaseUI(GridElementUI):

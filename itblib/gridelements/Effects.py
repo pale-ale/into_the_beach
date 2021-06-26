@@ -1,4 +1,4 @@
-from GridElement import GridElement
+from .GridElement import GridElement
 
 class EffectBase(GridElement):
     def __init__(self):

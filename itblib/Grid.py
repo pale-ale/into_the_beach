@@ -1,11 +1,11 @@
-from Tiles import TileBase
-from Effects import EffectBase
-from Units import UnitBase
-from Maps import Map
+from .gridelements.Tiles import TileBase
+from .gridelements.Effects import EffectBase
+from .gridelements.Units import UnitBase
+from .Maps import Map
 
-from Globals import ClassMapping
-from Enums import PHASES
-from IGridObserver import IGridObserver
+from .Globals import ClassMapping
+from .Enums import PHASES
+from .ui.IGridObserver import IGridObserver
 
 import random
 

@@ -1,5 +1,5 @@
-from GridElement import GridElement
-from Abilities import AbilityBase, \
+from .GridElement import GridElement
+from ..Abilities import AbilityBase, \
     MovementAbility, \
     ObjectiveAbility, \
     PunchAbility, \

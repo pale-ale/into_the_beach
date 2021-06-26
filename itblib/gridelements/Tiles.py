@@ -1,4 +1,4 @@
-from GridElement import GridElement
+from .GridElement import GridElement
 
 class TileBase(GridElement):
     def __init__(self):

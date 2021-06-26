@@ -1,16 +1,16 @@
-from Effects import EffectBase
-from EffectsUI import EffectBaseUI
-from Tiles import TileBase
-from TilesUI import TileBaseUI
-from Units import UnitBase
-from UnitsUI import UnitBaseUI
-from Maps import Map
-from Globals import ClassMapping
+from ..gridelements.Effects import EffectBase
+from ..gridelements.EffectsUI import EffectBaseUI
+from ..gridelements.Tiles import TileBase
+from ..gridelements.TilesUI import TileBaseUI
+from ..gridelements.Units import UnitBase
+from ..gridelements.UnitsUI import UnitBaseUI
+from ..Maps import Map
+from ..Globals import ClassMapping
+from . import IGridObserver
+from .. import Grid
 
 import pygame.sprite
 import pygame.transform
-import IGridObserver
-import Grid
 
 class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
     def __init__(self, grid:Grid.Grid):  

@@ -1,4 +1,4 @@
-from Enums import PREVIEWS
+from .Enums import PREVIEWS
 
 class AbilityBase:
     def __init__(self, unit):

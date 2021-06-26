@@ -1,6 +1,6 @@
-from Units import UnitBase, UnitSaucer, UnitHomebase
-from Effects import EffectBase, EffectFire
-from Tiles import *
+from .gridelements.Units import UnitBase, UnitSaucer, UnitHomebase
+from .gridelements.Effects import EffectBase, EffectFire
+from .gridelements.Tiles import *
 
 class ClassMapping:
     tileclassmapping = {

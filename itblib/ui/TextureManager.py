@@ -1,5 +1,5 @@
 import pygame
-from Enums import PREVIEWS
+from ..Enums import PREVIEWS
 
 class Textures:
     texturepath = "./sprites/"

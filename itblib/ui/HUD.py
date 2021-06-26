@@ -1,12 +1,9 @@
-from UnitsUI import UnitBaseUI
-from typing import Text
-from Tiles import TileForest
+from ..gridelements.UnitsUI import UnitBaseUI
 import pygame
 import pygame.sprite
 import pygame.font
-from TextureManager import Textures
-from Enums import PHASES, PREVIEWS
-from Units import UnitBase
+from ..ui.TextureManager import Textures
+from ..Enums import PREVIEWS
 
 class Hud(pygame.sprite.Sprite):
     def __init__(self, width, height, gridui):

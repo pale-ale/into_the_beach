@@ -1,5 +1,5 @@
-from GridElementUI import GridElementUI
-from TextureManager import Textures
+from .GridElementUI import GridElementUI
+from ..ui.TextureManager import Textures
 
 class UnitBaseUI(GridElementUI):
     def __init__(self, unit):

@@ -1,5 +1,5 @@
 import pygame.sprite
-from TextureManager import Textures
+from ..ui.TextureManager import Textures
 import pygame
 
 class GridElementUI(pygame.sprite.Sprite):

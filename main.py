@@ -5,12 +5,12 @@ import pygame.transform
 import pygame.display
 import pygame.font
 
-import GridUI
-from HUD import Hud
-from Selector import Selector
-from Player import Player
-from Game import Game
-from TextureManager import Textures
+from itblib.ui.GridUI import GridUI
+from itblib.ui.HUD import Hud
+from itblib.Selector import Selector
+from itblib.Player import Player
+from itblib.Game import Game
+from itblib.ui.TextureManager import Textures
 
 
 BLACK = [0, 0, 0] 
@@ -35,7 +35,7 @@ game = Game()
 newsession = game.create_session()
 newsession.add_player(player1)
 newsession.add_player(player2)
-gridui = GridUI.GridUI(newsession._grid)
+gridui = GridUI(newsession._grid)
 newsession._grid.update_observer(gridui)
 newsession.start_game()
 

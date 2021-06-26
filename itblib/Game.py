@@ -1,6 +1,5 @@
-from Maps import MapGrasslands
-from Grid import Grid
-
+from .Maps import MapGrasslands
+from .Grid import Grid
 
 class Session:
     def __init__(self):
