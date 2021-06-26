@@ -140,7 +140,9 @@ class Hud(pygame.sprite.Sprite):
                     pos, previewid = previewinfo
                     x,y = self.gridui.transform_grid_screen(*pos)
                     self.image.blit(Textures.textures["Other"][previewid], (x,y))
-        if self.selectedunitui and self.selectedunitui._parentelement and\
+        if self.selectedunitui and\
+        self.selectedunitui._parentelement and\
+        "MovementAbility" in self.selectedunitui._parentelement.abilities.keys() and\
         self.cursorgridpos in self.selectedunitui._parentelement.abilities["MovementAbility"].area_of_effect:
             self.image.blit(Textures.textures["Other"][PREVIEWS[2]], self.cursorscreenpos)
         else:
