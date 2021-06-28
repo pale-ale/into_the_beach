@@ -4,16 +4,19 @@ from .gridelements.Tiles import *
 
 class ClassMapping:
     tileclassmapping = {
-        0:TileBase,
-        1:TileForest,
-        2:TileSea
+        0:None,
+        1:TileBase,
+        2:TileForest,
+        3:TileSea
     }
     effectclassmapping = {
-        0:EffectBase,
-        1:EffectFire
+        0:None,
+        1:EffectBase,
+        2:EffectFire
     }
     unitclassmapping = {
-        0:UnitBase,
-        1:UnitSaucer,
-        2:UnitHomebase
+        0:None,
+        1:UnitBase,
+        2:UnitSaucer,
+        3:UnitHomebase
     }

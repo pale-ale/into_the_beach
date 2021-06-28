@@ -1,3 +1,4 @@
+import json
 from itblib import Maps
 import socket
 import pygame
@@ -23,9 +24,23 @@ sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 connector = Connector(False)
 connector.client_init()
-clientgrid = Grid()
+data = connector.receive()
+if data:
+    prefix, contents = data
+    if prefix == "MapTransfer":
+        newmap = Maps.Map()
+        obj = json.loads(contents)
+        newmap.height = obj["height"]
+        newmap.width = obj["width"]
+        newmap.tileids = obj["tileids"]
+        newmap.unitids = obj["unitids"]
+        newmap.effectids = obj["effectids"]
+        #if contents == "MapGrasslands":
+        #    clientgrid.load_map(Maps.MapGrasslands())
+clientgrid = Grid(width=newmap.width, height=newmap.height)
 clientgridui = GridUI(clientgrid)
 clientgrid.update_observer(clientgridui)
+clientgrid.load_map(newmap)
 hud = Hud(clientgridui.width, clientgridui.height, clientgridui)
 selector = Selector(clientgrid, hud)
 
@@ -37,12 +52,6 @@ camera = pygame.Surface((clientgridui.width, clientgridui.height))
 hud.redraw()
 running = True
 
-data = connector.receive()
-if data:
-    prefix, contents = data
-    if prefix == "MapTransfer":
-        if contents == "MapGrasslands":
-            clientgrid.load_map(Maps.MapGrasslands())
 
 while running:
     dt = clock.tick(FPS)/1000.0

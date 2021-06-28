@@ -90,11 +90,11 @@ class Grid:
 
     def load_map(self, map:Map):
         for x, y, tileid, effectid, unitid in map.iterate_tiles():
-            if tileid is not None:
+            if tileid:
                 self.add_tile(x, y, tiletype=ClassMapping.tileclassmapping[tileid])
-            if effectid is not None:
+            if effectid:
                 self.add_effect(x, y, effecttype=ClassMapping.effectclassmapping[effectid])
-            if unitid is not None:
+            if unitid:
                 self.add_unit(x, y, unittype=ClassMapping.unitclassmapping[unitid])
 
     def add_tile(self, x:int, y:int, tiletype:TileBase=TileBase):
