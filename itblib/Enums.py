@@ -9,7 +9,6 @@ PREVIEWS = {
     0:"SelectionPreview.png",
     1:"MovementPreview.png",
     2:"TargetMovementPreview.png",
-    #lazy conversion... False indicates userpreview, True => path preview
     3:"MovementPreviewArrowNE.png",
     (-1,0):"MovementPreviewArrowNE.png",
     #Straight1: NE <-> SW
