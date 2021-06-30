@@ -7,7 +7,8 @@ class Connector():
         self.acc_connection = None
 
     def server_init(self):
-        self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM | socket.SOCK_NONBLOCK)
+        self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # | socket.SOCK_NONBLOCK)
+        self.connection.setblocking(0)
         self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.connection.bind(('127.0.0.1', 13579))
         self.connection.listen(5)
