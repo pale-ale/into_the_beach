@@ -1,17 +1,25 @@
-from .Maps import MapGrasslands
+from .Maps import Map, MapGrasslands
 from .Grid import Grid
+import json 
 
 class Session:
-    def __init__(self):
+    def __init__(self, connector):
+        self.connector = connector
         self._players = []
         self._grid = Grid()
-        self.state = "awaitingStart"
+        self.state = "needsPlayers"
     
     def add_player(self, player):
         self._players.append(player)
 
     def start_game(self):
-        self._grid.load_map(MapGrasslands())
+        with open("itblib/maps/sea_map.json","r") as f:
+            contents = f.read()
+        map = Map()
+        map.import_from_str(contents)
+        for player in self._players:
+            self.connector.send_custom(player.playersocket, "MapTransfer", contents)
+        self._grid.load_map(map)
         self.state = "running"
     
 

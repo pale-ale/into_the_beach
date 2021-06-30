@@ -1,15 +1,24 @@
-import json
+from itblib.Player import Player
+from itblib.Game import Session
+import time
 from itblib.net.Connector import Connector
 
 c = Connector(True)
 c.server_init()
 
-prefix = "MapTransfer"
-data = "MapGrasslands"
-#c.send(prefix, data)
+serversession = Session(c)
+nextfreeplayerid = 0
 
-with open("itblib/maps/sea_map.json","r") as f:
-    contents = f.read()
-obj = json.loads(contents)
-contents = json.dumps(obj)
-c.send(prefix, contents)
+while True:
+    time.sleep(2)
+    if len(serversession._players) > 1:
+        if serversession.state != "running":
+            serversession.start_game()
+        continue
+    print("awaiting new connections...")
+    for newconnection in c.get_incoming_connections():
+        newplayer = Player(nextfreeplayerid, newconnection)
+        serversession.add_player(newplayer)
+        print("added player", newplayer.id)
+        nextfreeplayerid += 1
+

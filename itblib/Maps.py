@@ -1,3 +1,5 @@
+import json
+
 class Map:
     def __init__(self):
         self.width = 10
@@ -5,11 +7,32 @@ class Map:
         self.tileids = [None]*self.width*self.height
         self.unitids = [None]*self.width*self.height
         self.effectids = [None]*self.width*self.height
+    
+    def import_from_str(self, importstr):
+        data = json.loads(importstr)
+        self.width = data["width"]
+        self.height = data["height"]
+        self.tileids = data["tileids"]
+        self.unitids = data["unitids"]
+        self.effectids = data["effectids"]
+    
+    def export_to_str(self):
+        data = {"width": self.width,
+                "height": self.height,
+                "tileids": self.tileids,
+                "unitids": self.unitids,
+                "effectids": self.effectids,
+                }
+        jsonstr = json.dumps(data)
+        return jsonstr
 
     def iterate_tiles(self):
+        print(self.height)
         for y in range(self.height):
             for x in range(self.width):
-                yield x,y,self.tileids[y*self.width+x],\
+                yield x,\
+                    y,\
+                    self.tileids[y*self.width+x],\
                     self.effectids[y*self.width+x],\
                     self.unitids[y*self.width+x]
 

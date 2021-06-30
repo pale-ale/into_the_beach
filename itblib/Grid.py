@@ -89,6 +89,11 @@ class Grid:
                 unit.trigger_hook("OnUpdatePhase", self.phase)
 
     def load_map(self, map:Map):
+        self.width = map.width
+        self.height = map.height
+        self.tiles = [None]*self.width*self.height
+        self.units = [None]*self.width*self.height
+        self.effects = [None]*self.width*self.height
         for x, y, tileid, effectid, unitid in map.iterate_tiles():
             if tileid:
                 self.add_tile(x, y, tiletype=ClassMapping.tileclassmapping[tileid])
