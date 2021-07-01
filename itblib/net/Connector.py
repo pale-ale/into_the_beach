@@ -25,6 +25,7 @@ class Connector():
     def client_init(self):
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connection.connect(('127.0.0.1', 13579))
+        self.connection.setblocking(0)
         self.acc_connection = self.connection
     
     def __del__(self):
@@ -53,7 +54,10 @@ class Connector():
 
     def receive(self):
         if self.acc_connection:
-            data = self.acc_connection.recv(1550)
-            if data:
-                prefix, content = [d for d in data.decode("utf8").split('\0') if d]
-                return prefix, content
+            try:
+                data = self.acc_connection.recv(1550)
+                if data:
+                    prefix, content = [d for d in data.decode("utf8").split('\0') if d]
+                    return prefix, content
+            except BlockingIOError as bioe:
+                return None

@@ -1,6 +1,6 @@
 from .Maps import Map, MapGrasslands
 from .Grid import Grid
-import json 
+import json
 
 class Session:
     def __init__(self, connector):
@@ -18,7 +18,7 @@ class Session:
         map = Map()
         map.import_from_str(contents)
         for player in self._players:
-            self.connector.send_custom(player.playersocket, "MapTransfer", contents)
+            self.connector.send_custom(player.playersocket, "NetMapTransfer", contents)
         self._grid.load_map(map)
         self.state = "running"
     

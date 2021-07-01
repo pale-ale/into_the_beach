@@ -89,6 +89,8 @@ class Grid:
                 unit.trigger_hook("OnUpdatePhase", self.phase)
 
     def load_map(self, map:Map):
+        if self.observer:
+            self.observer.on_load_map(map)
         self.width = map.width
         self.height = map.height
         self.tiles = [None]*self.width*self.height

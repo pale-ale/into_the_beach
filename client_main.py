@@ -2,6 +2,7 @@ import json
 from itblib import Maps
 import socket
 import pygame
+import itblib.net.NetEvents as NetEvents
 from pygame import display
 from itblib.ui.HUD import Hud
 from itblib.Selector import Selector
@@ -16,7 +17,9 @@ pygame.display.init()
 pygame.font.init()
 pygame.display.set_caption("Into The Bleach (for covid purposes only)")
 info = pygame.display.Info()
-screen = pygame.display.set_mode((info.current_w, info.current_h), pygame.NOFRAME)
+DISPLAYSIZE = (int(info.current_w/2), int(info.current_h/2))
+screen = pygame.display.set_mode(DISPLAYSIZE)
+# screen = pygame.display.set_mode(DISPLAYSIZE, pygame.NOFRAME)
 
 Textures.load_textures()
 
@@ -24,23 +27,11 @@ sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 connector = Connector(False)
 connector.client_init()
-data = connector.receive()
-if data:
-    prefix, contents = data
-    if prefix == "MapTransfer":
-        newmap = Maps.Map()
-        obj = json.loads(contents)
-        newmap.height = obj["height"]
-        newmap.width = obj["width"]
-        newmap.tileids = obj["tileids"]
-        newmap.unitids = obj["unitids"]
-        newmap.effectids = obj["effectids"]
-        #if contents == "MapGrasslands":
-        #    clientgrid.load_map(Maps.MapGrasslands())
-clientgrid = Grid(width=newmap.width, height=newmap.height)
+
+clientgrid = Grid()
+NetEvents.StaticObjects["Grid"] = clientgrid
 clientgridui = GridUI(clientgrid)
 clientgrid.update_observer(clientgridui)
-clientgrid.load_map(newmap)
 hud = Hud(clientgridui.width, clientgridui.height, clientgridui)
 selector = Selector(clientgrid, hud)
 
@@ -52,8 +43,13 @@ camera = pygame.Surface((clientgridui.width, clientgridui.height))
 hud.redraw()
 running = True
 
-
 while running:
+    data = connector.receive()
+    if data:
+        prefix, contents = data
+        NetEvents.rcv_event_caller(prefix, contents, connector)
+        
+
     dt = clock.tick(FPS)/1000.0
     clientgridui.tick(dt)
     camera.blit(hud.background, (0,0))
@@ -61,7 +57,7 @@ while running:
     hud.tick(dt)
     hud.redraw()
     camera.blit(hud.image, (0,0))
-    pygame.transform.scale(camera,(info.current_w,info.current_h), screen)
+    pygame.transform.scale(camera, DISPLAYSIZE, screen)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False

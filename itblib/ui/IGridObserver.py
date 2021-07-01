@@ -15,4 +15,5 @@ class IGridObserver:
     def on_move_unit(self, x, y, targetx, targety):
         pass
 
-    
+    def on_load_map(self, map):
+        pass

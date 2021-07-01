@@ -54,6 +54,11 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.grid.tick(dt)
         self.redraw_grid()
     
+    def on_load_map(self, map):
+        self.uitiles = [TileBaseUI(None) for i in range(map.width*map.height)]
+        self.uieffects = [EffectBaseUI(None) for i in range(map.width*map.height)]
+        self.uiunits = [UnitBaseUI(None) for i in range(map.width*map.height)]
+    
     def get_unitui(self, x:int, y:int):
         return self.uiunits[self.grid.width*y+x]
 
