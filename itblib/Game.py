@@ -1,5 +1,6 @@
 from .Maps import Map, MapGrasslands
 from .Grid import Grid
+from .net import NetEvents 
 import json
 
 class Session:
@@ -17,9 +18,8 @@ class Session:
             contents = f.read()
         map = Map()
         map.import_from_str(contents)
-        for player in self._players:
-            self.connector.send_custom(player.playersocket, "NetMapTransfer", contents)
         self._grid.load_map(map)
+        NetEvents.snd_netmaptransfer(map)
         self.state = "running"
     
 

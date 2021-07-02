@@ -30,6 +30,7 @@ connector.client_init()
 
 clientgrid = Grid()
 NetEvents.StaticObjects["Grid"] = clientgrid
+NetEvents.StaticObjects["Connector"] = connector
 clientgridui = GridUI(clientgrid)
 clientgrid.update_observer(clientgridui)
 hud = Hud(clientgridui.width, clientgridui.height, clientgridui)
@@ -47,9 +48,7 @@ while running:
     data = connector.receive()
     if data:
         prefix, contents = data
-        NetEvents.rcv_event_caller(prefix, contents, connector)
-        
-
+        NetEvents.rcv_event_caller(prefix, contents)
     dt = clock.tick(FPS)/1000.0
     clientgridui.tick(dt)
     camera.blit(hud.background, (0,0))

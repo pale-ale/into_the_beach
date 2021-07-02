@@ -1,4 +1,5 @@
 from .Enums import PREVIEWS
+from .net import NetEvents
 
 class AbilityBase:
     def __init__(self, unit):
@@ -98,6 +99,7 @@ class MovementAbility(AbilityBase):
                     prevdelta = (target[0] - pos[0], target[1] - pos[1])
                     delta = (target[0] - pos[0], target[1] - pos[1], *prevdelta)
                 self.selected_targets.append((target, PREVIEWS[1]))
+                NetEvents.snd_netunitmove(self._unit)
                 self.path.append(target)
                 self.area_of_effect.append((target, PREVIEWS[1]))
                 self.collect_movement_info()
