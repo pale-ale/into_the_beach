@@ -7,7 +7,7 @@ from ..Abilities import AbilityBase, \
     RangedAttackAbility 
 
 class UnitBase(GridElement):
-    def __init__(self, grid, ownerid, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
+    def __init__(self, grid, ownerid, playerid:int=0, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
         super().__init__()
         self.name = name
         self.hitpoints = hitpoints
@@ -24,6 +24,7 @@ class UnitBase(GridElement):
         self.abilities = {"MovementAbility":MovementAbility(self), 
             "PunchAbility":PunchAbility(self),
         }
+        self.player = playerid
     
     def tick(self, dt: float):
         super().tick(dt)

@@ -6,21 +6,17 @@ import json
 class Session:
     def __init__(self, connector):
         self.connector = connector
-        self._players = []
+        self._players = {}
         self._grid = Grid()
         self.state = "needsPlayers"
     
     def add_player(self, player):
-        self._players.append(player)
+        self._players[player.playerid] = player
 
     def start_game(self):
-        with open("itblib/maps/sea_map.json","r") as f:
-            contents = f.read()
-        map = Map()
-        map.import_from_str(contents)
-        self._grid.load_map(map)
-        NetEvents.snd_netmaptransfer(map)
-        self.state = "running"
+        self._grid.load_map(MapGrasslands())
+        #NetEvents.snd_netmaptransfer(map)
+        self.state = "running_pregame"
     
 
 class Game:
@@ -31,6 +27,6 @@ class Game:
         return self._sessions
     
     def create_session(self):
-        newsession = Session()
+        newsession = Session(None)
         self._sessions.append(newsession)
         return newsession

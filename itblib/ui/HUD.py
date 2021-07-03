@@ -4,9 +4,10 @@ import pygame.sprite
 import pygame.font
 from ..ui.TextureManager import Textures
 from ..Enums import PREVIEWS
+from ..Globals import ClassMapping
 
 class Hud(pygame.sprite.Sprite):
-    def __init__(self, width, height, gridui):
+    def __init__(self, width, height, gridui, playerid:int, session):
         super().__init__()
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         self.background = pygame.Surface((gridui.width, gridui.height))
@@ -31,6 +32,8 @@ class Hud(pygame.sprite.Sprite):
         # colorful display of ability phasees
         self.phasemarkersdisplay = pygame.Surface((96,20))
         self.phasemarkers = []
+        self.playerid = playerid
+        self.session = session
         for color in ((75,75,255,255), (50,255,50,255), (255,50,50,255), (255,200,0,255)):
             marker = pygame.Surface((16,20))
             marker.fill(color)
@@ -49,6 +52,10 @@ class Hud(pygame.sprite.Sprite):
         self.redraw()
     
     def targetselect(self, position):
+        if self.gridui.grid.phase == 0:
+            id = self.session._players[self.playerid]._initialunits.pop(0)
+            unit = ClassMapping.unitclassmapping[id]
+            self.gridui.grid.add_unit(*position, unit)
         if self.selectedunitui:
             self.selectedunitui._parentelement.trigger_hook("TargetSelected", [position])
         self.redraw()
@@ -128,7 +135,7 @@ class Hud(pygame.sprite.Sprite):
         self.image.blit(self.tilefontdisplay, (self.gridui.width*.85, self.gridui.height*.7))
 
     def redraw(self):
-        bgcolors = [(25,25,150,255), (25,150,25,255), (150,25,25,255), (150,100,0,255)]
+        bgcolors = [(200,200,200,255), (25,25,150,255), (25,150,25,255), (150,25,25,255), (150,100,0,255)]
         self.background.fill(bgcolors[self.gridui.grid.phase])
         self.image.fill((0,0,0,0))
         if self.selectedunitui and self.selectedunitui._parentelement:
@@ -160,6 +167,9 @@ class Hud(pygame.sprite.Sprite):
     def tick(self, dt:float):
         grid = self.gridui.grid
         if grid.phase == 0:
+            if len(self.session._players[self.playerid]._initialunits) > 0:
+                return
+        if grid.phase == 1:
             if self.timer <= 0:
                 grid.advance_phase()
                 self.timer = 10.0

@@ -81,8 +81,8 @@ class Grid:
 
 
     def advance_phase(self):
-        maxphase = len(PHASES)
-        self.phase = (self.phase+1)%maxphase
+        maxphase = len(PHASES)-1
+        self.phase = (self.phase)%maxphase+1
         self.phasetime = self.gametime
         for unit in self.units:
             if unit:
@@ -185,7 +185,7 @@ class Grid:
         for e in self.effects:
             if e:
                 e.tick(dt)
-        if self.phase == 3 and not self.everybody_done():
+        if self.phase == 4 and not self.everybody_done():
             if self.phasetime + 0.5 < self.gametime:
                 self.phasetime += .5
                 self.update_unit_movement()

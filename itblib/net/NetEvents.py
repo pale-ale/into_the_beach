@@ -17,10 +17,11 @@ StaticObjects = {
 }
 
 def snd_netmaptransfer(map):
-    if StaticObjects["Connector"].authority:
-        print("Sending map to players")
-        for player in StaticObjects["Session"]._players:
-            StaticObjects["Connector"].send_custom(player.playersocket, "NetMapTransfer", map.export_to_str())
+    if StaticObjects["Connector"]:
+        if StaticObjects["Connector"].authority:
+            print("Sending map to players")
+            for player in StaticObjects["Session"]._players:
+                StaticObjects["Connector"].send_custom(player.playersocket, "NetMapTransfer", map.export_to_str())
 
 def rcv_netmaptransfer(mapjson:str):
     if not StaticObjects["Connector"].authority:

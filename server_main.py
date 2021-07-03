@@ -23,7 +23,7 @@ while True:
             break
     time.sleep(2)
     if len(serversession._players) > 0:
-        if serversession.state != "running":
+        if not serversession.state.startswith("running"):
             print("starting game")
             serversession.start_game()
         continue

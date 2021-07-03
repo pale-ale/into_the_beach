@@ -1,8 +1,9 @@
 PHASES = {
-    0:"Planningphase",
-    1:"Prephase",
-    2:"Battlephase",
-    3:"Postphase"
+    0:"Pregamephase",
+    1:"Planningphase",
+    2:"Prephase",
+    3:"Battlephase",
+    4:"Postphase"
 }
 
 PREVIEWS = {
