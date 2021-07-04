@@ -7,7 +7,7 @@ class Session:
     def __init__(self, connector):
         self.connector = connector
         self._players = {}
-        self._grid = Grid()
+        self._grid = Grid(connector)
         self.state = "needsPlayers"
     
     def add_player(self, player):

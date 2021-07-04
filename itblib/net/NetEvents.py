@@ -63,16 +63,21 @@ def rcv_netplayerjoin(playerdata):
     StaticObjects["Session"]._players[player.playerid] = player
 
 def snd_netphasechange(phasenumber):
-    for player in StaticObjects["Session"]._players:
-        StaticObjects["Connector"].send_custom(player.playersocket, "NetPhaseChange", phasenumber)
+    print("sen")
+    for player in StaticObjects["Session"]._players.values():
+        print("ding")
+        StaticObjects["Connector"].send_custom(player.playersocket, "NetPhaseChange", str(phasenumber))
 
 def rcv_netphasechange(phasenumber:int):
+    phasenumber = int(phasenumber)
+    print("got phasechange")
     StaticObjects["Grid"].change_phase(phasenumber)
         
 RcvNetEventsMap = {
     "NetMapTransfer" : rcv_netmaptransfer,
     "NetUnitMove" : rcv_netunitmove,
-    "NetPlayerJoin" : rcv_netplayerjoin
+    "NetPlayerJoin" : rcv_netplayerjoin,
+    "NetPhaseChange" : rcv_netphasechange,
 }
     
 def rcv_event_caller(prefix:str, contents:str):

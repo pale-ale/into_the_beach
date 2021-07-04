@@ -29,7 +29,7 @@ clock = pygame.time.Clock()
 connector = Connector(False)
 connector.client_init()
 
-clientgrid = Grid()
+clientgrid = Grid(connector)
 clientsession = Session(connector)
 NetEvents.StaticObjects["Grid"] = clientgrid
 NetEvents.StaticObjects["Connector"] = connector

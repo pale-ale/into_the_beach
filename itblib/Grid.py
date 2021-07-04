@@ -6,15 +6,17 @@ from .Maps import Map
 from .Globals import ClassMapping
 from .Enums import PHASES
 from .ui.IGridObserver import IGridObserver
+from .net import NetEvents
 
 import random
 
 class Grid:
-    def __init__(self, observer=None, width:int=10, height:int=10):
+    def __init__(self, connector, observer=None, width:int=10, height:int=10):
         self.height = width
         self.width = height
         self.phasetime = 0
         self.gametime = 0
+        self.connector = connector
         self.planningphasetime = 10
         self.pregametime = 10
         self.tiles = [None]*width*height
@@ -195,21 +197,25 @@ class Grid:
             if e:
                 e.tick(dt)
         self.phasetime += dt
-        if self.phase == 0:
-                if self.phasetime >= self.pregametime:
+        if self.connector.authority:
+            if self.phase == 0:
+                    if self.phasetime >= self.pregametime:
+                        self.advance_phase()
+                        NetEvents.snd_netphasechange(self.phase)
+                        self.phasetime = 0.0
+            elif self.phase == 1:
+                    if self.phasetime >= self.planningphasetime:
+                        self.advance_phase()
+                        NetEvents.snd_netphasechange(self.phase)
+                        self.phasetime = 0.0
+            elif self.phase in [2,3,4]:
+                if self.everybody_done():
                     self.advance_phase()
-                    self.phasetime = 0.0
-        elif self.phase == 1:
-                if self.phasetime >= self.planningphasetime:
-                    self.advance_phase()
-                    self.phasetime = 0.0
-        elif self.phase in [2,3,4]:
-            if self.everybody_done():
-                self.advance_phase()
-            else:
-                if self.phasetime >= 0.5:
-                    self.phasetime = 0.0
-                    self.update_unit_movement()
+                    NetEvents.snd_netphasechange(self.phase)
+                else:
+                    if self.phasetime >= 0.5:
+                        self.phasetime = 0.0
+                        self.update_unit_movement()
 
     def show(self):
         text = ""
