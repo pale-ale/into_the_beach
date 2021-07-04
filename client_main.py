@@ -1,3 +1,4 @@
+from itblib.Game import Session
 import json
 from itblib import Maps
 import socket
@@ -29,11 +30,13 @@ connector = Connector(False)
 connector.client_init()
 
 clientgrid = Grid()
+clientsession = Session(connector)
 NetEvents.StaticObjects["Grid"] = clientgrid
 NetEvents.StaticObjects["Connector"] = connector
+NetEvents.StaticObjects["Session"] = clientsession
 clientgridui = GridUI(clientgrid)
 clientgrid.update_observer(clientgridui)
-hud = Hud(clientgridui.width, clientgridui.height, clientgridui)
+hud = Hud(clientgridui.width, clientgridui.height, clientgridui, 0, clientsession)
 selector = Selector(clientgrid, hud)
 
 clientgridui.redraw_grid()

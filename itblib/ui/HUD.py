@@ -52,7 +52,8 @@ class Hud(pygame.sprite.Sprite):
         self.redraw()
     
     def targetselect(self, position):
-        if self.gridui.grid.phase == 0:
+        if self.gridui.grid.phase == 0 and \
+        len(self.session._players[self.playerid]._initialunits) > 0:
             id = self.session._players[self.playerid]._initialunits.pop(0)
             unit = ClassMapping.unitclassmapping[id]
             self.gridui.grid.add_unit(*position, unit)
@@ -165,17 +166,15 @@ class Hud(pygame.sprite.Sprite):
         self.redraw()
     
     def tick(self, dt:float):
-        grid = self.gridui.grid
-        if grid.phase == 0:
-            if len(self.session._players[self.playerid]._initialunits) > 0:
+        if self.session.state.startswith("running"):
+            grid = self.gridui.grid
+            if grid.phase == 0:
+                if len(self.session._players[self.playerid]._initialunits) > 0:
+                    return
+            if grid.phase == 1:
+                if self.timer <= 0:
+                    self.timer = 10.0
+                else:
+                    self.timer -= dt
                 return
-        if grid.phase == 1:
-            if self.timer <= 0:
-                grid.advance_phase()
-                self.timer = 10.0
-            else:
-                self.timer -= dt
-            return
-        if grid.everybody_done():
-            grid.advance_phase()
         

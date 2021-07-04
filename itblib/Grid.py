@@ -15,6 +15,8 @@ class Grid:
         self.width = height
         self.phasetime = 0
         self.gametime = 0
+        self.planningphasetime = 10
+        self.pregametime = 10
         self.tiles = [None]*width*height
         self.units = [None]*width*height
         self.effects = [None]*width*height
@@ -83,6 +85,13 @@ class Grid:
     def advance_phase(self):
         maxphase = len(PHASES)-1
         self.phase = (self.phase)%maxphase+1
+        print("next phase...")
+        for unit in self.units:
+            if unit:
+                unit.trigger_hook("OnUpdatePhase", self.phase)
+    
+    def change_phase(self, phase):
+        self.phase = phase
         self.phasetime = self.gametime
         for unit in self.units:
             if unit:
@@ -185,10 +194,22 @@ class Grid:
         for e in self.effects:
             if e:
                 e.tick(dt)
-        if self.phase == 4 and not self.everybody_done():
-            if self.phasetime + 0.5 < self.gametime:
-                self.phasetime += .5
-                self.update_unit_movement()
+        self.phasetime += dt
+        if self.phase == 0:
+                if self.phasetime >= self.pregametime:
+                    self.advance_phase()
+                    self.phasetime = 0.0
+        elif self.phase == 1:
+                if self.phasetime >= self.planningphasetime:
+                    self.advance_phase()
+                    self.phasetime = 0.0
+        elif self.phase in [2,3,4]:
+            if self.everybody_done():
+                self.advance_phase()
+            else:
+                if self.phasetime >= 0.5:
+                    self.phasetime = 0.0
+                    self.update_unit_movement()
 
     def show(self):
         text = ""
