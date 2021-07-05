@@ -131,8 +131,12 @@ class Grid:
         if self.observer:
             self.observer.on_add_effect(neweffect)
 
-    def add_unit(self, x, y, unittype:UnitBase=UnitBase):
-        newunit = unittype(self, random.randint(12,13))
+    def request_add_unit(self, x, y, unitid:int, playerid:int):
+        NetEvents.snd_netunitspawn(unitid, (x,y), playerid)
+
+    def add_unit(self, x, y, unitid:int):
+        unitclass = ClassMapping.unitclassmapping[unitid]
+        newunit = unitclass(self, random.randint(12,13))
         newunit.set_position((x, y))
         self.units[self.width*y+x] = newunit
         if self.observer:

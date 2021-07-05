@@ -55,8 +55,7 @@ class Hud(pygame.sprite.Sprite):
         if self.gridui.grid.phase == 0 and \
         len(self.session._players[self.playerid]._initialunits) > 0:
             id = self.session._players[self.playerid]._initialunits.pop(0)
-            unit = ClassMapping.unitclassmapping[id]
-            self.gridui.grid.add_unit(*position, unit)
+            self.gridui.grid.request_add_unit(*position, id, self.playerid)
         if self.selectedunitui:
             self.selectedunitui._parentelement.trigger_hook("TargetSelected", [position])
         self.redraw()

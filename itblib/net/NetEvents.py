@@ -31,6 +31,25 @@ def rcv_netmaptransfer(mapjson:str):
         print("Client: loading map...")
         StaticObjects["Grid"].load_map(newmap)
 
+def snd_netunitspawn(unitid:int, pos:"tuple[int,int]", ownerid:int):
+    unitspawntuple = (unitid, pos, ownerid)
+    print(unitspawntuple)
+    if StaticObjects["Connector"].authority:
+        pass#StaticObjects["Connector"].sendtoclients(unit.path, unitid)
+    else:
+
+        StaticObjects["Connector"].send("NetUnitSpawn", json.dumps(unitspawntuple))
+
+def rcv_netunitspawn(unitspawntuplestr):
+    unitspawntuple = json.loads(unitspawntuplestr)
+    unitid, pos, ownerid = unitspawntuple
+    if StaticObjects["Connector"].authority:
+        #check whether this request is fulfillable, if not: return
+        print("spawning:", unitspawntuple)
+        for player in StaticObjects["Session"]._players.values():
+            StaticObjects["Connector"].send_custom(player.playersocket, "NetUnitSpawn", unitspawntuplestr)
+    StaticObjects["Grid"].add_unit(*pos, unitid)
+
 def snd_netunitmove(unit):
     path = [x[0] for x in unit.abilities["MovementAbility"].selected_targets]
     pos = unit.get_position()
@@ -63,9 +82,7 @@ def rcv_netplayerjoin(playerdata):
     StaticObjects["Session"]._players[player.playerid] = player
 
 def snd_netphasechange(phasenumber):
-    print("sen")
     for player in StaticObjects["Session"]._players.values():
-        print("ding")
         StaticObjects["Connector"].send_custom(player.playersocket, "NetPhaseChange", str(phasenumber))
 
 def rcv_netphasechange(phasenumber:int):
@@ -78,6 +95,7 @@ RcvNetEventsMap = {
     "NetUnitMove" : rcv_netunitmove,
     "NetPlayerJoin" : rcv_netplayerjoin,
     "NetPhaseChange" : rcv_netphasechange,
+    "NetUnitSpawn" : rcv_netunitspawn,
 }
     
 def rcv_event_caller(prefix:str, contents:str):
