@@ -37,6 +37,7 @@ NetEvents.StaticObjects["Session"] = clientsession
 clientgridui = GridUI(clientgrid)
 clientgrid.update_observer(clientgridui)
 hud = Hud(clientgridui.width, clientgridui.height, clientgridui, 0, clientsession)
+NetEvents.StaticObjects["Hud"] = hud
 selector = Selector(clientgrid, hud)
 
 clientgridui.redraw_grid()

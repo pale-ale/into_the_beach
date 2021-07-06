@@ -45,8 +45,11 @@ class Hud(pygame.sprite.Sprite):
             if self.selectedunitui and self.selectedunitui._parentelement:
                 self.selectedunitui._parentelement.trigger_hook("OnDeselectUnit")
         if unitui and unitui._parentelement:
-            self.selectedunitui = unitui
-            unitui._parentelement.trigger_hook("OnSelect")
+            if unitui._parentelement.ownerid == self.playerid:
+                self.selectedunitui = unitui
+                unitui._parentelement.trigger_hook("OnSelect")
+            else:
+                print(self.playerid, unitui._parentelement.ownerid)
         else:
             self.selectedunitui = None
         self.redraw()

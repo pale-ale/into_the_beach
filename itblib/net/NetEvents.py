@@ -16,6 +16,7 @@ StaticObjects = {
     "Grid": None,
     "Session": None,
     "Connector": None,
+    "Hud": None,
 }
 
 def snd_netmaptransfer(map):
@@ -48,7 +49,7 @@ def rcv_netunitspawn(unitspawntuplestr):
         print("spawning:", unitspawntuple)
         for player in StaticObjects["Session"]._players.values():
             StaticObjects["Connector"].send_custom(player.playersocket, "NetUnitSpawn", unitspawntuplestr)
-    StaticObjects["Grid"].add_unit(*pos, unitid)
+    StaticObjects["Grid"].add_unit(*pos, unitid, ownerid)
 
 def snd_netunitmove(unit):
     path = [x[0] for x in unit.abilities["MovementAbility"].selected_targets]
@@ -80,6 +81,9 @@ def rcv_netplayerjoin(playerdata):
     player = Player(0, None)
     player.set_info(obj)
     StaticObjects["Session"]._players[player.playerid] = player
+    if player.localcontrol:
+        StaticObjects["Hud"].playerid = player.playerid
+
 
 def snd_netphasechange(phasenumber):
     for player in StaticObjects["Session"]._players.values():

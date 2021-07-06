@@ -33,7 +33,7 @@ def manage_players():
         return
     print("awaiting new connections...")
     for newconnection in c.get_incoming_connections():
-        newplayerid = len(serversession._players)
+        newplayerid = len(serversession._players)+1
         newplayer = Player(newplayerid, newconnection)
         serversession.add_player(newplayer)
         print("added player", newplayer.playerid)
@@ -42,5 +42,6 @@ def manage_players():
 while True:
     handle_networking_events()
     manage_players()
-    dt = clock.tick(FPS)/1000.0
+    #dt = clock.tick(FPS)/1000.0
+    dt = int(input()) / 1000.0
     serversession._grid.tick(dt)
