@@ -5,9 +5,12 @@ import pygame.font
 from ..ui.TextureManager import Textures
 from ..Enums import PREVIEWS
 from ..Globals import ClassMapping
+from .GridUI import GridUI
+from ..Game import Session
+from ..gridelements.Units import UnitBase
 
 class Hud(pygame.sprite.Sprite):
-    def __init__(self, width, height, gridui, playerid:int, session):
+    def __init__(self, width:int, height:int, gridui:GridUI, playerid:int, session:Session):
         super().__init__()
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
         self.background = pygame.Surface((gridui.width, gridui.height))
@@ -39,7 +42,7 @@ class Hud(pygame.sprite.Sprite):
             marker.fill(color)
             self.phasemarkers.append(marker)
 
-    def unitselect(self, position):
+    def unitselect(self, position:"tuple[int,int]"):
         unitui = self.gridui.get_unitui(*position)
         if unitui != self.selectedunitui:
             if self.selectedunitui and self.selectedunitui._parentelement:
@@ -54,10 +57,10 @@ class Hud(pygame.sprite.Sprite):
             self.selectedunitui = None
         self.redraw()
     
-    def targetselect(self, position):
+    def targetselect(self, position:"tuple[int,int]"):
         if self.gridui.grid.phase == 0 and \
-        len(self.session._players[self.playerid]._initialunits) > 0:
-            id = self.session._players[self.playerid]._initialunits.pop(0)
+        len(self.session._players[self.playerid]._initialunitids) > 0:
+            id = self.session._players[self.playerid]._initialunitids.pop(0)
             self.gridui.grid.request_add_unit(*position, id, self.playerid)
         if self.selectedunitui:
             self.selectedunitui._parentelement.trigger_hook("TargetSelected", [position])
@@ -69,7 +72,7 @@ class Hud(pygame.sprite.Sprite):
             self.selectedunitui._parentelement.trigger_hook("UserAction" + str(slot))
             self.redraw()
 
-    def display_unit(self, pos):
+    def display_unit(self, pos:"tuple[int,int]"):
         self.unitfontdisplay.fill((60,60,60,255))
         self.abilitiesdisplay.fill((60,60,60,255))
         self.unitimagedisplay.fill((100,0,0,0))
@@ -94,7 +97,7 @@ class Hud(pygame.sprite.Sprite):
         self.image.blit(self.phasemarkersdisplay, (self.gridui.width*.855,self.gridui.height*.1+18))
         self.image.blit(self.abilitiesnumbers, (self.gridui.width*.855+5, self.gridui.height*.1+18))
 
-    def display_abilities(self, unit):
+    def display_abilities(self, unit:UnitBase):
         abilities = unit.abilities.values()
         index = 0
         numbers = ""
@@ -111,7 +114,7 @@ class Hud(pygame.sprite.Sprite):
                 numberimage = self.font.render(numbers.strip(), True, (255,255,255,255))
                 self.abilitiesnumbers.blit(numberimage, (0,0))
 
-    def display_healthbar(self, unit):
+    def display_healthbar(self, unit:UnitBase):
         x,y = self.gridui.transform_grid_screen(*unit.get_position())
         barwidth = 32
         hitpoints = unit.hitpoints
@@ -124,7 +127,7 @@ class Hud(pygame.sprite.Sprite):
                 (x+33+slotwidth*hp-slotwidth/2*hitpoints,y-15), 
                 (0,0,slotwidth,6))
     
-    def display_tile(self, pos):
+    def display_tile(self, pos:"tuple[int,int]"):
         self.tilefontdisplay.fill((0,0,0,0))
         tile = self.gridui.uitiles[self.gridui.grid.c_to_i(*pos)]
         if tile.visible:
@@ -160,7 +163,7 @@ class Hud(pygame.sprite.Sprite):
         self.display_tile(self.cursorgridpos)
         self.display_unit(self.cursorgridpos)
 
-    def update_cursor(self, position):
+    def update_cursor(self, position:"tuple[int,int]"):
         self.cursorgridpos = position
         self.cursorscreenpos = self.gridui.transform_grid_screen(*position)
         if self.selectedunitui and self.selectedunitui._parentelement:
@@ -171,7 +174,7 @@ class Hud(pygame.sprite.Sprite):
         if self.session.state.startswith("running"):
             grid = self.gridui.grid
             if grid.phase == 0:
-                if len(self.session._players[self.playerid]._initialunits) > 0:
+                if len(self.session._players[self.playerid]._initialunitids) > 0:
                     return
             if grid.phase == 1:
                 if self.timer <= 0:

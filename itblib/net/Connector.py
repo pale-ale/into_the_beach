@@ -1,10 +1,11 @@
 import socket
+from typing import Optional
 
 class Connector():
     def __init__(self, authority:bool):
         self.authority = authority
-        self.connection = None
-        self.acc_connection = None
+        self.connection:Optional[socket.socket] = None
+        self.acc_connection:Optional[socket.socket] = None
 
     def server_init(self):
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # | socket.SOCK_NONBLOCK)
@@ -46,7 +47,7 @@ class Connector():
         if self.acc_connection:
             self.acc_connection.send(prefixdata + contentdata)
    
-    def send_custom(self, connection, prefix:str, content:str):
+    def send_custom(self, connection:socket.socket, prefix:str, content:str):
         assert len(prefix) <= 50, print(len(prefix))
         assert len(content) <= 1500, print(len(content))
         prefixdata = (prefix + '\0').ljust(50) .encode("utf8")

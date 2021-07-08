@@ -1,16 +1,18 @@
+from itblib.net.Connector import Connector
+from itblib.Player import Player
 from .Maps import Map, MapGrasslands
 from .Grid import Grid
 from .net import NetEvents 
 import json
 
 class Session:
-    def __init__(self, connector):
+    def __init__(self, connector:Connector):
         self.connector = connector
-        self._players = {}
+        self._players:dict[int,Player] = {}
         self._grid = Grid(connector)
         self.state = "needsPlayers"
     
-    def add_player(self, player):
+    def add_player(self, player:Player):
         if self.connector:
             for playerid in self._players.keys():
                 NetEvents.snd_netplayerjoin(self._players[playerid].playersocket, player, False)

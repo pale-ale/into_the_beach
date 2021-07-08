@@ -1,18 +1,22 @@
+from typing import TYPE_CHECKING
 from .Enums import PREVIEWS
 from .net import NetEvents
 
+if TYPE_CHECKING:
+    from itblib.gridelements.Units import UnitBase
+
 class AbilityBase:
-    def __init__(self, unit):
+    def __init__(self, unit:"UnitBase"):
         self._unit = unit
         self.needstarget = False
-        self.area_of_effect = list()
-        self.selected_targets = list()
+        self.area_of_effect:"list[tuple[tuple[int,int],int]]" = {}
+        self.selected_targets:"list[tuple[tuple[int,int],int]]" = {}
         self.selected = False
         self.id = -1
         self.phase = 2
         self.register_hooks()
     
-    def tick(self, dt):
+    def tick(self, dt:float):
         pass
 
     def on_select_ability(self):
@@ -45,13 +49,13 @@ class AbilityBase:
         self._unit.register_hook("OnUpdatePhase", self.on_update_phase)
         self._unit.register_hook("OnUpdateCursor", self.on_update_cursor)
     
-    def on_update_phase(self, newphase):
+    def on_update_phase(self, newphase:int):
         if newphase == self.phase:
             self.activate()
     
 
 class MovementAbility(AbilityBase):
-    def __init__(self, unit):
+    def __init__(self, unit:"UnitBase"):
         super().__init__(unit)
         self.id = 0
         self.phase = 3
@@ -77,7 +81,7 @@ class MovementAbility(AbilityBase):
                 coordwithpreviewid = (neighbor, PREVIEWS[delta])
                 self.area_of_effect.append(coordwithpreviewid)
 
-    def targets_chosen(self, targets):
+    def targets_chosen(self, targets:"list[tuple[int,int]]"):
         super().targets_chosen(targets)
         if len(self.path) > self._unit.moverange:
             return
@@ -104,7 +108,7 @@ class MovementAbility(AbilityBase):
                 self.area_of_effect.append((target, PREVIEWS[1]))
                 self.collect_movement_info()
     
-    def on_update_cursor(self, newcursorpos):
+    def on_update_cursor(self, newcursorpos:"tuple[int,int]"):
         super().on_update_cursor(newcursorpos)
         if self.selected:
             self.targets_chosen([newcursorpos])
@@ -117,7 +121,7 @@ class MovementAbility(AbilityBase):
 
 
 class PunchAbility(AbilityBase):
-    def __init__(self, unit):
+    def __init__(self, unit:"UnitBase"):
         super().__init__(unit)
         self.id = 1
         self.phase = 2
@@ -128,7 +132,7 @@ class PunchAbility(AbilityBase):
         for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
             self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
-    def targets_chosen(self, targets):
+    def targets_chosen(self, targets:"list[tuple[int,int]]"):
         assert len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
@@ -146,7 +150,7 @@ class PunchAbility(AbilityBase):
 
     
 class RangedAttackAbility(AbilityBase):
-    def __init__(self, unit):
+    def __init__(self, unit:"UnitBase"):
         super().__init__(unit)
         self.id = 2
         self.phase = 2
@@ -172,7 +176,7 @@ class RangedAttackAbility(AbilityBase):
         for coord in coords:
             self.area_of_effect.append((coord, PREVIEWS[0]))
 
-    def targets_chosen(self, targets):
+    def targets_chosen(self, targets:"list[tuple[int,int]]"):
         super().targets_chosen(targets)
         assert len(targets) == 1
         target = targets[0]
@@ -189,11 +193,11 @@ class RangedAttackAbility(AbilityBase):
     
 
 class PushAbility(AbilityBase):
-    def __init__(self, unit):
+    def __init__(self, unit:"UnitBase"):
         super().__init__(unit)
         self.id = 3
 
-    def targets_chosen(self, targets):
+    def targets_chosen(self, targets:"list[tuple[int,int]]"):
         super().targets_chosen(targets)
         assert len(targets) == 1
         positions = [x[0] for x in self.area_of_effect]

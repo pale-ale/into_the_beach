@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 from .GridElement import GridElement
 from ..Abilities import AbilityBase, \
     MovementAbility, \
@@ -6,8 +7,11 @@ from ..Abilities import AbilityBase, \
     PushAbility, \
     RangedAttackAbility 
 
+if TYPE_CHECKING:
+    from ..Grid import Grid
+
 class UnitBase(GridElement):
-    def __init__(self, grid, ownerid, playerid:int=0, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
+    def __init__(self, grid:"Grid", ownerid:int, playerid:int=0, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
         super().__init__()
         self.name = name
         self.hitpoints = hitpoints
@@ -21,7 +25,7 @@ class UnitBase(GridElement):
         self.orientation = "sw"
         self.actionhooks = dict()
         self.userActions ={1:None, 2:None, 3:None, 4:None}
-        self.abilities = {"MovementAbility":MovementAbility(self), 
+        self.abilities:dict[str, AbilityBase] = {"MovementAbility":MovementAbility(self), 
             "PunchAbility":PunchAbility(self),
         }
         self.player = playerid

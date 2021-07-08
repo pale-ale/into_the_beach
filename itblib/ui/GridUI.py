@@ -1,3 +1,4 @@
+from itblib.gridelements.GridElementUI import GridElementUI
 from ..gridelements.Effects import EffectBase
 from ..gridelements.EffectsUI import EffectBaseUI
 from ..gridelements.Tiles import TileBase
@@ -27,34 +28,34 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.uieffects = [EffectBaseUI(None) for i in range(grid.width*grid.height)]
         self.uiunits = [UnitBaseUI(None) for i in range(grid.width*grid.height)]
 
-    def on_add_tile(self, tile):
+    def on_add_tile(self, tile:TileBase):
         x,y = tile.get_position()
         uitile = self.uitiles[self.grid.width*y+x]
         uitile.update_tile(tile)
 
-    def on_add_effect(self, effect):
+    def on_add_effect(self, effect:EffectBase):
         x,y = effect.get_position()
         uieffect = self.uieffects[self.grid.width*y+x]
         uieffect.update_effect(effect)
     
-    def on_add_unit(self, unit):
+    def on_add_unit(self, unit:UnitBase):
         x,y = unit.get_position()
         uiunit = self.uiunits[self.grid.width*y+x]
         uiunit.update_unit(unit)
 
-    def on_move_unit(self, x, y, targetx, targety):
+    def on_move_unit(self, x:int, y:int, targetx:int, targety:int):
         unit = self.grid.get_unit(targetx,targety)
         self.uiunits[self.grid.width*y+x].update_unit(None)
         self.uiunits[self.grid.width*targety+targetx].update_unit(unit)
 
-    def on_remove_unit(self, x, y):
+    def on_remove_unit(self, x:int, y:int):
         self.uiunits[self.grid.c_to_i(x,y)].update_unit(None)
    
     def tick(self, dt:float):
         self.grid.tick(dt)
         self.redraw_grid()
     
-    def on_load_map(self, map):
+    def on_load_map(self, map:Map):
         self.uitiles = [TileBaseUI(None) for i in range(map.width*map.height)]
         self.uieffects = [EffectBaseUI(None) for i in range(map.width*map.height)]
         self.uiunits = [UnitBaseUI(None) for i in range(map.width*map.height)]
@@ -68,7 +69,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
     def transform_grid_screen(self, gridx:int, gridy:int):
         return (gridx*-32 + gridy*32 + (self.width-64)/2, gridx*16 + gridy*16)
 
-    def draw_group(self, gridgroup):
+    def draw_group(self, gridgroup:"list[GridElementUI]"):
         for part in gridgroup:
             part.update_image()
             if part.visible:

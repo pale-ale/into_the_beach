@@ -6,7 +6,7 @@ class Textures:
     textures = {"Units":{}, "Tiles":{}, "Effects":{}, "Other":{}}
 
     @classmethod
-    def get_spritesheet(cls, type:str, name:str, animname:str, orientation:str="sw"):
+    def get_spritesheet(cls, type:str, name:str, animname:str, orientation:str="sw") -> "list[pygame.Surface]":
         if type == "Unit":
             return cls.textures["Units"][name][animname][orientation]
         if type == "Tile":

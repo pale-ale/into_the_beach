@@ -1,3 +1,6 @@
+from itblib.gridelements.GridElement import GridElement
+from typing import Optional
+from itblib.net.Connector import Connector
 from .gridelements.Tiles import TileBase
 from .gridelements.Effects import EffectBase
 from .gridelements.Units import UnitBase
@@ -11,7 +14,7 @@ from .net import NetEvents
 import random
 
 class Grid:
-    def __init__(self, connector, observer=None, width:int=10, height:int=10):
+    def __init__(self, connector:Connector, observer:Optional[IGridObserver]=None, width:int=10, height:int=10):
         self.height = width
         self.width = height
         self.phasetime = 0
@@ -19,17 +22,16 @@ class Grid:
         self.connector = connector
         self.planningphasetime = 10
         self.pregametime = 10
-        self.tiles = [None]*width*height
-        self.units = [None]*width*height
-        self.effects = [None]*width*height
+        self.tiles:"list[Optional[TileBase]]" = [None]*width*height
+        self.units:"list[Optional[UnitBase]]" = [None]*width*height
+        self.effects:"list[Optional[EffectBase]]" = [None]*width*height
         self.observer = observer
         self.phase = 0
 
-    def update_observer(self, observer):
+    def update_observer(self, observer:Optional[IGridObserver]):
         self.observer = observer
     
-    def everybody_done(self):
-        everybodydone = True
+    def everybody_done(self) -> bool:
         for group in (self.units, self.tiles, self.effects):    
             for member in group:
                 if member and not member.done:
@@ -37,8 +39,8 @@ class Grid:
         return True
 
     def update_unit_movement(self):
-        movingunits = []
-        obstacles = []
+        movingunits:"list[UnitBase]" = []
+        obstacles:"list[GridElement]" = []
         #filter units that cannot move
         for unit in self.units:
             if unit:

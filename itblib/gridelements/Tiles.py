@@ -1,3 +1,4 @@
+from itblib.gridelements.Units import UnitBase
 from .GridElement import GridElement
 
 class TileBase(GridElement):
@@ -7,7 +8,7 @@ class TileBase(GridElement):
         self.name = "TileDirt"
         self.onfire = False
 
-    def on_enter(self, unit):
+    def on_enter(self, unit:UnitBase):
         pass
 
     def on_damage(self, damage:int):
@@ -20,7 +21,7 @@ class TileForest(TileBase):
         self.name = "TileForest"
         self.id = 1
 
-    def on_enter(self, unit):
+    def on_enter(self, unit:UnitBase):
         pass
 
     def on_damage(self, damage:int):
@@ -32,6 +33,6 @@ class TileSea(TileBase):
         super().__init__()
         self.id = 2
 
-    def on_enter(self, unit):
+    def on_enter(self, unit:UnitBase):
         if not unit.canswim:
             unit.drown()
