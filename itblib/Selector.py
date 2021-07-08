@@ -1,20 +1,23 @@
 import pygame
 
+from itblib.ui.HUD import Hud 
+from itblib.Grid import Grid
+
 class Selector:
-    def __init__(self, grid, hud):
+    def __init__(self, grid:Grid, hud:Hud):
         self.grid = grid
         self.cursorposition = [0,0]
         self.hud = hud
         self.hud.update_cursor(self.cursorposition)
 
-    def add(self, a, b):
+    def add(self, a:"tuple[int,int]", b:"tuple[int,int]"):
         return a[0] + b[0], a[1] + b[1]
     
     def handle_input(self, event):
         if event.type == pygame.KEYDOWN:
             # exit game
             if event.key == pygame.K_ESCAPE:
-                exit()
+                self.hud.escape_pressed()
             if event.key == pygame.K_SPACE and self.hud.gridui.grid.phase == 0:
                 self.hud.unitselect(self.cursorposition)
                 return

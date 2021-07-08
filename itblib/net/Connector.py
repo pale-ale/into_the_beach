@@ -32,12 +32,15 @@ class Connector():
     
     def __del__(self):
         print("Tearing down connections.")
-        if self.connection:
-            self.connection.shutdown(0)
-            self.connection.close()
-        if self.acc_connection:
-            self.acc_connection.shutdown(0)
-            self.acc_connection.close()
+        try:
+            if self.connection:
+                self.connection.shutdown(0)
+                self.connection.close()
+            if self.acc_connection:
+                self.acc_connection.shutdown(0)
+                self.acc_connection.close()
+        except:
+            pass
     
     def send(self, prefix:str, content:str):
         assert len(prefix) <= 50, print(len(prefix))

@@ -26,7 +26,7 @@ def handle_networking_events():
                 break
 
 def manage_players():
-    if len(serversession._players) > 0:
+    if len(serversession._players) > 1:
         if not serversession.state.startswith("running"):
             print("starting game")
             serversession.start_game()
@@ -42,6 +42,6 @@ def manage_players():
 while True:
     handle_networking_events()
     manage_players()
-    #dt = clock.tick(FPS)/1000.0
-    dt = int(input()) / 1000.0
+    dt = clock.tick(FPS)/1000.0
+    #dt = int(input()) / 1000.0
     serversession._grid.tick(dt)

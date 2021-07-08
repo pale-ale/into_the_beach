@@ -3,11 +3,12 @@ import pygame
 import pygame.sprite
 import pygame.font
 from ..ui.TextureManager import Textures
-from ..Enums import PREVIEWS
-from ..Globals import ClassMapping
-from .GridUI import GridUI
-from ..Game import Session
-from ..gridelements.Units import UnitBase
+from itblib.Enums import PHASES, PREVIEWS
+from itblib.Globals import ClassMapping
+from itblib.ui.GridUI import GridUI
+from itblib.Game import Session
+from itblib.gridelements.Units import UnitBase
+from itblib.net import NetEvents
 
 class Hud(pygame.sprite.Sprite):
     def __init__(self, width:int, height:int, gridui:GridUI, playerid:int, session:Session):
@@ -16,7 +17,6 @@ class Hud(pygame.sprite.Sprite):
         self.background = pygame.Surface((gridui.width, gridui.height))
         self.rect = self.image.get_rect()
         self.selectedunitui:UnitBaseUI = None
-        self.timer = 10.0
         self.gridui = gridui
         self.font = pygame.font.SysFont('latinmodernmono', 15)
         self.cursorgridpos = (0,0)
@@ -41,6 +41,9 @@ class Hud(pygame.sprite.Sprite):
             marker = pygame.Surface((16,20))
             marker.fill(color)
             self.phasemarkers.append(marker)
+    
+    def escape_pressed(self):
+        NetEvents.snd_netplayerleave(self.session._players[self.playerid])
 
     def unitselect(self, position:"tuple[int,int]"):
         unitui = self.gridui.get_unitui(*position)
@@ -157,7 +160,10 @@ class Hud(pygame.sprite.Sprite):
             self.image.blit(Textures.textures["Other"][PREVIEWS[2]], self.cursorscreenpos)
         else:
             self.image.blit(Textures.textures["Other"][PREVIEWS[0]], self.cursorscreenpos)
-        self.timerdisplay = self.font.render(str(round(self.timer, 1)), True, (255,255,255,255))
+        
+        maxphasetime = PHASES[self.gridui.grid.phase][1]
+        currentphasetime = self.gridui.grid.phasetime
+        self.timerdisplay = self.font.render(str(round(maxphasetime-currentphasetime, 1)), True, (255,255,255,255))
         self.image.blit(self.timerdisplay, (10,10))
 
         self.display_tile(self.cursorgridpos)
@@ -176,10 +182,3 @@ class Hud(pygame.sprite.Sprite):
             if grid.phase == 0:
                 if len(self.session._players[self.playerid]._initialunitids) > 0:
                     return
-            if grid.phase == 1:
-                if self.timer <= 0:
-                    self.timer = 10.0
-                else:
-                    self.timer -= dt
-                return
-        

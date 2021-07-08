@@ -9,8 +9,8 @@ class AbilityBase:
     def __init__(self, unit:"UnitBase"):
         self._unit = unit
         self.needstarget = False
-        self.area_of_effect:"list[tuple[tuple[int,int],int]]" = {}
-        self.selected_targets:"list[tuple[tuple[int,int],int]]" = {}
+        self.area_of_effect:"list[tuple[tuple[int,int],int]]" = []
+        self.selected_targets:"list[tuple[tuple[int,int],int]]" = []
         self.selected = False
         self.id = -1
         self.phase = 2

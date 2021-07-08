@@ -1,6 +1,11 @@
+from itblib.net.Connector import Connector
 from itblib.Player import Player
 from ..Maps import Map
 import json
+
+from typing import TYPE_CHECKING, cast
+if TYPE_CHECKING:
+    from itblib.Game import Session
 
 ENetEvent = {
     "NetMapTransfer",
@@ -93,13 +98,30 @@ def rcv_netphasechange(phasenumber:int):
     phasenumber = int(phasenumber)
     print("got phasechange")
     StaticObjects["Grid"].change_phase(phasenumber)
-        
+
+def snd_netplayerleave(leavingplayer:Player):
+    connector = StaticObjects["Connector"]
+    connector = cast(Connector, connector)
+    if not connector.authority:
+        connector.send("NetPlayerLeave", str(leavingplayer.playerid))
+    else:
+        for player in StaticObjects["Session"]._players.values():
+            connector.send_custom(player.playersocket, "NetPlayerLeave", str(player.playerid))
+
+def rcv_netplayerleave(playerid:int):
+    print("Bye")
+    playerid = int(playerid)
+    session = StaticObjects["Session"]
+    session.remove_player(playerid)
+    exit(0)
+
 RcvNetEventsMap = {
     "NetMapTransfer" : rcv_netmaptransfer,
     "NetUnitMove" : rcv_netunitmove,
     "NetPlayerJoin" : rcv_netplayerjoin,
     "NetPhaseChange" : rcv_netphasechange,
     "NetUnitSpawn" : rcv_netunitspawn,
+    "NetPlayerLeave" : rcv_netplayerleave,
 }
     
 def rcv_event_caller(prefix:str, contents:str):
