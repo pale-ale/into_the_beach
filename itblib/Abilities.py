@@ -72,11 +72,10 @@ class MovementAbility(AbilityBase):
             self.collect_movement_info()
 
     def collect_movement_info(self):
-        self.area_of_effect = self.selected_targets.copy()
         pathwithself = [self._unit.get_position()] + self.path
-        if len(self.path) <= self._unit.moverange:
+        if len(pathwithself) <= self._unit.moverange:
             pos = pathwithself[-1]
-            for neighbor in self._unit.grid.get_ordinal_neighbors(*pathwithself[-1]):
+            for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
                 delta = (neighbor[0] - pos[0], neighbor[1] - pos[1])
                 coordwithpreviewid = (neighbor, PREVIEWS[delta])
                 self.area_of_effect.append(coordwithpreviewid)
@@ -86,32 +85,51 @@ class MovementAbility(AbilityBase):
         if len(self.path) > self._unit.moverange:
             return
         assert isinstance(targets, list) and len(targets) == 1
+        assert isinstance(targets[0], tuple)
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
         if target in positions:
             pathwithself = [self._unit.get_position()] + self.path
             pos = pathwithself[-1]
-            if target != pathwithself[-1]:
-                #SE = 0,1, NE = -1,0
-                if len(pathwithself)>1:
-                    prevdelta = (pathwithself[-1][0] - pathwithself[-2][0],
-                        pathwithself[-1][1] - pathwithself[-2][1])
-                    delta = (target[0] - pos[0], target[1] - pos[1], *prevdelta)
-                    self.area_of_effect[len(self.path)] = (self.area_of_effect[len(self.path)][0], PREVIEWS[delta])
-                    self.selected_targets[-1] = (self.selected_targets[-1][0], PREVIEWS[delta])
-                else:
-                    prevdelta = (target[0] - pos[0], target[1] - pos[1])
-                    delta = (target[0] - pos[0], target[1] - pos[1], *prevdelta)
-                self.selected_targets.append((target, PREVIEWS[1]))
+            if target != pos:
+                self.add_to_movement(target)
                 NetEvents.snd_netunitmove(self._unit)
-                self.path.append(target)
-                self.area_of_effect.append((target, PREVIEWS[1]))
                 self.collect_movement_info()
     
+    def update_path_display(self):
+        #SE = 0,1, NE = -1,0
+        self.selected_targets.clear()
+        self.area_of_effect.clear()
+        pathwithself = [self._unit.get_position()] + self.path
+        if len(pathwithself) > 1:
+            first = (pathwithself[0], PREVIEWS[1])
+            last = (pathwithself[-1], PREVIEWS[1])
+            for i in range(1, len(pathwithself)-1):
+                prev = pathwithself[i-1]
+                curr = pathwithself[i]
+                next = pathwithself[i+1]
+                prevdelta = (curr[0] - prev[0], curr[1] - prev[1])
+                nextdelta = (next[0] - curr[0], next[1] - curr[1])
+                currentwithpreview = (curr, PREVIEWS[(*nextdelta, *prevdelta)])
+                self.selected_targets.append(currentwithpreview)
+            self.selected_targets.append(first)
+            self.selected_targets.append(last)
+        self.collect_movement_info()
+
+    def add_to_movement(self, target:"tuple[int,int]"):
+        self.path.append(target)
+        NetEvents.snd_netunitmove(self._unit)
+        self.update_path_display()
+
+    def set_path(self, newpath: "list[tuple[int,int]]"):
+        self.path = newpath
+        self.update_path_display()
+            
     def on_update_cursor(self, newcursorpos:"tuple[int,int]"):
         super().on_update_cursor(newcursorpos)
         if self.selected:
-            self.targets_chosen([newcursorpos])
+            if len(self.path) < self._unit.moverange:
+                self.add_to_movement(newcursorpos)
     
     def activate(self):
         super().activate()

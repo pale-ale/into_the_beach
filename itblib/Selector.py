@@ -18,15 +18,15 @@ class Selector:
             # exit game
             if event.key == pygame.K_ESCAPE:
                 self.hud.escape_pressed()
-            if event.key == pygame.K_SPACE and self.hud.gridui.grid.phase == 0:
+            if event.key == pygame.K_SPACE:
                 self.hud.unitselect(self.cursorposition)
                 return
-            if event.key == pygame.K_RETURN and self.hud.gridui.grid.phase == 0:
+            if event.key == pygame.K_RETURN:
                 self.hud.targetselect(self.cursorposition)
                 return
 
             # active abilities
-            if event.unicode and event.unicode in "1234" and self.hud.gridui.grid.phase == 0:
+            if event.unicode and event.unicode in "1234":
                 self.hud.activate_ability(int(event.unicode))
                 return
 

@@ -1,5 +1,6 @@
 import socket
 from typing import Optional
+from itblib.Player import Player
 
 class Connector():
     def __init__(self, authority:bool):
@@ -56,6 +57,10 @@ class Connector():
         prefixdata = (prefix + '\0').ljust(50) .encode("utf8")
         contentdata = (content).ljust(1500).encode("utf8")
         connection.send(prefixdata + contentdata)
+    
+    def send_to_clients(self, players:"dict[int, Player]", prefix:str, content:str):
+        for player in players.values():
+            self.send_custom(player.playersocket, prefix, content)
 
     def receive(self):
         if self.acc_connection:

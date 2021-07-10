@@ -71,6 +71,7 @@ class Hud(pygame.sprite.Sprite):
 
     def activate_ability(self, slot:int):
         if self.selectedunitui and self.selectedunitui._parentelement:
+            print("activating")
             self.selectedunitui._parentelement.trigger_hook("OnDeselectAbilities")
             self.selectedunitui._parentelement.trigger_hook("UserAction" + str(slot))
             self.redraw()
@@ -149,7 +150,8 @@ class Hud(pygame.sprite.Sprite):
         self.image.fill((0,0,0,0))
         if self.selectedunitui and self.selectedunitui._parentelement:
             for ability in self.selectedunitui._parentelement.abilities.values():
-                for previewinfo in ability.area_of_effect:
+                stufftodraw = ability.area_of_effect + ability.selected_targets
+                for previewinfo in stufftodraw:
                     pos, previewid = previewinfo
                     x,y = self.gridui.transform_grid_screen(*pos)
                     self.image.blit(Textures.textures["Other"][previewid], (x,y))

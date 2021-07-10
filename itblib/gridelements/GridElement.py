@@ -1,6 +1,6 @@
 class GridElement:
     def __init__(self):
-        self._pos = [None,None]
+        self._pos:list[int,int] = [None,None]
         self.age = 0
         self.done = True
         self.name = ""

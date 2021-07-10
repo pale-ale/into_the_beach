@@ -64,6 +64,7 @@ class Grid:
             # and remove first path element
             for unit in movingunits[:]:
                 nextpos = unit.abilities["MovementAbility"].selected_targets.pop(0)[0]
+                print(nextpos)
                 if nextpos in obstacles:
                     movingunits.remove(unit)
                     unit.done = True
@@ -96,7 +97,7 @@ class Grid:
     
     def change_phase(self, phase):
         self.phase = phase
-        self.phasetime = self.gametime
+        self.phasetime = 0
         for unit in self.units:
             if unit:
                 unit.trigger_hook("OnUpdatePhase", self.phase)
@@ -162,7 +163,8 @@ class Grid:
             self.units[self.width*targety+targetx] = unit
             unit.set_position((targetx, targety))
             self.tiles[self.width*targety+targetx].on_enter(unit)
-            self.observer.on_move_unit(x, y, targetx, targety)
+            if self.observer:
+                self.observer.on_move_unit(x, y, targetx, targety)
 
     def get_tile(self, x:int, y:int):
         return self.tiles[self.width*y+x]

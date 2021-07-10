@@ -106,6 +106,7 @@ class UnitBarbarian(UnitBase):
     def __init__(self, grid, ownerid, name:str="U"):
         super().__init__(grid, ownerid, name)
 
+
 class UnitHomebase(UnitBase):
     def __init__(self, grid, ownerid, name:str="UnitSaucer"):
         super().__init__(grid, ownerid, name)
