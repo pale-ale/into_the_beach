@@ -9,13 +9,15 @@ class Player:
         self.playerid = id
         self.playersocket = playersocket
         self.localcontrol = False
+        self.replicatedproperties = ["name", "color", "_initialunitids", "_controlledunits", "playerid", "localcontrol"]
     
     def get_info(self):
-        d = self.__dict__.copy()
-        d.pop("playersocket")
+        d = {}
+        for property in self.replicatedproperties:
+            d[property] = self.__dict__[property]
         return d
 
     def set_info(self, info):
-        for key in info.keys():
-            self.__dict__[key] = info[key]
+        for property in self.replicatedproperties:
+            self.__dict__[property] = info[property]
     

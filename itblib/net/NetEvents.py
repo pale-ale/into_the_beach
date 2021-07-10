@@ -39,11 +39,9 @@ def rcv_netmaptransfer(mapjson:str):
 
 def snd_netunitspawn(unitid:int, pos:"tuple[int,int]", ownerid:int):
     unitspawntuple = (unitid, pos, ownerid)
-    print(unitspawntuple)
     if StaticObjects["Connector"].authority:
-        pass#StaticObjects["Connector"].sendtoclients(unit.path, unitid)
+        pass
     else:
-
         StaticObjects["Connector"].send("NetUnitSpawn", json.dumps(unitspawntuple))
 
 def rcv_netunitspawn(unitspawntuplestr):
@@ -51,7 +49,6 @@ def rcv_netunitspawn(unitspawntuplestr):
     unitid, pos, ownerid = unitspawntuple
     if StaticObjects["Connector"].authority:
         #check whether this request is fulfillable, if not: return
-        print("spawning:", unitspawntuple)
         for player in StaticObjects["Session"]._players.values():
             StaticObjects["Connector"].send_custom(player.playersocket, "NetUnitSpawn", unitspawntuplestr)
     StaticObjects["Grid"].add_unit(*pos, unitid, ownerid)
@@ -60,7 +57,6 @@ def snd_netunitmove(unit):
     path = unit.abilities["MovementAbility"].path
     pos = unit.get_position()
     pospath = (pos, path)
-    print("SND Path", path)
     pospathjson = json.dumps(pospath)
     if StaticObjects["Connector"].authority:
         StaticObjects["Connector"].send_to_clients(StaticObjects["Session"]._players, "NetUnitMove", pospathjson)
@@ -72,7 +68,6 @@ def rcv_netunitmove(unitandpath):
     # unit path will now be a list[list[int,int]], since tuples dont exist in json
     unitpos, listpath = obj
     path = [(x[0],x[1]) for x in listpath]
-    print("RCV Path", path)
     unit = StaticObjects["Grid"].get_unit(*unitpos)
     c = StaticObjects["Connector"]
     if c.authority:
@@ -100,7 +95,6 @@ def rcv_netplayerjoin(playerdata):
     StaticObjects["Session"]._players[player.playerid] = player
     if player.localcontrol:
         StaticObjects["Hud"].playerid = player.playerid
-
 
 def snd_netphasechange(phasenumber):
     for player in StaticObjects["Session"]._players.values():

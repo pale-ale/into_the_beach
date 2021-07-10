@@ -17,8 +17,9 @@ NetEvents.StaticObjects["Connector"] = c
 NetEvents.StaticObjects["Grid"] = serversession._grid
 
 def handle_networking_events():
-    while True:
-            data = c.receive()
+    for player in serversession._players.values():
+        while True:
+            data = c.receive_custom(player.playersocket)
             if data:
                 prefix, contents = data
                 NetEvents.rcv_event_caller(prefix, contents)

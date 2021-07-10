@@ -71,7 +71,6 @@ class Hud(pygame.sprite.Sprite):
 
     def activate_ability(self, slot:int):
         if self.selectedunitui and self.selectedunitui._parentelement:
-            print("activating")
             self.selectedunitui._parentelement.trigger_hook("OnDeselectAbilities")
             self.selectedunitui._parentelement.trigger_hook("UserAction" + str(slot))
             self.redraw()
