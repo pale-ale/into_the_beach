@@ -50,20 +50,28 @@ def rcv_netunitspawn(unitspawntuplestr):
     if StaticObjects["Connector"].authority:
         #check whether this request is fulfillable, if not: return
         for player in StaticObjects["Session"]._players.values():
-            StaticObjects["Connector"].send_custom(player.playersocket, "NetUnitSpawn", unitspawntuplestr)
+            StaticObjects["Connector"].send_custom(
+                player.playersocket, 
+                "NetUnitSpawn", 
+                unitspawntuplestr
+            )
     StaticObjects["Grid"].add_unit(*pos, unitid, ownerid)
 
-def snd_netunitmove(unit):
+def snd_netunitmovepreview(unit):
     path = unit.abilities["MovementAbility"].path
     pos = unit.get_position()
     pospath = (pos, path)
     pospathjson = json.dumps(pospath)
     if StaticObjects["Connector"].authority:
-        StaticObjects["Connector"].send_to_clients(StaticObjects["Session"]._players, "NetUnitMove", pospathjson)
+        StaticObjects["Connector"].send_to_clients(
+            StaticObjects["Session"]._players, 
+            "NetUnitMovePreview", 
+            pospathjson
+        )
     else:
-        StaticObjects["Connector"].send("NetUnitMove", pospathjson)
+        StaticObjects["Connector"].send("NetUnitMovePreview", pospathjson)
 
-def rcv_netunitmove(unitandpath):
+def rcv_netunitmovepreview(unitandpath):
     obj = json.loads(unitandpath)
     # unit path will now be a list[list[int,int]], since tuples dont exist in json
     unitpos, listpath = obj
@@ -73,9 +81,27 @@ def rcv_netunitmove(unitandpath):
     if c.authority:
         #verify move positions
         unit.abilities["MovementAbility"].set_path(path)
-        snd_netunitmove(unit)
+        snd_netunitmovepreview(unit)
     else:
         unit.abilities["MovementAbility"].set_path(path)
+
+def snd_netunitmove(fro:"tuple[int,int]", to:"tuple[int,int]"):
+    #only the server my send actual unit-moves
+    froto = [*fro, *to]
+    c = StaticObjects["Connector"]
+    frotodata = json.dumps(froto)
+    if c.authority:
+        c.send_to_clients(
+            StaticObjects["Session"]._players,
+            "NetUnitMove",
+            frotodata
+        )
+
+def rcv_netunitmove(movedata):
+    #this method is called on clients only
+    fromto = json.loads(movedata)
+    c = StaticObjects["Connector"]
+    StaticObjects["Grid"].move_unit(*fromto)
 
     #if server:
     #    if verified:
@@ -122,12 +148,13 @@ def rcv_netplayerleave(playerid:int):
     exit(0)
 
 RcvNetEventsMap = {
-    "NetMapTransfer" : rcv_netmaptransfer,
-    "NetUnitMove" : rcv_netunitmove,
-    "NetPlayerJoin" : rcv_netplayerjoin,
-    "NetPhaseChange" : rcv_netphasechange,
-    "NetUnitSpawn" : rcv_netunitspawn,
-    "NetPlayerLeave" : rcv_netplayerleave,
+    "NetMapTransfer":rcv_netmaptransfer,
+    "NetUnitMovePreview":rcv_netunitmovepreview,
+    "NetUnitMove":rcv_netunitmove,
+    "NetPlayerJoin":rcv_netplayerjoin,
+    "NetPhaseChange":rcv_netphasechange,
+    "NetUnitSpawn":rcv_netunitspawn,
+    "NetPlayerLeave":rcv_netplayerleave,
 }
     
 def rcv_event_caller(prefix:str, contents:str):

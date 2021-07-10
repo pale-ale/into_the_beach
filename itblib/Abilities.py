@@ -118,7 +118,7 @@ class MovementAbility(AbilityBase):
 
     def add_to_movement(self, target:"tuple[int,int]"):
         self.path.append(target)
-        NetEvents.snd_netunitmove(self._unit)
+        NetEvents.snd_netunitmovepreview(self._unit)
         self.update_path_display()
 
     def set_path(self, newpath: "list[tuple[int,int]]"):

@@ -162,6 +162,7 @@ class Grid:
             self.units[self.width*y+x] = None
             self.units[self.width*targety+targetx] = unit
             unit.set_position((targetx, targety))
+            NetEvents.snd_netunitmove((x,y), (targetx, targety))
             self.tiles[self.width*targety+targetx].on_enter(unit)
             if self.observer:
                 self.observer.on_move_unit(x, y, targetx, targety)
