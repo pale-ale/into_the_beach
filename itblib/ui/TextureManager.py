@@ -29,14 +29,23 @@ class Textures:
         LoaderMethods.load_tile_effect_textures(tiledict, "TileForest", "Default")
         LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileDirt", "Default")
         LoaderMethods.load_tile_effect_textures(tiledict, "TileDirt", "Default")
+        LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileLava", "Default")
+        LoaderMethods.load_tile_effect_textures(tiledict, "TileLava", "Default")
         
         effectdict = Textures.textures["Effects"]
         LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectFire", "Default")
         LoaderMethods.load_tile_effect_textures(effectdict, "EffectFire", "Default", 2)
-        
-        effectdict = Textures.textures["Effects"]
         LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectTrees", "Default")
         LoaderMethods.load_tile_effect_textures(effectdict, "EffectTrees", "Default")
+        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectMountain", "Default")
+        LoaderMethods.load_tile_effect_textures(effectdict, "EffectMountain", "Default")
+        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectWheat", "Default")
+        LoaderMethods.load_tile_effect_textures(effectdict, "EffectWheat", "Default")
+        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectTown", "Default")
+        LoaderMethods.load_tile_effect_textures(effectdict, "EffectTown", "Default")
+        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectRiver", "Default")
+        LoaderMethods.load_tile_effect_textures(effectdict, "EffectRiver", "Default", 12)
+
         # Filenames are built the following way:
         #       <UnitName> + <Orientation> + <AnimationName> + <Framenumber(>=0)> + .png
         # e.g.: UnitSaucer + SW            + Idle            + 0                  + .png

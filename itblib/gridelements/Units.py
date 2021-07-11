@@ -12,13 +12,12 @@ if TYPE_CHECKING:
 
 class UnitBase(GridElement):
     def __init__(self, grid:"Grid", ownerid:int, playerid:int=0, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
-        super().__init__()
+        super().__init__(grid)
         self.name = name
         self.hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
         self.baseattack = {"physical": 4, "magical": 0}
         self.canswim = canswim
-        self.grid = grid
         self.id = 0
         self.ownerid = ownerid
         self.moverange = 5

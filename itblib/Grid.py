@@ -120,7 +120,7 @@ class Grid:
 
     def add_tile(self, x:int, y:int, tiletype:TileBase=TileBase):
         assert issubclass(tiletype, TileBase)
-        newtile = tiletype()
+        newtile = tiletype(self)
         newtile.set_position((x,y))
         self.tiles[self.width*y+x] = newtile
         if self.observer:
@@ -128,7 +128,7 @@ class Grid:
 
     def add_effect(self, x:int, y:int, effecttype:EffectBase=EffectBase):
         assert issubclass(effecttype, EffectBase)
-        neweffect = effecttype()
+        neweffect = effecttype(self)
         neweffect.set_position((x,y))
         self.effects[self.width*y+x] = neweffect
         if self.observer:

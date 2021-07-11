@@ -1,6 +1,6 @@
 from itblib.gridelements.GridElementUI import GridElementUI
 from ..gridelements.Effects import EffectBase
-from ..gridelements.EffectsUI import EffectBaseUI
+from ..gridelements.EffectsUI import EffectBaseUI, EffectRiverUI
 from ..gridelements.Tiles import TileBase
 from ..gridelements.TilesUI import TileBaseUI
 from ..gridelements.Units import UnitBase
@@ -35,6 +35,8 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
 
     def on_add_effect(self, effect:EffectBase):
         x,y = effect.get_position()
+        if effect and type(effect).__name__ == "EffectRiver":
+            self.uieffects[self.grid.width*y+x] = EffectRiverUI(None)
         uieffect = self.uieffects[self.grid.width*y+x]
         uieffect.update_effect(effect)
     

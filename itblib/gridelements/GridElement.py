@@ -1,9 +1,10 @@
 class GridElement:
-    def __init__(self):
+    def __init__(self, grid):
         self._pos:list[int,int] = [None,None]
         self.age = 0
         self.done = True
         self.name = ""
+        self.grid = grid
     
     def tick(self, dt:float):
         self.age += dt

@@ -1,5 +1,5 @@
 from .gridelements.Units import UnitBase, UnitSaucer, UnitHomebase
-from .gridelements.Effects import EffectBase, EffectFire
+from .gridelements.Effects import EffectBase, EffectFire, EffectMountain, EffectRiver, EffectWheat, EffectTown
 from .gridelements.Tiles import *
 
 class ClassMapping:
@@ -7,12 +7,17 @@ class ClassMapping:
         0:None,
         1:TileBase,
         2:TileForest,
-        3:TileSea
+        3:TileSea,
+        4:TileLava
     }
     effectclassmapping = {
         0:None,
         1:EffectBase,
-        2:EffectFire
+        2:EffectFire,
+        3:EffectMountain,
+        4:EffectRiver,
+        5:EffectWheat,
+        6:EffectTown
     }
     unitclassmapping = {
         0:None,
