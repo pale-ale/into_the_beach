@@ -18,6 +18,10 @@ GREEN = [0, 255, 0]
 RED = [255, 0, 0]
 FPS = 30
 
+from itblib.net.NetEvents import NetEvents
+NetEvents.test()
+
+
 pygame.display.init()
 pygame.font.init()
 pygame.display.set_caption("Into The Bleach (for covid purposes only)")

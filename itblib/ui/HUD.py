@@ -2,13 +2,13 @@ from ..gridelements.UnitsUI import UnitBaseUI
 import pygame
 import pygame.sprite
 import pygame.font
-from ..ui.TextureManager import Textures
+from itblib.ui.TextureManager import Textures
 from itblib.Enums import PHASES, PREVIEWS
 from itblib.Globals import ClassMapping
 from itblib.ui.GridUI import GridUI
 from itblib.Game import Session
 from itblib.gridelements.Units import UnitBase
-from itblib.net import NetEvents
+from itblib.net.NetEvents import NetEvents
 
 class Hud(pygame.sprite.Sprite):
     def __init__(self, width:int, height:int, gridui:GridUI, playerid:int, session:Session):

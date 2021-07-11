@@ -3,7 +3,7 @@ from itblib.Game import Session
 import time
 import pygame
 from itblib.net.Connector import Connector
-from itblib.net import NetEvents
+from itblib.net.NetEvents import NetEvents
 
 FPS = 10
 
@@ -12,9 +12,9 @@ c = Connector(True)
 c.server_init()
 
 serversession = Session(c)
-NetEvents.StaticObjects["Session"] = serversession
-NetEvents.StaticObjects["Connector"] = c
-NetEvents.StaticObjects["Grid"] = serversession._grid
+NetEvents.session = serversession
+NetEvents.connector = c
+NetEvents.grid = serversession._grid
 
 def handle_networking_events():
     for player in serversession._players.values():

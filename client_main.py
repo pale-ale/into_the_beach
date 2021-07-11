@@ -3,7 +3,7 @@ import json
 from itblib import Maps
 import socket
 import pygame
-import itblib.net.NetEvents as NetEvents
+from itblib.net.NetEvents import NetEvents
 from pygame import display
 from itblib.ui.HUD import Hud
 from itblib.Selector import Selector
@@ -31,13 +31,13 @@ connector.client_init()
 
 clientgrid = Grid(connector)
 clientsession = Session(connector)
-NetEvents.StaticObjects["Grid"] = clientgrid
-NetEvents.StaticObjects["Connector"] = connector
-NetEvents.StaticObjects["Session"] = clientsession
+NetEvents.grid = clientgrid
+NetEvents.connector = connector
+NetEvents.session = clientsession
 clientgridui = GridUI(clientgrid)
 clientgrid.update_observer(clientgridui)
 hud = Hud(clientgridui.width, clientgridui.height, clientgridui, 0, clientsession)
-NetEvents.StaticObjects["Hud"] = hud
+NetEvents.hud = hud
 selector = Selector(clientgrid, hud)
 
 clientgridui.redraw_grid()

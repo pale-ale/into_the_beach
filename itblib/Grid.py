@@ -9,7 +9,7 @@ from .Maps import Map
 from .Globals import ClassMapping
 from .Enums import PHASES
 from .ui.IGridObserver import IGridObserver
-from .net import NetEvents
+from itblib.net.NetEvents import NetEvents
 
 import random
 

@@ -1,9 +1,8 @@
 from itblib.net.Connector import Connector
 from itblib.Player import Player
-from .Maps import Map, MapGrasslands
-from .Grid import Grid
-from .net import NetEvents 
-import json
+from itblib.Maps import MapGrasslands
+from itblib.Grid import Grid
+from itblib.net.NetEvents import NetEvents 
 
 class Session:
     def __init__(self, connector:Connector):
