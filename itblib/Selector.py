@@ -4,6 +4,8 @@ from itblib.ui.HUD import Hud
 from itblib.Grid import Grid
 
 class Selector:
+    """A controller used to handle the player's input."""
+
     def __init__(self, grid:Grid, hud:Hud):
         self.grid = grid
         self.cursorposition = [0,0]
@@ -11,9 +13,11 @@ class Selector:
         self.hud.update_cursor(self.cursorposition)
 
     def add(self, a:"tuple[int,int]", b:"tuple[int,int]"):
+        """Add two 2d-vectors."""
         return a[0] + b[0], a[1] + b[1]
     
     def handle_input(self, event):
+        """Manages pygame's key-events and forwards them to e.g. the HUD."""
         if event.type == pygame.KEYDOWN:
             # exit game
             if event.key == pygame.K_ESCAPE:

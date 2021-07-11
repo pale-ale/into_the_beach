@@ -14,6 +14,8 @@ import pygame.sprite
 import pygame.transform
 
 class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
+    """The Graphical representation of the grid."""
+
     def __init__(self, grid:Grid.Grid):  
         pygame.sprite.Sprite.__init__(self)
         self.grid = grid
@@ -29,11 +31,13 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.uiunits = [UnitBaseUI(None) for i in range(grid.width*grid.height)]
 
     def on_add_tile(self, tile:TileBase):
+        """Add the UI version of the new tile added to the normal grid."""
         x,y = tile.get_position()
         uitile = self.uitiles[self.grid.width*y+x]
         uitile.update_tile(tile)
 
     def on_add_effect(self, effect:EffectBase):
+        """Add the UI version of the new effect added to the normal grid."""
         x,y = effect.get_position()
         if effect and type(effect).__name__ == "EffectRiver":
             self.uieffects[self.grid.width*y+x] = EffectRiverUI(None)
@@ -41,37 +45,46 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         uieffect.update_effect(effect)
     
     def on_add_unit(self, unit:UnitBase):
+        """Add the UI version of the new unit added to the normal grid."""
         x,y = unit.get_position()
         uiunit = self.uiunits[self.grid.width*y+x]
         uiunit.update_unit(unit)
 
     def on_move_unit(self, x:int, y:int, targetx:int, targety:int):
+        """Move the UI version of the moved unit from the normal grid."""
         unit = self.grid.get_unit(targetx,targety)
         self.uiunits[self.grid.width*y+x].update_unit(None)
         self.uiunits[self.grid.width*targety+targetx].update_unit(unit)
 
     def on_remove_unit(self, x:int, y:int):
+        """Remove a UI-unit at the given position."""
         self.uiunits[self.grid.c_to_i(x,y)].update_unit(None)
    
     def tick(self, dt:float):
+        """Update the graphics and animations' frames."""
         self.grid.tick(dt)
         self.redraw_grid()
     
     def on_load_map(self, map:Map):
+        """Clear all the residual graphic objects, as they will be added during map load."""
         self.uitiles = [TileBaseUI(None) for i in range(map.width*map.height)]
         self.uieffects = [EffectBaseUI(None) for i in range(map.width*map.height)]
         self.uiunits = [UnitBaseUI(None) for i in range(map.width*map.height)]
     
     def get_unitui(self, x:int, y:int):
+        """Return the UI-unit at given position."""
         return self.uiunits[self.grid.width*y+x]
 
     def transform_grid_world(self, gridx:int, gridy:int):
+        """Return the world position of a given grid coordinate."""
         return (gridx*-32 + gridy*32, gridx*16 + gridy*16)
 
     def transform_grid_screen(self, gridx:int, gridy:int):
+        """Return the screen position of a given grid coordinate."""
         return (gridx*-32 + gridy*32 + (self.width-64)/2, gridx*16 + gridy*16)
 
     def draw_group(self, gridgroup:"list[GridElementUI]"):
+        """Draw the groups' images into the internal image."""
         for part in gridgroup:
             part.update_image()
             if part.visible:
@@ -81,6 +94,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
                 self.image.blit(part.image, (screenx, screeny), (0,0,64,64))
 
     def redraw_grid(self):
+        """Redraw every group."""
         self.draw_group(self.uitiles)
         self.draw_group(self.uieffects)
         self.draw_group(self.uiunits)

@@ -11,6 +11,8 @@ from itblib.gridelements.Units import UnitBase
 from itblib.net.NetEvents import NetEvents
 
 class Hud(pygame.sprite.Sprite):
+    """The HUD is used to display most information, like HP, abilities, etc."""
+
     def __init__(self, width:int, height:int, gridui:GridUI, playerid:int, session:Session):
         super().__init__()
         self.image = pygame.Surface((width, height), pygame.SRCALPHA)
@@ -43,9 +45,11 @@ class Hud(pygame.sprite.Sprite):
             self.phasemarkers.append(marker)
     
     def escape_pressed(self):
+        """Tell the server that the player wants to leave."""
         NetEvents.snd_netplayerleave(self.session._players[self.playerid])
 
     def unitselect(self, position:"tuple[int,int]"):
+        """Mark a unit as selected, displaying it's stats in greater detail and allowing ability use."""
         unitui = self.gridui.get_unitui(*position)
         if unitui != self.selectedunitui:
             if self.selectedunitui and self.selectedunitui._parentelement:
@@ -61,6 +65,7 @@ class Hud(pygame.sprite.Sprite):
         self.redraw()
     
     def targetselect(self, position:"tuple[int,int]"):
+        """Forward the position of the selected target to the selected unit's hooks."""
         if self.gridui.grid.phase == 0 and \
         len(self.session._players[self.playerid]._initialunitids) > 0:
             id = self.session._players[self.playerid]._initialunitids.pop(0)
@@ -70,12 +75,14 @@ class Hud(pygame.sprite.Sprite):
         self.redraw()
 
     def activate_ability(self, slot:int):
+        """Activate the ability with the according number, and deselect all others."""
         if self.selectedunitui and self.selectedunitui._parentelement:
             self.selectedunitui._parentelement.trigger_hook("OnDeselectAbilities")
             self.selectedunitui._parentelement.trigger_hook("UserAction" + str(slot))
             self.redraw()
 
     def display_unit(self, pos:"tuple[int,int]"):
+        """Display the portrait, stats and other info of a unit."""
         self.unitfontdisplay.fill((60,60,60,255))
         self.abilitiesdisplay.fill((60,60,60,255))
         self.unitimagedisplay.fill((100,0,0,0))
@@ -101,6 +108,7 @@ class Hud(pygame.sprite.Sprite):
         self.image.blit(self.abilitiesnumbers, (self.gridui.width*.855+5, self.gridui.height*.1+18))
 
     def display_abilities(self, unit:UnitBase):
+        """Display the ability of a unit."""
         abilities = unit.abilities.values()
         index = 0
         numbers = ""
@@ -118,6 +126,7 @@ class Hud(pygame.sprite.Sprite):
                 self.abilitiesnumbers.blit(numberimage, (0,0))
 
     def display_healthbar(self, unit:UnitBase):
+        """Display the health bar on top of a unit."""
         x,y = self.gridui.transform_grid_screen(*unit.get_position())
         barwidth = 32
         hitpoints = unit.hitpoints
@@ -131,6 +140,7 @@ class Hud(pygame.sprite.Sprite):
                 (0,0,slotwidth,6))
     
     def display_tile(self, pos:"tuple[int,int]"):
+        """Display the tile the cursor is on."""
         self.tilefontdisplay.fill((0,0,0,0))
         tile = self.gridui.uitiles[self.gridui.grid.c_to_i(*pos)]
         if tile.visible:
@@ -144,6 +154,7 @@ class Hud(pygame.sprite.Sprite):
         self.image.blit(self.tilefontdisplay, (self.gridui.width*.85, self.gridui.height*.7))
 
     def redraw(self):
+        """Update the internal image, so that no residual blits are seen."""
         bgcolors = [(200,200,200,255), (25,25,150,255), (25,150,25,255), (150,25,25,255), (150,100,0,255)]
         self.background.fill(bgcolors[self.gridui.grid.phase])
         self.image.fill((0,0,0,0))
@@ -171,15 +182,10 @@ class Hud(pygame.sprite.Sprite):
         self.display_unit(self.cursorgridpos)
 
     def update_cursor(self, position:"tuple[int,int]"):
+        """Forward the new cursor position to a unit's according hooks"""
         self.cursorgridpos = position
         self.cursorscreenpos = self.gridui.transform_grid_screen(*position)
         if self.selectedunitui and self.selectedunitui._parentelement:
             self.selectedunitui._parentelement.trigger_hook("OnUpdateCursor", position)
         self.redraw()
     
-    def tick(self, dt:float):
-        if self.session.state.startswith("running"):
-            grid = self.gridui.grid
-            if grid.phase == 0:
-                if len(self.session._players[self.playerid]._initialunitids) > 0:
-                    return

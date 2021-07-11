@@ -1,6 +1,8 @@
 import json
 
 class Map:
+    """Contains only serializable information, e.g. it's dimensions, unit|tile|effect-ids and so forth."""
+
     def __init__(self):
         self.width = 10
         self.height = 10
@@ -9,6 +11,7 @@ class Map:
         self.effectids = [None]*self.width*self.height
     
     def import_from_str(self, importstr):
+        """Deserialize a json-str and update the data accordingly."""
         data = json.loads(importstr)
         self.width = data["width"]
         self.height = data["height"]
@@ -17,6 +20,7 @@ class Map:
         self.effectids = data["effectids"]
     
     def export_to_str(self):
+        """Serialize the contained data into a json-str."""
         data = {"width": self.width,
                 "height": self.height,
                 "tileids": self.tileids,
@@ -27,7 +31,7 @@ class Map:
         return jsonstr
 
     def iterate_tiles(self):
-        print(self.height)
+        """Return a generator for easy access, iterating every space once and yielding the units,tiles and effects on it."""
         for y in range(self.height):
             for x in range(self.width):
                 yield x,\
@@ -37,6 +41,8 @@ class Map:
                     self.unitids[y*self.width+x]
 
 class MapGrasslands(Map):
+    """A map currently used for testing."""
+    
     def __init__(self):
         super().__init__()
         for x in range(0, 88):
