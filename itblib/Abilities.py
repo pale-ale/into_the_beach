@@ -17,7 +17,7 @@ class AbilityBase:
         self._unit = unit
         self.needstarget = False
         self.area_of_effect:"list[tuple[tuple[int,int],int]]" = []
-        self.selected_targets:"list[tuple[tuple[int,int],int]]" = []
+        self.selected_targets:"list[tuple[int,int]]" = []
         self.selected = False
         self.id = -1
         self.phase = 2
@@ -95,7 +95,7 @@ class MovementAbility(AbilityBase):
 
     def collect_movement_info(self):
         """Gather the tile we can move to and add them to the displayed AOE"""
-        pathwithself = [self._unit.get_position()] + self.path
+        pathwithself = [self._unit.pos] + self.path
         if len(pathwithself) <= self._unit.moverange:
             pos = pathwithself[-1]
             for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
@@ -113,7 +113,7 @@ class MovementAbility(AbilityBase):
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
         if target in positions:
-            pathwithself = [self._unit.get_position()] + self.path
+            pathwithself = [self._unit.pos] + self.path
             pos = pathwithself[-1]
             if target != pos:
                 self.add_to_movement(target)
@@ -122,10 +122,9 @@ class MovementAbility(AbilityBase):
     
     def update_path_display(self):
         """Display the new path, using proximity textures."""
-        #SE = 0,1, NE = -1,0
         self.selected_targets.clear()
         self.area_of_effect.clear()
-        pathwithself = [self._unit.get_position()] + self.path
+        pathwithself = [self._unit.pos] + self.path
         if len(pathwithself) > 1:
             first = (pathwithself[0], PREVIEWS[1])
             last = (pathwithself[-1], PREVIEWS[1])
@@ -136,9 +135,12 @@ class MovementAbility(AbilityBase):
                 prevdelta = (curr[0] - prev[0], curr[1] - prev[1])
                 nextdelta = (next[0] - curr[0], next[1] - curr[1])
                 currentwithpreview = (curr, PREVIEWS[(*nextdelta, *prevdelta)])
-                self.selected_targets.append(currentwithpreview)
-            self.selected_targets.append(first)
-            self.selected_targets.append(last)
+                self.selected_targets.append(curr)
+                self.area_of_effect.append(currentwithpreview)
+            self.area_of_effect.append(first)
+            self.area_of_effect.append(last)
+            self.selected_targets.append(first[0])
+            self.selected_targets.append(last[0])
         self.collect_movement_info()
 
     def add_to_movement(self, target:"tuple[int,int]"):
@@ -177,7 +179,7 @@ class PunchAbility(AbilityBase):
 
     def on_select_ability(self):
         super().on_select_ability()
-        pos = self._unit.get_position()
+        pos = self._unit.pos
         for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
             self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
@@ -207,7 +209,7 @@ class RangedAttackAbility(AbilityBase):
         self.phase = 2
 
     def get_ordinals(self):
-        x,y = self._unit.get_position()
+        x,y = self._unit.pos
         width = self._unit.grid.width
         height = self._unit.grid.height
         ordinals = set()
@@ -221,11 +223,11 @@ class RangedAttackAbility(AbilityBase):
 
     def on_select_ability(self):
         super().on_select_ability()
-        pos = self._unit.get_position()
+        pos = self._unit.pos
         coords = self.get_ordinals()
         coords = coords.difference(self._unit.grid.get_ordinal_neighbors(*pos))
         for coord in coords:
-            self.area_of_effect.append((coord, PREVIEWS[0]))
+            self.area_of_effect.append(coord)
 
     def targets_chosen(self, targets:"list[tuple[int,int]]"):
         super().targets_chosen(targets)
@@ -261,14 +263,14 @@ class PushAbility(AbilityBase):
 
     def on_select_ability(self):
         super().on_select_ability()
-        pos = self._unit.get_position()
+        pos = self._unit.pos
         for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
             self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
     def activate(self):
         super().activate()
         if len(self.selected_targets):
-            unitposx, unitposy = self._unit.get_position()
+            unitposx, unitposy = self._unit.pos
             target = self.selected_targets[0]
             newpos = [2*target[0]-unitposx, 2*target[1]-unitposy]
             if not self._unit.grid.is_coord_in_bounds(*newpos) or \

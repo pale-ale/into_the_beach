@@ -60,13 +60,12 @@ class NetEvents():
                 "NetUnitSpawn", 
                 unitspawntuplestr
             )
-        NetEvents.grid.add_unit(*pos, unitid, ownerid)
+        NetEvents.grid.add_unit(pos, unitid, ownerid)
 
     @staticmethod
     def snd_netunitmovepreview(unit:"UnitBase"):
         path = unit.abilities["MovementAbility"].path
-        pos = unit.get_position()
-        pospath = (pos, path)
+        pospath = (unit.pos, path)
         pospathjson = json.dumps(pospath)
         if NetEvents.connector.authority:
             NetEvents.connector.send_to_clients(
@@ -83,7 +82,7 @@ class NetEvents():
         # unit path will now be a list[list[int,int]], since tuples dont exist in json
         unitpos, listpath = obj
         path = [(x[0],x[1]) for x in listpath]
-        unit = NetEvents.grid.get_unit(*unitpos)
+        unit = NetEvents.grid.get_unit(unitpos)
         c = NetEvents.connector
         if c.authority:
             #verify move positions
@@ -95,7 +94,7 @@ class NetEvents():
     @staticmethod
     def snd_netunitmove(fro:"tuple[int,int]", to:"tuple[int,int]"):
         #only the server my send actual unit-moves
-        froto = [*fro, *to]
+        froto = [fro, to]
         c = NetEvents.connector
         frotodata = json.dumps(froto)
         if c.authority:
@@ -109,7 +108,6 @@ class NetEvents():
     def rcv_netunitmove(movedata):
         #this method is called on clients only
         fromto = json.loads(movedata)
-        c = NetEvents.connector
         NetEvents.grid.move_unit(*fromto)
 
     @staticmethod

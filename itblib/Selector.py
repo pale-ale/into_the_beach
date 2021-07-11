@@ -8,7 +8,7 @@ class Selector:
 
     def __init__(self, grid:Grid, hud:Hud):
         self.grid = grid
-        self.cursorposition = [0,0]
+        self.cursorposition = (int(),int())
         self.hud = hud
         self.hud.update_cursor(self.cursorposition)
 
@@ -45,7 +45,7 @@ class Selector:
             elif event.key == pygame.K_LEFT:
                 delta = (0,-1)
             testpos = self.add(self.cursorposition, delta)
-            if self.grid.is_coord_in_bounds(*testpos):
+            if self.grid.is_coord_in_bounds(testpos):
                 self.cursorposition = testpos
                 self.hud.update_cursor(testpos)
             return
