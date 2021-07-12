@@ -76,6 +76,14 @@ class Textures:
         3:"PushAbility.png"
     }
 
+    backgroundtexturemapping = {
+        0:"ProperBackdropWhite.png",
+        1:"ProperBackdropBlue.png",
+        2:"ProperBackdropRed.png",
+        3:"ProperBackdropGreen.png",
+        4:"ProperBackdropOrange.png",
+    }
+
 class LoaderMethods():
     """Convenience methods for texture loading."""
 

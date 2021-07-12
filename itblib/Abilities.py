@@ -1,7 +1,6 @@
-from typing import TYPE_CHECKING
-from .Enums import PREVIEWS
+from itblib.Enums import PREVIEWS
 from itblib.net.NetEvents import NetEvents
-
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from itblib.gridelements.Units import UnitBase
 
@@ -94,7 +93,7 @@ class MovementAbility(AbilityBase):
             self.collect_movement_info()
 
     def collect_movement_info(self):
-        """Gather the tile we can move to and add them to the displayed AOE"""
+        """Gather the tiles we can move to and add them to the displayed AOE."""
         pathwithself = [self._unit.pos] + self.path
         if len(pathwithself) <= self._unit.moverange:
             pos = pathwithself[-1]
@@ -121,7 +120,7 @@ class MovementAbility(AbilityBase):
                 self.collect_movement_info()
     
     def update_path_display(self):
-        """Display the new path, using proximity textures."""
+        """Display the new path using proximity textures."""
         self.selected_targets.clear()
         self.area_of_effect.clear()
         pathwithself = [self._unit.pos] + self.path
@@ -150,7 +149,7 @@ class MovementAbility(AbilityBase):
         self.update_path_display()
 
     def set_path(self, newpath: "list[tuple[int,int]]"):
-        """Update the path."""
+        """Set the unit's path to newpath."""
         self.path = newpath
         self.update_path_display()
             
@@ -220,7 +219,6 @@ class RangedAttackAbility(AbilityBase):
         ordinals.remove((x,y))
         return ordinals#
     
-
     def on_select_ability(self):
         super().on_select_ability()
         pos = self._unit.pos
@@ -286,6 +284,7 @@ class PushAbility(AbilityBase):
                     self._unit.grid.units[newposint].on_take_damage(1, "collision")
         self.selected_targets.clear()
         self.area_of_effect.clear()
+
 
 class ObjectiveAbility(AbilityBase):
     """This ability makes a unit an "Objective", meaning the player loses if it dies."""

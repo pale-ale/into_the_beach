@@ -1,10 +1,12 @@
-from ..gridelements.UnitsUI import UnitBaseUI
 import pygame
 import pygame.sprite
+import pygame.transform
 import pygame.font
+import pygame.image
 from itblib.ui.TextureManager import Textures
 from itblib.Enums import PHASES, PREVIEWS
 from itblib.Globals import ClassMapping
+from itblib.gridelements.UnitsUI import UnitBaseUI
 from itblib.ui.GridUI import GridUI
 from itblib.Game import Session
 from itblib.gridelements.Units import UnitBase
@@ -39,7 +41,13 @@ class Hud(pygame.sprite.Sprite):
         self.phasemarkers = []
         self.playerid = playerid
         self.session = session
-        for color in ((75,75,255,255), (50,255,50,255), (255,50,50,255), (255,200,0,255)):
+        self.backgrounds = []
+        for bgname in Textures.backgroundtexturemapping.values():
+            img = pygame.image.load(Textures.texturepath + bgname).convert_alpha()
+            scaledimg = pygame.Surface(self.image.get_size()).convert_alpha()
+            pygame.transform.scale(img, self.image.get_size(), scaledimg)
+            self.backgrounds.append(scaledimg)
+        for color in ((75,75,55,255), (50,255,50,255), (255,50,50,255), (255,200,0,255)):
             marker = pygame.Surface((16,20))
             marker.fill(color)
             self.phasemarkers.append(marker)
@@ -155,8 +163,7 @@ class Hud(pygame.sprite.Sprite):
 
     def redraw(self):
         """Update the internal image, so that no residual blits are seen."""
-        bgcolors = [(200,200,200,255), (25,25,150,255), (25,150,25,255), (150,25,25,255), (150,100,0,255)]
-        self.background.fill(bgcolors[self.gridui.grid.phase])
+        self.background.blit(self.backgrounds[self.gridui.grid.phase], (0,0))
         self.image.fill((0,0,0,0))
         if self.selectedunitui and self.selectedunitui._parentelement:
             for ability in self.selectedunitui._parentelement.abilities.values():
