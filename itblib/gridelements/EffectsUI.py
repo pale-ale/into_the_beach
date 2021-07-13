@@ -26,7 +26,7 @@ class EffectRiverUI(EffectBaseUI):
     def update_image(self):
         if self.visible:
             grid = self._parentelement.grid
-            pos = self._parentelement.get_position()
+            pos = self._parentelement.pos
             neighborposs = grid.get_ordinal_neighbors(*pos)
             riverposs = [rpos for rpos in neighborposs if 
                 grid.get_effect(*rpos) and 

@@ -3,6 +3,11 @@ from .gridelements.Effects import EffectBase, EffectFire, EffectMountain, Effect
 from .gridelements.Tiles import *
 
 class ClassMapping:
+    """
+    A handy map to quickly obtain the correct classes needed when loading a map containing
+    the respective ids.
+    """
+    
     tileclassmapping = {
         0:None,
         1:TileBase,

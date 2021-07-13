@@ -1,16 +1,16 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from itblib.Grid import Grid
+
 class GridElement:
-    def __init__(self, grid):
-        self._pos:list[int,int] = [None,None]
-        self.age = 0
-        self.done = True
-        self.name = ""
+    "Class containing mainly positional and state data about an object on the grid."
+
+    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name=""):
         self.grid = grid
+        self.pos = pos
+        self.age = age
+        self.done = done
+        self.name = name
     
     def tick(self, dt:float):
         self.age += dt
-
-    def get_position(self):
-        return self._pos[0], self._pos[1]
-    
-    def set_position(self, newposition:"tuple[int,int]"):
-        self._pos = [c for c in newposition]

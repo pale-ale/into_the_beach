@@ -2,11 +2,14 @@ import pygame
 from ..Enums import PREVIEWS
 
 class Textures:
+    """Provides easy access to the textures used in this game."""
+
     texturepath = "./sprites/"
     textures = {"Units":{}, "Tiles":{}, "Effects":{}, "Other":{}}
 
     @classmethod
     def get_spritesheet(cls, type:str, name:str, animname:str, orientation:str="sw") -> "list[pygame.Surface]":
+        """Returns the according spritesheet as a list of images."""
         if type == "Unit":
             return cls.textures["Units"][name][animname][orientation]
         if type == "Tile":
@@ -16,6 +19,7 @@ class Textures:
     
     @staticmethod
     def load_textures():
+        """Load the textures from the disk via helpers. Expensive, only used once during startup."""
         unitdict = Textures.textures["Units"]
         LoaderMethods.prepare_unit_texture_space(unitdict, "UnitBase", "Idle")
         [LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", o, 1)
@@ -74,9 +78,20 @@ class Textures:
         3:"PushAbility.png"
     }
 
+    backgroundtexturemapping = {
+        0:"ProperBackdropWhite.png",
+        1:"ProperBackdropBlue.png",
+        2:"ProperBackdropRed.png",
+        3:"ProperBackdropGreen.png",
+        4:"ProperBackdropOrange.png",
+    }
+
 class LoaderMethods():
+    """Convenience methods for texture loading."""
+
     @staticmethod
     def prepare_unit_texture_space(indict:dict, unitname:str, animname:str):
+        """Create the needed keys in the dicts if they are not already present."""
         if unitname not in indict.keys():
             indict[unitname] = {}
         if animname not in indict[unitname].keys():
@@ -87,6 +102,7 @@ class LoaderMethods():
     
     @staticmethod
     def prepare_tile_effect_texture_space(indict:dict, name:str, animname:str):
+        """Create the needed keys in the dicts if they are not already present."""
         if name not in indict.keys():
             indict[name] = {}
         if animname not in indict[name].keys():
@@ -94,6 +110,7 @@ class LoaderMethods():
 
     @staticmethod
     def load_unit_textures(indict:dict, unitname:str, animname:str, orientation:str, framecount:int=1):
+        """Load the textures of an animation from the disk."""
         for i in range(framecount):
             path = Textures.texturepath + unitname + orientation.upper() + animname + str(i) + ".png"
             print(f"Loading '{path}'")
@@ -101,6 +118,7 @@ class LoaderMethods():
    
     @staticmethod
     def load_tile_effect_textures(indict:dict, name:str, animname:str, framecount:int=1):
+        """Load the textures of an animation from the disk."""
         for i in range(framecount):
             path = Textures.texturepath + name + animname + str(i) + ".png"
             print(f"Loading '{path}'")

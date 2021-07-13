@@ -11,8 +11,9 @@ if TYPE_CHECKING:
     from ..Grid import Grid
 
 class UnitBase(GridElement):
-    def __init__(self, grid:"Grid", ownerid:int, playerid:int=0, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
-        super().__init__(grid)
+    def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
+    playerid:int=0, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
+        super().__init__(grid, pos)
         self.name = name
         self.hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
@@ -75,9 +76,11 @@ class UnitBase(GridElement):
         print("I drowned :(")
         self.grid.remove_unit(*self.pos)
 
-    def attack(self, target, damage:int, damagetype:str):
-        if self.grid.get_unit(*target):
-            self.grid.units[self.grid.width*(target[1]) + target[0]].on_take_damage(damage, damagetype)
+    def attack(self, target:"tuple[int,int]", damage:int, damagetype:str):
+        print("target", target)
+        unit = self.grid.get_unit(target)
+        if unit:
+            unit.on_take_damage(damage, damagetype)
     
     def on_take_damage(self, damage:int, damagetype:str):
         reduceddamage = damage - self.defense[damagetype]

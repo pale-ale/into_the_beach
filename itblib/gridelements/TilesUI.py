@@ -13,6 +13,3 @@ class TileBaseUI(GridElementUI):
             self.update_texture_source(
                 Textures.get_spritesheet("Tile", newtile.name, "Default")
             )
-
-    def get_position(self):
-        return self._parentelement.get_position()
