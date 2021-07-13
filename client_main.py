@@ -1,16 +1,12 @@
-from itblib.Game import Session
-import json
-from itblib import Maps
-import socket
 import pygame
-from itblib.net.NetEvents import NetEvents
-from pygame import display
-from itblib.ui.HUD import Hud
+from pygame.constants import NOEVENT
+import pygame.display
+from itblib.scenes.GameScene import GameScene
+from itblib.scenes.MainMenuScene import MainMenuScene
+from itblib.SceneManager import SceneManager
 from itblib.Selector import Selector
 from itblib.ui.TextureManager import Textures
-from itblib.ui.GridUI import GridUI
-from itblib.Grid import Grid
-from itblib.net.Connector import Connector
+from itblib.net.NetEvents import NetEvents
 
 FPS = 30
 
@@ -24,46 +20,37 @@ screen = pygame.display.set_mode(DISPLAYSIZE)
 
 Textures.load_textures()
 
-sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
-connector = Connector(False)
-connector.client_init()
 
-clientgrid = Grid(connector)
-clientsession = Session(connector)
-NetEvents.grid = clientgrid
-NetEvents.connector = connector
-NetEvents.session = clientsession
-clientgridui = GridUI(clientgrid)
-clientgrid.update_observer(clientgridui)
-hud = Hud(clientgridui.width, clientgridui.height, clientgridui, 0, clientsession)
-NetEvents.hud = hud
-selector = Selector(clientgrid, hud)
+scenemanager = SceneManager()
+mainmenuscene = MainMenuScene(scenemanager, *DISPLAYSIZE)
+gamescene = GameScene(scenemanager, *DISPLAYSIZE)
+NetEvents.grid = gamescene.grid
+NetEvents.connector = gamescene.connector
+NetEvents.session = gamescene.session
+NetEvents.hud = gamescene.hud
+selector = Selector(gamescene.grid, gamescene.hud)
+scenemanager.add_scene("GameScene", gamescene)
+scenemanager.add_scene("MainMenuScene", mainmenuscene)
+gamescene = None
+mainmenuscene = None
+#scenemanager.load_scene("GameScene")
+scenemanager.load_scene("MainMenuScene")
 
-clientgridui.redraw_grid()
-sprites.add(clientgridui)
+camera = pygame.Surface(DISPLAYSIZE)
 
-camera = pygame.Surface((clientgridui.width, clientgridui.height))
-
-hud.redraw()
 running = True
 
 while running:
-    data = connector.receive()
-    if data:
-        prefix, contents = data
-        NetEvents.rcv_event_caller(prefix, contents)
+    
     dt = clock.tick(FPS)/1000.0
-    clientgridui.tick(dt)
-    camera.blit(hud.background, (0,0))
-    camera.blit(clientgridui.image, (0,0))
-    hud.redraw()
-    camera.blit(hud.image, (0,0))
+    scenemanager.activescene.tick(dt)
+    camera.blit(scenemanager.activescene.image, (0,0))
     pygame.transform.scale(camera, DISPLAYSIZE, screen)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN or pygame.KEYUP:
-            selector.handle_input(event)
+            scenemanager.activescene.on_keyevent(event)
     pygame.display.update()
 pygame.quit()
