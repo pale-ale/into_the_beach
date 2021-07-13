@@ -31,6 +31,8 @@ class Textures:
         LoaderMethods.load_tile_effect_textures(tiledict, "TileDirt", "Default")
         LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileLava", "Default")
         LoaderMethods.load_tile_effect_textures(tiledict, "TileLava", "Default")
+        LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileRock", "Default")
+        LoaderMethods.load_tile_effect_textures(tiledict, "TileRock", "Default")
         
         effectdict = Textures.textures["Effects"]
         LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectFire", "Default")

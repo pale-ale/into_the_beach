@@ -43,3 +43,10 @@ class TileLava(TileBase):
         super().__init__(grid)
         self.name = "TileLava"
         self.id = 3
+
+
+class TileRock(TileBase):
+    def __init__(self, grid):
+        super().__init__(grid)
+        self.name = "TileRock"
+        self.id = 4

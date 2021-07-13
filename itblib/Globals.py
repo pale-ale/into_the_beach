@@ -8,7 +8,8 @@ class ClassMapping:
         1:TileBase,
         2:TileForest,
         3:TileSea,
-        4:TileLava
+        4:TileLava,
+        5:TileRock
     }
     effectclassmapping = {
         0:None,

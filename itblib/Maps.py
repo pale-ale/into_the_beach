@@ -43,6 +43,9 @@ class MapGrasslands(Map):
             self.tileids[x] = 2
         for x in range(75, self.width*self.height):
             self.tileids[x] = 1
+        for x in range(3):
+            self.tileids[x+85] = 5
+            self.tileids[x+95] = 5
         for x in range(3, 6):
             self.tileids[x] = 4
         for x in range(0, 64):
@@ -63,6 +66,7 @@ class MapGrasslands(Map):
         self.effectids[20] = 3
         self.effectids[30] = 3
         self.effectids[40] = 3
+        self.tileids[40] = 5
         self.effectids[63] = 4
         self.effectids[73] = 4
         self.effectids[83] = 4
