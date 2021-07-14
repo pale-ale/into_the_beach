@@ -17,8 +17,8 @@ class Hud(pygame.sprite.Sprite):
 
     def __init__(self, width:int, height:int, gridui:GridUI, playerid:int, session:Session):
         super().__init__()
-        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
-        self.background = pygame.Surface((gridui.width, gridui.height))
+        self.image = pygame.Surface((width, height)).convert_alpha()
+        self.background = pygame.Surface((gridui.width, gridui.height)).convert_alpha()
         self.rect = self.image.get_rect()
         self.selectedunitui:UnitBaseUI = None
         self.gridui = gridui

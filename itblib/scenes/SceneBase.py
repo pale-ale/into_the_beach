@@ -17,7 +17,7 @@ class SceneBase(Sprite):
     def __init__(self, scenemanager:"SceneManager",  width:int, height:int, *groups) -> None:
         super().__init__(*groups)
         self.desired_size = (width, height)
-        self.image = pygame.Surface((width, height))
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA).convert_alpha()
         self.rect = self.image.get_rect()
         self.scenemanager = scenemanager
     

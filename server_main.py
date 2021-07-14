@@ -32,7 +32,6 @@ def manage_players():
             print("starting game")
             serversession.start_game()
         return
-    print("awaiting new connections...")
     for newconnection in c.get_incoming_connections():
         newplayerid = len(serversession._players)+1
         newplayer = Player(newplayerid, newconnection)
