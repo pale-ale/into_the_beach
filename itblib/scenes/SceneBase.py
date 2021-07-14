@@ -26,8 +26,9 @@ class SceneBase(Sprite):
         pass
 
     def on_displayresize(self, newsize:"tuple[int,int]"):
-        pass
-    
+        self.image = pygame.Surface(newsize)
+        self.desired_size = newsize
+        
     def tick(self, dt:float):
         pass
 

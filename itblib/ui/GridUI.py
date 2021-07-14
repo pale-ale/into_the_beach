@@ -25,7 +25,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         righttile = self.transform_grid_world((0, grid.height-1))
         bottomtile = self.transform_grid_world((grid.width-1, grid.height-1))
         self.width = righttile[0] - lefttile[0] + self.tilesize[0]
-        self.height = bottomtile[1] + self.tilesize[1]
+        self.height = bottomtile[1] + self.tilesize[1]/2
         self.image = pygame.surface.Surface((self.width,self.height), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.uitiles = [TileBaseUI(None) for i in range(grid.width*grid.height)]
@@ -95,13 +95,12 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
 
     def transform_grid_world(self, gridpos:"tuple[int,int]"):
         """Return the world position of a given grid coordinate."""
-        return (int(gridpos[0]*-self.tilesize[0]/2 + gridpos[1]*self.tilesize[1]/2), 
+        return (int(gridpos[0]*-self.tilesize[0]/2 + gridpos[1]*self.tilesize[0]/2), 
                 int(gridpos[0]*self.tilesize[1]/4 + gridpos[1]*self.tilesize[1]/4))
 
     def transform_grid_screen(self, gridpos:"tuple[int,int]"):
         """Return the screen position of a given grid coordinate."""
         gw = self.transform_grid_world(gridpos)
-        return gw
         return (int(gw[0] + (self.width-self.tilesize[0])/2), gw[1])
 
     def draw_group(self, gridgroup:"list[GridElementUI]"):
@@ -119,7 +118,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.draw_group(self.uieffects)
         self.draw_group(self.uiunits)
     
-    def update_displayscale(self, newscale:"tuple[float,float]"):
+    def update_displayscale(self, newscale:"tuple[float,float]", newsize):
         print("updating scale to", newscale)
         self.tilesize = (self.standard_tilesize[0] * newscale[0],
                          self.standard_tilesize[1] * newscale[1])

@@ -20,8 +20,6 @@ class Client:
         pygame.display.set_caption("Into The Bleach (for covid purposes only)")
         self.displayinfo = pygame.display.Info()
         self.displaysize = (int(self.displayinfo.current_w), int(self.displayinfo.current_h))
-        self.displayscale = (self.displaysize[0]/self.reference_displaysize[0],
-                             self.displaysize[1]/self.reference_displaysize[1])
         self.clock = pygame.time.Clock()
         self.displayscale = (self.displaysize[0]/self.reference_displaysize[0],
                              self.displaysize[1]/self.reference_displaysize[1])
@@ -43,11 +41,8 @@ class Client:
 
     def reload_textures(self):
         self.displayinfo = pygame.display.Info()
-        self.displaysize = (int(self.displayinfo.current_w), int(self.displayinfo.current_h))
-        self.displayscale = (self.displaysize[0]/self.reference_displaysize[0],
-                        self.displaysize[1]/self.reference_displaysize[1])
-        Textures.load_textures(self.displayscale)
-        self.scenemanager.scenes["GameScene"].on_displayresize(self.displayscale)
+        self.displaysize = (self.displayinfo.current_w, self.displayinfo.current_h)
+        self.scenemanager.scenes["GameScene"].on_displayresize(self.displaysize)
 
 client = Client()
 
