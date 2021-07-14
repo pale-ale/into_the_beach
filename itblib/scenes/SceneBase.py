@@ -24,6 +24,9 @@ class SceneBase(Sprite):
     def on_keyevent(self, keyevent):
         """Forwards keystrokes to the scene, allowing for easy navigation."""
         pass
+
+    def on_displayresize(self, newsize:"tuple[int,int]"):
+        pass
     
     def tick(self, dt:float):
         pass

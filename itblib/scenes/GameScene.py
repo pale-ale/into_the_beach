@@ -32,6 +32,9 @@ class GameScene(SceneBase):
         super().on_keyevent(keyevent)
         self.selector.handle_input(keyevent)
 
+    def on_displayresize(self, newscale:"tuple[float,float]"):
+        self.gridui.update_displayscale(newscale)
+
     def tick(self, dt:float):
         super().tick(dt)
         data = self.connector.receive()

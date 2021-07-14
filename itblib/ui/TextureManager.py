@@ -1,4 +1,7 @@
 import pygame
+import pygame.transform
+import pygame.image
+import pygame.surface
 from ..Enums import PREVIEWS
 
 class Textures:
@@ -7,51 +10,68 @@ class Textures:
     texturepath = "./sprites/"
     textures = {"Units":{}, "Tiles":{}, "Effects":{}, "Other":{}}
 
+    abilitytexturemapping = {
+        0:"MoveAbility.png",
+        1:"PunchAbility.png",
+        2:"PunchAbility.png",
+        3:"PushAbility.png"
+    }
+    backgroundtexturemapping = {
+        0:"ProperBackdropWhite.png",
+        1:"ProperBackdropBlue.png",
+        2:"ProperBackdropRed.png",
+        3:"ProperBackdropGreen.png",
+        4:"ProperBackdropOrange.png",
+    }
+    effects = [
+        ("EffectFire", "Default", 2),
+        ("EffectMountain", "Default", 1),
+        ("EffectRiver", "Default", 12),
+        ("EffectTown", "Default", 1),
+        ("EffectTrees", "Default", 1),
+        ("EffectWheat", "Default", 1),
+    ]
+    tiles = [
+        ("TileDirt", "Default"),
+        ("TileForest", "Default"),
+        ("TileLava", "Default"),
+        ("TileRock", "Default"),
+    ]
+
+    units = []
+    for o in ["ne","se","sw","nw"]:
+        units.append(("UnitBase", "Idle", o, 1))
+    for o in ["sw"]:
+        units.append(("UnitSaucer", "Idle", o, 2))
+
     @classmethod
-    def get_spritesheet(cls, type:str, name:str, animname:str, orientation:str="sw") -> "list[pygame.Surface]":
+    def get_spritesheet(cls, elemtype:str, name:str, animname:str, orientation:str="sw") -> "list[pygame.Surface]":
         """Returns the according spritesheet as a list of images."""
-        if type == "Unit":
+        if elemtype == "Unit":
             return cls.textures["Units"][name][animname][orientation]
-        if type == "Tile":
+        if elemtype == "Tile":
             return cls.textures["Tiles"][name][animname]
-        if type == "Effect":
+        if elemtype == "Effect":
             return cls.textures["Effects"][name][animname]
     
     @staticmethod
-    def load_textures():
-        """Load the textures from the disk via helpers. Expensive, only used once during startup."""
+    def load_textures(scale:"tuple[float,float]"=(1.0,1.0)):
+        """Load the textures from the disk via helpers. Expensive, only use once during startup."""
         unitdict = Textures.textures["Units"]
-        LoaderMethods.prepare_unit_texture_space(unitdict, "UnitBase", "Idle")
-        [LoaderMethods.load_unit_textures(unitdict, "UnitBase", "Idle", o, 1)
-            for o in ["ne","se","sw","nw"]]
-        LoaderMethods.prepare_unit_texture_space(unitdict, "UnitSaucer", "Idle")
-        [LoaderMethods.load_unit_textures(unitdict, "UnitSaucer", "Idle", o, 2)
-            for o in ["sw"]]
+        for udata in Textures.units:       
+            LoaderMethods.prepare_unit_texture_space(unitdict, *udata[:-2])
+            LoaderMethods.load_unit_textures(scale, unitdict, *udata)
         
         tiledict = Textures.textures["Tiles"]
-        LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileForest", "Default")
-        LoaderMethods.load_tile_effect_textures(tiledict, "TileForest", "Default")
-        LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileDirt", "Default")
-        LoaderMethods.load_tile_effect_textures(tiledict, "TileDirt", "Default")
-        LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileLava", "Default")
-        LoaderMethods.load_tile_effect_textures(tiledict, "TileLava", "Default")
-        LoaderMethods.prepare_tile_effect_texture_space(tiledict, "TileRock", "Default")
-        LoaderMethods.load_tile_effect_textures(tiledict, "TileRock", "Default")
+        for tdata in Textures.tiles:
+            LoaderMethods.prepare_tile_effect_texture_space(tiledict, *tdata)
+            LoaderMethods.load_tile_effect_textures(scale, tiledict, *tdata)
         
         effectdict = Textures.textures["Effects"]
-        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectFire", "Default")
-        LoaderMethods.load_tile_effect_textures(effectdict, "EffectFire", "Default", 2)
-        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectTrees", "Default")
-        LoaderMethods.load_tile_effect_textures(effectdict, "EffectTrees", "Default")
-        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectMountain", "Default")
-        LoaderMethods.load_tile_effect_textures(effectdict, "EffectMountain", "Default")
-        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectWheat", "Default")
-        LoaderMethods.load_tile_effect_textures(effectdict, "EffectWheat", "Default")
-        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectTown", "Default")
-        LoaderMethods.load_tile_effect_textures(effectdict, "EffectTown", "Default")
-        LoaderMethods.prepare_tile_effect_texture_space(effectdict, "EffectRiver", "Default")
-        LoaderMethods.load_tile_effect_textures(effectdict, "EffectRiver", "Default", 12)
-
+        for edata in Textures.effects:
+            LoaderMethods.prepare_tile_effect_texture_space(effectdict, *edata[:-1])
+            LoaderMethods.load_tile_effect_textures(scale, effectdict, *edata)
+       
         # Filenames are built the following way:
         #       <UnitName> + <Orientation> + <AnimationName> + <Framenumber(>=0)> + .png
         # e.g.: UnitSaucer + SW            + Idle            + 0                  + .png
@@ -66,25 +86,7 @@ class Textures:
                 Textures.textures["Other"][previewfilename] = pygame.image.load(
                     Textures.texturepath + previewfilename
                 )
-                print("loading preview", Textures.texturepath + previewfilename)
 
-    # Textures have the same name as the texture they point to, without the extension
-    # e.g.: UnitSaucerSWIdle
-
-    abilitytexturemapping = {
-        0:"MoveAbility.png",
-        1:"PunchAbility.png",
-        2:"PunchAbility.png",
-        3:"PushAbility.png"
-    }
-
-    backgroundtexturemapping = {
-        0:"ProperBackdropWhite.png",
-        1:"ProperBackdropBlue.png",
-        2:"ProperBackdropRed.png",
-        3:"ProperBackdropGreen.png",
-        4:"ProperBackdropOrange.png",
-    }
 
 class LoaderMethods():
     """Convenience methods for texture loading."""
@@ -99,6 +101,8 @@ class LoaderMethods():
         for orientation in ["ne","se","sw","nw"]:
             if orientation not in indict[unitname][animname].keys():
                 indict[unitname][animname][orientation] = []
+            else:
+                indict[unitname][animname][orientation].clear()
     
     @staticmethod
     def prepare_tile_effect_texture_space(indict:dict, name:str, animname:str):
@@ -107,19 +111,23 @@ class LoaderMethods():
             indict[name] = {}
         if animname not in indict[name].keys():
             indict[name][animname] = []
+        else:
+            indict[name][animname].clear()
 
     @staticmethod
-    def load_unit_textures(indict:dict, unitname:str, animname:str, orientation:str, framecount:int=1):
+    def load_unit_textures(scale:"tuple[float,float]", indict:dict, unitname:str, animname:str, orientation:str, framecount:int=1):
         """Load the textures of an animation from the disk."""
         for i in range(framecount):
             path = Textures.texturepath + unitname + orientation.upper() + animname + str(i) + ".png"
-            print(f"Loading '{path}'")
-            indict[unitname][animname][orientation].append(pygame.image.load(path))
+            img = pygame.image.load(path)
+            scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
+            indict[unitname][animname][orientation].append(pygame.transform.scale(img, scaledsize))
    
     @staticmethod
-    def load_tile_effect_textures(indict:dict, name:str, animname:str, framecount:int=1):
+    def load_tile_effect_textures(scale:"tuple[float,float]", indict:dict, name:str, animname:str, framecount:int=1):
         """Load the textures of an animation from the disk."""
         for i in range(framecount):
             path = Textures.texturepath + name + animname + str(i) + ".png"
-            print(f"Loading '{path}'")
-            indict[name][animname].append(pygame.image.load(path))
+            img = pygame.image.load(path)
+            scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
+            indict[name][animname].append(pygame.transform.scale(img, scaledsize))
