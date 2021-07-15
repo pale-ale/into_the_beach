@@ -19,7 +19,6 @@ class UnitBase(GridElement):
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
         self.baseattack = {"physical": 4, "magical": 0}
         self.canswim = canswim
-        self.id = 0
         self.ownerid = ownerid
         self.moverange = 5
         self.orientation = "sw"
@@ -91,27 +90,33 @@ class UnitBase(GridElement):
     def dying(self):
         self.trigger_hook("OnDeath")
         self.grid.remove_unit(*self.get_position())
+
     
 class UnitSaucer(UnitBase):
-    def __init__(self, grid, ownerid, name:str="UnitSaucer"):
-        super().__init__(grid, ownerid, name)
+    def __init__(self, grid, pos, ownerid, name:str="UnitSaucer"):
+        super().__init__(grid, pos, ownerid, name=name)
         self.add_ability("RangedAttackAbility", RangedAttackAbility)
         self.add_ability("PushAbility", PushAbility)
 
 
 class UnitMagician(UnitBase):
-    def __init__(self, grid, ownerid, name:str="m"):
-        super().__init__(grid, ownerid, name)
+    def __init__(self, grid, pos, ownerid, name:str="m"):
+        super().__init__(grid, pos, ownerid, name=name)
 
 
 class UnitBarbarian(UnitBase):
-    def __init__(self, grid, ownerid, name:str="U"):
-        super().__init__(grid, ownerid, name)
+    def __init__(self, grid, pos, ownerid, name:str="U"):
+        super().__init__(grid, pos, ownerid, name=name)
+
+
+class UnitBloodWraith(UnitBase):
+    def __init__(self, grid, pos, ownerid, name:str="UnitBloodWraith"):
+        super().__init__(grid, pos, ownerid, name=name)
 
 
 class UnitHomebase(UnitBase):
-    def __init__(self, grid, ownerid, name:str="UnitSaucer"):
-        super().__init__(grid, ownerid, name)
+    def __init__(self, grid, pos, ownerid, name:str="UnitSaucer"):
+        super().__init__(grid, pos, ownerid, name)
         self.add_ability("ObjectiveAbility", ObjectiveAbility)
         self.remove_ability("MovementAbility")
         self.remove_ability("PunchAbility")

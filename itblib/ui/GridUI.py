@@ -103,20 +103,21 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         gw = self.transform_grid_world(gridpos)
         return (int(gw[0] + (self.width-self.tilesize[0])/2), gw[1])
 
-    def draw_group(self, gridgroup:"list[GridElementUI]"):
+    def draw_group(self, gridgroup:"list[GridElementUI]", offset:"tuple[int,int]"=(0,0)):
         """Draw the groups' images into the internal image."""
         for part in gridgroup:
             part.update_image()
             if part.visible:
                 part.needsredraw = False
-                screenpos = self.transform_grid_screen(part._parentelement.pos)
-                self.image.blit(part.image, screenpos, (0,0,*self.tilesize))
+                x, y = self.transform_grid_screen(part._parentelement.pos)
+                x, y = x+offset[0], y+offset[1]
+                self.image.blit(part.image, (x,y), (0,0,*self.tilesize))
 
     def redraw_grid(self):
         """Redraw every group."""
         self.draw_group(self.uitiles)
         self.draw_group(self.uieffects)
-        self.draw_group(self.uiunits)
+        self.draw_group(self.uiunits,(0,-10))
     
     def update_displayscale(self, newscale:"tuple[float,float]", newsize):
         print("updating scale to", newscale)

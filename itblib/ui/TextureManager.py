@@ -43,6 +43,8 @@ class Textures:
         units.append(("UnitBase", "Idle", o, 1))
     for o in ["sw"]:
         units.append(("UnitSaucer", "Idle", o, 2))
+    for o in ["sw"]:
+        units.append(("UnitBloodWraith", "Idle", o, 1))
 
     @classmethod
     def get_spritesheet(cls, elemtype:str, name:str, animname:str, orientation:str="sw") -> "list[pygame.Surface]":
@@ -101,8 +103,6 @@ class LoaderMethods():
         for orientation in ["ne","se","sw","nw"]:
             if orientation not in indict[unitname][animname].keys():
                 indict[unitname][animname][orientation] = []
-            else:
-                indict[unitname][animname][orientation].clear()
     
     @staticmethod
     def prepare_tile_effect_texture_space(indict:dict, name:str, animname:str):
@@ -111,15 +111,13 @@ class LoaderMethods():
             indict[name] = {}
         if animname not in indict[name].keys():
             indict[name][animname] = []
-        else:
-            indict[name][animname].clear()
 
     @staticmethod
     def load_unit_textures(scale:"tuple[float,float]", indict:dict, unitname:str, animname:str, orientation:str, framecount:int=1):
         """Load the textures of an animation from the disk."""
         for i in range(framecount):
             path = Textures.texturepath + unitname + orientation.upper() + animname + str(i) + ".png"
-            img = pygame.image.load(path)
+            img = LoaderMethods.load_image(path)
             scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
             indict[unitname][animname][orientation].append(pygame.transform.scale(img, scaledsize))
    
@@ -128,6 +126,16 @@ class LoaderMethods():
         """Load the textures of an animation from the disk."""
         for i in range(framecount):
             path = Textures.texturepath + name + animname + str(i) + ".png"
-            img = pygame.image.load(path)
+            img = LoaderMethods.load_image(path)
             scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
             indict[name][animname].append(pygame.transform.scale(img, scaledsize))
+    
+    @staticmethod
+    def load_image(path):
+        try:
+            return pygame.image.load(path)
+        except:
+            print("Could not load image at", path)
+            return None
+
+

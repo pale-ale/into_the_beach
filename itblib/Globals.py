@@ -1,5 +1,13 @@
-from .gridelements.Units import UnitBase, UnitSaucer, UnitHomebase
-from .gridelements.Effects import EffectBase, EffectFire, EffectMountain, EffectRiver, EffectWheat, EffectTown
+from .gridelements.Units import UnitBase,\
+                                UnitSaucer,\
+                                UnitBloodWraith,\
+                                UnitHomebase
+from .gridelements.Effects import EffectBase,\
+                                EffectFire,\
+                                EffectMountain,\
+                                EffectRiver,\
+                                EffectWheat,\
+                                EffectTown
 from .gridelements.Tiles import *
 
 class ClassMapping:
@@ -25,9 +33,9 @@ class ClassMapping:
         5:EffectWheat,
         6:EffectTown
     }
-    unitclassmapping = {
-        0:None,
-        1:UnitBase,
-        2:UnitSaucer,
-        3:UnitHomebase
-    }
+    _unitclasses = [None, UnitBase, UnitSaucer, UnitBloodWraith, UnitHomebase]
+    unitidclassmapping = {}
+    unitclassidmapping = {}
+    for i in range(len(_unitclasses)):
+        unitidclassmapping[i] = _unitclasses[i]
+        unitclassidmapping[_unitclasses[i]] = i

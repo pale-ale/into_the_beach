@@ -3,7 +3,7 @@ from typing import Optional
 from itblib.net.Connector import Connector
 from itblib.gridelements.Tiles import TileBase
 from .gridelements.Effects import EffectBase
-from .gridelements.Units import UnitBase
+from .gridelements.Units import UnitBase, UnitSaucer
 from .Maps import Map
 
 from .Globals import ClassMapping
@@ -150,7 +150,7 @@ class Grid:
 
     def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int):
         """Add a unit to the grid at given position, owned by ownerid."""
-        unitclass = ClassMapping.unitclassmapping[unitid]
+        unitclass = ClassMapping.unitidclassmapping[unitid]
         newunit = unitclass(self, pos, ownerid)
         self.units[self.c_to_i(pos)] = newunit
         if self.observer:
