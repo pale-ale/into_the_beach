@@ -133,7 +133,7 @@ class LoaderMethods():
     @staticmethod
     def load_image(path):
         try:
-            return pygame.image.load(path)
+            return pygame.image.load(path).convert_alpha()
         except:
             print("Could not load image at", path)
             return None

@@ -55,12 +55,15 @@ class NetEvents():
         unitid, pos, ownerid = unitspawntuple
         if NetEvents.connector.authority:
             #check whether this request is fulfillable, if not: return
-            NetEvents.connector.send_to_clients(
-                NetEvents.session._players,
-                "NetUnitSpawn", 
-                unitspawntuplestr
-            )
-        NetEvents.grid.add_unit(pos, unitid, ownerid)
+            if NetEvents.grid.is_space_empty(False, pos):
+                NetEvents.connector.send_to_clients(
+                    NetEvents.session._players,
+                    "NetUnitSpawn", 
+                    unitspawntuplestr
+                )
+                NetEvents.grid.add_unit(pos, unitid, ownerid)
+        else:
+            NetEvents.grid.add_unit(pos, unitid, ownerid)
 
     @staticmethod
     def snd_netunitmovepreview(unit:"UnitBase"):

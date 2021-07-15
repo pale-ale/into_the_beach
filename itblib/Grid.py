@@ -121,27 +121,27 @@ class Grid:
         self.tiles = [None]*self.width*self.height
         self.units = [None]*self.width*self.height
         self.effects = [None]*self.width*self.height
-        for x, y, tileid, effectid, unitid in map.iterate_tiles():
+        for pos, tileid, effectid, unitid in map.iterate_tiles():
             if tileid:
-                self.add_tile(x, y, tiletype=ClassMapping.tileclassmapping[tileid])
+                self.add_tile(pos, tileid)
             if effectid:
-                self.add_effect(x, y, effecttype=ClassMapping.effectclassmapping[effectid])
+                self.add_effect(pos, effectid)
             if unitid:
-                self.add_unit(x, y, unittype=ClassMapping.unitclassmapping[unitid])
+                self.add_unit(pos, unitid, -1)
 
-    def add_tile(self, x:int, y:int, tiletype:TileBase):
+    def add_tile(self, pos:"tuple[int,int]", tileid:int):
         """Add a tile to the grid at given position."""
-        assert issubclass(tiletype, TileBase)
-        newtile = tiletype(self, (x,y))
-        self.tiles[self.width*y+x] = newtile
+        tiletype = ClassMapping.tileclassmapping[tileid]
+        newtile = tiletype(self, pos)
+        self.tiles[self.c_to_i(pos)] = newtile
         if self.observer:
             self.observer.on_add_tile(newtile)
 
-    def add_effect(self, x:int, y:int, effecttype:EffectBase=EffectBase):
+    def add_effect(self, pos:"tuple[int,int]", effectid:id):
         """Add an effect to the grid at given position."""
-        assert issubclass(effecttype, EffectBase)
-        neweffect = effecttype(self, (x,y))
-        self.effects[self.width*y+x] = neweffect
+        effecttype = ClassMapping.effectclassmapping[effectid]       
+        neweffect = effecttype(self, pos)
+        self.effects[self.c_to_i(pos)] = neweffect
         if self.observer:
             self.observer.on_add_effect(neweffect)
 

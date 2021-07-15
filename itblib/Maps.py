@@ -34,8 +34,7 @@ class Map:
         """Return a generator for easy access, iterating every space once and yielding the units,tiles and effects on it."""
         for y in range(self.height):
             for x in range(self.width):
-                yield x,\
-                    y,\
+                yield (x,y),\
                     self.tileids[y*self.width+x],\
                     self.effectids[y*self.width+x],\
                     self.unitids[y*self.width+x]
@@ -81,4 +80,5 @@ class MapGrasslands(Map):
         self.effectids[71] = 4
         self.effectids[61] = 4
         self.effectids[62] = 4
+        self.unitids[10] = 2
        

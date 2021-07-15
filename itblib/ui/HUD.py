@@ -73,12 +73,13 @@ class Hud(pygame.sprite.Sprite):
         self.redraw()
     
     def targetselect(self, position:"tuple[int,int]"):
-        """Forward the position of the selected target to the selected unit's hooks."""
+        """Forward the position of the selected target to the selected unit's hooks or spawn a unit."""
         if self.gridui.grid.phase == 0 and \
-        len(self.session._players[self.playerid]._initialunitids) > 0:
+        len(self.session._players[self.playerid]._initialunitids) > 0 and\
+        self.gridui.grid.is_space_empty(False, position):
             id = self.session._players[self.playerid]._initialunitids.pop(0)
             self.gridui.grid.request_add_unit(*position, id, self.playerid)
-        if self.selectedunitui:
+        elif self.selectedunitui:
             self.selectedunitui._parentelement.trigger_hook("TargetSelected", [position])
         self.redraw()
 
