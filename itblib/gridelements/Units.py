@@ -115,8 +115,8 @@ class UnitBloodWraith(UnitBase):
 
 
 class UnitHomebase(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="UnitSaucer"):
-        super().__init__(grid, pos, ownerid, name)
+    def __init__(self, grid, pos, ownerid, name:str="UnitCrystal"):
+        super().__init__(grid, pos, ownerid, name=name)
         self.add_ability("ObjectiveAbility", ObjectiveAbility)
         self.remove_ability("MovementAbility")
         self.remove_ability("PunchAbility")

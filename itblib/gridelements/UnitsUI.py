@@ -13,6 +13,7 @@ class UnitBaseUI(GridElementUI):
         self._parentelement = newunit
         self.visible = bool(newunit)
         if newunit:
+            print("test:", newunit.name, newunit.__class__.__name__)
             spritesheet = Textures.get_spritesheet("Unit", newunit.name, "Idle", self.direction)
             self.update_texture_source(spritesheet)
         else:

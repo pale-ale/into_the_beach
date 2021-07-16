@@ -117,7 +117,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         """Redraw every group."""
         self.draw_group(self.uitiles)
         self.draw_group(self.uieffects)
-        self.draw_group(self.uiunits,(0,-10))
+        self.draw_group(self.uiunits,(0,-20))
     
     def update_displayscale(self, newscale:"tuple[float,float]", newsize):
         print("updating scale to", newscale)

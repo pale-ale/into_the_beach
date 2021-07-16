@@ -45,6 +45,8 @@ class Textures:
         units.append(("UnitSaucer", "Idle", o, 2))
     for o in ["sw"]:
         units.append(("UnitBloodWraith", "Idle", o, 1))
+    for o in ["sw"]:
+        units.append(("UnitCrystal", "Idle", o, 4))
 
     @classmethod
     def get_spritesheet(cls, elemtype:str, name:str, animname:str, orientation:str="sw") -> "list[pygame.Surface]":
@@ -116,7 +118,7 @@ class LoaderMethods():
     def load_unit_textures(scale:"tuple[float,float]", indict:dict, unitname:str, animname:str, orientation:str, framecount:int=1):
         """Load the textures of an animation from the disk."""
         for i in range(framecount):
-            path = Textures.texturepath + unitname + orientation.upper() + animname + str(i) + ".png"
+            path = Textures.texturepath + unitname + orientation.upper() + animname + str(i+1) + ".png"
             img = LoaderMethods.load_image(path)
             scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
             indict[unitname][animname][orientation].append(pygame.transform.scale(img, scaledsize))
@@ -124,8 +126,8 @@ class LoaderMethods():
     @staticmethod
     def load_tile_effect_textures(scale:"tuple[float,float]", indict:dict, name:str, animname:str, framecount:int=1):
         """Load the textures of an animation from the disk."""
-        for i in range(framecount):
-            path = Textures.texturepath + name + animname + str(i) + ".png"
+        for i in range(0, framecount):
+            path = Textures.texturepath + name + animname + str(i+1) + ".png"
             img = LoaderMethods.load_image(path)
             scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
             indict[name][animname].append(pygame.transform.scale(img, scaledsize))
