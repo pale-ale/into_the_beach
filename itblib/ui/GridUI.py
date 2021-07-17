@@ -1,4 +1,5 @@
 from itblib.gridelements.GridElementUI import GridElementUI
+from pygame import Rect, Surface
 from ..gridelements.Effects import EffectBase
 from ..gridelements.EffectsUI import EffectBaseUI, EffectRiverUI
 from ..gridelements.Tiles import TileBase
@@ -31,11 +32,15 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.uitiles = [TileBaseUI(None) for i in range(grid.width*grid.height)]
         self.uieffects = [EffectBaseUI(None) for i in range(grid.width*grid.height)]
         self.uiunits = [UnitBaseUI(None) for i in range(grid.width*grid.height)]
+        self.tilesprites = pygame.sprite.Group(self.uitiles)
+        self.effectsprites = pygame.sprite.Group(self.uieffects)
+        self.unitsprites = pygame.sprite.Group(self.uiunits)
 
     def on_add_tile(self, tile:TileBase):
         """Add the UI version of the new tile added to the normal grid."""
         uitile = self.uitiles[self.grid.c_to_i(tile.pos)]
         uitile.update_tile(tile)
+        uitile.rect = Rect(*self.transform_grid_screen(tile.pos), 64, 64)
 
     def on_add_effect(self, effect:EffectBase):
         """Add the UI version of the new effect added to the normal grid."""
@@ -44,11 +49,14 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
             self.uieffects[gridindex] = EffectRiverUI(None)
         uieffect = self.uieffects[gridindex]
         uieffect.update_effect(effect)
+        uieffect.rect = Rect(*self.transform_grid_screen(effect.pos), 64, 64)
     
     def on_add_unit(self, unit:UnitBase):
         """Add the UI version of the new unit added to the normal grid."""
         uiunit = self.uiunits[self.grid.c_to_i(unit.pos)]
         uiunit.update_unit(unit)
+        x, y = self.transform_grid_screen(unit.pos)
+        uiunit.rect = Rect(x, y-20, 64, 64)
 
     def on_move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
         """Move the UI version of the moved unit from the normal grid."""
@@ -60,11 +68,13 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         """Remove a UI-unit at the given position."""
         self.uiunits[self.grid.c_to_i(x,y)].update_unit(None)
    
-    def tick(self, dt:float):
+    def update(self):
         """Update the graphics and animations' frames."""
-        self.grid.tick(dt)
-        self.redraw_grid()
-    
+        self.tilesprites.update()
+        self.effectsprites.update()
+        self.unitsprites.update()
+        self.redraw_grid_2()
+
     def reload_from_grid(self):
         """Reload everything from the grid. Useful to update e.g. graphic scale."""
         g = self.grid
@@ -103,29 +113,14 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         gw = self.transform_grid_world(gridpos)
         return (int(gw[0] + (self.width-self.tilesize[0])/2), gw[1])
 
-    def draw_group(self, gridgroup:"list[GridElementUI]", offset:"tuple[int,int]"=(0,0)):
-        """Draw the groups' images into the internal image."""
-        for part in gridgroup:
-            part.update_image()
-            if part.visible:
-                part.needsredraw = False
-                x, y = self.transform_grid_screen(part._parentelement.pos)
-                x, y = x+offset[0], y+offset[1]
-                self.image.blit(part.image, (x,y), (0,0,*self.tilesize))
-
-    def redraw_grid(self):
+    def redraw_grid_2(self):
+        self.image.fill((0))
         """Redraw every group."""
-        self.draw_group(self.uitiles)
-        self.draw_group(self.uieffects)
-        self.draw_group(self.uiunits,(0,-20))
-    
-    def update_displayscale(self, newscale:"tuple[float,float]", newsize):
-        print("updating scale to", newscale)
-        self.tilesize = (self.standard_tilesize[0] * newscale[0],
-                         self.standard_tilesize[1] * newscale[1])
-        self.image.fill((0,0,0,0))
-        self.reload_from_grid()
-        
-
-    
-    
+        # unfortunately we have to regenerate the sprites every time
+        # as pygame only creates copies, we therefore cannot modify them as easily
+        self.tilesprites = pygame.sprite.Group(self.uitiles)
+        self.effectsprites = pygame.sprite.Group(self.uieffects)
+        self.unitsprites = pygame.sprite.Group(self.uiunits)
+        self.tilesprites.draw(self.image)
+        self.effectsprites.draw(self.image)
+        self.unitsprites.draw(self.image)

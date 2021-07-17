@@ -38,16 +38,16 @@ class GameScene(SceneBase):
         self.hudscaleimage = pygame.Surface(newsize, pygame.SRCALPHA).convert_alpha()
         super().on_displayresize(newsize)
 
-    def tick(self, dt:float):
-        super().tick(dt)
+    def update(self, dt:float):
+        super().update(dt)
         data = self.connector.receive()
         if data:
             prefix, contents = data
             NetEvents.rcv_event_caller(prefix, contents)
         self.image.fill((0,0,0,0))
         self.hud.redraw()
-        self.gridui.tick(dt)
-        self.gridui.redraw_grid()
+        self.grid.tick(dt)
+        self.gridui.update()
         pygame.transform.scale(self.hud.background, self.desired_size, self.image)
         pygame.transform.scale(self.gridui.image, self.griddisplaysize, self.griduiscaleimage)
         gridoffset = ((self.desired_size[0] - self.griddisplaysize[0])/2, (self.desired_size[1] - self.griddisplaysize[1])/2)

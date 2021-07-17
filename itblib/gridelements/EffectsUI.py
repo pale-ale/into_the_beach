@@ -15,15 +15,12 @@ class EffectBaseUI(GridElementUI):
                 Textures.get_spritesheet("Effect", neweffect.name, "Default")
             )
     
-    def get_position(self):
-        return self._parentelement.get_position()
-
 
 class EffectRiverUI(EffectBaseUI):
     def __init__(self, effect:EffectRiver, width:int=64, height:int=64):  
         super().__init__(width=width, height=height, effect=effect)
     
-    def update_image(self):
+    def update(self):
         if self.visible:
             grid = self._parentelement.grid
             pos = self._parentelement.pos

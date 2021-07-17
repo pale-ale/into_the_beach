@@ -9,11 +9,8 @@ class GridElementUI(pygame.sprite.Sprite):
     
     def __init__(self, width:int=64, height:int=64, parentelement:Optional[GridElement]=None):  
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.surface.Surface((width, height), pygame.SRCALPHA)
-        self.image.fill((150,80,80))
+        self.image = pygame.surface.Surface((width, height), pygame.SRCALPHA).convert_alpha()
         self.rect = self.image.get_rect()
-        self.width = width
-        self.height = height
         self.visible = bool(parentelement)
         self.needsredraw = True
         self._textures = []
@@ -24,11 +21,11 @@ class GridElementUI(pygame.sprite.Sprite):
         """Set a new spritesheet as this UIElements' texture soure."""
         assert len(source) > 0, self._parentelement.name + " has not received a texture"
         self._textures = source
-        self.update_image()
+        self.update()
         self.needsredraw = True
         self.animframe = -1
 
-    def update_image(self):
+    def update(self):
         """Update animations etc. to a new frame"""
         if self.visible:
             newanimframe = int(self._parentelement.age) % len(self._textures)

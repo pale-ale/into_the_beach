@@ -55,7 +55,7 @@ while client.running:
         elif event.type == pygame.KEYDOWN or pygame.KEYUP:
             client.scenemanager.activescene.on_keyevent(event)
     dt = client.clock.tick(client.fps_cap)/1000.0
-    client.scenemanager.activescene.tick(dt)
+    client.scenemanager.activescene.update(dt)
     client.screen.fill((0,0,0,0))
     client.screen.blit(client.scenemanager.activescene.image, (0,0))
     pygame.display.update()
