@@ -171,14 +171,14 @@ class Hud(pygame.sprite.Sprite):
                 for previewinfo in ability.area_of_effect:
                     pos, previewid = previewinfo
                     screenpos = self.gridui.transform_grid_screen(pos)
-                    self.image.blit(Textures.textures["Other"][previewid], screenpos)
+                    self.image.blit(Textures.get_spritesheet(previewid)[0], screenpos)
         if self.selectedunitui and\
         self.selectedunitui._parentelement and\
         "MovementAbility" in self.selectedunitui._parentelement.abilities.keys() and\
         self.cursorgridpos in self.selectedunitui._parentelement.abilities["MovementAbility"].area_of_effect:
-            self.image.blit(Textures.textures["Other"][PREVIEWS[2]], self.cursorscreenpos)
+            self.image.blit(Textures.get_spritesheet(PREVIEWS[2])[0], self.cursorscreenpos)
         else:
-            self.image.blit(Textures.textures["Other"][PREVIEWS[0]], self.cursorscreenpos)
+            self.image.blit(Textures.get_spritesheet(PREVIEWS[0])[0], self.cursorscreenpos)
         
         maxphasetime = PHASES[self.gridui.grid.phase][1]
         currentphasetime = self.gridui.grid.phasetime

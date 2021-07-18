@@ -39,7 +39,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
     def on_add_tile(self, tile:TileBase):
         """Add the UI version of the new tile added to the normal grid."""
         uitile = self.uitiles[self.grid.c_to_i(tile.pos)]
-        uitile.update_tile(tile)
+        uitile.update_element(tile)
         uitile.rect = Rect(*self.transform_grid_screen(tile.pos), 64, 64)
 
     def on_add_effect(self, effect:EffectBase):
@@ -48,25 +48,29 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         if effect and type(effect).__name__ == "EffectRiver":
             self.uieffects[gridindex] = EffectRiverUI(None)
         uieffect = self.uieffects[gridindex]
-        uieffect.update_effect(effect)
+        uieffect.update_element(effect)
         uieffect.rect = Rect(*self.transform_grid_screen(effect.pos), 64, 64)
     
     def on_add_unit(self, unit:UnitBase):
         """Add the UI version of the new unit added to the normal grid."""
         uiunit = self.uiunits[self.grid.c_to_i(unit.pos)]
-        uiunit.update_unit(unit)
+        uiunit.update_element(unit)
         x, y = self.transform_grid_screen(unit.pos)
         uiunit.rect = Rect(x, y-20, 64, 64)
 
     def on_move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
         """Move the UI version of the moved unit from the normal grid."""
         unit = self.grid.get_unit(to_pos)
-        self.uiunits[self.grid.c_to_i(from_pos)].update_unit(None)
-        self.uiunits[self.grid.c_to_i(to_pos)].update_unit(unit)
+        self.uiunits[self.grid.c_to_i(from_pos)].update_element(None)
+        uiunit = self.uiunits[self.grid.c_to_i(to_pos)]
+        x, y = self.transform_grid_screen(to_pos)
+        uiunit.rect = Rect(x, y-20, 64, 64)
+        uiunit.update_element(unit)
+        print(uiunit.rect)
 
     def on_remove_unit(self, x:int, y:int):
         """Remove a UI-unit at the given position."""
-        self.uiunits[self.grid.c_to_i(x,y)].update_unit(None)
+        self.uiunits[self.grid.c_to_i(x,y)].update_element(None)
    
     def update(self):
         """Update the graphics and animations' frames."""
