@@ -40,7 +40,13 @@ class Session:
     def start_game(self):
         """Begin the Unit Placement Phase, after which the normal turn cycle ensues."""
         self._grid.load_map(MapGrasslands())
+        #game mode specific
         NetEvents.snd_netmaptransfer(MapGrasslands())
+        p1, p2 = self._players.values()
+        self._grid.add_unit((5,2), 3, p1.playerid)
+        self._grid.add_unit((5,8), 3, p2.playerid)
+        NetEvents.snd_netunitspawn(4, (5,2), p1.playerid)
+        NetEvents.snd_netunitspawn(4, (5,8), p2.playerid)
         self.state = "running_pregame"
     
 

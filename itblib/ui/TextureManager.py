@@ -26,7 +26,7 @@ class Textures:
     texturekeys = [
         ("EffectFire", "Default", 2),
         ("EffectMountain", "Default", 1),
-        ("EffectRiver", "Default", 12),
+        ("EffectRiver", "Default", 6),
         ("EffectTown", "Default", 1),
         ("EffectTrees", "Default", 1),
         ("EffectWheat", "Default", 1),

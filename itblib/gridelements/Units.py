@@ -89,7 +89,7 @@ class UnitBase(GridElement):
     
     def dying(self):
         self.trigger_hook("OnDeath")
-        self.grid.remove_unit(*self.get_position())
+        self.grid.remove_unit(self.pos)
 
     
 class UnitSaucer(UnitBase):

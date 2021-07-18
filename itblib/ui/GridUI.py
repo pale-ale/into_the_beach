@@ -68,9 +68,9 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         uiunit.update_element(unit)
         print(uiunit.rect)
 
-    def on_remove_unit(self, x:int, y:int):
+    def on_remove_unit(self, pos:"tuple[int,int]"):
         """Remove a UI-unit at the given position."""
-        self.uiunits[self.grid.c_to_i(x,y)].update_element(None)
+        self.uiunits[self.grid.c_to_i(pos)].update_element(None)
    
     def update(self):
         """Update the graphics and animations' frames."""

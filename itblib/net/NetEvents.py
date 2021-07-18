@@ -45,7 +45,11 @@ class NetEvents():
     def snd_netunitspawn(unitid:int, pos:"tuple[int,int]", ownerid:int):
         unitspawntuple = (unitid, pos, ownerid)
         if NetEvents.connector.authority:
-            pass
+            NetEvents.connector.send_to_clients(
+                NetEvents.session._players,
+                "NetUnitSpawn", 
+                json.dumps(unitspawntuple)
+            )
         else:
             NetEvents.connector.send("NetUnitSpawn", json.dumps(unitspawntuple))
 
@@ -56,11 +60,7 @@ class NetEvents():
         if NetEvents.connector.authority:
             #check whether this request is fulfillable, if not: return
             if NetEvents.grid.is_space_empty(False, pos):
-                NetEvents.connector.send_to_clients(
-                    NetEvents.session._players,
-                    "NetUnitSpawn", 
-                    unitspawntuplestr
-                )
+                NetEvents.snd_netunitspawn(unitid, pos, ownerid)
                 NetEvents.grid.add_unit(pos, unitid, ownerid)
         else:
             NetEvents.grid.add_unit(pos, unitid, ownerid)

@@ -27,7 +27,7 @@ def handle_networking_events():
                 break
 
 def manage_players():
-    if len(serversession._players) > 0:
+    if len(serversession._players) > 1:
         if not serversession.state.startswith("running"):
             print("starting game")
             serversession.start_game()

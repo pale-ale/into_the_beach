@@ -80,6 +80,4 @@ class MapGrasslands(Map):
         self.effectids[71] = 4
         self.effectids[61] = 4
         self.effectids[62] = 4
-        self.unitids[10] = 2
-        self.unitids[10] = 4
        
