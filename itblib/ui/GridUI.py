@@ -1,5 +1,4 @@
-from itblib.gridelements.GridElementUI import GridElementUI
-from pygame import Rect, Surface
+from pygame import Rect
 from ..gridelements.Effects import EffectBase
 from ..gridelements.EffectsUI import EffectBaseUI, EffectRiverUI
 from ..gridelements.Tiles import TileBase
@@ -7,7 +6,6 @@ from ..gridelements.TilesUI import TileBaseUI
 from ..gridelements.Units import UnitBase
 from ..gridelements.UnitsUI import UnitBaseUI
 from ..Maps import Map
-from ..Globals import ClassMapping
 from . import IGridObserver
 from .. import Grid
 
@@ -109,7 +107,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
 
     def transform_grid_world(self, gridpos:"tuple[int,int]"):
         """Return the world position of a given grid coordinate."""
-        return (int(gridpos[0]*-self.tilesize[0]/2 + gridpos[1]*self.tilesize[0]/2), 
+        return (int(gridpos[0]*-self.tilesize[0]/2 + gridpos[1]*self.tilesize[0]/2),
                 int(gridpos[0]*self.tilesize[1]/4 + gridpos[1]*self.tilesize[1]/4))
 
     def transform_grid_screen(self, gridpos:"tuple[int,int]"):

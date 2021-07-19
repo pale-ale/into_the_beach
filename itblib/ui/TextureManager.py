@@ -1,3 +1,4 @@
+from typing import Optional
 import pygame
 import pygame.transform
 import pygame.image
@@ -11,17 +12,18 @@ class Textures:
     textures:"dict[str,list]" = {}
 
     abilitytexturemapping = {
-        0:"MoveAbility.png",
-        1:"PunchAbility.png",
-        2:"PunchAbility.png",
-        3:"PushAbility.png"
+        0:"MoveAbility",
+        1:"PunchAbility",
+        2:"PunchAbility",
+        3:"PushAbility",
+        4:"ObjectiveAbility",
     }
     backgroundtexturemapping = {
-        0:"ProperBackdropWhite.png",
-        1:"ProperBackdropBlue.png",
-        2:"ProperBackdropRed.png",
-        3:"ProperBackdropGreen.png",
-        4:"ProperBackdropOrange.png",
+        0:"ProperBackdropWhite",
+        1:"ProperBackdropBlue",
+        2:"ProperBackdropRed",
+        3:"ProperBackdropGreen",
+        4:"ProperBackdropOrange",
     }
     texturekeys = [
         ("EffectFire", "Default", 2),
@@ -38,6 +40,10 @@ class Textures:
     ]
     for p in PREVIEWS.values():
         texturekeys.append((p, 1))
+    for p in abilitytexturemapping.values():
+        texturekeys.append((p,))
+    for p in backgroundtexturemapping.values():
+        texturekeys.append((p,))
 
     for o in ["NE","SE","SW","NW"]:
         texturekeys.append(("UnitBase", o, "Idle", 1))
@@ -56,10 +62,17 @@ class Textures:
     @staticmethod
     def load_textures(scale:"tuple[float,float]"=(1.0,1.0)):
         """Load the textures from the disk via helpers. Expensive, only use once during startup."""
-        for data in Textures.texturekeys:   
-            key = "".join(data[:-1])   
-            LoaderMethods.prepare_texture_space(key)
-            LoaderMethods.load_textures(scale, key, data[-1])
+        for data in Textures.texturekeys:
+            if len(data) > 1:
+                print(data)
+                key = "".join(data[:-1])
+                LoaderMethods.prepare_texture_space(key)
+                LoaderMethods.load_textures(scale, key, data[-1])
+            else:
+                key = str(data[0])
+                LoaderMethods.prepare_texture_space(key)
+                LoaderMethods.load_textures(scale, key, None)
+
        
         # Filenames are built the following way:
         #       <UnitName> + <Orientation> + <AnimationName> + <Framenumber(>=0)> + .png
@@ -88,13 +101,20 @@ class LoaderMethods():
             texs[key] = []
 
     @staticmethod
-    def load_textures(scale:"tuple[float,float]", key:str, framecount:int):
+    def load_textures(scale:"tuple[float,float]", key:str, framecount:"Optional[int]"):
         """Load the textures of an animation from the disk."""
-        for i in range(framecount):
-            path = Textures.texturepath + key + str(i+1) + ".png"
+        if framecount is not None:
+            for i in range(framecount):
+                path = Textures.texturepath + key + str(i+1) + ".png"
+                img = LoaderMethods.load_image(path)
+                scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
+                Textures.textures[key].append(pygame.transform.scale(img, scaledsize))
+        else:
+            path = Textures.texturepath + key + ".png"
             img = LoaderMethods.load_image(path)
             scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
             Textures.textures[key].append(pygame.transform.scale(img, scaledsize))
+
    
     @staticmethod
     def load_image(path):

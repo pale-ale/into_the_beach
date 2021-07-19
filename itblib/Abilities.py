@@ -19,7 +19,7 @@ class AbilityBase:
         self.selected_targets:"list[tuple[int,int]]" = []
         self.selected = False
         self.id = -1
-        self.phase = 2
+        self.phase = -1
         self.register_hooks()
     
     def tick(self, dt:float):
@@ -288,6 +288,9 @@ class PushAbility(AbilityBase):
 
 class ObjectiveAbility(AbilityBase):
     """This ability makes a unit an "Objective", meaning the player loses if it dies."""
+    def __init__(self, unit:"UnitBase"):
+            super().__init__(unit)
+            self.id = 4
 
     def register_hooks(self):
         self._unit.register_hook("OnDeath", self.on_death)

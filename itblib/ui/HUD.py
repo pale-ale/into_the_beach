@@ -18,7 +18,6 @@ class Hud(pygame.sprite.Sprite):
     def __init__(self, width:int, height:int, gridui:GridUI, playerid:int, session:Session):
         super().__init__()
         self.image = pygame.Surface((width, height)).convert_alpha()
-        self.background = pygame.Surface((gridui.width, gridui.height)).convert_alpha()
         self.rect = self.image.get_rect()
         self.selectedunitui:UnitBaseUI = None
         self.gridui = gridui
@@ -42,11 +41,9 @@ class Hud(pygame.sprite.Sprite):
         self.playerid = playerid
         self.session = session
         self.backgrounds = []
+        self.background = pygame.Surface((0,0)).convert_alpha()
         for bgname in Textures.backgroundtexturemapping.values():
-            img = pygame.image.load(Textures.texturepath + bgname).convert_alpha()
-            scaledimg = pygame.Surface(self.image.get_size()).convert_alpha()
-            pygame.transform.scale(img, self.image.get_size(), scaledimg)
-            self.backgrounds.append(scaledimg)
+            self.backgrounds.append(Textures.get_spritesheet(bgname)[0])
         for color in ((75,75,55,255), (50,255,50,255), (255,50,50,255), (255,200,0,255)):
             marker = pygame.Surface((16,20))
             marker.fill(color)
@@ -123,11 +120,11 @@ class Hud(pygame.sprite.Sprite):
         numbers = ""
         for ability in abilities:
             if ability.id in Textures.abilitytexturemapping.keys():
-                abilityimage = pygame.image.load(
-                    Textures.texturepath+Textures.abilitytexturemapping[ability.id])
+                abilityimage = Textures.get_spritesheet(Textures.abilitytexturemapping[ability.id])[0]
                 self.abilitiesdisplay.blit(abilityimage, (16*index, 2), (0,0,16,16))
-                self.phasemarkersdisplay.blit(self.phasemarkers[ability.phase], 
-                    (16*index, 0))
+                if ability.phase >= 0:
+                    self.phasemarkersdisplay.blit(self.phasemarkers[ability.phase], 
+                        (16*index, 0))
                 numbers += str(index+1) + " "
                 index += 1
             if self.selectedunitui and unit == self.selectedunitui._parentelement:
@@ -171,7 +168,7 @@ class Hud(pygame.sprite.Sprite):
 
     def redraw(self):
         """Update the internal image, so that no residual blits are seen."""
-        self.background.blit(self.backgrounds[self.gridui.grid.phase], (0,0))
+        self.background = self.backgrounds[self.gridui.grid.phase]
         self.image.fill((0,0,0,0))
         if self.selectedunitui and self.selectedunitui._parentelement:
             for ability in self.selectedunitui._parentelement.abilities.values():

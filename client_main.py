@@ -52,7 +52,7 @@ while client.running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             client.running = False
-        elif event.type == pygame.KEYDOWN or pygame.KEYUP:
+        elif pygame.key.get_focused() and (event.type == pygame.KEYDOWN or event.type == pygame.KEYUP):
             client.scenemanager.activescene.on_keyevent(event)
     dt = client.clock.tick(client.fps_cap)/1000.0
     client.scenemanager.activescene.update(dt)
