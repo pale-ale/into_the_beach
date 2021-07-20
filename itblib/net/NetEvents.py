@@ -67,7 +67,7 @@ class NetEvents():
 
     @staticmethod
     def snd_netunitmovepreview(unit:"UnitBase"):
-        path = unit.abilities["MovementAbility"].path
+        path = unit.get_movement_ability().path
         pospath = (unit.pos, path)
         pospathjson = json.dumps(pospath)
         if NetEvents.connector.authority:
@@ -89,10 +89,10 @@ class NetEvents():
         c = NetEvents.connector
         if c.authority:
             #verify move positions
-            unit.abilities["MovementAbility"].set_path(path)
+            unit.get_movement_ability().set_path(path)
             NetEvents.snd_netunitmovepreview(unit)
         else:
-            unit.abilities["MovementAbility"].set_path(path)
+            unit.get_movement_ability().set_path(path)
 
     @staticmethod
     def snd_netunitmove(fro:"tuple[int,int]", to:"tuple[int,int]"):

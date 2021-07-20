@@ -64,7 +64,6 @@ class Textures:
         """Load the textures from the disk via helpers. Expensive, only use once during startup."""
         for data in Textures.texturekeys:
             if len(data) > 1:
-                print(data)
                 key = "".join(data[:-1])
                 LoaderMethods.prepare_texture_space(key)
                 LoaderMethods.load_textures(scale, key, data[-1])

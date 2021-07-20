@@ -20,30 +20,38 @@ class AbilityBase:
         self.selected = False
         self.id = -1
         self.phase = -1
-        self.register_hooks()
     
     def tick(self, dt:float):
         """Made to be overridden."""
         pass
-
-    def on_select_ability(self):
-        """Called when a player selects a unit, i.e. presses the spacebar on it."""
-        if not self.selected:
-            self.selected = True
-            print("Selected", type(self).__name__)
-    
-    def on_deselect_abilities(self):
-        """Called when the unit is not selected any longer."""
-        if self.selected:
-            self.selected = False
-            self.area_of_effect.clear()
-            print("Deselected", type(self).__name__)
     
     def activate(self):
         """Called when an ability gets proc'd."""
         print("Activated", type(self).__name__)
     
-    def targets_chosen(self, targets):
+    def on_select_ability(self):
+        """Called when a player wants to use this ability."""
+        if not self.selected:
+            self.selected = True
+            print("Selected", type(self).__name__)
+    
+    def on_deselect_ability(self):
+        """Called when the ability is not selected any longer, e.g. by selecting a different one."""
+        if self.selected:
+            self.selected = False
+            self.area_of_effect.clear()
+            print("Deselected", type(self).__name__)
+    
+    def on_parentunit_select(self):
+        """Called when the unit has been selected (not as a target)."""
+        print("My parent was selected.")
+    
+    def on_parentunit_deselect(self):
+        """Called when the unit was deselected (not as a target)."""
+        print("My parent was deselected.")
+        self.on_deselect_ability()
+    
+    def on_targets_chosen(self, targets):
         """Called when a player selects a target with enter."""
         if self.selected:
             print("Targets chosen for " + type(self).__name__ + ":", targets)
@@ -57,17 +65,11 @@ class AbilityBase:
         """Called when a phase change occured. Not necessarily a new phase."""
         if newphase == self.phase:
             self.activate()
+    
+    def on_death(self):
+        """Called when this ability's unit dies."""
+        print("This uni has died.")
 
-    def register_hooks(self):
-        """Register all the "on_..." events."""
-        self._unit.register_hook("UserAction", self.on_select_ability)
-        self._unit.register_hook("TargetSelected", self.targets_chosen)
-        self._unit.register_hook("OnDeselectAbilities", self.on_deselect_abilities)
-        self._unit.register_hook("OnDeselectUnit", self.on_deselect_abilities)
-        self._unit.register_hook("OnUpdatePhase", self.on_update_phase)
-        self._unit.register_hook("OnUpdateCursor", self.on_update_cursor)
-    
-    
 class MovementAbility(AbilityBase):
     """
     Allows units to move around on the map. 
@@ -102,9 +104,9 @@ class MovementAbility(AbilityBase):
                 coordwithpreviewid = (neighbor, PREVIEWS[delta])
                 self.area_of_effect.append(coordwithpreviewid)
 
-    def targets_chosen(self, targets:"list[tuple[int,int]]"):
+    def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
         """Handle the user's target selection."""
-        super().targets_chosen(targets)
+        super().on_targets_chosen(targets)
         if len(self.path) > self._unit.moverange:
             return
         assert isinstance(targets, list) and len(targets) == 1
@@ -118,6 +120,7 @@ class MovementAbility(AbilityBase):
                 self.add_to_movement(target)
                 NetEvents.snd_netunitmove(self._unit)
                 self.collect_movement_info()
+        self.on_deselect_ability()
     
     def update_path_display(self):
         """Display the new path using proximity textures."""
@@ -182,13 +185,15 @@ class PunchAbility(AbilityBase):
         for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
             self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
-    def targets_chosen(self, targets:"list[tuple[int,int]]"):
+    def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
+        super().on_targets_chosen(targets)
         assert len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
         if target in positions:
             self.selected_targets = [target]
             self.area_of_effect.clear()
+            self.on_deselect_ability()
             
     def activate(self):
         super().activate()
@@ -224,11 +229,11 @@ class RangedAttackAbility(AbilityBase):
         pos = self._unit.pos
         coords = self.get_ordinals()
         coords = coords.difference(self._unit.grid.get_ordinal_neighbors(*pos))
-        for coord in coords:
-            self.area_of_effect.append(coord)
+        #for coord in coords:
+        #    self.area_of_effect.append(coord)
 
-    def targets_chosen(self, targets:"list[tuple[int,int]]"):
-        super().targets_chosen(targets)
+    def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
+        super().on_targets_chosen(targets)
         assert len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
@@ -249,9 +254,10 @@ class PushAbility(AbilityBase):
     def __init__(self, unit:"UnitBase"):
         super().__init__(unit)
         self.id = 3
+        self.phase = 2
 
-    def targets_chosen(self, targets:"list[tuple[int,int]]"):
-        super().targets_chosen(targets)
+    def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
+        super().on_targets_chosen(targets)
         assert len(targets) == 1
         positions = [x[0] for x in self.area_of_effect]
         target = targets[0]
@@ -292,8 +298,6 @@ class ObjectiveAbility(AbilityBase):
             super().__init__(unit)
             self.id = 4
 
-    def register_hooks(self):
-        self._unit.register_hook("OnDeath", self.on_death)
-    
     def on_death(self):
+        super().on_death()
         print("I lost..")

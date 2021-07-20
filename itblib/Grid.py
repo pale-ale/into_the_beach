@@ -53,8 +53,8 @@ class Grid:
         #filter units that cannot move
         for unit in self.units:
             if unit:
-                if not "MovementAbility" in unit.abilities.keys() or \
-                len(unit.abilities["MovementAbility"].path) == 0:
+                movementability = unit.get_movement_ability()
+                if not movementability or len(movementability.path) == 0:
                     obstacles.append(unit.pos)
                     unit.done = True
                 else:
@@ -64,7 +64,7 @@ class Grid:
             # remove units whose path is already exhausted
             # and add their positions into obstacles
             for unit in movingunits[:]:
-                path = unit.abilities["MovementAbility"].path
+                path = unit.get_movement_ability().path
                 if len(path) == 0:
                     movingunits.remove(unit)
                     unit.done = True
@@ -72,7 +72,7 @@ class Grid:
             # add each unit and their next move to the dict
             # and remove first path element
             for unit in movingunits[:]:
-                nextpos = unit.abilities["MovementAbility"].path.pop(0)
+                nextpos = unit.get_movement_ability().path.pop(0)
                 if nextpos in obstacles:
                     movingunits.remove(unit)
                     unit.done = True
@@ -94,23 +94,20 @@ class Grid:
                 elif len(units) == 1:
                     self.move_unit(units[0].pos, position)
 
-
-    def advance_phase(self):
-        """Advance phase cycle by one, starting from the planning phase once the end is reached."""
-        maxphase = len(PHASES)-1
-        self.phase = (self.phase)%maxphase+1
-        print("next phase...")
-        for unit in self.units:
-            if unit:
-                unit.trigger_hook("OnUpdatePhase", self.phase)
-    
     def change_phase(self, phase):
         """Set the phase to a certain number."""
         self.phase = phase
         self.phasetime = 0
         for unit in self.units:
             if unit:
-                unit.trigger_hook("OnUpdatePhase", self.phase)
+                unit.on_update_abilities_phases(self.phase)
+
+    def advance_phase(self):
+        """Advance phase cycle by one, starting from the planning phase once the end is reached."""
+        maxphase = len(PHASES)-1
+        nextphase = (self.phase)%maxphase+1
+        print("next phase...")
+        self.change_phase(nextphase)
 
     def load_map(self, map:Map):
         """Load a map, spawning all the required units, tiles, etc.."""

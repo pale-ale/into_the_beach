@@ -22,55 +22,30 @@ class UnitBase(GridElement):
         self.ownerid = ownerid
         self.moverange = 5
         self.orientation = "sw"
-        self.actionhooks = dict()
         self.userActions ={1:None, 2:None, 3:None, 4:None}
-        self.abilities:dict[str, AbilityBase] = {"MovementAbility":MovementAbility(self), 
-            "PunchAbility":PunchAbility(self),
-        }
+        self.abilities:list[AbilityBase] = [MovementAbility(self), PunchAbility(self)]
         self.player = playerid
     
     def tick(self, dt: float):
         super().tick(dt)
-        for ability in self.abilities.values():
+        for ability in self.abilities:
             ability.tick(dt)
     
-    def register_hook(self, hookname, function):
-        if hookname == "UserAction":
-            for slot in self.userActions.keys():
-                if not self.userActions[slot]:
-                    self.userActions[slot] = function
-                    return
-            print("Couldn't register UserAction: No free slots available for", self.name)
-            return
-        if hookname not in self.actionhooks.keys():
-            self.actionhooks[hookname] = [function]
-            return
-        self.actionhooks[hookname].append(function)
+    def add_ability(self, ability_class:AbilityBase):
+        for ability in self.abilities:
+            if ability is ability_class:
+                print(ability_class.__name__, "-class lready exists")
+                exit(1)
+        self.abilities.append(ability_class(self))
+        print(self.abilities)
+
+    def remove_ability(self, ability_class_name:str):
+        print("Removing ability:", ability_class_name)
+        for ability in self.abilities[:]:
+            if type(ability).__name__ == ability_class_name:
+                print("Removed ability:", ability)
+                self.abilities.remove(ability)
     
-    def trigger_hook(self, hookname, *args):
-        if hookname.startswith("UserAction"):
-            ability = self.userActions[int(hookname[-1])]
-            if ability:
-                ability(*args)
-                return 1
-        elif hookname in self.actionhooks:
-            for hook in self.actionhooks[hookname]:
-                hook(*args)
-            return len(self.actionhooks[hookname])
-        print(hookname, "has no bound actions")
-        return 0  
-
-    def add_ability(self, name:str, ability_class:AbilityBase):
-        if name in self.abilities.keys():
-            print("error! ability with name", name, "already exists")
-            exit(1)
-        self.abilities[name] = ability_class(self)
-
-    def remove_ability(self, name:str):
-        if name in self.abilities.keys():
-            self.abilities.pop(name)
-            print("TODO: remove hooks")
-
     def drown(self):
         print("I drowned :(")
         self.grid.remove_unit(*self.pos)
@@ -81,22 +56,52 @@ class UnitBase(GridElement):
         if unit:
             unit.on_take_damage(damage, damagetype)
     
+    def get_movement_ability(self):
+        for ability in self.abilities[:]:
+            if type(ability) is MovementAbility:
+                return ability
+    
     def on_take_damage(self, damage:int, damagetype:str):
         reduceddamage = damage - self.defense[damagetype]
         self.hitpoints -= max(0,reduceddamage)
         if self.hitpoints <= 0:
             self.dying()
     
+    def on_update_abilities_phases(self, newphase:int):
+        for ability in self.abilities:
+            ability.on_update_phase(newphase)
+    
+    def on_update_cursor(self, newcursorpos:"tuple[int,int]"):
+        for ability in self.abilities:
+            ability.on_update_cursor(newcursorpos)
+    
+    def on_select(self):
+        for ability in self.abilities:
+            ability.on_parentunit_select()
+    
+    def on_deselect(self):
+        for ability in self.abilities:
+            ability.on_parentunit_deselect()
+    
+    def on_activate_ability(self, slot:int):
+        if slot < len(self.abilities):
+            self.abilities[slot].on_select_ability()
+
+    def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
+        for ability in self.abilities:
+            ability.on_targets_chosen(targets)
+    
     def dying(self):
-        self.trigger_hook("OnDeath")
+        for ability in self.abilities:
+            ability.on_death()
         self.grid.remove_unit(self.pos)
 
     
 class UnitSaucer(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitSaucer"):
         super().__init__(grid, pos, ownerid, name=name)
-        self.add_ability("RangedAttackAbility", RangedAttackAbility)
-        self.add_ability("PushAbility", PushAbility)
+        self.add_ability(RangedAttackAbility)
+        self.add_ability(PushAbility)
 
 
 class UnitMagician(UnitBase):
@@ -117,6 +122,6 @@ class UnitBloodWraith(UnitBase):
 class UnitHomebase(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitCrystal"):
         super().__init__(grid, pos, ownerid, name=name)
-        self.add_ability("ObjectiveAbility", ObjectiveAbility)
+        self.add_ability(ObjectiveAbility)
         self.remove_ability("MovementAbility")
         self.remove_ability("PunchAbility")

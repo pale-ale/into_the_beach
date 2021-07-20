@@ -58,11 +58,11 @@ class Hud(pygame.sprite.Sprite):
         unitui = self.gridui.get_unitui(position)
         if unitui != self.selectedunitui:
             if self.selectedunitui and self.selectedunitui._parentelement:
-                self.selectedunitui._parentelement.trigger_hook("OnDeselectUnit")
+                self.selectedunitui._parentelement.on_deselect()
         if unitui and unitui._parentelement:
             if unitui._parentelement.ownerid == self.playerid:
                 self.selectedunitui = unitui
-                unitui._parentelement.trigger_hook("OnSelect")
+                unitui._parentelement.on_select()
             else:
                 print(self.playerid, unitui._parentelement.ownerid)
         else:
@@ -77,14 +77,14 @@ class Hud(pygame.sprite.Sprite):
             id = self.session._players[self.playerid]._initialunitids.pop(0)
             self.gridui.grid.request_add_unit(*position, id, self.playerid)
         elif self.selectedunitui:
-            self.selectedunitui._parentelement.trigger_hook("TargetSelected", [position])
+            self.selectedunitui._parentelement.on_targets_chosen([position])
         self.redraw()
 
     def activate_ability(self, slot:int):
         """Activate the ability with the according number, and deselect all others."""
         if self.selectedunitui and self.selectedunitui._parentelement:
-            self.selectedunitui._parentelement.trigger_hook("OnDeselectAbilities")
-            self.selectedunitui._parentelement.trigger_hook("UserAction" + str(slot))
+            self.selectedunitui._parentelement.on_deselect()
+            self.selectedunitui._parentelement.on_activate_ability(slot-1)
             self.redraw()
 
     def display_unit(self, pos:"tuple[int,int]"):
@@ -115,7 +115,7 @@ class Hud(pygame.sprite.Sprite):
 
     def display_abilities(self, unit:UnitBase):
         """Display the ability of a unit."""
-        abilities = unit.abilities.values()
+        abilities = unit.abilities
         index = 0
         numbers = ""
         for ability in abilities:
@@ -166,27 +166,26 @@ class Hud(pygame.sprite.Sprite):
             self.image.blit(tile.image, (self.gridui.width*.75, self.gridui.height*.75), (0,0,64,64))
         self.image.blit(self.tilefontdisplay, (self.gridui.width*.85, self.gridui.height*.7))
 
+    def draw_unit_ability_previews(self, unit:UnitBase):
+        """Draw previews of a unit, e.g. movement and targeting info."""
+        #print("ST:", unit.abilities[0].selected_targets)
+        #print("AOE:", unit.abilities[0].area_of_effect)
+        for ability in unit.abilities:
+            for previewinfo in ability.area_of_effect:
+                pos, previewid = previewinfo
+                screenpos = self.gridui.transform_grid_screen(pos)
+                self.image.blit(Textures.get_spritesheet(previewid)[0], screenpos)
+
     def redraw(self):
         """Update the internal image, so that no residual blits are seen."""
         self.background = self.backgrounds[self.gridui.grid.phase]
         self.image.fill((0,0,0,0))
         if self.selectedunitui and self.selectedunitui._parentelement:
-            for ability in self.selectedunitui._parentelement.abilities.values():
-                for previewinfo in ability.area_of_effect:
-                    pos, previewid = previewinfo
-                    screenpos = self.gridui.transform_grid_screen(pos)
-                    self.image.blit(Textures.get_spritesheet(previewid)[0], screenpos)
-        if self.selectedunitui and\
-        self.selectedunitui._parentelement and\
-        "MovementAbility" in self.selectedunitui._parentelement.abilities.keys() and\
-        self.cursorgridpos in self.selectedunitui._parentelement.abilities["MovementAbility"].area_of_effect:
-            self.image.blit(Textures.get_spritesheet(PREVIEWS[2])[0], self.cursorscreenpos)
-        else:
-            self.image.blit(Textures.get_spritesheet(PREVIEWS[0])[0], self.cursorscreenpos)
-        
+            self.draw_unit_ability_previews(self.selectedunitui._parentelement)
         maxphasetime = PHASES[self.gridui.grid.phase][1]
         currentphasetime = self.gridui.grid.phasetime
         self.timerdisplay = self.font.render(str(round(maxphasetime-currentphasetime, 1)), True, (255,255,255,255))
+        self.image.blit(Textures.get_spritesheet(PREVIEWS[0])[0], self.cursorscreenpos)
         self.image.blit(self.timerdisplay, (10,10))
 
         self.display_tile(self.cursorgridpos)
@@ -198,6 +197,6 @@ class Hud(pygame.sprite.Sprite):
         self.cursorgridpos = position
         self.cursorscreenpos = self.gridui.transform_grid_screen(position)
         if self.selectedunitui and self.selectedunitui._parentelement:
-            self.selectedunitui._parentelement.trigger_hook("OnUpdateCursor", position)
+            self.selectedunitui._parentelement.on_update_cursor(position)
         self.redraw()
     
