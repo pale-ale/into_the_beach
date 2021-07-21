@@ -29,6 +29,11 @@ class AbilityBase:
         """Called when an ability gets proc'd."""
         print("Activated", type(self).__name__)
     
+    def add_targets(self, targets):
+        """Add target coordinates to selected_targets."""
+        if self.selected:
+            print("Targets chosen for " + type(self).__name__ + ":", targets)
+
     def on_select_ability(self):
         """Called when a player wants to use this ability."""
         if not self.selected:
@@ -50,11 +55,6 @@ class AbilityBase:
         """Called when the unit was deselected (not as a target)."""
         print("My parent was deselected.")
         self.on_deselect_ability()
-    
-    def on_targets_chosen(self, targets):
-        """Called when a player selects a target with enter."""
-        if self.selected:
-            print("Targets chosen for " + type(self).__name__ + ":", targets)
     
     def on_update_cursor(self, newcursorpos):
         """Called when the player changes the cursor's position while this ability is active."""
@@ -84,19 +84,17 @@ class MovementAbility(AbilityBase):
         self.phase = 3
         self.timinginfo = unit.age
         self.durationperstep = .5 #seconds
-        self.path = []
     
     def on_select_ability(self):
         super().on_select_ability()
         if  self.selected:
-            self.path.clear()
             self.area_of_effect.clear()
             self.selected_targets.clear()
             self.collect_movement_info()
 
     def collect_movement_info(self):
         """Gather the tiles we can move to and add them to the displayed AOE."""
-        pathwithself = [self._unit.pos] + self.path
+        pathwithself = [self._unit.pos] + self.selected_targets
         if len(pathwithself) <= self._unit.moverange:
             pos = pathwithself[-1]
             for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
@@ -104,29 +102,21 @@ class MovementAbility(AbilityBase):
                 coordwithpreviewid = (neighbor, PREVIEWS[delta])
                 self.area_of_effect.append(coordwithpreviewid)
 
-    def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
+    def add_targets(self, targets:"list[tuple[int,int]]"):
         """Handle the user's target selection."""
-        super().on_targets_chosen(targets)
-        if len(self.path) > self._unit.moverange:
-            return
-        assert isinstance(targets, list) and len(targets) == 1
-        assert isinstance(targets[0], tuple)
-        target = targets[0]
-        positions = [x[0] for x in self.area_of_effect]
-        if target in positions:
-            pathwithself = [self._unit.pos] + self.path
-            pos = pathwithself[-1]
-            if target != pos:
-                self.add_to_movement(target)
-                NetEvents.snd_netunitmove(self._unit)
+        super().add_targets(targets)
+        for target in targets:
+            if len(self.selected_targets) >= self._unit.moverange:
+                return
+            self.add_to_movement(target)
+            if not NetEvents.connector.authority:
                 self.collect_movement_info()
         self.on_deselect_ability()
     
     def update_path_display(self):
         """Display the new path using proximity textures."""
-        self.selected_targets.clear()
         self.area_of_effect.clear()
-        pathwithself = [self._unit.pos] + self.path
+        pathwithself = [self._unit.pos] + self.selected_targets
         if len(pathwithself) > 1:
             first = (pathwithself[0], PREVIEWS[1])
             last = (pathwithself[-1], PREVIEWS[1])
@@ -137,31 +127,26 @@ class MovementAbility(AbilityBase):
                 prevdelta = (curr[0] - prev[0], curr[1] - prev[1])
                 nextdelta = (next[0] - curr[0], next[1] - curr[1])
                 currentwithpreview = (curr, PREVIEWS[(*nextdelta, *prevdelta)])
-                self.selected_targets.append(curr)
                 self.area_of_effect.append(currentwithpreview)
             self.area_of_effect.append(first)
             self.area_of_effect.append(last)
-            self.selected_targets.append(first[0])
-            self.selected_targets.append(last[0])
         self.collect_movement_info()
 
     def add_to_movement(self, target:"tuple[int,int]"):
         """Add a "step" to the path we want to take."""
-        self.path.append(target)
-        NetEvents.snd_netunitmovepreview(self._unit)
-        self.update_path_display()
+        self.selected_targets.append(target)
+        NetEvents.snd_netabilitytarget(self)
+        if not NetEvents.connector.authority:
+            self.update_path_display()
 
-    def set_path(self, newpath: "list[tuple[int,int]]"):
-        """Set the unit's path to newpath."""
-        self.path = newpath
-        self.update_path_display()
-            
     def on_update_cursor(self, newcursorpos:"tuple[int,int]"):
         """Add the new cursor position to the path if we can move there."""
         super().on_update_cursor(newcursorpos)
         if self.selected:
-            if len(self.path) < self._unit.moverange:
+            if len(self.selected_targets) < self._unit.moverange:
                 self.add_to_movement(newcursorpos)
+            else:
+                self.on_deselect_ability()
     
     def activate(self):
         """Set the unit as "active", meaning the phase will not continue until it has finished moving."""
@@ -185,8 +170,8 @@ class PunchAbility(AbilityBase):
         for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
             self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
-    def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
-        super().on_targets_chosen(targets)
+    def add_targets(self, targets:"list[tuple[int,int]]"):
+        super().add_targets(targets)
         assert len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
@@ -233,8 +218,8 @@ class RangedAttackAbility(AbilityBase):
         #for coord in coords:
         #    self.area_of_effect.append(coord)
 
-    def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
-        super().on_targets_chosen(targets)
+    def add_targets(self, targets:"list[tuple[int,int]]"):
+        super().add_targets(targets)
         assert len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
@@ -257,8 +242,8 @@ class PushAbility(AbilityBase):
         self.id = 3
         self.phase = 2
 
-    def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
-        super().on_targets_chosen(targets)
+    def add_targets(self, targets:"list[tuple[int,int]]"):
+        super().add_targets(targets)
         assert len(targets) == 1
         positions = [x[0] for x in self.area_of_effect]
         target = targets[0]

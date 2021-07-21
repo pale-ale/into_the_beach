@@ -37,7 +37,6 @@ class UnitBase(GridElement):
                 print(ability_class.__name__, "-class lready exists")
                 exit(1)
         self.abilities.append(ability_class(self))
-        print(self.abilities)
 
     def remove_ability(self, ability_class_name:str):
         print("Removing ability:", ability_class_name)
@@ -89,7 +88,7 @@ class UnitBase(GridElement):
 
     def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
         for ability in self.abilities:
-            ability.on_targets_chosen(targets)
+            ability.add_targets(targets)
     
     def on_death(self):
         for ability in self.abilities:

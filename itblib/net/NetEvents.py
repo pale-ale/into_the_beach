@@ -67,35 +67,6 @@ class NetEvents():
             NetEvents.grid.add_unit(pos, unitid, ownerid)
 
     @staticmethod
-    def snd_netunitmovepreview(unit:"UnitBase"):
-        path = unit.get_movement_ability().path
-        pospath = (unit.pos, path)
-        pospathjson = json.dumps(pospath)
-        if NetEvents.connector.authority:
-            NetEvents.connector.send_to_clients(
-                NetEvents.session._players, 
-                "NetUnitMovePreview", 
-                pospathjson
-            )
-        else:
-            NetEvents.connector.send("NetUnitMovePreview", pospathjson)
-
-    @staticmethod
-    def rcv_netunitmovepreview(unitandpath):
-        obj = json.loads(unitandpath)
-        # unit path will now be a list[list[int,int]], since tuples dont exist in json
-        unitpos, listpath = obj
-        path = [(x[0],x[1]) for x in listpath]
-        unit = NetEvents.grid.get_unit(unitpos)
-        c = NetEvents.connector
-        if c.authority:
-            #verify move positions
-            unit.get_movement_ability().set_path(path)
-            NetEvents.snd_netunitmovepreview(unit)
-        else:
-            unit.get_movement_ability().set_path(path)
-
-    @staticmethod
     def snd_netunitmove(fro:"tuple[int,int]", to:"tuple[int,int]"):
         #only the server my send actual unit-moves
         froto = [fro, to]
@@ -164,6 +135,13 @@ class NetEvents():
         posnametargetsjson = json.dumps(posnametargets)
         if not NetEvents.connector.authority:
             NetEvents.connector.send("NetAbilityTarget", posnametargetsjson)
+        else:
+            pass
+            # NetEvents.connector.send_to_clients(
+            #     NetEvents.session._players, 
+            #     "NetAbilityTarget", 
+            #     posnametargetsjson
+            # )
 
     @staticmethod
     def rcv_netabilitytarget(posnametargetsjson):
@@ -173,9 +151,10 @@ class NetEvents():
         targets = [(x[0],x[1]) for x in targets]
         unit = NetEvents.grid.get_unit(unitpos)
         ability = [a for a in unit.abilities if type(a).__name__ == abilityname][0]
+        ability.selected_targets.clear()
         if NetEvents.connector.authority:
             #verify move positions
-            ability.on_targets_chosen(targets)
+            ability.add_targets(targets)
 
     @staticmethod
     def snd_netplayerwon(playerid:int):
@@ -203,7 +182,6 @@ class NetEvents():
 
 RcvNetEventsMap = {
     "NetMapTransfer":NetEvents.rcv_netmaptransfer,
-    "NetUnitMovePreview":NetEvents.rcv_netunitmovepreview,
     "NetUnitMove":NetEvents.rcv_netunitmove,
     "NetPlayerJoin":NetEvents.rcv_netplayerjoin,
     "NetPhaseChange":NetEvents.rcv_netphasechange,

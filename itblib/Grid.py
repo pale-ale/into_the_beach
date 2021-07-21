@@ -54,7 +54,7 @@ class Grid:
         for unit in self.units:
             if unit:
                 movementability = unit.get_movement_ability()
-                if not movementability or len(movementability.path) == 0:
+                if not movementability or len(movementability.selected_targets) == 0:
                     obstacles.append(unit.pos)
                     unit.done = True
                 else:
@@ -64,7 +64,7 @@ class Grid:
             # remove units whose path is already exhausted
             # and add their positions into obstacles
             for unit in movingunits[:]:
-                path = unit.get_movement_ability().path
+                path = unit.get_movement_ability().selected_targets
                 if len(path) == 0:
                     movingunits.remove(unit)
                     unit.done = True
@@ -72,7 +72,7 @@ class Grid:
             # add each unit and their next move to the dict
             # and remove first path element
             for unit in movingunits[:]:
-                nextpos = unit.get_movement_ability().path.pop(0)
+                nextpos = unit.get_movement_ability().selected_targets.pop(0)
                 if nextpos in obstacles:
                     movingunits.remove(unit)
                     unit.done = True

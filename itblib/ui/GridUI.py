@@ -64,7 +64,6 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         x, y = self.transform_grid_screen(to_pos)
         uiunit.rect = Rect(x, y-20, 64, 64)
         uiunit.update_element(unit)
-        print(uiunit.rect)
 
     def on_remove_unit(self, pos:"tuple[int,int]"):
         """Remove a UI-unit at the given position."""
