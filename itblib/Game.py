@@ -43,12 +43,17 @@ class Session:
         #game mode specific
         NetEvents.snd_netmaptransfer(MapGrasslands())
         p1, p2 = self._players.values()
-        self._grid.add_unit((5,2), 3, p1.playerid)
-        self._grid.add_unit((5,8), 3, p2.playerid)
+        self._grid.add_unit((5,2), 4, p1.playerid)
+        self._grid.add_unit((5,8), 4, p2.playerid)
         NetEvents.snd_netunitspawn(4, (5,2), p1.playerid)
         NetEvents.snd_netunitspawn(4, (5,8), p2.playerid)
         self.state = "running_pregame"
     
+    def objective_lost(self, playerid:int):
+        opponent = [p for p in self._players.keys() if p != playerid][0]
+        if NetEvents.connector.authority:
+            NetEvents.snd_netplayerwon(opponent)
+
 
 class Game:
     """

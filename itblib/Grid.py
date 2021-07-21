@@ -159,7 +159,8 @@ class Grid:
             print(f"error try to remove unit at {pos} which does not exist.")
             exit(1)
         self.units[self.c_to_i(pos)] = None
-        self.observer.on_remove_unit(pos)
+        if self.observer:
+            self.observer.on_remove_unit(pos)
     
     def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
         """Move a unit from (x,y) to (tagretx,targety)."""

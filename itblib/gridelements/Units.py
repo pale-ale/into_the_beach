@@ -65,7 +65,7 @@ class UnitBase(GridElement):
         reduceddamage = damage - self.defense[damagetype]
         self.hitpoints -= max(0,reduceddamage)
         if self.hitpoints <= 0:
-            self.dying()
+            self.on_death()
     
     def on_update_abilities_phases(self, newphase:int):
         for ability in self.abilities:
@@ -91,7 +91,7 @@ class UnitBase(GridElement):
         for ability in self.abilities:
             ability.on_targets_chosen(targets)
     
-    def dying(self):
+    def on_death(self):
         for ability in self.abilities:
             ability.on_death()
         self.grid.remove_unit(self.pos)

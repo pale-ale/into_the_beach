@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from itblib.gridelements.Units import UnitBase
     from itblib.net.Connector import Connector
     from itblib.ui.HUD import Hud
+    from itblib.Abilities import AbilityBase
 
 ENetEvent = {
     "NetMapTransfer",
@@ -136,7 +137,6 @@ class NetEvents():
     @staticmethod
     def rcv_netphasechange(phasenumber:int):
         phasenumber = int(phasenumber)
-        print("got phasechange")
         NetEvents.grid.change_phase(phasenumber)
 
     @staticmethod
@@ -156,6 +156,42 @@ class NetEvents():
         session = NetEvents.session
         session.remove_player(playerid)
         exit(0)
+    
+    @staticmethod
+    def snd_netabilitytarget(ability:"AbilityBase"):
+        targets = ability.selected_targets
+        posnametargets = (ability._unit.pos, type(ability).__name__,  targets)
+        posnametargetsjson = json.dumps(posnametargets)
+        if not NetEvents.connector.authority:
+            NetEvents.connector.send("NetAbilityTarget", posnametargetsjson)
+
+    @staticmethod
+    def rcv_netabilitytarget(posnametargetsjson):
+        obj = json.loads(posnametargetsjson)
+        # unit path will now be a list[list[int,int]], since tuples dont exist in json
+        unitpos, abilityname, targets = obj
+        targets = [(x[0],x[1]) for x in targets]
+        unit = NetEvents.grid.get_unit(unitpos)
+        ability = [a for a in unit.abilities if type(a).__name__ == abilityname][0]
+        if NetEvents.connector.authority:
+            #verify move positions
+            ability.on_targets_chosen(targets)
+
+    @staticmethod
+    def snd_netplayerwon(playerid:int):
+        if NetEvents.connector.authority:
+            NetEvents.connector.send_to_clients(
+                NetEvents.session._players,
+                "NetPlayerWon",
+                str(playerid))
+            exit(0)
+
+    @staticmethod
+    def rcv_netplayerwon(playeridstr:str):
+        if not NetEvents.connector.authority:
+            NetEvents.session.state == "gameOver"
+            NetEvents.hud.player_won(int(playeridstr))
+            exit(0)
 
     @staticmethod
     def rcv_event_caller(prefix:str, contents:str):
@@ -163,6 +199,7 @@ class NetEvents():
             print(f"Bad NetEvent prefix: '{prefix}'")
             exit(1)
         RcvNetEventsMap[prefix](contents)
+    
 
 RcvNetEventsMap = {
     "NetMapTransfer":NetEvents.rcv_netmaptransfer,
@@ -172,5 +209,7 @@ RcvNetEventsMap = {
     "NetPhaseChange":NetEvents.rcv_netphasechange,
     "NetUnitSpawn":NetEvents.rcv_netunitspawn,
     "NetPlayerLeave":NetEvents.rcv_netplayerleave,
+    "NetAbilityTarget":NetEvents.rcv_netabilitytarget,
+    "NetPlayerWon":NetEvents.rcv_netplayerwon,
 }
     

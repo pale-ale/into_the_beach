@@ -68,7 +68,7 @@ class AbilityBase:
     
     def on_death(self):
         """Called when this ability's unit dies."""
-        print("This uni has died.")
+        print("This unit has died.")
 
 class MovementAbility(AbilityBase):
     """
@@ -190,10 +190,11 @@ class PunchAbility(AbilityBase):
         assert len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
-        if target in positions:
+        if target in positions or NetEvents.connector.authority:
             self.selected_targets = [target]
             self.area_of_effect.clear()
             self.on_deselect_ability()
+            NetEvents.snd_netabilitytarget(self)
             
     def activate(self):
         super().activate()
@@ -300,4 +301,4 @@ class ObjectiveAbility(AbilityBase):
 
     def on_death(self):
         super().on_death()
-        print("I lost..")
+        NetEvents.session.objective_lost(self._unit.player)

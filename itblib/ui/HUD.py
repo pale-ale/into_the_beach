@@ -175,7 +175,13 @@ class Hud(pygame.sprite.Sprite):
                 pos, previewid = previewinfo
                 screenpos = self.gridui.transform_grid_screen(pos)
                 self.image.blit(Textures.get_spritesheet(previewid)[0], screenpos)
-
+    
+    def player_won(self, playerid:int):
+        if self.playerid == playerid:
+            print("\nI Won!\n")
+        else:
+            print("\nI Lost!\n")
+    
     def redraw(self):
         """Update the internal image, so that no residual blits are seen."""
         self.background = self.backgrounds[self.gridui.grid.phase]
