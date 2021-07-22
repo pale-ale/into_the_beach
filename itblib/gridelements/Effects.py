@@ -28,3 +28,8 @@ class EffectWheat(EffectBase):
 class EffectTown(EffectBase):
     def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectTown"):
         super().__init__(grid, pos, age, done, name)
+
+class EffectHeal(EffectBase):
+    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectHeal"):
+        super().__init__(grid, pos, age, done, name)
+

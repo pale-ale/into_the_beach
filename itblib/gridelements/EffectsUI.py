@@ -4,9 +4,14 @@ from ..ui.TextureManager import Textures
 from itblib.Enums import RIVER
 
 class EffectBaseUI(GridElementUI):
-    def __init__(self, effect:EffectBase, width:int=64, height:int=64):  
-        super().__init__(width=width, height=height, parentelement=effect)
+    def __init__(self, effect:EffectBase, width:int=64, height:int=64, framespeed:float=.5):  
+        super().__init__(width=width, height=height, parentelement=effect, framespeed=framespeed)
     
+
+class EffectHealUI(EffectBaseUI):
+    def __init__(self, effect:EffectBase):  
+        super().__init__(effect=effect, framespeed=.1)
+
 
 class EffectRiverUI(EffectBaseUI):
     def __init__(self, effect:EffectRiver, width:int=64, height:int=64):  

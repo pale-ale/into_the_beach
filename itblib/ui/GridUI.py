@@ -1,6 +1,6 @@
 from pygame import Rect
 from ..gridelements.Effects import EffectBase
-from ..gridelements.EffectsUI import EffectBaseUI, EffectRiverUI
+from ..gridelements.EffectsUI import EffectBaseUI, EffectHealUI, EffectRiverUI
 from ..gridelements.Tiles import TileBase
 from ..gridelements.TilesUI import TileBaseUI
 from ..gridelements.Units import UnitBase
@@ -43,8 +43,11 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
     def on_add_effect(self, effect:EffectBase):
         """Add the UI version of the new effect added to the normal grid."""
         gridindex = self.grid.c_to_i(effect.pos)
-        if effect and type(effect).__name__ == "EffectRiver":
-            self.uieffects[gridindex] = EffectRiverUI(None)
+        if effect:
+            if type(effect).__name__ == "EffectRiver":
+                self.uieffects[gridindex] = EffectRiverUI(None)
+            elif type(effect).__name__ == "EffectHeal":
+                self.uieffects[gridindex] = EffectHealUI(None)
         uieffect = self.uieffects[gridindex]
         uieffect.update_element(effect)
         uieffect.rect = Rect(*self.transform_grid_screen(effect.pos), 64, 64)

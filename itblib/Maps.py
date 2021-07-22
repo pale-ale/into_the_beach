@@ -79,5 +79,5 @@ class MapGrasslands(Map):
         self.effectids[81] = 4
         self.effectids[71] = 4
         self.effectids[61] = 4
-        self.effectids[62] = 4
+        self.effectids[62] = 7
        

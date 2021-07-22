@@ -7,7 +7,8 @@ from .gridelements.Effects import EffectBase,\
                                 EffectMountain,\
                                 EffectRiver,\
                                 EffectWheat,\
-                                EffectTown
+                                EffectTown,\
+                                EffectHeal
 from .gridelements.Tiles import *
 
 class ClassMapping:
@@ -31,7 +32,8 @@ class ClassMapping:
         3:EffectMountain,
         4:EffectRiver,
         5:EffectWheat,
-        6:EffectTown
+        6:EffectTown,
+        7:EffectHeal,
     }
     _unitclasses = [None, UnitBase, UnitSaucer, UnitBloodWraith, UnitHomebase]
     unitidclassmapping = {}

@@ -32,6 +32,7 @@ class Textures:
         ("EffectTown", "Default", 1),
         ("EffectTrees", "Default", 1),
         ("EffectWheat", "Default", 1),
+        ("EffectHeal", "Default", 10),
 
         ("TileDirt", "Default", 1),
         ("TileForest", "Default", 1),
