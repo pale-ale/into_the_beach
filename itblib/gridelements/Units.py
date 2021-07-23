@@ -1,11 +1,13 @@
 from typing import TYPE_CHECKING
 from .GridElement import GridElement
+from itblib.net.NetEvents import NetEvents
 from ..Abilities import AbilityBase, \
     MovementAbility, \
     ObjectiveAbility, \
     PunchAbility, \
     PushAbility, \
-    RangedAttackAbility 
+    RangedAttackAbility, \
+    BleedingEffect
 
 if TYPE_CHECKING:
     from ..Grid import Grid
@@ -53,16 +55,20 @@ class UnitBase(GridElement):
         print("target", target)
         unit = self.grid.get_unit(target)
         if unit:
-            unit.on_take_damage(damage, damagetype)
+            unit.on_change_hp(-damage, damagetype)
     
     def get_movement_ability(self):
         for ability in self.abilities[:]:
             if type(ability) is MovementAbility:
                 return ability
     
-    def on_take_damage(self, damage:int, damagetype:str):
-        reduceddamage = damage - self.defense[damagetype]
-        self.hitpoints -= max(0,reduceddamage)
+    def on_change_hp(self, delta_hp:int, hp_change_type:str):
+        if delta_hp > 0:
+            self.hitpoints += delta_hp
+        else:
+            reduceddamage = delta_hp + self.defense[hp_change_type]
+            self.hitpoints += min(0,reduceddamage)
+        NetEvents.snd_netunithpchange(self.pos, self.hitpoints)
         if self.hitpoints <= 0:
             self.on_death()
     
@@ -88,7 +94,8 @@ class UnitBase(GridElement):
 
     def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
         for ability in self.abilities:
-            ability.add_targets(targets)
+            if ability.selected:
+                ability.add_targets(targets)
     
     def on_death(self):
         for ability in self.abilities:
@@ -122,5 +129,6 @@ class UnitHomebase(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitCrystal"):
         super().__init__(grid, pos, ownerid, name=name)
         self.add_ability(ObjectiveAbility)
+        self.add_ability(BleedingEffect)
         self.remove_ability("MovementAbility")
         self.remove_ability("PunchAbility")

@@ -11,16 +11,6 @@ if TYPE_CHECKING:
     from itblib.ui.HUD import Hud
     from itblib.Abilities import AbilityBase
 
-ENetEvent = {
-    "NetMapTransfer",
-    "NetPlayerJoin",
-    "NetPlayerLeave",
-    "NetPhaseChange",
-    "NetUnitSpawn",
-    "NetUnitDamage",
-    "NetUnitMove"
-}
-
 class NetEvents():
     grid:"Grid" = None
     session:"Session" = None
@@ -84,6 +74,23 @@ class NetEvents():
         #this method is called on clients only
         fromto = json.loads(movedata)
         NetEvents.grid.move_unit(*fromto)
+
+    @staticmethod
+    def snd_netunithpchange(pos:"tuple[int,int]", new_hp:"int"):
+        c = NetEvents.connector
+        pos_hp_data = json.dumps([pos, new_hp])
+        if c.authority:
+            c.send_to_clients(
+                NetEvents.session._players,
+                "NetUnitHpChange",
+                pos_hp_data
+            )
+
+    @staticmethod
+    def rcv_netunithpchange(pos_hp_data):
+        pos , new_hp = json.loads(pos_hp_data)
+        if not NetEvents.connector.authority:
+            NetEvents.grid.get_unit(pos).hitpoints = new_hp
 
     @staticmethod
     def snd_netplayerjoin(targetconnection, player, localcontrol:bool):
@@ -181,13 +188,14 @@ class NetEvents():
     
 
 RcvNetEventsMap = {
-    "NetMapTransfer":NetEvents.rcv_netmaptransfer,
-    "NetUnitMove":NetEvents.rcv_netunitmove,
-    "NetPlayerJoin":NetEvents.rcv_netplayerjoin,
-    "NetPhaseChange":NetEvents.rcv_netphasechange,
-    "NetUnitSpawn":NetEvents.rcv_netunitspawn,
-    "NetPlayerLeave":NetEvents.rcv_netplayerleave,
     "NetAbilityTarget":NetEvents.rcv_netabilitytarget,
+    "NetMapTransfer":NetEvents.rcv_netmaptransfer,
+    "NetPhaseChange":NetEvents.rcv_netphasechange,
+    "NetPlayerJoin":NetEvents.rcv_netplayerjoin,
+    "NetPlayerLeave":NetEvents.rcv_netplayerleave,
     "NetPlayerWon":NetEvents.rcv_netplayerwon,
+    "NetUnitHpChange":NetEvents.rcv_netunithpchange,
+    "NetUnitMove":NetEvents.rcv_netunitmove,
+    "NetUnitSpawn":NetEvents.rcv_netunitspawn
 }
     

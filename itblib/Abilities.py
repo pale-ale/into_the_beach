@@ -183,7 +183,7 @@ class PunchAbility(AbilityBase):
             
     def activate(self):
         super().activate()
-        if len(self.selected_targets) > 0:
+        if len(self.selected_targets) > 0 and NetEvents.connector.authority:
             damage = [self._unit.baseattack["physical"], "physical"]
             self._unit.attack(self.selected_targets[0], *damage)
             self.area_of_effect.clear()
@@ -271,9 +271,9 @@ class PushAbility(AbilityBase):
                     self._unit.grid.move_unit(*target, *newpos)
                 else:
                     targetint = self._unit.grid.c_to_i(*target)
-                    self._unit.grid.units[targetint].on_take_damage(1, "collision")
+                    self._unit.grid.units[targetint].on_change_hp(-1, "collision")
                     newposint = self._unit.grid.c_to_i(*newpos)
-                    self._unit.grid.units[newposint].on_take_damage(1, "collision")
+                    self._unit.grid.units[newposint].on_change_hp(-1, "collision")
         self.selected_targets.clear()
         self.area_of_effect.clear()
 
@@ -281,9 +281,22 @@ class PushAbility(AbilityBase):
 class ObjectiveAbility(AbilityBase):
     """This ability makes a unit an "Objective", meaning the player loses if it dies."""
     def __init__(self, unit:"UnitBase"):
-            super().__init__(unit)
-            self.id = 4
+        super().__init__(unit)
+        self.id = 4
 
     def on_death(self):
         super().on_death()
         NetEvents.session.objective_lost(self._unit.player)
+
+
+class BleedingEffect(AbilityBase):
+    def __init__(self, unit:"UnitBase"):
+        super().__init__(unit)
+        self.id = 5
+        self.phase = 4
+    
+    def activate(self):
+        if NetEvents.connector.authority:
+            super().activate()
+            self._unit.on_change_hp(-1, "physical")
+
