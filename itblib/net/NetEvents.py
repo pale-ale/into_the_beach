@@ -93,7 +93,7 @@ class NetEvents():
             NetEvents.grid.get_unit(pos).hitpoints = new_hp
 
     @staticmethod
-    def snd_netplayerjoin(targetconnection, player, localcontrol:bool):
+    def snd_netplayerjoin(targetconnection, player:Player, localcontrol:bool):
         d = player.get_info()
         d["localcontrol"] = localcontrol
         NetEvents.connector.send_custom(targetconnection, "NetPlayerJoin", json.dumps(d))

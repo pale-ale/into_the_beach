@@ -114,7 +114,7 @@ class Hud(pygame.sprite.Sprite):
         self.image.blit(self.abilitiesnumbers, (self.gridui.width*.855+5, self.gridui.height*.1+18))
 
     def display_abilities(self, unit:UnitBase):
-        """Display the ability of a unit."""
+        """Display the abilities of a unit."""
         abilities = unit.abilities
         index = 0
         numbers = ""

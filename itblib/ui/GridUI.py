@@ -1,4 +1,5 @@
-from pygame import Rect
+from pygame import Rect, draw
+from itblib.net.NetEvents import NetEvents 
 from ..gridelements.Effects import EffectBase
 from ..gridelements.EffectsUI import EffectBaseUI, EffectHealUI, EffectRiverUI
 from ..gridelements.Tiles import TileBase
@@ -33,6 +34,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.tilesprites = pygame.sprite.Group(self.uitiles)
         self.effectsprites = pygame.sprite.Group(self.uieffects)
         self.unitsprites = pygame.sprite.Group(self.uiunits)
+        self.unitdrawoffset = -20
 
     def on_add_tile(self, tile:TileBase):
         """Add the UI version of the new tile added to the normal grid."""
@@ -57,7 +59,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         uiunit = self.uiunits[self.grid.c_to_i(unit.pos)]
         uiunit.update_element(unit)
         x, y = self.transform_grid_screen(unit.pos)
-        uiunit.rect = Rect(x, y-20, 64, 64)
+        uiunit.rect = Rect(x, y + self.unitdrawoffset, 64, 64)
 
     def on_move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
         """Move the UI version of the moved unit from the normal grid."""
@@ -65,7 +67,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.uiunits[self.grid.c_to_i(from_pos)].update_element(None)
         uiunit = self.uiunits[self.grid.c_to_i(to_pos)]
         x, y = self.transform_grid_screen(to_pos)
-        uiunit.rect = Rect(x, y-20, 64, 64)
+        uiunit.rect = Rect(x, y + self.unitdrawoffset, 64, 64)
         uiunit.update_element(unit)
 
     def on_remove_unit(self, pos:"tuple[int,int]"):
@@ -127,4 +129,14 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.unitsprites = pygame.sprite.Group(self.uiunits)
         self.tilesprites.draw(self.image)
         self.effectsprites.draw(self.image)
+        for uiunit in self.uiunits:
+            if uiunit.visible:
+                c = uiunit.rect.center
+                o = 3
+                squaresize = 48
+                l = (c[0] - int(squaresize/2) , c[1] + o)
+                r = (c[0] + int(squaresize/2) , c[1] + o)
+                t = (c[0], c[1] - int(squaresize/4) + o)
+                b = (c[0], c[1] + int(squaresize/4) + o)
+                draw.lines(self.image, NetEvents.session._players[uiunit._parentelement.ownerid].color, True, (l, t, r, b), 1)
         self.unitsprites.draw(self.image)

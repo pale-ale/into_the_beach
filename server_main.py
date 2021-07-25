@@ -2,6 +2,7 @@ from itblib.Player import Player
 from itblib.Game import Session
 import time
 import pygame
+import random
 from itblib.net.Connector import Connector
 from itblib.net.NetEvents import NetEvents
 
@@ -26,6 +27,11 @@ def handle_networking_events():
             else:
                 break
 
+def get_color(key:int):
+    rgb = [random.randrange(0, 200), random.randrange(0, 200), random.randrange(0, 200)]
+    rgb[key%3] = 255
+    return tuple(rgb)
+
 def manage_players():
     if len(serversession._players) > 1:
         if not serversession.state.startswith("running"):
@@ -34,7 +40,7 @@ def manage_players():
         return
     for newconnection in c.get_incoming_connections():
         newplayerid = len(serversession._players)+1
-        newplayer = Player(newplayerid, newconnection)
+        newplayer = Player(newplayerid, newconnection, color=get_color(len(serversession._players)))
         serversession.add_player(newplayer)
         print("added player", newplayer.playerid)
         newplayerid += 1

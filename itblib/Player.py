@@ -3,9 +3,9 @@ import socket
 class Player:
     """Represents a physical player at the "table"."""
     
-    def __init__(self, id:int, playersocket:socket.socket):
+    def __init__(self, id:int, playersocket:socket.socket, color=(0,150,50)):
         self.name = "Player_1"
-        self.color = (0,150,50,255)
+        self.color = color
         self._initialunitids = [1,2,3]
         self._controlledunits = []
         self.playerid = id

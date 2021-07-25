@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class UnitBase(GridElement):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
-    playerid:int=0, name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
+    name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
         super().__init__(grid, pos)
         self.name = name
         self.hitpoints = hitpoints
@@ -26,7 +26,6 @@ class UnitBase(GridElement):
         self.orientation = "sw"
         self.userActions ={1:None, 2:None, 3:None, 4:None}
         self.abilities:list[AbilityBase] = [MovementAbility(self), PunchAbility(self)]
-        self.player = playerid
     
     def tick(self, dt: float):
         super().tick(dt)
