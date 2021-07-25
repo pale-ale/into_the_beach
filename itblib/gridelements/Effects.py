@@ -45,6 +45,6 @@ class EffectHeal(EffectBase):
 
     def tick(self, dt:float):
         super().tick(dt)
-        if self.age >= 3:
+        if self.age >= 1:
             self.done = True
             self.grid.remove_effect(self.pos)

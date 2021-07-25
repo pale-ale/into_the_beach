@@ -30,7 +30,7 @@ class NetEvents():
         newmap = Map()
         newmap.import_from_str(mapjson)
         print("Client: loading map...")
-        NetEvents.grid.load_map(newmap)
+        NetEvents.grid.load_map(newmap, from_authority=True)
 
     @staticmethod
     def snd_netunitspawn(unitid:int, pos:"tuple[int,int]", ownerid:int):
@@ -43,7 +43,7 @@ class NetEvents():
             )
         else:
             NetEvents.connector.send("NetUnitSpawn", json.dumps(unitspawntuple))
-
+    
     @staticmethod
     def rcv_netunitspawn(unitspawntuplestr):
         unitspawntuple = json.loads(unitspawntuplestr)
@@ -55,6 +55,28 @@ class NetEvents():
                 NetEvents.grid.add_unit(pos, unitid, ownerid)
         else:
             NetEvents.grid.add_unit(pos, unitid, ownerid)
+    
+    @staticmethod
+    def snd_neteffectspawn(effectid:int, pos:"tuple[int,int]"):
+        effectspawntuple = (effectid, pos)
+        if NetEvents.connector.authority:
+            NetEvents.connector.send_to_clients(
+                NetEvents.session._players,
+                "NetEffectSpawn", 
+                json.dumps(effectspawntuple)
+            )
+        else:
+            NetEvents.connector.send("NetEffectSpawn", json.dumps(effectspawntuple))
+    
+    @staticmethod
+    def rcv_neteffectspawn(effectspawntuplestr):
+        effectspawntuple = json.loads(effectspawntuplestr)
+        effectid, pos = effectspawntuple
+        if NetEvents.connector.authority:
+            #if valid command:...
+            NetEvents.grid.add_effect(pos, effectid, from_authority=False)
+        else:
+            NetEvents.grid.add_effect(pos, effectid, from_authority=True)
 
     @staticmethod
     def snd_netunitmove(fro:"tuple[int,int]", to:"tuple[int,int]"):
@@ -189,6 +211,7 @@ class NetEvents():
 
 RcvNetEventsMap = {
     "NetAbilityTarget":NetEvents.rcv_netabilitytarget,
+    "NetEffectSpawn":NetEvents.rcv_neteffectspawn,
     "NetMapTransfer":NetEvents.rcv_netmaptransfer,
     "NetPhaseChange":NetEvents.rcv_netphasechange,
     "NetPlayerJoin":NetEvents.rcv_netplayerjoin,
@@ -196,6 +219,6 @@ RcvNetEventsMap = {
     "NetPlayerWon":NetEvents.rcv_netplayerwon,
     "NetUnitHpChange":NetEvents.rcv_netunithpchange,
     "NetUnitMove":NetEvents.rcv_netunitmove,
-    "NetUnitSpawn":NetEvents.rcv_netunitspawn
+    "NetUnitSpawn":NetEvents.rcv_netunitspawn,
 }
     

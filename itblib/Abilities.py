@@ -316,7 +316,7 @@ class HealAbility(AbilityBase):
     def activate(self):
         super().activate()
         if len(self.selected_targets) > 0 and NetEvents.connector.authority:
-            self._unit.grid.add_effect(self.selected_targets[0], 7)
+            self._unit.grid.add_effect(self.selected_targets[0], 7, True)
             self.area_of_effect.clear()
             self.selected_targets.clear()
 

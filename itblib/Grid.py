@@ -109,7 +109,7 @@ class Grid:
         print("next phase...")
         self.change_phase(nextphase)
 
-    def load_map(self, map:Map):
+    def load_map(self, map:Map, from_authority:bool):
         """Load a map, spawning all the required units, tiles, etc.."""
         if self.observer:
             self.observer.on_load_map(map)
@@ -122,7 +122,7 @@ class Grid:
             if tileid:
                 self.add_tile(pos, tileid)
             if effectid:
-                self.add_effect(pos, effectid)
+                self.add_effect(pos, effectid, from_authority=from_authority, use_net=False)
             if unitid:
                 self.add_unit(pos, unitid, -1)
 
@@ -134,14 +134,19 @@ class Grid:
         if self.observer:
             self.observer.on_add_tile(newtile)
 
-    def add_effect(self, pos:"tuple[int,int]", effectid:int):
+    def add_effect(self, pos:"tuple[int,int]", effectid:int, from_authority:bool, use_net=True):
         """Add an effect to the grid at given position."""
-        effecttype = ClassMapping.effectclassmapping[effectid]       
-        neweffect = effecttype(self, pos)
-        self.effects[self.c_to_i(pos)] = neweffect
-        if self.observer:
-            self.observer.on_add_effect(neweffect)
-        neweffect.on_spawn()
+        if from_authority:
+            effecttype = ClassMapping.effectclassmapping[effectid]       
+            neweffect = effecttype(self, pos)
+            self.effects[self.c_to_i(pos)] = neweffect
+            if self.observer:
+                self.observer.on_add_effect(neweffect)
+            if use_net and NetEvents.connector.authority:
+                NetEvents.snd_neteffectspawn(effectid, pos)
+            neweffect.on_spawn()
+        else:
+            pass #NetEvents.snd_neteffectspawn(effectid, pos)
 
     def request_add_unit(self, x, y, unitid:int, playerid:int):
         NetEvents.snd_netunitspawn(unitid, (x,y), playerid)

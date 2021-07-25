@@ -39,7 +39,7 @@ class Session:
 
     def start_game(self):
         """Begin the Unit Placement Phase, after which the normal turn cycle ensues."""
-        self._grid.load_map(MapGrasslands())
+        self._grid.load_map(MapGrasslands(), from_authority=True)
         #game mode specific
         NetEvents.snd_netmaptransfer(MapGrasslands())
         p1, p2 = self._players.values()
