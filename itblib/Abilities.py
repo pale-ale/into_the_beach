@@ -289,6 +289,37 @@ class ObjectiveAbility(AbilityBase):
         NetEvents.session.objective_lost(self._unit.player)
 
 
+class HealAbility(AbilityBase):
+    """Spawn a heal at selected neighboring tile, healing any unit by 1."""
+    def __init__(self, unit:"UnitBase"):
+        super().__init__(unit)
+        self.id = 5
+        self.phase = 2
+    
+    def on_select_ability(self):
+        super().on_select_ability()
+        pos = self._unit.pos
+        for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
+            self.area_of_effect.append((neighbor, PREVIEWS[0]))
+
+    def add_targets(self, targets:"list[tuple[int,int]]"):
+        super().add_targets(targets)
+        assert len(targets) == 1
+        target = targets[0]
+        positions = [x[0] for x in self.area_of_effect]
+        if target in positions or NetEvents.connector.authority:
+            self.selected_targets = [target]
+            self.area_of_effect.clear()
+            self.on_deselect_ability()
+            NetEvents.snd_netabilitytarget(self)
+            
+    def activate(self):
+        super().activate()
+        if len(self.selected_targets) > 0 and NetEvents.connector.authority:
+            self._unit.grid.add_effect(self.selected_targets[0], 7)
+            self.area_of_effect.clear()
+            self.selected_targets.clear()
+
 class BleedingEffect(AbilityBase):
     def __init__(self, unit:"UnitBase"):
         super().__init__(unit)
@@ -299,4 +330,5 @@ class BleedingEffect(AbilityBase):
         if NetEvents.connector.authority:
             super().activate()
             self._unit.on_change_hp(-1, "physical")
+
 

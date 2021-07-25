@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from .GridElement import GridElement
 from itblib.net.NetEvents import NetEvents
-from ..Abilities import AbilityBase, \
+from ..Abilities import AbilityBase, HealAbility, \
     MovementAbility, \
     ObjectiveAbility, \
     PunchAbility, \
@@ -122,6 +122,7 @@ class UnitBarbarian(UnitBase):
 class UnitBloodWraith(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitBloodWraith"):
         super().__init__(grid, pos, ownerid, name=name)
+        self.add_ability(HealAbility)
 
 
 class UnitHomebase(UnitBase):

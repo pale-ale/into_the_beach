@@ -3,6 +3,9 @@ from .GridElement import GridElement
 class EffectBase(GridElement):
     def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectTrees"):
         super().__init__(grid, pos, age, done, name)
+    
+    def on_spawn(self):
+        pass
 
 
 class EffectFire(EffectBase):
@@ -32,4 +35,16 @@ class EffectTown(EffectBase):
 class EffectHeal(EffectBase):
     def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectHeal"):
         super().__init__(grid, pos, age, done, name)
+        self.done = False
+    
+    def on_spawn(self):
+        super().on_spawn()
+        unit = self.grid.get_unit(self.pos)
+        if unit:
+            unit.on_change_hp(5, "magic")
 
+    def tick(self, dt:float):
+        super().tick(dt)
+        if self.age >= 3:
+            self.done = True
+            self.grid.remove_effect(self.pos)

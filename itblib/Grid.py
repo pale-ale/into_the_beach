@@ -134,13 +134,14 @@ class Grid:
         if self.observer:
             self.observer.on_add_tile(newtile)
 
-    def add_effect(self, pos:"tuple[int,int]", effectid:id):
+    def add_effect(self, pos:"tuple[int,int]", effectid:int):
         """Add an effect to the grid at given position."""
         effecttype = ClassMapping.effectclassmapping[effectid]       
         neweffect = effecttype(self, pos)
         self.effects[self.c_to_i(pos)] = neweffect
         if self.observer:
             self.observer.on_add_effect(neweffect)
+        neweffect.on_spawn()
 
     def request_add_unit(self, x, y, unitid:int, playerid:int):
         NetEvents.snd_netunitspawn(unitid, (x,y), playerid)
@@ -161,6 +162,12 @@ class Grid:
         self.units[self.c_to_i(pos)] = None
         if self.observer:
             self.observer.on_remove_unit(pos)
+    
+    def remove_effect(self, pos:"tuple[int,int]"):
+        """Remove an effect at given position."""
+        self.effects[self.c_to_i(pos)] = None
+        if self.observer:
+            self.observer.on_remove_effect(pos)
     
     def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
         """Move a unit from (x,y) to (tagretx,targety)."""
