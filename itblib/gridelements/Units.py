@@ -123,6 +123,10 @@ class UnitBloodWraith(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitBloodWraith"):
         super().__init__(grid, pos, ownerid, name=name)
         self.add_ability(HealAbility)
+        self.add_ability(PunchAbility)
+        # Not sure if I should add this ability since 
+        # I do not know the rulebook yet
+        # self.add_ability(RangedAttackAbility)
 
 
 class UnitHomebase(UnitBase):
