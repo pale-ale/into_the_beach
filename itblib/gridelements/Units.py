@@ -127,11 +127,12 @@ class UnitBloodWraith(UnitBase):
         # Not sure if I should add this ability since 
         # I do not know the rulebook yet
         # self.add_ability(RangedAttackAbility)
+    
     def attack(self,target, damage:int, damagetype:str):
         print("target", target)
         unit = self.grid.get_unit(self)
         if unit:
-            unit.on_change_hp(+(damage*3), damagetype)    
+            unit.on_change_hp(+(damage*3), damagetype)
 
 class UnitHomebase(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitCrystal"):
