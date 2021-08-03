@@ -24,7 +24,6 @@ class UnitBase(GridElement):
         self.ownerid = ownerid
         self.moverange = 5
         self.orientation = "sw"
-        self.userActions ={1:None, 2:None, 3:None, 4:None}
         self.abilities:list[AbilityBase] = [MovementAbility(self), PunchAbility(self)]
     
     def tick(self, dt: float):
@@ -35,7 +34,7 @@ class UnitBase(GridElement):
     def add_ability(self, ability_class:AbilityBase):
         for ability in self.abilities:
             if ability is ability_class:
-                print(ability_class.__name__, "-class lready exists")
+                print(ability_class.__name__, "-class already exists")
                 exit(1)
         self.abilities.append(ability_class(self))
 
@@ -123,7 +122,6 @@ class UnitBloodWraith(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitBloodWraith"):
         super().__init__(grid, pos, ownerid, name=name)
         self.add_ability(HealAbility)
-        self.add_ability(PunchAbility)
         
     def attack(self, target:"tuple[int,int]" , damage:int, damagetype:str):
         print("UnitBloodWraith: target:", target)

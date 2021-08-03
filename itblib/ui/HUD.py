@@ -44,7 +44,7 @@ class Hud(pygame.sprite.Sprite):
         self.background = pygame.Surface((0,0)).convert_alpha()
         for bgname in Textures.backgroundtexturemapping.values():
             self.backgrounds.append(Textures.get_spritesheet(bgname)[0])
-        for color in ((75,75,55,255), (50,255,50,255), (255,50,50,255), (255,200,0,255)):
+        for color in ((255,255,0,255) ,(75,75,55,255), (50,255,50,255), (255,50,50,255), (255,200,0,255)):
             marker = pygame.Surface((16,20))
             marker.fill(color)
             self.phasemarkers.append(marker)
@@ -115,6 +115,7 @@ class Hud(pygame.sprite.Sprite):
 
     def display_abilities(self, unit:UnitBase):
         """Display the abilities of a unit."""
+        #return 
         abilities = unit.abilities
         index = 0
         numbers = ""
