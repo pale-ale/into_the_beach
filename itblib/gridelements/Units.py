@@ -124,16 +124,16 @@ class UnitBloodWraith(UnitBase):
         super().__init__(grid, pos, ownerid, name=name)
         self.add_ability(HealAbility)
         self.add_ability(PunchAbility)
-        # Not sure if I should add this ability since 
-        # I do not know the rulebook yet
-        # self.add_ability(RangedAttackAbility)
-    
-    def attack(self,target, damage:int, damagetype:str):
-        print("target", target)
-        unit = self.grid.get_unit(self)
+        
+    def attack(self, target:"tuple[int,int]" , damage:int, damagetype:str):
+        print("UnitBloodWraith: target:", target)
+        unit = self.grid.get_unit(target)
         if unit:
-            unit.on_change_hp(+(damage*3), damagetype)
-
+            killingblow = unit.hitpoints > 0
+            unit.on_change_hp(-1, "physical")
+            if unit.hitpoints <= 0 and killingblow:
+                self.on_change_hp(1,"physical")
+            
 class UnitHomebase(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitCrystal"):
         super().__init__(grid, pos, ownerid, name=name)

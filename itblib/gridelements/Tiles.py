@@ -39,12 +39,11 @@ class TileSea(TileBase):
 class TileLava(TileBase):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileLava"):
         super().__init__(grid, pos, age, done, name)
-    """Assuming that entering the Lava Tile would cause a unit damage."""
-    def on_enter(self, unit: "UnitBase"):
-        self.onfire = True
+    
+    def on_enter(self, unit:"UnitBase"):
+        """Assuming that entering the Lava Tile would cause a unit damage."""
+        pass
 
-    def on_damage(self, damage: int):
-        self.onfire = True
 
 
 class TileRock(TileBase):
