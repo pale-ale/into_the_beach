@@ -136,6 +136,7 @@ class Hud(pygame.sprite.Sprite):
         """Display the health bar on top of a unit."""
         x,y = self.gridui.transform_grid_screen(unit.pos)
         barwidth = 32
+        # here is a zerodivision error since hitpoints of a Unit can be reduced to zero.
         hitpoints = unit.hitpoints
         slotwidth = min(10, max(4, barwidth/hitpoints))
         for hp in range(hitpoints):
