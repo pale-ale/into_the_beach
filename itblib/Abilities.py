@@ -114,7 +114,6 @@ class MovementAbility(AbilityBase):
         self.on_deselect_ability()
     
     def update_path_display(self):
-        return 
         """Display the new path using proximity textures."""
         self.area_of_effect.clear()
         pathwithself = [self._unit.pos] + self.selected_targets
@@ -127,7 +126,6 @@ class MovementAbility(AbilityBase):
                 next = pathwithself[i+1]
                 prevdelta = (curr[0] - prev[0], curr[1] - prev[1])
                 nextdelta = (next[0] - curr[0], next[1] - curr[1])
-                print(currentwithpreview)
                 currentwithpreview = (curr, PREVIEWS[(*nextdelta, *prevdelta)])
                 self.area_of_effect.append(currentwithpreview)
             self.area_of_effect.append(first)
@@ -288,7 +286,7 @@ class ObjectiveAbility(AbilityBase):
 
     def on_death(self):
         super().on_death()
-        NetEvents.session.objective_lost(self._unit.player)
+        NetEvents.session.objective_lost(self._unit.ownerid)
 
 
 class HealAbility(AbilityBase):
