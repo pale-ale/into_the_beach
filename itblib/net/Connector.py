@@ -7,6 +7,7 @@ class Connector():
         self.authority = authority
         self.connection:Optional[socket.socket] = None
         self.acc_connection:Optional[socket.socket] = None
+        self.CONTENT_SIZE = 3000
 
     def server_init(self):
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,9 +46,9 @@ class Connector():
     
     def send(self, prefix:str, content:str):
         assert len(prefix) <= 50, print(len(prefix))
-        assert len(content) <= 1500, print(len(content))
+        assert len(content) <= self.CONTENT_SIZE, print(len(content))
         prefixdata = (prefix + '\0').ljust(50) .encode("utf8")
-        contentdata = (content).ljust(1500).encode("utf8")
+        contentdata = (content).ljust(self.CONTENT_SIZE).encode("utf8")
         if self.acc_connection:
             print("SND:", prefix, content)
             self.acc_connection.send(prefixdata + contentdata)
@@ -56,9 +57,9 @@ class Connector():
    
     def send_custom(self, connection:socket.socket, prefix:str, content:str):
         assert len(prefix) <= 50, print(len(prefix))
-        assert len(content) <= 1500, print(len(content))
+        assert len(content) <= self.CONTENT_SIZE, print(len(content))
         prefixdata = (prefix + '\0').ljust(50) .encode("utf8")
-        contentdata = (content).ljust(1500).encode("utf8")
+        contentdata = (content).ljust(self.CONTENT_SIZE).encode("utf8")
         connection.send(prefixdata + contentdata)
     
     def send_to_clients(self, players:"dict[int, Player]", prefix:str, content:str):
@@ -68,7 +69,7 @@ class Connector():
     def receive(self):
         if self.acc_connection:
             try:
-                data = self.acc_connection.recv(1550)
+                data = self.acc_connection.recv(self.CONTENT_SIZE + 50)
                 if data:
                     prefix, content = [d.strip() for d in data.decode("utf8").split('\0', 1) if d]
                     return prefix, content
@@ -80,7 +81,7 @@ class Connector():
     def receive_custom(self, playerconnection:socket.socket):
             if playerconnection:
                 try:
-                    data = playerconnection.recv(1550)
+                    data = playerconnection.recv(self.CONTENT_SIZE + 50)
                     if data:
                         prefix, content = [d.strip() for d in data.decode("utf8").split('\0', 1) if d]
                         return prefix, content

@@ -5,7 +5,7 @@ from itblib.Enums import RIVER
 
 class EffectBaseUI(GridElementUI):
     def __init__(self, effect:EffectBase, width:int=64, height:int=64, framespeed:float=.5):  
-        super().__init__(width=width, height=height, parentelement=effect, framespeed=framespeed)
+        super().__init__(direction=None, width=width, height=height, parentelement=effect, framespeed=framespeed)
     
 
 class EffectHealUI(EffectBaseUI):

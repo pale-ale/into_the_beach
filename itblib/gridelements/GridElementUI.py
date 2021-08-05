@@ -1,4 +1,3 @@
-from typing import Optional
 from itblib.gridelements.GridElement import GridElement
 from itblib.ui.TextureManager import Textures
 import pygame.sprite
@@ -7,18 +6,28 @@ import pygame
 class GridElementUI(pygame.sprite.Sprite):
     """Graphical representation of a GridElement."""
     
-    def __init__(self, width:int=64, height:int=64, parentelement:Optional[GridElement]=None, framespeed:float=.5):  
+    def __init__(self, parentelement:GridElement, direction:"str|None", width:int=64, height:int=64, framespeed:float=.5):
+        assert isinstance(parentelement, GridElement), "GridElementUIs must now have an associated parent."
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.surface.Surface((width, height), pygame.SRCALPHA).convert_alpha()
         self.rect = self.image.get_rect()
-        self.visible = bool(parentelement)
+        self.visible = True
         self.needsredraw = True
         self._textures = []
         self.animframe = -1
         self.framespeed = framespeed
         self.frametime = 0
         self._parentelement = parentelement
-        self.direction = None
+        self.direction = direction
+
+        texturekey = parentelement.name
+        if self.direction:
+            texturekey += self.direction + "Idle"
+        else:
+            texturekey += "Default"
+        spritesheet = Textures.get_spritesheet(texturekey)
+        self.update_texture_source(spritesheet)
+
 
     def update_texture_source(self, source:"list[pygame.Surface]"):
         """Set a new spritesheet as this UIElements' texture soure."""
@@ -31,7 +40,7 @@ class GridElementUI(pygame.sprite.Sprite):
 
     def update(self):
         """Update animations etc. to a new frame"""
-        if self.visible:
+        if self.visible and len(self._textures) > 0:
             if self._parentelement.age > self.frametime + self.framespeed:
                 newanimframe = (self.animframe+1) % len(self._textures)
                 self.image = self._textures[newanimframe]
@@ -40,18 +49,3 @@ class GridElementUI(pygame.sprite.Sprite):
                 self.needsredraw = True
                 return True
         return False
-
-    def update_element(self, newelement):        
-        self._parentelement = newelement
-        self.visible = bool(newelement)
-        if newelement:
-            key = newelement.name
-            if self.direction:
-                key += self.direction + "Idle"
-            else:
-                key += "Default"
-            spritesheet = Textures.get_spritesheet(key)
-            self.update_texture_source(spritesheet)
-        else:
-            self._textures = []
-            self.image = pygame.surface.Surface((self.image.get_size()), pygame.SRCALPHA).convert_alpha()

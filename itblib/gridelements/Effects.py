@@ -33,7 +33,7 @@ class EffectTown(EffectBase):
         super().__init__(grid, pos, age, done, name)
 
 class EffectHeal(EffectBase):
-    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectHeal"):
+    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=False, name="EffectHeal"):
         super().__init__(grid, pos, age, done, name)
         self.done = False
     
@@ -47,4 +47,4 @@ class EffectHeal(EffectBase):
         super().tick(dt)
         if self.age >= 1:
             self.done = True
-            self.grid.remove_effect(self.pos)
+            self.grid.remove_effect(self, self.pos)

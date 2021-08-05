@@ -18,7 +18,7 @@ class IGridObserver:
     def on_remove_unit(self, pos:"tuple[int,int]"):
         pass
     
-    def on_remove_effect(self, pos:"tuple[int,int]"):
+    def on_remove_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
         pass
 
     def on_move_unit(self, src:"tuple[int,int]", dst:"tuple[int,int]"):

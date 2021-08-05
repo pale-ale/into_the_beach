@@ -1,5 +1,6 @@
 import pygame
 import pygame.display
+import pygame.time
 from itblib.scenes.GameScene import GameScene
 from itblib.scenes.MainMenuScene import MainMenuScene
 from itblib.SceneManager import SceneManager

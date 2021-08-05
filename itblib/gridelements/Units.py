@@ -131,7 +131,8 @@ class UnitBloodWraith(UnitBase):
             unit.on_change_hp(-1, "physical")
             if unit.hitpoints <= 0 and killingblow:
                 self.on_change_hp(1,"physical")
-            
+
+
 class UnitHomebase(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitCrystal"):
         super().__init__(grid, pos, ownerid, name=name)

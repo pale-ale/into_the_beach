@@ -26,7 +26,7 @@ class Grid:
         self.pregametime = 10
         self.tiles:"list[Optional[TileBase]]" = [None]*width*height
         self.units:"list[Optional[UnitBase]]" = [None]*width*height
-        self.effects:"list[Optional[EffectBase]]" = [None]*width*height
+        self.effects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
         self.observer = observer
         self.phase = 0
 
@@ -40,9 +40,13 @@ class Grid:
     
     def everybody_done(self) -> bool:
         """Check whether every member of the grid has finished it's actions, like moving."""
-        for group in (self.units, self.tiles, self.effects):    
+        for group in (self.units, self.tiles):    
             for member in group:
                 if member and not member.done:
+                    return False
+        for effectstack in self.effects:    
+            for effect in effectstack:
+                if effect and not effect.done:
                     return False
         return True
 
@@ -115,14 +119,16 @@ class Grid:
             self.observer.on_load_map(map)
         self.width = map.width
         self.height = map.height
-        self.tiles = [None]*self.width*self.height
-        self.units = [None]*self.width*self.height
-        self.effects = [None]*self.width*self.height
-        for pos, tileid, effectid, unitid in map.iterate_tiles():
+        c = self.width*self.height
+        self.tiles = [None]*c
+        self.units = [None]*c
+        self.effects = [[] for i in range(c)]
+        for pos, tileid, effectids, unitid in map.iterate_tiles():
             if tileid:
                 self.add_tile(pos, tileid)
-            if effectid:
-                self.add_effect(pos, effectid, from_authority=from_authority, use_net=False)
+            if effectids:
+                for effectid in effectids:
+                    self.add_effect(pos, effectid, from_authority=from_authority, use_net=False)
             if unitid:
                 self.add_unit(pos, unitid, -1)
 
@@ -137,9 +143,9 @@ class Grid:
     def add_effect(self, pos:"tuple[int,int]", effectid:int, from_authority:bool, use_net=True):
         """Add an effect to the grid at given position."""
         if from_authority:
-            effecttype = ClassMapping.effectclassmapping[effectid]       
-            neweffect = effecttype(self, pos)
-            self.effects[self.c_to_i(pos)] = neweffect
+            effecttype:EffectBase = ClassMapping.effectclassmapping[effectid]       
+            neweffect:EffectBase = effecttype(self, pos)
+            self.effects[self.c_to_i(pos)].append(neweffect)
             if self.observer:
                 self.observer.on_add_effect(neweffect)
             if use_net and NetEvents.connector.authority:
@@ -168,11 +174,11 @@ class Grid:
         if self.observer:
             self.observer.on_remove_unit(pos)
     
-    def remove_effect(self, pos:"tuple[int,int]"):
+    def remove_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
         """Remove an effect at given position."""
-        self.effects[self.c_to_i(pos)] = None
+        self.effects[self.c_to_i(pos)].remove(effect)
         if self.observer:
-            self.observer.on_remove_effect(pos)
+            self.observer.on_remove_effect(effect, pos)
     
     def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
         """Move a unit from (x,y) to (tagretx,targety)."""
@@ -194,8 +200,8 @@ class Grid:
         """Return the tile at (x,y)."""
         return self.tiles[self.width*y+x]
    
-    def get_effect(self, x:int, y:int):
-        """Return the effect at (x,y)."""
+    def get_effects(self, x:int, y:int):
+        """Return the effects at (x,y)."""
         return self.effects[self.width*y+x]
     
     def get_unit(self, pos:"tuple[int,int]"):
@@ -233,8 +239,8 @@ class Grid:
         for t in self.tiles:
             if t:
                 t.tick(dt)
-        for e in self.effects:
-            if e:
+        for es in self.effects:
+            for e in es:
                 e.tick(dt)
         self.phasetime += dt
         if self.connector.authority:

@@ -95,9 +95,9 @@ class Hud(pygame.sprite.Sprite):
         self.abilitiesnumbers.fill((0,0,0,0))
         self.phasemarkersdisplay.fill((0,0,0,0))
         unitui = self.gridui.uiunits[self.gridui.grid.c_to_i(pos)]
-        if not unitui._parentelement and self.selectedunitui:
+        if not unitui and self.selectedunitui:
             unitui = self.selectedunitui
-        if unitui.visible:
+        if unitui:
             self.unitimagedisplay.blit(unitui.image, (0,16), (0,0,64,64))
             self.unitfontdisplay.blit(
                 self.font.render(
@@ -147,18 +147,19 @@ class Hud(pygame.sprite.Sprite):
                 (x+33+slotwidth*hp-slotwidth/2*hitpoints,y-15), 
                 (0,0,slotwidth,6))
     
-    def display_effect(self, pos:"tuple[int,int]"):
+    def display_effects(self, pos:"tuple[int,int]"):
         """Display the effect the cursor is on."""
-        effect = self.gridui.uieffects[self.gridui.grid.c_to_i(pos)]
-        if effect.visible:
-            self.image.blit(effect.image, (self.gridui.width*.75, self.gridui.height*.75), (0,0,64,64))
+        effects = self.gridui.uieffects[self.gridui.grid.c_to_i(pos)]
+        for effect in effects:
+            if effect.visible:
+                self.image.blit(effect.image, (self.gridui.width*.75, self.gridui.height*.75), (0,0,64,64))
 
     def display_tile(self, pos:"tuple[int,int]"):
         """Display the tile the cursor is on."""
         self.tilefontdisplay.fill((0,0,0,0))
         tile = self.gridui.uitiles[self.gridui.grid.c_to_i(pos)]
         effect = self.gridui.uieffects[self.gridui.grid.c_to_i(pos)]
-        if tile.visible:
+        if tile and tile.visible:
             self.tilefontdisplay.blit(
                 self.font.render(type(tile._parentelement).__name__, 
                 True, 
@@ -197,7 +198,7 @@ class Hud(pygame.sprite.Sprite):
         self.image.blit(self.timerdisplay, (10,10))
 
         self.display_tile(self.cursorgridpos)
-        self.display_effect(self.cursorgridpos)
+        self.display_effects(self.cursorgridpos)
         self.display_unit(self.cursorgridpos)
 
     def update_cursor(self, position:"tuple[int,int]"):

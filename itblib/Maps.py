@@ -6,9 +6,9 @@ class Map:
     def __init__(self):
         self.width = 10
         self.height = 10
-        self.tileids = [None]*self.width*self.height
-        self.unitids = [None]*self.width*self.height
-        self.effectids = [None]*self.width*self.height
+        self.tileids:"list[int|None]" = [None]*self.width*self.height
+        self.unitids:"list[int|None]" = [None]*self.width*self.height
+        self.effectids:"list[list[int]]" = [[] for i in range(self.width*self.height)]
     
     def import_from_str(self, importstr):
         """Deserialize a json-str and update the data accordingly."""
@@ -31,7 +31,7 @@ class Map:
         return jsonstr
 
     def iterate_tiles(self):
-        """Return a generator for easy access, iterating every space once and yielding the units,tiles and effects on it."""
+        """Return a generator for easy access, iterating every space once and yielding the units, tiles and effects on it."""
         for y in range(self.height):
             for x in range(self.width):
                 yield (x,y),\
@@ -53,31 +53,6 @@ class MapGrasslands(Map):
             self.tileids[x+95] = 5
         for x in range(3, 6):
             self.tileids[x] = 4
-        for x in range(0, 64):
-            self.effectids[x] = 1
-        for x in range(3, 6):
-            self.effectids[x] = 0
-        for x in range(1, 3):
-            self.effectids[x] = 2
-        for x in range(6, 8):
-            self.effectids[x] = 2
-        for x in range(12, 17):
-            self.effectids[x] = 2
-        for x in range(64, 67):
-            self.effectids[x] = 5
         for x in range(74, 78):
-            self.effectids[x] = 5
-        self.effectids[76] = 6
-        self.effectids[20] = 3
-        self.effectids[30] = 3
-        self.effectids[40] = 3
-        self.tileids[40] = 5
-        self.effectids[63] = 4
-        self.effectids[73] = 4
-        self.effectids[83] = 4
-        self.effectids[82] = 4
-        self.effectids[81] = 4
-        self.effectids[71] = 4
-        self.effectids[61] = 4
-        self.effectids[62] = 7
-       
+            self.effectids[x].append(5)
+    
