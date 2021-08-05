@@ -116,7 +116,8 @@ class MovementAbility(AbilityBase):
     def update_path_display(self):
         """Display the new path using proximity textures."""
         self.area_of_effect.clear()
-        pathwithself = [self._unit.pos] + self.selected_targets
+        pathwithself = [tuple(self._unit.pos)]
+        pathwithself.extend(self.selected_targets)
         if len(pathwithself) > 1:
             first = (pathwithself[0], PREVIEWS[1])
             last = (pathwithself[-1], PREVIEWS[1])
@@ -134,10 +135,11 @@ class MovementAbility(AbilityBase):
 
     def add_to_movement(self, target:"tuple[int,int]"):
         """Add a "step" to the path we want to take."""
-        self.selected_targets.append(target)
-        NetEvents.snd_netabilitytarget(self)
-        if not NetEvents.connector.authority:
-            self.update_path_display()
+        if target != (self._unit.pos + self.selected_targets)[-1]:
+            self.selected_targets.append(target)
+            NetEvents.snd_netabilitytarget(self)
+            if not NetEvents.connector.authority:
+                self.update_path_display()
 
     def on_update_cursor(self, newcursorpos:"tuple[int,int]"):
         """Add the new cursor position to the path if we can move there."""
