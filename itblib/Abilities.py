@@ -27,7 +27,7 @@ class AbilityBase:
     
     def activate(self):
         """Called when an ability gets proc'd."""
-        print("Activated", type(self).__name__)
+        print("Activated", type(self._unit).__name__ + "'s", type(self).__name__)
     
     def add_targets(self, targets):
         """Add target coordinates to selected_targets."""
@@ -81,7 +81,7 @@ class MovementAbility(AbilityBase):
     def __init__(self, unit:"UnitBase"):
         super().__init__(unit)
         self.id = 0
-        self.phase = 3
+        self.phase = 4
         self.timinginfo = unit.age
         self.durationperstep = .5 #seconds
     
@@ -151,9 +151,8 @@ class MovementAbility(AbilityBase):
                 self.on_deselect_ability()
     
     def activate(self):
-        """Set the unit as "active", meaning the phase will not continue until it has finished moving."""
+        """Trigger effects based on the movement of this unit, and set the timing for animation."""
         super().activate()
-        self.area_of_effect.clear()
         self.timinginfo = self._unit.age
         self._unit.done = False
 

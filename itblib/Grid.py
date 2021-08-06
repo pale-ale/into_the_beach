@@ -51,7 +51,7 @@ class Grid:
         return True
 
     def update_unit_movement(self):
-        """Move units by one step and handle collisions between them or other obstacles."""
+        """Move units by one step and handle collisions between them or other obstacles. Server Only"""
         movingunits:"list[UnitBase]" = []
         obstacles:"list[GridElement]" = []
         #filter units that cannot move
@@ -62,6 +62,7 @@ class Grid:
                     obstacles.append(unit.pos)
                     unit.done = True
                 else:
+                    unit.get_movement_ability().activate()
                     movingunits.append(unit)
         if len(movingunits) > 0:
             nextpositions:dict[tuple[int,int],list[UnitBase]] = {} #position:[units that want to go here]
@@ -72,6 +73,7 @@ class Grid:
                 if len(path) == 0:
                     movingunits.remove(unit)
                     unit.done = True
+                    unit.get_movement_ability().selected_targets.clear()
                     obstacles.append(unit.pos)
             # add each unit and their next move to the dict
             # and remove first path element
