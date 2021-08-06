@@ -64,7 +64,7 @@ class Grid:
                 else:
                     movingunits.append(unit)
         if len(movingunits) > 0:
-            nextpositions = {} #position:[units that want to go here]
+            nextpositions:dict[tuple[int,int],list[UnitBase]] = {} #position:[units that want to go here]
             # remove units whose path is already exhausted
             # and add their positions into obstacles
             for unit in movingunits[:]:

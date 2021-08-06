@@ -67,16 +67,15 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
 
     def on_move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
         """Move the UI version of the moved unit from the normal grid."""
-        unit = self.grid.get_unit(to_pos)
-        self.uiunits[self.grid.c_to_i(from_pos)].update_element(None)
-        uiunit = self.uiunits[self.grid.c_to_i(to_pos)]
+        uiunit = self.uiunits[self.grid.c_to_i(from_pos)]
+        self.uiunits[self.grid.c_to_i(from_pos)] = None
+        self.uiunits[self.grid.c_to_i(to_pos)] = uiunit
         x, y = self.transform_grid_screen(to_pos)
         uiunit.rect = Rect(x, y + self.unitdrawoffset, 64, 64)
-        uiunit.update_element(unit)
 
     def on_remove_unit(self, pos:"tuple[int,int]"):
         """Remove a UI-unit at the given position."""
-        self.uiunits[self.grid.c_to_i(pos)].update_element(None)
+        self.uiunits[self.grid.c_to_i(pos)] = None
    
     def on_remove_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
         """Remove a UI-effect at the given position."""
