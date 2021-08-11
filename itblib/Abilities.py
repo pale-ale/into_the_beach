@@ -263,17 +263,17 @@ class PushAbility(AbilityBase):
         if len(self.selected_targets):
             unitposx, unitposy = self._unit.pos
             target = self.selected_targets[0]
-            newpos = [2*target[0]-unitposx, 2*target[1]-unitposy]
-            if not self._unit.grid.is_coord_in_bounds(*newpos) or \
-            self._unit.grid.is_space_empty(True ,*newpos):
+            newpos = (2*target[0]-unitposx, 2*target[1]-unitposy)
+            if not self._unit.grid.is_coord_in_bounds(newpos) or \
+            self._unit.grid.is_space_empty(True, newpos):
                 pass # unit falls from grid
             else:
-                if self._unit.grid.is_space_empty(False ,*newpos):
-                    self._unit.grid.move_unit(*target, *newpos)
+                if self._unit.grid.is_space_empty(False, newpos):
+                    self._unit.grid.move_unit(target, newpos)
                 else:
-                    targetint = self._unit.grid.c_to_i(*target)
+                    targetint = self._unit.grid.c_to_i(target)
                     self._unit.grid.units[targetint].on_change_hp(-1, "collision")
-                    newposint = self._unit.grid.c_to_i(*newpos)
+                    newposint = self._unit.grid.c_to_i(newpos)
                     self._unit.grid.units[newposint].on_change_hp(-1, "collision")
         self.selected_targets.clear()
         self.area_of_effect.clear()
