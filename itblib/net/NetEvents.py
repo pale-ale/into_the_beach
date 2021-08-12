@@ -81,10 +81,10 @@ class NetEvents():
     @staticmethod
     def snd_netunitmove(fro:"tuple[int,int]", to:"tuple[int,int]"):
         #only the server my send actual unit-moves
-        froto = [fro, to]
         c = NetEvents.connector
-        frotodata = json.dumps(froto)
         if c.authority:
+            froto = [fro, to]
+            frotodata = json.dumps(froto)
             c.send_to_clients(
                 NetEvents.session._players,
                 "NetUnitMove",

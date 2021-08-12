@@ -1,3 +1,4 @@
+from itblib.Vec import Vec
 from pygame import Rect, draw
 from itblib.net.NetEvents import NetEvents 
 from ..gridelements.Effects import EffectBase
@@ -69,8 +70,9 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         """Move the UI version of the moved unit from the normal grid."""
         print("GridUI: Moving unit from", from_pos, "to", to_pos)
         uiunit = self.uiunits[self.grid.c_to_i(from_pos)]
-        x, y = self.transform_grid_screen(to_pos)
-        uiunit.rect = Rect(x, y + self.unitdrawoffset, 64, 64)
+        fsp = Vec.comp_add2(self.transform_grid_screen(from_pos), (0,self.unitdrawoffset))
+        tsp = Vec.comp_add2(self.transform_grid_screen(to_pos), (0,self.unitdrawoffset))
+        uiunit.set_interp_movement(fsp, tsp, .5)
         self.uiunits[self.grid.c_to_i(from_pos)] = None
         self.uiunits[self.grid.c_to_i(to_pos)] = uiunit
     

@@ -33,7 +33,6 @@ class GridElementUI(pygame.sprite.Sprite):
         """Set a new spritesheet as this UIElements' texture soure."""
         assert len(source) > 0, self._parentelement.name + " has not received a texture"
         self._textures = source
-        self.update()
         self.needsredraw = True
         self.animframe = -1
         self.frametime = 0
