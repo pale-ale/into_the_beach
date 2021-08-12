@@ -6,6 +6,8 @@ import pygame.image
 from itblib.ui.TextureManager import Textures
 from itblib.Enums import PHASES, PREVIEWS
 from itblib.gridelements.UnitsUI import UnitBaseUI
+from itblib.gridelements.TilesUI import TileBaseUI
+from itblib.gridelements.EffectsUI import EffectBaseUI
 from itblib.ui.GridUI import GridUI
 from itblib.Game import Session
 from itblib.Vec import Vec
@@ -48,6 +50,11 @@ class UnitDisplay(pygame.sprite.Sprite):
             self.image.blit(unit.image, Vec.comp_add2(self.imagepos, (0,10)))
             self.display_abilities(unit._parentelement)
     
+    def update(self):
+        self.image.fill(self.defaultimagecolor, (*self.imagepos,64,64))
+        if self.displayunit:
+            self.image.blit(self.displayunit.image, Vec.comp_add2(self.imagepos, (0,10)))
+
     def display_abilities(self, unit:UnitBase):
         """Display the abilities of a unit."""
         abilities = unit.abilities
@@ -64,6 +71,42 @@ class UnitDisplay(pygame.sprite.Sprite):
                 numberimage = self.font.render(str(index+1), True, (255,255,255,255))
                 self.image.blit(numberimage, Vec.comp_add2(self.abilityphasepos, (16*index, 0)))
             index += 1
+
+
+class TileDisplay(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.imagepos = (0,0)
+        self.titlepos = (64,0)
+        self.defaultimagecolor = (30,0,0,255)
+        self.defaulttextboxcolor = (50,50,50,255)
+        self.font = pygame.font.SysFont('latinmodernmono', 15)
+        self.rect = pygame.Rect(0,0,200,100)
+        self.image = pygame.Surface(self.rect.size).convert_alpha()
+        self.image.fill((0))
+        self.displaytile:TileBaseUI = None
+        self.displayeffects:"list[EffectBaseUI]" = None
+        self.set_displaytile_effects(None, None)
+
+    def set_displaytile_effects(self, tile:TileBaseUI, effects:"list[EffectBaseUI]"):
+        """Set the new tile and effects to display."""
+        self.displaytile = tile
+        self.displayeffects = effects
+        
+    def update(self):
+        self.image.fill(self.defaultimagecolor, (*self.imagepos,64,64))
+        self.image.fill(self.defaulttextboxcolor, (*self.titlepos,128,20))
+        if self.displaytile:
+            self.image.blit(
+                self.font.render(
+                    type(self.displaytile._parentelement).__name__, True, (255,255,255,255)
+                ), 
+                self.titlepos
+            )
+            self.image.blit(self.displaytile.image, self.imagepos)
+        if self.displayeffects:
+            for e in self.displayeffects:
+                self.image.blit(e.image, self.imagepos)
 
 
 class Hud(pygame.sprite.Sprite):
@@ -84,14 +127,12 @@ class Hud(pygame.sprite.Sprite):
         self.cursorscreenpos = (0,0)
 
         self.unitdisplay = UnitDisplay()
+        self.tiledisplay = TileDisplay()
         self.unitdisplayanchor = (.75,0)
+        self.tiledisplayanchor = (.75,.75)
         self.unitdisplay.rect.topleft = Vec.comp_mult2(self.unitdisplayanchor, self.gridui.rect.size) 
-        self.hudsprites = pygame.sprite.Group(self.unitdisplay)
-        # tile display
-        self.tilefontdisplay = pygame.Surface((100,20)).convert_alpha()
-        self.tileimagedisplay = pygame.Surface((64,64)).convert_alpha()
-        self.tileimagedisplayanchor = (.75,.8)
-        self.tilefontdisplayanchor = (.85,.8)
+        self.tiledisplay.rect.topleft = Vec.comp_mult2(self.tiledisplayanchor, self.gridui.rect.size) 
+        self.hudsprites = pygame.sprite.Group(self.unitdisplay, self.tiledisplay)
         # other info
         self.timerdisplay = pygame.Surface((96,20)).convert_alpha()
         self.hitpoint = pygame.Surface((16,16)).convert_alpha()
@@ -105,7 +146,6 @@ class Hud(pygame.sprite.Sprite):
         self.background = pygame.Surface((0,0)).convert_alpha()
         for bgname in Textures.backgroundtexturemapping.values():
             self.backgrounds.append(Textures.get_spritesheet(bgname)[0])
-        
     
     def escape_pressed(self):
         """Tell the server that the player wants to leave."""
@@ -145,15 +185,6 @@ class Hud(pygame.sprite.Sprite):
             self.selectedunitui._parentelement.on_activate_ability(slot-1)
             self.redraw()
 
-    def display_unit(self, pos:"tuple[int,int]"):
-        """Display the portrait, stats and other info of a unit."""
-        unitui = self.gridui.uiunits[self.gridui.grid.c_to_i(pos)]
-        self.unitdisplay.set_displayunit(unitui)
-        if not unitui and self.selectedunitui:
-            unitui = self.selectedunitui
-            #self.display_healthbar(unitui._parentelement)
-        self.hudsprites.draw(self.image)
-        
     def display_healthbar(self, unit:UnitBase):
         """Display the health bar on top of a unit."""
         x,y = self.gridui.transform_grid_screen(unit.pos)
@@ -168,30 +199,6 @@ class Hud(pygame.sprite.Sprite):
                 (x+33+slotwidth*hp-slotwidth/2*hitpoints,y-15), 
                 (0,0,slotwidth,6))
     
-    def display_effects(self, pos:"tuple[int,int]"):
-        """Display the effect the cursor is on."""
-        effects = self.gridui.uieffects[self.gridui.grid.c_to_i(pos)]
-        for effect in effects:
-            if effect.visible:
-                self.image.blit(effect.image, (self.gridui.width*.75, self.gridui.height*.75), (0,0,64,64))
-
-    def display_tile(self, pos:"tuple[int,int]"):
-        """Display the tile the cursor is on."""
-        self.tilefontdisplay.fill(self.defaulttextboxcolor)
-        self.tileimagedisplay.fill(self.defaultimagecolor)
-        tile = self.gridui.uitiles[self.gridui.grid.c_to_i(pos)]
-        effect = self.gridui.uieffects[self.gridui.grid.c_to_i(pos)]
-        if tile and tile.visible:
-            self.tilefontdisplay.blit(
-                self.font.render(type(tile._parentelement).__name__, 
-                True, 
-                (255,255,255,255)), 
-                (0,0)
-            )
-            self.tileimagedisplay.blit(tile.image, (0,0))
-        self.image.blit(self.tileimagedisplay, Vec.comp_mult2(self.tileimagedisplayanchor, self.rect.size))
-        self.image.blit(self.tilefontdisplay, Vec.comp_mult2(self.tilefontdisplayanchor, self.rect.size))
-
     def draw_unit_ability_previews(self, unit:UnitBase):
         """Draw previews of a unit, e.g. movement and targeting info."""
         for ability in unit.abilities:
@@ -212,18 +219,21 @@ class Hud(pygame.sprite.Sprite):
         self.image.fill((0,0,0,0))
         if self.selectedunitui and self.selectedunitui._parentelement:
             self.draw_unit_ability_previews(self.selectedunitui._parentelement)
+        self.hudsprites.update()
+        self.hudsprites.draw(self.image)
         maxphasetime = PHASES[self.gridui.grid.phase][1]
         currentphasetime = self.gridui.grid.phasetime
         self.timerdisplay = self.font.render(str(round(maxphasetime-currentphasetime, 1)), True, (255,255,255,255))
         self.image.blit(Textures.get_spritesheet(PREVIEWS[0])[0], self.cursorscreenpos)
         self.image.blit(self.timerdisplay, (10,10))
 
-        self.display_tile(self.cursorgridpos)
-        self.display_effects(self.cursorgridpos)
-        self.display_unit(self.cursorgridpos)
-
     def update_cursor(self, position:"tuple[int,int]"):
         """Forward the new cursor position to a unit's according hooks"""
+        self.tiledisplay.set_displaytile_effects(
+            self.gridui.get_tileui(position),
+            self.gridui.get_effectsui(position)
+        )
+        self.unitdisplay.set_displayunit(self.gridui.get_unitui(position))
         self.cursorgridpos = position
         self.cursorscreenpos = self.gridui.transform_grid_screen(position)
         if self.selectedunitui and self.selectedunitui._parentelement:

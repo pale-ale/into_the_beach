@@ -121,6 +121,14 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
     def get_unitui(self, pos:"tuple[int,int]"):
         """Return the UI-unit at given position."""
         return self.uiunits[self.grid.c_to_i(pos)]
+   
+    def get_tileui(self, pos:"tuple[int,int]"):
+        """Return the UI-tile at given position."""
+        return self.uitiles[self.grid.c_to_i(pos)]
+    
+    def get_effectsui(self, pos:"tuple[int,int]"):
+        """Return the UI-effects at given position."""
+        return self.uieffects[self.grid.c_to_i(pos)]
 
     def transform_grid_world(self, gridpos:"tuple[int,int]"):
         """Return the world position of a given grid coordinate."""
