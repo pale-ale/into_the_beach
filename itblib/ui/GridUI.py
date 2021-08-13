@@ -19,7 +19,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
 
     def __init__(self, grid:Grid.Grid):  
         pygame.sprite.Sprite.__init__(self)
-        self.standard_tilesize = (64,64)
+        self.standard_tilesize = (64,96)
         self.tilesize = self.standard_tilesize
         self.grid = grid
         lefttile = self.transform_grid_world((grid.width-1, 0))
@@ -40,7 +40,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
     def on_add_tile(self, tile:TileBase):
         """Add the UI version of the new tile added to the normal grid."""
         uitile = TileBaseUI(tile)
-        uitile.rect = Rect(*self.transform_grid_screen(tile.pos), 64, 64)
+        uitile.rect = Rect(*self.transform_grid_screen(tile.pos), 64, 96)
         self.uitiles[self.grid.c_to_i(tile.pos)] = uitile
         self.tilesprites.add(uitile)
 
@@ -134,8 +134,8 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
 
     def transform_grid_world(self, gridpos:"tuple[int,int]"):
         """Return the world position of a given grid coordinate."""
-        return (int(gridpos[0]*-self.tilesize[0]/2 + gridpos[1]*self.tilesize[0]/2),
-                int(gridpos[0]*self.tilesize[1]/4 + gridpos[1]*self.tilesize[1]/4))
+        return (int(gridpos[0]*-(self.tilesize[0])/2 + gridpos[1]*(self.tilesize[0])/2),
+                int((gridpos[0]+gridpos[1])*22))
 
     def transform_grid_screen(self, gridpos:"tuple[int,int]"):
         """Return the screen position of a given grid coordinate."""
