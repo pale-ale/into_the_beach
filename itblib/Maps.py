@@ -44,15 +44,21 @@ class MapGrasslands(Map):
     
     def __init__(self):
         super().__init__()
-        for x in range(0, 88):
-            self.tileids[x] = 2
-        for x in range(75, self.width*self.height):
+        for x in range(0, 100):
             self.tileids[x] = 1
-        for x in range(3):
-            self.tileids[x+85] = 5
-            self.tileids[x+95] = 5
-        for x in range(3, 6):
-            self.tileids[x] = 4
-        for x in range(74, 78):
-            self.effectids[x].append(5)
+        self.tileids[41] = 2
+        self.tileids[42] = 0
+        self.tileids[51] = 2
+        self.tileids[52] = 2
+        self.tileids[44] = 3
+        self.tileids[45] = 0
+        self.tileids[54] = 3
+        self.tileids[55] = 3
+        self.tileids[47] = 4
+        self.tileids[48] = 0
+        self.tileids[57] = 4
+        self.tileids[58] = 4
+
+        for x in range(0, 10):
+            self.effectids[x].append(2+int(x/2))
     

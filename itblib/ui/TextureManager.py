@@ -36,7 +36,7 @@ class Textures:
         ("EffectHeal", "Default", 10),
 
         ("TileDirt", "Default", 1),
-        ("TileForest", "Default", 1),
+        ("TileWater", "Default", 1),
         ("TileLava", "Default", 1),
         ("TileRock", "Default", 1),
     ]

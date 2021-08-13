@@ -22,9 +22,11 @@ class EffectRiverUI(EffectBaseUI):
             grid = self._parentelement.grid
             pos = self._parentelement.pos
             neighborposs = grid.get_ordinal_neighbors(*pos)
-            riverposs = [rpos for rpos in neighborposs if 
-                grid.get_effect(*rpos) and 
-                type(grid.get_effect(*rpos)).__name__ == "EffectRiver"]
+            riverposs = []
+            for rpos in neighborposs: 
+                for effect in grid.get_effects(rpos):
+                    if type(effect).__name__ == "EffectRiver":
+                        riverposs.append(rpos)
             if len(riverposs) == 0:
                 imageid = 4
             elif len(riverposs) == 1:

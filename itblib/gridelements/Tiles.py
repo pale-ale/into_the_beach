@@ -16,19 +16,8 @@ class TileBase(GridElement):
         pass
 
 
-class TileForest(TileBase):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileForest"):
-        super().__init__(grid, pos, age, done, name)
-
-    def on_enter(self, unit:"UnitBase"):
-        pass
-
-    def on_damage(self, damage:int):
-        self.onfire = True
-
-
-class TileSea(TileBase):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileSea"):
+class TileWater(TileBase):
+    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileWater"):
         super().__init__(grid, pos, age, done, name)
 
     def on_enter(self, unit:"UnitBase"):
