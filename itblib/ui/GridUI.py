@@ -26,7 +26,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         righttile = self.transform_grid_world((0, grid.height-1))
         bottomtile = self.transform_grid_world((grid.width-1, grid.height-1))
         self.width = righttile[0] - lefttile[0] + self.tilesize[0]
-        self.height = bottomtile[1] + self.tilesize[1]/2
+        self.height = bottomtile[1] + self.tilesize[1]
         self.image = pygame.surface.Surface((self.width,self.height), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.uitiles:"list[TileBaseUI|None]" = [None]*grid.width*grid.height
@@ -35,7 +35,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.tilesprites = pygame.sprite.Group()
         self.effectsprites = pygame.sprite.Group()
         self.unitsprites = pygame.sprite.Group()
-        self.unitdrawoffset = -20
+        self.unitdrawoffset = -10
 
     def on_add_tile(self, tile:TileBase):
         """Add the UI version of the new tile added to the normal grid."""
@@ -134,13 +134,15 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
 
     def transform_grid_world(self, gridpos:"tuple[int,int]"):
         """Return the world position of a given grid coordinate."""
-        return (int(gridpos[0]*-(self.tilesize[0])/2 + gridpos[1]*(self.tilesize[0])/2),
-                int((gridpos[0]+gridpos[1])*22))
+        return (
+            int( (gridpos[1]-gridpos[0]) * (self.tilesize[0]/2)),
+            int( (gridpos[1]+gridpos[0]) * 22)
+        )
 
     def transform_grid_screen(self, gridpos:"tuple[int,int]"):
         """Return the screen position of a given grid coordinate."""
         gw = self.transform_grid_world(gridpos)
-        return (int(gw[0] + (self.width-self.tilesize[0])/2), gw[1])
+        return (int(gw[0] + (self.width-self.tilesize[0])/2), gw[1]-10)
 
     def redraw_grid_2(self):
         """Redraw every group."""
@@ -150,11 +152,11 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         for uiunit in self.uiunits:
             if uiunit and uiunit.visible:
                 c = uiunit.rect.center
-                o = 3
+                o = 7
                 squaresize = 48
-                l = (c[0] - int(squaresize/2) , c[1] + o)
+                l = (c[0] - int(squaresize/2) -1 , c[1] + o)
                 r = (c[0] + int(squaresize/2) , c[1] + o)
-                t = (c[0], c[1] - int(squaresize/4) + o)
-                b = (c[0], c[1] + int(squaresize/4) + o)
-                draw.lines(self.image, NetEvents.session._players[uiunit._parentelement.ownerid].color, True, (l, t, r, b), 1)
+                t = (c[0], c[1] - int(squaresize/3) + o -1)
+                b = (c[0], c[1] + int(squaresize/3) + o +1)
+                draw.lines(self.image, NetEvents.session._players[uiunit._parentelement.ownerid].color, True, (l, t, r, b), 2)
         self.unitsprites.draw(self.image)

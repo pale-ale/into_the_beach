@@ -23,8 +23,7 @@ class GameScene(SceneBase):
         self.hud = Hud(self.gridui.width, self.gridui.height, self.gridui, 0, self.session)
         self.selector = Selector(self.grid, self.hud)
         self.griddisplaysize = griddisplaysize 
-        # self.griduiscaleimage = pygame.Surface(self.griddisplaysize, pygame.SRCALPHA).convert_alpha()
-        self.griduiscaleimage = pygame.Surface((1260, 960), pygame.SRCALPHA).convert_alpha()
+        self.griduiscaleimage = pygame.Surface(self.griddisplaysize, pygame.SRCALPHA).convert_alpha()
         self.hudscaleimage = pygame.Surface(self.desired_size, pygame.SRCALPHA).convert_alpha()
 
     def load(self):
@@ -51,7 +50,6 @@ class GameScene(SceneBase):
         self.gridui.update()
         pygame.transform.scale(self.hud.background, self.desired_size, self.image)
         pygame.transform.scale(self.gridui.image, self.griduiscaleimage.get_size(), self.griduiscaleimage)
-        #self.griduiscaleimage.blit(self.gridui.image, (0,0))
         gridoffset = ((self.desired_size[0] - self.griddisplaysize[0])/2, (self.desired_size[1] - self.griddisplaysize[1])/2)
         self.image.blit(self.griduiscaleimage, gridoffset)
         pygame.transform.scale(self.hud.image, self.desired_size, self.hudscaleimage)
