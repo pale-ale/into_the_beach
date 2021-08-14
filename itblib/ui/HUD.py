@@ -125,13 +125,18 @@ class Hud(pygame.sprite.Sprite):
         self.font = pygame.font.SysFont('latinmodernmono', 15)
         self.cursorgridpos = (0,0)
         self.cursorscreenpos = (0,0)
-
+        self.displayscale = 2
+        self.targetpreviewtexture = pygame.Surface(Vec.scalar_mult2((64,96), 2)).convert_alpha()
+        pygame.transform.scale(
+            Textures.get_spritesheet(PREVIEWS[0])[0],
+            self.targetpreviewtexture.get_size(),
+            self.targetpreviewtexture)
         self.unitdisplay = UnitDisplay()
         self.tiledisplay = TileDisplay()
-        self.unitdisplayanchor = (.75,0)
-        self.tiledisplayanchor = (.75,.75)
-        self.unitdisplay.rect.topleft = Vec.comp_mult2(self.unitdisplayanchor, self.gridui.rect.size) 
-        self.tiledisplay.rect.topleft = Vec.comp_mult2(self.tiledisplayanchor, self.gridui.rect.size) 
+        self.unitdisplayanchor = (.85,0)
+        self.tiledisplayanchor = (.85,.85)
+        self.unitdisplay.rect.topleft = Vec.comp_mult2(self.unitdisplayanchor, self.rect.size) 
+        self.tiledisplay.rect.topleft = Vec.comp_mult2(self.tiledisplayanchor, self.rect.size) 
         self.hudsprites = pygame.sprite.Group(self.unitdisplay, self.tiledisplay)
         # other info
         self.timerdisplay = pygame.Surface((96,20)).convert_alpha()
@@ -145,7 +150,9 @@ class Hud(pygame.sprite.Sprite):
         self.backgrounds = []
         self.background = pygame.Surface((0,0)).convert_alpha()
         for bgname in Textures.backgroundtexturemapping.values():
-            self.backgrounds.append(Textures.get_spritesheet(bgname)[0])
+            s = pygame.Surface((width, height))
+            pygame.transform.scale(Textures.get_spritesheet(bgname)[0], s.get_size(), s)
+            self.backgrounds.append(s)
     
     def escape_pressed(self):
         """Tell the server that the player wants to leave."""
@@ -224,7 +231,7 @@ class Hud(pygame.sprite.Sprite):
         maxphasetime = PHASES[self.gridui.grid.phase][1]
         currentphasetime = self.gridui.grid.phasetime
         self.timerdisplay = self.font.render(str(round(maxphasetime-currentphasetime, 1)), True, (255,255,255,255))
-        self.image.blit(Textures.get_spritesheet(PREVIEWS[0])[0], self.cursorscreenpos)
+        self.image.blit(self.targetpreviewtexture, self.cursorscreenpos)
         self.image.blit(self.timerdisplay, (10,10))
 
     def update_cursor(self, position:"tuple[int,int]"):
@@ -235,7 +242,7 @@ class Hud(pygame.sprite.Sprite):
         )
         self.unitdisplay.set_displayunit(self.gridui.get_unitui(position))
         self.cursorgridpos = position
-        self.cursorscreenpos = self.gridui.transform_grid_screen(position)
+        self.cursorscreenpos = Vec.scalar_mult2(self.gridui.transform_grid_screen(position), self.displayscale)
         if self.selectedunitui and self.selectedunitui._parentelement:
             self.selectedunitui._parentelement.on_update_cursor(position)
         self.redraw()

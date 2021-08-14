@@ -12,7 +12,7 @@ class Client:
     """The Client manages everything needed for a player on his machine, including graphics, the screen, etc."""
     def __init__(self) -> None:
         self.fps_cap = 30
-        self.normal_displaysize = (1280, 984)
+        self.normal_displaysize = (1280, 640)
         self.displaysize = self.normal_displaysize
         self.running = True
 
@@ -26,7 +26,7 @@ class Client:
         Textures.load_textures()
         self.scenemanager = SceneManager()
         mainmenuscene = MainMenuScene(self, self.scenemanager, *self.displaysize)
-        gamescene = GameScene(self.normal_displaysize, self.scenemanager, *self.displaysize)
+        gamescene = GameScene(self.scenemanager, *self.displaysize)
         NetEvents.grid = gamescene.grid
         NetEvents.connector = gamescene.connector
         NetEvents.session = gamescene.session

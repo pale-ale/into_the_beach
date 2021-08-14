@@ -13,18 +13,18 @@ import pygame.transform
 
 class GameScene(SceneBase):
     """Contains the main game (grid, hud, etc.)"""
-    def __init__(self, griddisplaysize, scenemanager:SceneManager, width: int, height: int, *groups) -> None:
-        super().__init__(scenemanager, width, height, *groups)
+    def __init__(self, scenemanager:SceneManager, width: int, height: int) -> None:
+        super().__init__(scenemanager, width, height)
         self.connector = Connector(False)
         self.session = Session(self.connector)
         self.grid = Grid(self.connector)
         self.gridui = GridUI(self.grid)
         self.grid.update_observer(self.gridui) 
-        self.hud = Hud(self.gridui.width, self.gridui.height, self.gridui, 0, self.session)
+        self.pan = [0,0]
+        self.hud = Hud(width, height, self.gridui, 0, self.session)
         self.selector = Selector(self.grid, self.hud)
-        self.griddisplaysize = griddisplaysize 
+        self.griddisplaysize = (1280, 984)
         self.griduiscaleimage = pygame.Surface(self.griddisplaysize, pygame.SRCALPHA).convert_alpha()
-        self.hudscaleimage = pygame.Surface(self.desired_size, pygame.SRCALPHA).convert_alpha()
 
     def load(self):
         super().load()
@@ -32,11 +32,14 @@ class GameScene(SceneBase):
 
     def on_keyevent(self, keyevent):
         super().on_keyevent(keyevent)
+        if keyevent.type == pygame.KEYDOWN:
+            if keyevent.mod & pygame.KMOD_SHIFT and keyevent.key == pygame.K_UP:
+                self.pan = (self.pan[0], self.pan[1] + 2*22*self.hud.displayscale)
+                return
+            if keyevent.mod & pygame.KMOD_SHIFT and keyevent.key == pygame.K_DOWN:
+                self.pan = (self.pan[0], self.pan[1] - 2*22*self.hud.displayscale)
+                return
         self.selector.handle_input(keyevent)
-
-    def on_displayresize(self, newsize:"tuple[int,int]"):
-        self.hudscaleimage = pygame.Surface(newsize, pygame.SRCALPHA).convert_alpha()
-        super().on_displayresize(newsize)
 
     def update(self, dt:float):
         super().update(dt)
@@ -48,9 +51,7 @@ class GameScene(SceneBase):
         self.hud.redraw()
         self.grid.tick(dt)
         self.gridui.update()
-        pygame.transform.scale(self.hud.background, self.desired_size, self.image)
+        self.image.blit(self.hud.background, (0,0))
         pygame.transform.scale(self.gridui.image, self.griduiscaleimage.get_size(), self.griduiscaleimage)
-        gridoffset = ((self.desired_size[0] - self.griddisplaysize[0])/2, (self.desired_size[1] - self.griddisplaysize[1])/2)
-        self.image.blit(self.griduiscaleimage, gridoffset)
-        pygame.transform.scale(self.hud.image, self.desired_size, self.hudscaleimage)
-        self.image.blit(self.hudscaleimage, (0,0))
+        self.image.blit(self.griduiscaleimage, self.pan)
+        self.image.blit(self.hud.image, (0,0))
