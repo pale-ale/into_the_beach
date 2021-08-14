@@ -12,7 +12,7 @@ class Client:
     """The Client manages everything needed for a player on his machine, including graphics, the screen, etc."""
     def __init__(self) -> None:
         self.fps_cap = 30
-        self.normal_displaysize = (1280, 960)
+        self.normal_displaysize = (1280, 984)
         self.displaysize = self.normal_displaysize
         self.running = True
 

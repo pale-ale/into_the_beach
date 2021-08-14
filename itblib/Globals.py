@@ -20,10 +20,9 @@ class ClassMapping:
     tileclassmapping = {
         0:None,
         1:TileBase,
-        2:TileForest,
-        3:TileSea,
-        4:TileLava,
-        5:TileRock
+        2:TileWater,
+        3:TileLava,
+        4:TileRock
     }
     effectclassmapping = {
         0:None,

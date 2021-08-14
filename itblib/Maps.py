@@ -46,54 +46,19 @@ class MapGrasslands(Map):
         super().__init__()
         for x in range(0, 100):
             self.tileids[x] = 1
-        for x in range (0, 5):
-            self.tileids[x] = 5
-        for x in range (10, 15):
-            self.tileids[x] = 5
-        for x in range (20, 25):
-            self.tileids[x] = 5
-        for x in range (30, 35):
-            self.tileids[x] = 5
-        for x in range (40, 45):
-            self.tileids[x] = 5
-        
-        for x in range(5, 10):
-            self.tileids[x] = 2
-        for x in range(15, 20):
-            self.tileids[x] = 2
-        for x in range(25, 30):
-            self.tileids[x] = 2
-        for x in range(35, 40):
-            self.tileids[x] = 2
-        for x in range(45, 50):
-            self.tileids[x] = 2
-        
-        for x in range (55, 60):
-            self.tileids[x] = 5
-        for x in range (65, 70):
-            self.tileids[x] = 5
-        for x in range (75, 80):
-            self.tileids[x] = 5
-        for x in range (85, 90):
-            self.tileids[x] = 5
-        for x in range (95, 100):
-            self.tileids[x] = 5
+        self.tileids[41] = 2
+        self.tileids[42] = 0
+        self.tileids[51] = 2
+        self.tileids[52] = 2
+        self.tileids[44] = 3
+        self.tileids[45] = 0
+        self.tileids[54] = 3
+        self.tileids[55] = 3
+        self.tileids[47] = 4
+        self.tileids[48] = 0
+        self.tileids[57] = 4
+        self.tileids[58] = 4
 
-        for x in range (50, 55):
-            self.tileids[x] = 2
-        for x in range (60, 65):
-            self.tileids[x] = 2
-        for x in range (70, 75):
-            self.tileids[x] = 2
-        for x in range (80, 85):
-            self.tileids[x] = 2
-        for x in range (90, 95):
-            self.tileids[x] = 2
         for x in range(0, 10):
-            self.effectids[x].append(2+int(x/2))    
-        for x in range(75, 78):
-            self.effectids[x].append(5)
-        wheat = [57, 67, 22, 23, 24, 32, 42, 34, 44, 55, 56, 65, 43, 33, 66]
-        for x in wheat:
-            self.effectids[x].append(5)
-        
+            self.effectids[x].append(2+int(x/2))
+    

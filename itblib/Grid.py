@@ -202,9 +202,9 @@ class Grid:
         """Return the tile at (x,y)."""
         return self.tiles[self.width*y+x]
    
-    def get_effects(self, x:int, y:int):
+    def get_effects(self, pos:"tuple[int,int]"):
         """Return the effects at (x,y)."""
-        return self.effects[self.width*y+x]
+        return self.effects[self.c_to_i(pos)]
     
     def get_unit(self, pos:"tuple[int,int]"):
         """Return the unit at (x,y)."""
