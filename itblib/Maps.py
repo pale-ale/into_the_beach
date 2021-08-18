@@ -8,7 +8,8 @@ class Map:
         self.height = 10
         self.tileids:"list[int|None]" = [None]*self.width*self.height
         self.unitids:"list[int|None]" = [None]*self.width*self.height
-        self.effectids:"list[list[int]]" = [[] for i in range(self.width*self.height)]
+        self.tileeffectids:"list[list[int]]" = [[] for i in range(self.width*self.height)]
+        self.uniteffectids:"list[list[int]]" = [[] for i in range(self.width*self.height)]
     
     def import_from_str(self, importstr):
         """Deserialize a json-str and update the data accordingly."""
@@ -17,7 +18,8 @@ class Map:
         self.height = data["height"]
         self.tileids = data["tileids"]
         self.unitids = data["unitids"]
-        self.effectids = data["effectids"]
+        self.tileeffectids = data["tileeffectids"]
+        self.uniteffectids = data["uniteffectids"]
     
     def export_to_str(self):
         """Serialize the contained data into a json-str."""
@@ -25,7 +27,8 @@ class Map:
                 "height": self.height,
                 "tileids": self.tileids,
                 "unitids": self.unitids,
-                "effectids": self.effectids,
+                "tileeffectids": self.tileeffectids,
+                "uniteffectids": self.uniteffectids,
                 }
         jsonstr = json.dumps(data)
         return jsonstr
@@ -36,7 +39,8 @@ class Map:
             for x in range(self.width):
                 yield (x,y),\
                     self.tileids[y*self.width+x],\
-                    self.effectids[y*self.width+x],\
+                    self.tileeffectids[y*self.width+x],\
+                    self.uniteffectids[y*self.width+x],\
                     self.unitids[y*self.width+x]
 
 class MapGrasslands(Map):
@@ -60,21 +64,21 @@ class MapGrasslands(Map):
         self.tileids[58] = 2
         mountain = [9, 19, 8, 80, 90, 91]
         for x in mountain:
-            self.effectids[x].append(3)
-        self.effectids[9].append(3)
+            self.tileeffectids[x].append(3)
+        self.tileeffectids[9].append(3)
         town = [14, 15, 24, 25, 74, 75, 84, 85]
         for x in town:
-            self.effectids[x].append(6)
+            self.tileeffectids[x].append(6)
         wheat = [0, 1, 10]
         for x in wheat:
-            self.effectids[x].append(5)
+            self.tileeffectids[x].append(5)
         river = [61, 62, 37, 38]
         for x in river:
-            self.effectids[x].append(4)  
-        self.effectids[11].append(7)
-        self.effectids[89].append(7)
-        self.effectids[33].append(2)
-        self.effectids[66].append(2)
-        self.effectids[36].append(2)
-        self.effectids[63].append(2)
+            self.tileeffectids[x].append(4)  
+        self.tileeffectids[11].append(7)
+        self.tileeffectids[89].append(7)
+        self.tileeffectids[33].append(2)
+        self.tileeffectids[66].append(2)
+        self.tileeffectids[36].append(2)
+        self.tileeffectids[63].append(2)
 

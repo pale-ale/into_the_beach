@@ -30,7 +30,8 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.image = pygame.surface.Surface((self.width,self.height), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.uitiles:"list[TileBaseUI|None]" = [None]*grid.width*grid.height
-        self.uieffects:"list[list[EffectBaseUI]]" = [[] for i in range(grid.width*grid.height)]
+        self.uitileeffects:"list[list[EffectBaseUI]]" = [[] for i in range(grid.width*grid.height)]
+        self.uiuniteffects:"list[list[EffectBaseUI]]" = [[] for i in range(grid.width*grid.height)]
         self.uiunits:"list[UnitBaseUI|None]" = [None]*grid.width*grid.height
         self.tilesprites = pygame.sprite.Group()
         self.effectsprites = pygame.sprite.Group()
@@ -52,7 +53,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.uiunits[self.grid.c_to_i(unit.pos)] = uiunit
         self.unitsprites.add(uiunit)
     
-    def on_add_effect(self, effect:EffectBase):
+    def on_add_tile_effect(self, effect:EffectBase):
         """Add the UI version of the new effect added to the normal grid."""
         assert isinstance(effect, EffectBase)
         gridindex = self.grid.c_to_i(effect.pos)
@@ -62,7 +63,16 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
             uieffect = EffectHealUI(effect)
         else:
             uieffect = EffectBaseUI(effect)
-        self.uieffects[gridindex].append(uieffect)
+        self.uitileeffects[gridindex].append(uieffect)
+        uieffect.rect = Rect(*self.transform_grid_screen(effect.pos), 64, 64)
+        self.effectsprites.add(uieffect)
+
+    def on_add_unit_effect(self, effect:EffectBase):
+        """Add the UI version of the new effect added to the normal grid."""
+        assert isinstance(effect, EffectBase)
+        gridindex = self.grid.c_to_i(effect.pos)
+        uieffect = EffectBaseUI(effect)
+        self.uiuniteffects[gridindex].append(uieffect)
         uieffect.rect = Rect(*self.transform_grid_screen(effect.pos), 64, 64)
         self.effectsprites.add(uieffect)
 
@@ -80,14 +90,22 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         """Remove a UI-unit at the given position."""
         self.uiunits[self.grid.c_to_i(pos)] = None
    
-    def on_remove_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
+    def on_remove_tile_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
         """Remove a UI-effect at the given position."""
-        for uieffect in self.uieffects[self.grid.c_to_i(pos)][:]:
+        for uieffect in self.uitileeffects[self.grid.c_to_i(pos)][:]:
             if uieffect._parentelement == effect:
                 self.effectsprites.remove(uieffect)
                 self.uieffects[self.grid.c_to_i(pos)].remove(uieffect)
                 return
-   
+       
+    def on_remove_unit_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
+        """Remove a UI-effect at the given position."""
+        for uieffect in self.uiuniteffects[self.grid.c_to_i(pos)][:]:
+            if uieffect._parentelement == effect:
+                self.effectsprites.remove(uieffect)
+                self.uieffects[self.grid.c_to_i(pos)].remove(uieffect)
+                return
+
     def update(self):
         """Update the graphics and animations' frames."""
         self.tilesprites.update()
@@ -105,15 +123,19 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         for tiledata in g.tiles:
             if tiledata:
                 self.on_add_tile(tiledata)
-        for effectdata in g.effects:
-            if effectdata:
-                self.on_add_effect(effectdata)
+        for tileeffectdata in g.tileeffects:
+            if tileeffectdata:
+                self.on_add_tile_effect(tileeffectdata)
+        for uniteffectdata in g.uniteffects:
+            if uniteffectdata:
+                self.on_add_unit_effect(uniteffectdata)
 
     def clear_map(self):
         """Sets every graphic's data source to 'None'."""
         c = self.grid.width*self.grid.height
         self.uitiles:"list[TileBaseUI|None]" = [None]*c
-        self.uieffects:"list[list[EffectBaseUI]]" = [[] for i in range(c)]
+        self.uitileeffects:"list[list[EffectBaseUI]]" = [[] for i in range(c)]
+        self.uiuniteffects:"list[list[EffectBaseUI]]" = [[] for i in range(c)]
         self.uiunits:"list[UnitBaseUI|None]" = [None]*c
     
     def on_load_map(self, map:Map):
@@ -128,9 +150,13 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         """Return the UI-tile at given position."""
         return self.uitiles[self.grid.c_to_i(pos)]
     
-    def get_effectsui(self, pos:"tuple[int,int]"):
+    def get_tile_effectsui(self, pos:"tuple[int,int]"):
         """Return the UI-effects at given position."""
-        return self.uieffects[self.grid.c_to_i(pos)]
+        return self.uitileeffects[self.grid.c_to_i(pos)]
+    
+    def get_unit_effectsui(self, pos:"tuple[int,int]"):
+        """Return the UI-effects at given position."""
+        return self.uiuniteffects[self.grid.c_to_i(pos)]
 
     def transform_grid_world(self, gridpos:"tuple[int,int]"):
         """Return the world position of a given grid coordinate."""

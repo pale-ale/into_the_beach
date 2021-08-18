@@ -47,4 +47,4 @@ class EffectHeal(EffectBase):
         super().tick(dt)
         if self.age >= 1:
             self.done = True
-            self.grid.remove_effect(self, self.pos)
+            self.grid.remove_tileeffect(self, self.pos)

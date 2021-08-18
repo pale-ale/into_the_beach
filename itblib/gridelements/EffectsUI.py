@@ -24,7 +24,7 @@ class EffectRiverUI(EffectBaseUI):
             neighborposs = grid.get_ordinal_neighbors(*pos)
             riverposs = []
             for rpos in neighborposs: 
-                for effect in grid.get_effects(rpos):
+                for effect in grid.get_tileeffects(rpos):
                     if type(effect).__name__ == "EffectRiver":
                         riverposs.append(rpos)
             if len(riverposs) == 0:

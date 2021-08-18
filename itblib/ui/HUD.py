@@ -238,7 +238,7 @@ class Hud(pygame.sprite.Sprite):
         """Forward the new cursor position to a unit's according hooks"""
         self.tiledisplay.set_displaytile_effects(
             self.gridui.get_tileui(position),
-            self.gridui.get_effectsui(position)
+            self.gridui.get_tile_effectsui(position)
         )
         self.unitdisplay.set_displayunit(self.gridui.get_unitui(position))
         self.cursorgridpos = position
