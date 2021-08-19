@@ -208,6 +208,27 @@ class NetEvents():
             exit(1)
         RcvNetEventsMap[prefix](contents)
     
+    @staticmethod
+    def snd_netunitremove(pos:"tuple[int,int]"):
+        if NetEvents.connector.authority:
+            NetEvents.connector.send_to_clients(
+                NetEvents.session._players,
+                "NetUnitRemove", 
+                json.dumps(pos)
+            )
+        else:
+            NetEvents.connector.send("NetUnitRemove", json.dumps(pos))
+    
+    @staticmethod
+    def rcv_netunitremove(unitremoveposstr):
+        unitremovetuple = json.loads(unitremoveposstr)
+        if NetEvents.connector.authority:
+            #check whether this request is fulfillable, if not: return
+            if not NetEvents.grid.is_space_empty(False, unitremovetuple):
+                NetEvents.snd_netunitremove(unitremovetuple)
+                NetEvents.grid.remove_unit(unitremovetuple)
+        else:
+            NetEvents.grid.remove_unit(unitremovetuple)
 
 RcvNetEventsMap = {
     "NetAbilityTarget":NetEvents.rcv_netabilitytarget,
@@ -220,5 +241,6 @@ RcvNetEventsMap = {
     "NetUnitHpChange":NetEvents.rcv_netunithpchange,
     "NetUnitMove":NetEvents.rcv_netunitmove,
     "NetUnitSpawn":NetEvents.rcv_netunitspawn,
+    "NetUnitRemove":NetEvents.rcv_netunitremove,
 }
     
