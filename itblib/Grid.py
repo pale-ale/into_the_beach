@@ -176,6 +176,8 @@ class Grid:
         if self.is_space_empty(False, pos):
             print(f"error try to remove unit at {pos} which does not exist.")
             exit(1)
+        elif NetEvents.connector.authority:
+            NetEvents.snd_netunitremove(pos)
         self.units[self.c_to_i(pos)] = None
         if self.observer:
             self.observer.on_remove_unit(pos)
