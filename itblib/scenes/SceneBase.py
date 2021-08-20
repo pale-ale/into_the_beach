@@ -24,7 +24,7 @@ class SceneBase(pygame.sprite.Sprite):
         pass
 
     def on_displayresize(self, newsize:"tuple[int,int]"):
-        self.image = pygame.Surface(newsize)
+        pass #self.image = pygame.Surface(newsize)
         
     def update(self, dt:float):
         pass

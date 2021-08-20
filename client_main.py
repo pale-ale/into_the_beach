@@ -8,6 +8,9 @@ from itblib.Selector import Selector
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.TextureManager import Textures
 
+import os
+os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0,0)
+
 class Client:
     """The Client manages everything needed for a player on his machine, including graphics, the screen, etc."""
     def __init__(self) -> None:
@@ -37,9 +40,8 @@ class Client:
         self.scenemanager.load_scene("MainMenuScene")
 
     def update_fullscreen(self, fullscreen:bool = False):
-        #TODO: hud elements may also not be scaled up or down, only repositioned
         if fullscreen:
-            self.screen = pygame.display.set_mode(self.fullscreen_displaysize, pygame.NOFRAME | pygame.FULLSCREEN)
+            self.screen = pygame.display.set_mode(self.fullscreen_displaysize, pygame.NOFRAME)
             self.scenemanager.scenes["GameScene"].on_displayresize(self.fullscreen_displaysize)
         else:
             # this actually needs to be called 2 times for god knows why.
@@ -56,7 +58,7 @@ while client.running:
         elif pygame.key.get_focused() and (event.type == pygame.KEYDOWN or event.type == pygame.KEYUP):
             client.scenemanager.activescene.on_keyevent(event)
     dt = client.clock.tick(client.fps_cap)/1000.0
-    client.scenemanager.activescene.update(dt)
+    client.scenemanager.activescene.update(dt) 
     client.screen.fill((0,0,0,0))
     client.screen.blit(client.scenemanager.activescene.image, (0,0))
     pygame.display.update()

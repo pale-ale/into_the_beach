@@ -53,7 +53,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.uiunits[self.grid.c_to_i(unit.pos)] = uiunit
         self.unitsprites.add(uiunit)
     
-    def on_add_tile_effect(self, effect:EffectBase):
+    def on_add_worldeffect(self, effect:EffectBase):
         """Add the UI version of the new effect added to the normal grid."""
         assert isinstance(effect, EffectBase)
         gridindex = self.grid.c_to_i(effect.pos)
@@ -64,15 +64,6 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         else:
             uieffect = EffectBaseUI(effect)
         self.uitileeffects[gridindex].append(uieffect)
-        uieffect.rect = Rect(*self.transform_grid_screen(effect.pos), 64, 64)
-        self.effectsprites.add(uieffect)
-
-    def on_add_unit_effect(self, effect:EffectBase):
-        """Add the UI version of the new effect added to the normal grid."""
-        assert isinstance(effect, EffectBase)
-        gridindex = self.grid.c_to_i(effect.pos)
-        uieffect = EffectBaseUI(effect)
-        self.uiuniteffects[gridindex].append(uieffect)
         uieffect.rect = Rect(*self.transform_grid_screen(effect.pos), 64, 64)
         self.effectsprites.add(uieffect)
 
@@ -123,7 +114,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         for tiledata in g.tiles:
             if tiledata:
                 self.on_add_tile(tiledata)
-        for tileeffectdata in g.tileeffects:
+        for tileeffectdata in g.worldeffects:
             if tileeffectdata:
                 self.on_add_tile_effect(tileeffectdata)
         for uniteffectdata in g.uniteffects:

@@ -26,7 +26,7 @@ class UnitDisplay(pygame.sprite.Sprite):
         self.defaultimagecolor = (30,0,0,255)
         self.defaulttextboxcolor = (50,50,50,255)
         self.font = pygame.font.SysFont('latinmodernmono', 15)
-        self.rect = pygame.Rect(0,0,200,100)
+        self.rect = pygame.Rect(0,0,200,116)
         self.image = pygame.Surface(self.rect.size).convert_alpha()
         self.image.fill((0))
         self.displayunit:UnitBaseUI = None
@@ -49,11 +49,17 @@ class UnitDisplay(pygame.sprite.Sprite):
             )
             self.image.blit(unit.image, Vec.comp_add2(self.imagepos, (0,10)))
             self.display_abilities(unit._parentelement)
+            self.display_statuseffects(unit._parentelement)
     
     def update(self):
         self.image.fill(self.defaultimagecolor, (*self.imagepos,64,64))
         if self.displayunit:
             self.image.blit(self.displayunit.image, Vec.comp_add2(self.imagepos, (0,10)))
+    
+    def display_statuseffects(self, unit:UnitBase):
+        self.image.fill((0), (0,100,200,16))
+        for i in range(len(unit.statuseffects)):
+            self.image.blit(Textures.get_spritesheet(unit.statuseffects[i].name+"Icon")[0], (i,100))
 
     def display_abilities(self, unit:UnitBase):
         """Display the abilities of a unit."""

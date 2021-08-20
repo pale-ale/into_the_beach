@@ -9,12 +9,9 @@ class IGridObserver:
     def on_add_tile(self, tile:TileBase):
         pass
     
-    def on_add_tile_effect(self, effect:EffectBase):
+    def on_add_worldeffect(self, effect:EffectBase):
         pass
     
-    def on_add_unit_effect(self, effect:EffectBase):
-        pass
-
     def on_add_unit(self, unit:UnitBase):
         pass
 

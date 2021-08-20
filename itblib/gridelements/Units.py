@@ -1,16 +1,16 @@
 from typing import TYPE_CHECKING
-from .GridElement import GridElement
+from itblib.gridelements.GridElement import GridElement
 from itblib.net.NetEvents import NetEvents
-from ..Abilities import AbilityBase, HealAbility, \
+from itblib.gridelements.Effects import StatusEffect, EffectBleed
+from itblib.Abilities import AbilityBase, HealAbility, \
     MovementAbility, \
     ObjectiveAbility, \
     PunchAbility, \
     PushAbility, \
-    RangedAttackAbility, \
-    BleedingEffect
+    RangedAttackAbility
 
 if TYPE_CHECKING:
-    from ..Grid import Grid
+    from itblib.Grid import Grid
 
 class UnitBase(GridElement):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
@@ -20,6 +20,7 @@ class UnitBase(GridElement):
         self.hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
         self.baseattack = {"physical": 4, "magical": 0}
+        self.statuseffects:"list[StatusEffect]" = []
         self.canswim = canswim
         self.ownerid = ownerid
         self.moverange = 5
@@ -37,6 +38,9 @@ class UnitBase(GridElement):
                 print(ability_class.__name__, "-class already exists")
                 exit(1)
         self.abilities.append(ability_class(self))
+    
+    def add_statuseffect(self, statuseffect:"StatusEffect"):
+        self.statuseffects.append(statuseffect)
 
     def remove_ability(self, ability_class_name:str):
         print("Removing ability:", ability_class_name)
@@ -73,6 +77,8 @@ class UnitBase(GridElement):
     def on_update_abilities_phases(self, newphase:int):
         for ability in self.abilities:
             ability.on_update_phase(newphase)
+        for statuseffect in self.statuseffects:
+            statuseffect.on_update_phase(newphase)
     
     def on_update_cursor(self, newcursorpos:"tuple[int,int]"):
         for ability in self.abilities:
@@ -122,6 +128,7 @@ class UnitBloodWraith(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitBloodWraith"):
         super().__init__(grid, pos, ownerid, name=name)
         self.add_ability(HealAbility)
+        self.add_statuseffect(EffectBleed(self))
         
     def attack(self, target:"tuple[int,int]" , damage:int, damagetype:str):
         print("UnitBloodWraith: target:", target)

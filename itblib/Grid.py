@@ -26,8 +26,7 @@ class Grid:
         self.pregametime = 10
         self.tiles:"list[Optional[TileBase]]" = [None]*width*height
         self.units:"list[Optional[UnitBase]]" = [None]*width*height
-        self.tileeffects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
-        self.uniteffects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
+        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
         self.observer = observer
         self.phase = 0
 
@@ -45,11 +44,7 @@ class Grid:
             for member in group:
                 if member and not member.done:
                     return False
-        for effectstack in self.tileeffects:    
-            for effect in effectstack:
-                if effect and not effect.done:
-                    return False
-        for effectstack in self.uniteffects:    
+        for effectstack in self.worldeffects:    
             for effect in effectstack:
                 if effect and not effect.done:
                     return False
@@ -129,14 +124,14 @@ class Grid:
         c = self.width*self.height
         self.tiles = [None]*c
         self.units = [None]*c
-        self.tileeffects = [[] for i in range(c)]
+        self.worldeffects = [[] for i in range(c)]
         self.uniteffects = [[] for i in range(c)]
         for pos, tileid, tileeffectids, uniteffectids, unitid in map.iterate_tiles():
             if tileid:
                 self.add_tile(pos, tileid)
             if tileeffectids:
                 for tileeffectid in tileeffectids:
-                    self.add_tileeffect(pos, tileeffectid, from_authority=from_authority, use_net=False)
+                    self.add_worldeffect(pos, tileeffectid, from_authority=from_authority, use_net=False)
             if uniteffectids:
                 for uniteffectid in uniteffectids:
                     self.add_uniteffect(pos, uniteffectid, from_authority=from_authority, use_net=False)
@@ -151,30 +146,16 @@ class Grid:
         if self.observer:
             self.observer.on_add_tile(newtile)
 
-    def add_tileeffect(self, pos:"tuple[int,int]", tileeffectid:int, from_authority:bool, use_net=True):
+    def add_worldeffect(self, pos:"tuple[int,int]", tileeffectid:int, from_authority:bool, use_net=True):
         """Add an tile effect to the grid at given position."""
         if from_authority:
             effecttype:EffectBase = ClassMapping.effectclassmapping[tileeffectid]       
             neweffect:EffectBase = effecttype(self, pos)
-            self.tileeffects[self.c_to_i(pos)].append(neweffect)
+            self.worldeffects[self.c_to_i(pos)].append(neweffect)
             if self.observer:
-                self.observer.on_add_tile_effect(neweffect)
+                self.observer.on_add_worldeffect(neweffect)
             if use_net and NetEvents.connector.authority:
                 NetEvents.snd_neteffectspawn(tileeffectid, pos)
-            neweffect.on_spawn()
-        else:
-            pass #NetEvents.snd_neteffectspawn(effectid, pos)
-
-    def add_uniteffect(self, pos:"tuple[int,int]", uniteffectid:int, from_authority:bool, use_net=True):
-        """Add an effect to the grid at given position."""
-        if from_authority:
-            effecttype:EffectBase = ClassMapping.effectclassmapping[uniteffectid]       
-            neweffect:EffectBase = effecttype(self, pos)
-            self.uniteffects[self.c_to_i(pos)].append(neweffect)
-            if self.observer:
-                self.observer.on_add_unit_effect(neweffect)
-            if use_net and NetEvents.connector.authority:
-                NetEvents.snd_neteffectspawn(uniteffectid, pos)
             neweffect.on_spawn()
         else:
             pass #NetEvents.snd_neteffectspawn(effectid, pos)
@@ -201,16 +182,10 @@ class Grid:
     
     def remove_tileeffect(self, effect:"EffectBase", pos:"tuple[int,int]"):
         """Remove an effect at given position."""
-        self.tileeffects[self.c_to_i(pos)].remove(effect)
+        self.worldeffects[self.c_to_i(pos)].remove(effect)
         if self.observer:
             self.observer.on_remove_tileeffect(effect, pos)
 
-    def remove_uniteffect(self, effect:"EffectBase", pos:"tuple[int,int]"):
-        """Remove an effect at given position."""
-        self.uniteffects[self.c_to_i(pos)].remove(effect)
-        if self.observer:
-            self.observer.on_remove_uniteffect(effect, pos)
-    
     def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
         """Move a unit from (x,y) to (tagretx,targety)."""
         if self.is_space_empty(False, from_pos):
@@ -233,12 +208,8 @@ class Grid:
    
     def get_tileeffects(self, pos:"tuple[int,int]"):
         """Return the tile effects at (x,y)."""
-        return self.tileeffects[self.c_to_i(pos)]
+        return self.worldeffects[self.c_to_i(pos)]
    
-    def get_uniteffects(self, pos:"tuple[int,int]"):
-        """Return the unit effects at (x,y)."""
-        return self.uniteffects[self.c_to_i(pos)]
-
     def get_unit(self, pos:"tuple[int,int]"):
         """Return the unit at (x,y)."""
         return self.units[self.c_to_i(pos)]
@@ -274,11 +245,8 @@ class Grid:
         for t in self.tiles:
             if t:
                 t.tick(dt)
-        for tes in self.tileeffects:
-            for e in tes:
-                e.tick(dt)
-        for ues in self.uniteffects:
-            for e in ues:
+        for wes in self.worldeffects:
+            for e in wes:
                 e.tick(dt)
         self.phasetime += dt
         if self.connector.authority:

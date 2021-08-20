@@ -34,6 +34,7 @@ class Textures:
         ("EffectTrees", "Default", 1),
         ("EffectWheat", "Default", 1),
         ("EffectHeal", "Default", 10),
+        ("EffectBleed", "Icon", 1),
 
         ("TileDirt", "Default", 1),
         ("TileWater", "Default", 1),
