@@ -51,7 +51,7 @@ class UnitBase(GridElement):
     
     def drown(self):
         print("I drowned :(")
-        self.grid.remove_unit(*self.pos)
+        self.grid.remove_unit(self.pos)
 
     def attack(self, target:"tuple[int,int]", damage:int, damagetype:str):
         print("target", target)

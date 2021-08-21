@@ -132,11 +132,15 @@ class Hud(pygame.sprite.Sprite):
         self.cursorgridpos = (0,0)
         self.cursorscreenpos = (0,0)
         self.displayscale = 2
-        self.targetpreviewtexture = pygame.Surface(Vec.scalar_mult2((64,96), 2)).convert_alpha()
-        pygame.transform.scale(
-            Textures.get_spritesheet(PREVIEWS[0])[0],
-            self.targetpreviewtexture.get_size(),
-            self.targetpreviewtexture)
+        self.scaledpreviewtextures = {}
+        for value in PREVIEWS.values():
+            newtex = pygame.Surface(Vec.scalar_mult2((64,96), 2)).convert_alpha()
+            pygame.transform.scale(
+                Textures.get_spritesheet(value)[0],
+                newtex.get_size(),
+                newtex
+            )
+            self.scaledpreviewtextures[value] = newtex
         self.unitdisplay = UnitDisplay()
         self.tiledisplay = TileDisplay()
         self.unitdisplayanchor = (.85,0)
@@ -146,10 +150,6 @@ class Hud(pygame.sprite.Sprite):
         self.hudsprites = pygame.sprite.Group(self.unitdisplay, self.tiledisplay)
         # other info
         self.timerdisplay = pygame.Surface((96,20)).convert_alpha()
-        self.hitpoint = pygame.Surface((16,16)).convert_alpha()
-        self.hitpoint.fill((0,200,0,255))
-        self.hitpointdisplay = pygame.Surface((20,20)).convert_alpha()
-        self.hitpointdisplay.fill((0,0,0,255))
         
         self.playerid = playerid
         self.session = session
@@ -159,6 +159,10 @@ class Hud(pygame.sprite.Sprite):
             s = pygame.Surface((width, height))
             pygame.transform.scale(Textures.get_spritesheet(bgname)[0], s.get_size(), s)
             self.backgrounds.append(s)
+    
+    def transform_grid_screen_scaled(self, pos:"tuple[int,int]"):
+        unscaled = self.gridui.transform_grid_screen(pos)
+        return Vec.scalar_mult2(unscaled, self.displayscale)
     
     def escape_pressed(self):
         """Tell the server that the player wants to leave."""
@@ -200,25 +204,30 @@ class Hud(pygame.sprite.Sprite):
 
     def display_healthbar(self, unit:UnitBase):
         """Display the health bar on top of a unit."""
-        x,y = self.gridui.transform_grid_screen(unit.pos)
-        barwidth = 32
+        #x,y = self.transform_grid_screen_scaled(Vec.comp_add2(unit.pos, [32,0]))
+        maxbarwidth = 100
         hitpoints = unit.hitpoints
-        slotwidth = min(10, max(4, barwidth/max(1,hitpoints)))
+        slotwidth = (maxbarwidth - hitpoints -1) / max(1, hitpoints)
+        barwidth = min(maxbarwidth, 10*max(1, hitpoints))
+        #self.image.fill((0,0,255,255), (50, 50, barwidth, 20))
         for hp in range(hitpoints):
-            self.image.blit(self.hitpointdisplay,
-                (x+32+slotwidth*hp-slotwidth/2*hitpoints,y-16),
-                (0,0,slotwidth+2,8))
-            self.image.blit(self.hitpoint, 
-                (x+33+slotwidth*hp-slotwidth/2*hitpoints,y-15), 
-                (0,0,slotwidth,6))
-    
+            self.image.fill(
+                (50,255,50), 
+                (
+                    51 + slotwidth*hp + hp, 
+                    51,
+                    slotwidth,
+                    18
+                )
+            )
+
     def draw_unit_ability_previews(self, unit:UnitBase):
         """Draw previews of a unit, e.g. movement and targeting info."""
         for ability in unit.abilities:
             for previewinfo in ability.area_of_effect:
                 pos, previewid = previewinfo
-                screenpos = self.gridui.transform_grid_screen(pos)
-                self.image.blit(Textures.get_spritesheet(previewid)[0], screenpos)
+                screenpos = self.transform_grid_screen_scaled(pos)
+                self.image.blit(self.scaledpreviewtextures[previewid], screenpos)
     
     def player_won(self, playerid:int):
         if self.playerid == playerid:
@@ -237,8 +246,12 @@ class Hud(pygame.sprite.Sprite):
         maxphasetime = PHASES[self.gridui.grid.phase][1]
         currentphasetime = self.gridui.grid.phasetime
         self.timerdisplay = self.font.render(str(round(maxphasetime-currentphasetime, 1)), True, (255,255,255,255))
-        self.image.blit(self.targetpreviewtexture, self.cursorscreenpos)
+        self.image.blit(self.scaledpreviewtextures["SelectionPreview"], self.cursorscreenpos)
         self.image.blit(self.timerdisplay, (10,10))
+        unit = self.gridui.grid.get_unit(self.cursorgridpos)
+        self.image.fill((0,0,0,255), (50, 50, 100, 20))
+        if unit:
+            self.display_healthbar(unit)
 
     def update_cursor(self, position:"tuple[int,int]"):
         """Forward the new cursor position to a unit's according hooks"""
@@ -248,7 +261,7 @@ class Hud(pygame.sprite.Sprite):
         )
         self.unitdisplay.set_displayunit(self.gridui.get_unitui(position))
         self.cursorgridpos = position
-        self.cursorscreenpos = Vec.scalar_mult2(self.gridui.transform_grid_screen(position), self.displayscale)
+        self.cursorscreenpos = self.transform_grid_screen_scaled(position)
         if self.selectedunitui and self.selectedunitui._parentelement:
             self.selectedunitui._parentelement.on_update_cursor(position)
         self.redraw()
