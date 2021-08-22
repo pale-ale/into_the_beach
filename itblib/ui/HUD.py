@@ -160,9 +160,11 @@ class Hud(pygame.sprite.Sprite):
             pygame.transform.scale(Textures.get_spritesheet(bgname)[0], s.get_size(), s)
             self.backgrounds.append(s)
     
-    def transform_grid_screen_scaled(self, pos:"tuple[int,int]"):
+    def transform_grid_true(self, pos:"tuple[int,int]"):
+        """Transform incorporates pannening and scale"""
         unscaled = self.gridui.transform_grid_screen(pos)
-        return Vec.scalar_mult2(unscaled, self.displayscale)
+        scaled = Vec.scalar_mult2(unscaled, self.displayscale)
+        return Vec.comp_add2(self.gridui.pan, scaled)
     
     def escape_pressed(self):
         """Tell the server that the player wants to leave."""
@@ -212,7 +214,7 @@ class Hud(pygame.sprite.Sprite):
         #self.image.fill((0,0,255,255), (50, 50, barwidth, 20))
         for hp in range(hitpoints):
             self.image.fill(
-                (50,255,50), 
+                (50,255,50),
                 (
                     51 + slotwidth*hp + hp, 
                     51,
@@ -226,7 +228,7 @@ class Hud(pygame.sprite.Sprite):
         for ability in unit.abilities:
             for previewinfo in ability.area_of_effect:
                 pos, previewid = previewinfo
-                screenpos = self.transform_grid_screen_scaled(pos)
+                screenpos = self.transform_grid_true(pos)
                 self.image.blit(self.scaledpreviewtextures[previewid], screenpos)
     
     def player_won(self, playerid:int):
@@ -261,7 +263,7 @@ class Hud(pygame.sprite.Sprite):
         )
         self.unitdisplay.set_displayunit(self.gridui.get_unitui(position))
         self.cursorgridpos = position
-        self.cursorscreenpos = self.transform_grid_screen_scaled(position)
+        self.cursorscreenpos = self.transform_grid_true(position)
         if self.selectedunitui and self.selectedunitui._parentelement:
             self.selectedunitui._parentelement.on_update_cursor(position)
         self.redraw()

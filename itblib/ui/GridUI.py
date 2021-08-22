@@ -37,6 +37,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.effectsprites = pygame.sprite.Group()
         self.unitsprites = pygame.sprite.Group()
         self.unitdrawoffset = -10
+        self.pan = [0,0]
 
     def on_add_tile(self, tile:TileBase):
         """Add the UI version of the new tile added to the normal grid."""
@@ -44,6 +45,12 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         uitile.rect = Rect(*self.transform_grid_screen(tile.pos), 64, 96)
         self.uitiles[self.grid.c_to_i(tile.pos)] = uitile
         self.tilesprites.add(uitile)
+    
+    def update_pan(self, newpan:"tuple[int,int]"):
+        h, w = self.rect.size
+        x, y = self.rect.topleft
+        self.rect = Rect(x - self.pan[0] + newpan[0], y - self.pan[1] + newpan[1], h, w)
+        self.pan = newpan
 
     def on_add_unit(self, unit:UnitBase):
         """Add the UI version of the new unit added to the normal grid."""
