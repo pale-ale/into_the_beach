@@ -13,6 +13,8 @@ class SceneManager():
             scene = self.scenes[key]
             self.activescene = scene
             self.activescene.load()
+        else:
+            print("SceneManager: Unknown scene '" + key + "'")
     
     def add_scene(self, key:str, scene:"SceneBase"):
         self.scenes[key] = scene

@@ -3,6 +3,7 @@ import pygame.display
 import pygame.time
 from itblib.scenes.GameScene import GameScene
 from itblib.scenes.MainMenuScene import MainMenuScene
+from itblib.scenes.RosterSelectionScene import RosterSelectionScene
 from itblib.SceneManager import SceneManager
 from itblib.Selector import Selector
 from itblib.net.NetEvents import NetEvents
@@ -30,6 +31,7 @@ class Client:
         self.scenemanager = SceneManager()
         mainmenuscene = MainMenuScene(self, self.scenemanager, *self.displaysize)
         gamescene = GameScene(self.scenemanager, *self.displaysize)
+        rosterselectionscene = RosterSelectionScene(self.scenemanager, *self.displaysize)
         NetEvents.grid = gamescene.grid
         NetEvents.connector = gamescene.connector
         NetEvents.session = gamescene.session
@@ -37,6 +39,7 @@ class Client:
         self.selector = Selector(gamescene.grid, gamescene.hud)
         self.scenemanager.add_scene("GameScene", gamescene)
         self.scenemanager.add_scene("MainMenuScene", mainmenuscene)
+        self.scenemanager.add_scene("RosterSelectionScene", rosterselectionscene)
         self.scenemanager.load_scene("MainMenuScene")
 
     def update_fullscreen(self, fullscreen:bool = False):
