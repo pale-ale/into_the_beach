@@ -87,8 +87,8 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
     def on_remove_unit(self, pos:"tuple[int,int]"):
         """Remove a UI-unit at the given position."""
         uiunit = self.uiunits[self.grid.c_to_i(pos)]
-        self.uiunits[self.grid.c_to_i(pos)] = None
         self.unitsprites.remove(uiunit)
+        self.uiunits[self.grid.c_to_i(pos)] = None
 
     def on_remove_tile_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
         """Remove a UI-effect at the given position."""

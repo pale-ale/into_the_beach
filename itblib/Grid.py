@@ -178,6 +178,7 @@ class Grid:
             exit(1)
         elif NetEvents.connector.authority:
             NetEvents.snd_netunitremove(pos)
+        self.units[self.c_to_i(pos)] = None
         if self.observer:
             self.observer.on_remove_unit(pos)
     
