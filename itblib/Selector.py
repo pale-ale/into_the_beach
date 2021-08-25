@@ -16,6 +16,12 @@ class Selector:
         """Add two 2d-vectors."""
         return a[0] + b[0], a[1] + b[1]
     
+    def move_cursor(self, delta:"tuple[int,int]"):
+        testpos = self.add(self.cursorposition, delta)
+        if self.grid.is_coord_in_bounds(testpos):
+            self.cursorposition = testpos
+        self.hud.update_cursor(self.cursorposition)
+    
     def handle_input(self, event):
         """Manages pygame's key-events and forwards them to e.g. the HUD."""
         if event.type == pygame.KEYDOWN:
@@ -44,8 +50,5 @@ class Selector:
                 delta = (1,0)
             elif event.key == pygame.K_LEFT:
                 delta = (0,-1)
-            testpos = self.add(self.cursorposition, delta)
-            if self.grid.is_coord_in_bounds(testpos):
-                self.cursorposition = testpos
-                self.hud.update_cursor(testpos)
+            self.move_cursor(delta)
             return

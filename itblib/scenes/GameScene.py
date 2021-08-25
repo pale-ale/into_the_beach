@@ -1,3 +1,4 @@
+from itblib.Vec import Vec
 from itblib.SceneManager import SceneManager
 from itblib.Game import Session
 from itblib.Grid import Grid
@@ -34,9 +35,11 @@ class GameScene(SceneBase):
         if keyevent.type == pygame.KEYDOWN:
             if keyevent.mod & pygame.KMOD_SHIFT and keyevent.key == pygame.K_UP:
                 self.gridui.update_pan((self.gridui.pan[0], self.gridui.pan[1] + 2*22*self.hud.displayscale))
+                self.selector.move_cursor((-1,-1))
                 return
             if keyevent.mod & pygame.KMOD_SHIFT and keyevent.key == pygame.K_DOWN:
                 self.gridui.update_pan((self.gridui.pan[0], self.gridui.pan[1] - 2*22*self.hud.displayscale))
+                self.selector.move_cursor((1,1))
                 return
         self.selector.handle_input(keyevent)
 

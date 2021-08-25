@@ -168,7 +168,7 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
     def transform_grid_screen(self, gridpos:"tuple[int,int]"):
         """Return the screen position of a given grid coordinate."""
         gw = self.transform_grid_world(gridpos)
-        return (int(gw[0] + (self.width-self.tilesize[0])/2), gw[1]-10)
+        return (int(gw[0] + (self.width-self.tilesize[0])/2), gw[1]+5)
 
     def redraw_grid_2(self):
         """Redraw every group."""
