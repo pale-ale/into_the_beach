@@ -94,7 +94,9 @@ class UnitBase(GridElement):
     
     def on_activate_ability(self, slot:int):
         if slot < len(self.abilities):
-            self.abilities[slot].on_select_ability()
+            ability = self.abilities[slot]
+            if ability.remainingcooldown == 0:
+                ability.on_select_ability()
 
     def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
         for ability in self.abilities:
@@ -128,7 +130,6 @@ class UnitBloodWraith(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitBloodWraith"):
         super().__init__(grid, pos, ownerid, name=name)
         self.add_ability(HealAbility)
-        self.add_statuseffect(EffectBleed(self))
         
     def attack(self, target:"tuple[int,int]" , damage:int, damagetype:str):
         print("UnitBloodWraith: target:", target)

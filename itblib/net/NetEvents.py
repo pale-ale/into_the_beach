@@ -74,9 +74,9 @@ class NetEvents():
         effectid, pos = effectspawntuple
         if NetEvents.connector.authority:
             #if valid command:...
-            NetEvents.grid.add_effect(pos, effectid, from_authority=False)
+            NetEvents.grid.add_worldeffect(pos, effectid, from_authority=False)
         else:
-            NetEvents.grid.add_effect(pos, effectid, from_authority=True)
+            NetEvents.grid.add_worldeffect(pos, effectid, from_authority=True)
 
     @staticmethod
     def snd_netunitmove(fro:"tuple[int,int]", to:"tuple[int,int]"):

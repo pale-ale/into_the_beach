@@ -70,9 +70,14 @@ class UnitDisplay(pygame.sprite.Sprite):
                 abilityimage = Textures.get_spritesheet(Textures.abilitytexturemapping[ability.id])[0]
                 self.image.blit(abilityimage, Vec.comp_add2(self.abilityimagepos, (16*index, 2)), (0,0,16,16))
                 if ability.phase >= 0:
-                    self.image.fill(self.phasecolors[ability.phase], 
-                        (*Vec.comp_add2(self.abilityphasepos, (16*index, 0)), 16, 20)
-                    )
+                    if ability.remainingcooldown > 0:
+                        self.image.fill((100,100,100,255), 
+                            (*Vec.comp_add2(self.abilityphasepos, (16*index, 0)), 16, 20)
+                        )
+                    else:
+                        self.image.fill(self.phasecolors[ability.phase], 
+                            (*Vec.comp_add2(self.abilityphasepos, (16*index, 0)), 16, 20)
+                        )
             if self.displayunit and unit == self.displayunit._parentelement:
                 numberimage = self.font.render(str(index+1), True, (255,255,255,255))
                 self.image.blit(numberimage, Vec.comp_add2(self.abilityphasepos, (16*index, 0)))
