@@ -19,6 +19,8 @@ class AbilityBase:
         self.selected_targets:"list[tuple[int,int]]" = []
         self.selected = False
         self.id = -1
+        self.cooldown = 1
+        self.remainingcooldown = 0
         self.phase = -1
     
     def tick(self, dt:float):
@@ -28,6 +30,7 @@ class AbilityBase:
     def activate(self):
         """Called when an ability gets proc'd."""
         print("Activated", type(self._unit).__name__ + "'s", type(self).__name__)
+        self.remainingcooldown = self.cooldown
     
     def add_targets(self, targets):
         """Add target coordinates to selected_targets."""
@@ -36,7 +39,7 @@ class AbilityBase:
 
     def on_select_ability(self):
         """Called when a player wants to use this ability."""
-        if not self.selected:
+        if not self.selected and self.remainingcooldown == 0:
             self.selected = True
             print("Selected", type(self).__name__)
     
@@ -64,7 +67,10 @@ class AbilityBase:
     def on_update_phase(self, newphase:int):
         """Called when a phase change occured. Not necessarily a new phase."""
         if newphase == self.phase:
-            self.activate()
+            if self.remainingcooldown == 0:
+                self.activate()
+            else:
+                self.remainingcooldown -= 1
     
     def on_death(self):
         """Called when this ability's unit dies."""
@@ -83,6 +89,8 @@ class MovementAbility(AbilityBase):
         self.id = 0
         self.phase = 4
         self.timinginfo = unit.age
+        self.cooldown = 0
+        self.remainingcooldown = 0
         self.durationperstep = .5 #seconds
     
     def on_select_ability(self):
@@ -185,8 +193,8 @@ class PunchAbility(AbilityBase):
             NetEvents.snd_netabilitytarget(self)
             
     def activate(self):
-        super().activate()
         if len(self.selected_targets) > 0 and NetEvents.connector.authority:
+            super().activate()
             damage = [self._unit.baseattack["physical"], "physical"]
             self._unit.attack(self.selected_targets[0], *damage)
             self.area_of_effect.clear()
@@ -211,7 +219,7 @@ class RangedAttackAbility(AbilityBase):
         for i in range (height):
             ordinals.add((x,i))
         ordinals.remove((x,y))
-        return ordinals#
+        return ordinals
     
     def on_select_ability(self):
         super().on_select_ability()
@@ -244,6 +252,7 @@ class PushAbility(AbilityBase):
         super().__init__(unit)
         self.id = 3
         self.phase = 2
+        self.cooldown = 2
 
     def add_targets(self, targets:"list[tuple[int,int]]"):
         super().add_targets(targets)
@@ -264,16 +273,18 @@ class PushAbility(AbilityBase):
         super().activate()
         if len(self.selected_targets):
             unitposx, unitposy = self._unit.pos
-            target = self.selected_targets[0]
-            newpos = (2*target[0]-unitposx, 2*target[1]-unitposy)
+            targetpos = self.selected_targets[0]
+            targetunit = self._unit.grid.get_unit(targetpos)
+            newpos = (2*targetpos[0]-unitposx, 2*targetpos[1]-unitposy)
             if not self._unit.grid.is_coord_in_bounds(newpos) or \
             self._unit.grid.is_space_empty(True, newpos):
                 pass # unit falls from grid
             else:
                 if self._unit.grid.is_space_empty(False, newpos):
-                    self._unit.grid.move_unit(target, newpos)
+                    self._unit.grid.move_unit(targetpos, newpos)
+                    targetunit.get_movement_ability().selected_targets.clear()
                 else:
-                    targetint = self._unit.grid.c_to_i(target)
+                    targetint = self._unit.grid.c_to_i(targetpos)
                     self._unit.grid.units[targetint].on_change_hp(-1, "collision")
                     newposint = self._unit.grid.c_to_i(newpos)
                     self._unit.grid.units[newposint].on_change_hp(-1, "collision")
@@ -297,6 +308,8 @@ class HealAbility(AbilityBase):
     def __init__(self, unit:"UnitBase"):
         super().__init__(unit)
         self.id = 5
+        self.cooldown = 3
+        self.remainingcooldown = 0
         self.phase = 2
     
     def on_select_ability(self):
@@ -317,9 +330,9 @@ class HealAbility(AbilityBase):
             NetEvents.snd_netabilitytarget(self)
             
     def activate(self):
-        super().activate()
         if len(self.selected_targets) > 0 and NetEvents.connector.authority:
-            self._unit.grid.add_effect(self.selected_targets[0], 7, True)
+            super().activate()
+            self._unit.grid.add_worldeffect(self.selected_targets[0], 7, True)
             self.area_of_effect.clear()
             self.selected_targets.clear()
 
