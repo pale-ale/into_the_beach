@@ -219,7 +219,7 @@ class RangedAttackAbility(AbilityBase):
         for i in range (height):
             ordinals.add((x,i))
         ordinals.remove((x,y))
-        return ordinals#
+        return ordinals
     
     def on_select_ability(self):
         super().on_select_ability()
