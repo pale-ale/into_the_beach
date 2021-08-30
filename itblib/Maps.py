@@ -69,14 +69,12 @@ class MapGrasslands(Map):
         town = [14, 15, 24, 25, 74, 75, 84, 85]
         for x in town:
             self.tileeffectids[x].append(6)
-        wheat = [0, 1, 10]
+        wheat = [0, 1, 10, 89, 98, 99]
         for x in wheat:
             self.tileeffectids[x].append(5)
         river = [61, 62, 37, 38]
         for x in river:
             self.tileeffectids[x].append(4)  
-        self.tileeffectids[11].append(7)
-        self.tileeffectids[89].append(7)
         self.tileeffectids[33].append(2)
         self.tileeffectids[66].append(2)
         self.tileeffectids[36].append(2)
