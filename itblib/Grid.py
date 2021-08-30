@@ -17,8 +17,8 @@ class Grid:
     """Manager for Data-Only-Objects like units, tiles, effects, etc."""
 
     def __init__(self, connector:Connector, observer:Optional[IGridObserver]=None, width:int=10, height:int=10):
-        self.height = width
-        self.width = height
+        self.height = height
+        self.width = width
         self.phasetime = 0
         self.gametime = 0
         self.connector = connector
@@ -138,13 +138,18 @@ class Grid:
             if unitid:
                 self.add_unit(pos, unitid, -1)
 
-    def add_tile(self, pos:"tuple[int,int]", tileid:int):
+    def add_tile(self, pos:"tuple[int,int]", tileid:int) -> bool:
         """Add a tile to the grid at given position."""
         tiletype = ClassMapping.tileclassmapping[tileid]
         newtile = tiletype(self, pos)
-        self.tiles[self.c_to_i(pos)] = newtile
-        if self.observer:
-            self.observer.on_add_tile(newtile)
+        index = self.c_to_i(pos)
+        if index >= 0 and index < len(self.tiles):
+            self.tiles[self.c_to_i(pos)] = newtile
+            if self.observer:
+                self.observer.on_add_tile(newtile)
+            return True
+        print("Grid: Tried to add tile at index", index, "which is out if range.")
+        return False
 
     def add_worldeffect(self, pos:"tuple[int,int]", tileeffectid:int, from_authority:bool, use_net=True):
         """Add an tile effect to the grid at given position."""
@@ -163,13 +168,18 @@ class Grid:
     def request_add_unit(self, x, y, unitid:int, playerid:int):
         NetEvents.snd_netunitspawn(unitid, (x,y), playerid)
 
-    def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int):
+    def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int) -> bool:
         """Add a unit to the grid at given position, owned by ownerid."""
         unitclass = ClassMapping.unitidclassmapping[unitid]
         newunit = unitclass(self, pos, ownerid)
-        self.units[self.c_to_i(pos)] = newunit
-        if self.observer:
-            self.observer.on_add_unit(newunit)
+        index = self.c_to_i(pos)
+        if index >= 0 and index < len(self.units):
+            self.units[index] = newunit
+            if self.observer:
+                self.observer.on_add_unit(newunit)
+            return True
+        print("Grid: Tried to add unit at index", index, "which is out if range.")
+        return False
 
     def remove_unit(self, pos:"tuple[int,int]"):
         """Remove a unit at given position."""
@@ -204,9 +214,9 @@ class Grid:
             if self.observer:
                 self.observer.on_move_unit(from_pos, to_pos)
 
-    def get_tile(self, x:int, y:int):
+    def get_tile(self, pos:"tuple[int,int]"):
         """Return the tile at (x,y)."""
-        return self.tiles[self.width*y+x]
+        return self.tiles[self.c_to_i(pos)]
    
     def get_tileeffects(self, pos:"tuple[int,int]"):
         """Return the tile effects at (x,y)."""
@@ -216,7 +226,7 @@ class Grid:
         """Return the unit at (x,y)."""
         return self.units[self.c_to_i(pos)]
 
-    def c_to_i(self, coords:"tuple[int,int]"):
+    def c_to_i(self, coords:"tuple[int,int]") -> int:
         """Convert xy-coordinates to the corresponding index."""
         return self.width*coords[1] + coords[0]
 
