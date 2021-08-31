@@ -112,7 +112,6 @@ class Grid:
         """Advance phase cycle by one, starting from the planning phase once the end is reached."""
         maxphase = len(PHASES)-1
         nextphase = (self.phase)%maxphase+1
-        print("next phase...")
         self.change_phase(nextphase)
 
     def load_map(self, map:Map, from_authority:bool):
@@ -184,13 +183,14 @@ class Grid:
     def remove_unit(self, pos:"tuple[int,int]"):
         """Remove a unit at given position."""
         if self.is_space_empty(False, pos):
-            print(f"error try to remove unit at {pos} which does not exist.")
-            exit(1)
-        elif NetEvents.connector.authority:
+            print(f"Grid: Tried to remove unit at {pos}, which is empty.")
+            return False
+        elif NetEvents.connector and NetEvents.connector.authority:
             NetEvents.snd_netunitremove(pos)
         self.units[self.c_to_i(pos)] = None
         if self.observer:
             self.observer.on_remove_unit(pos)
+        return True
     
     def remove_tileeffect(self, effect:"EffectBase", pos:"tuple[int,int]"):
         """Remove an effect at given position."""
@@ -198,13 +198,12 @@ class Grid:
         if self.observer:
             self.observer.on_remove_tileeffect(effect, pos)
 
-    def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
+    def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]") -> bool:
         """Move a unit from (x,y) to (tagretx,targety)."""
         if self.is_space_empty(False, from_pos):
-            print(f"error try to move unit at {from_pos} which does not exist.")
-            exit(1)    
-        if self.is_space_empty(False, to_pos) and not \
-                self.is_space_empty(True, to_pos):
+            print(f"Grid: Tried to move unit at {from_pos} which does not exist.")
+            return False
+        if not self.is_space_empty(True, to_pos):
             unit = self.get_unit(from_pos)
             self.units[self.c_to_i(from_pos)] = None
             self.units[self.c_to_i(to_pos)] = unit
@@ -213,6 +212,10 @@ class Grid:
             self.tiles[self.c_to_i(to_pos)].on_enter(unit)
             if self.observer:
                 self.observer.on_move_unit(from_pos, to_pos)
+            return True
+        else:
+            print(f"Grid: Unit would have fallen from the grid at {to_pos}.")
+            return False
 
     def get_tile(self, pos:"tuple[int,int]"):
         """Return the tile at (x,y)."""
