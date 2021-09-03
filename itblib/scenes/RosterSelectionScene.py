@@ -21,7 +21,7 @@ class RosterSelectionScene(SceneBase):
              ENTER to add/remove unit", True, (50,200,150,255))
         self.image.blit(t, (width*.5 - t.get_width()*.5, 20))
         self.image.blit(esctext, (width*.5 - esctext.get_width()*.5, 55))
-        self.unitnames = ["BloodWraith",  "Saucer"]
+        self.unitnames = ["BloodWraith",  "Saucer", "Knight"]
         self.unitlist = Surface((width, 400)).convert_alpha()
         self.tilewidth = 128
         self.tilemarginx = 3

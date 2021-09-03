@@ -47,6 +47,8 @@ class Session:
         self._grid.add_unit((7,8), 4, p2.playerid)
         NetEvents.snd_netunitspawn(4, (2,1), p1.playerid)
         NetEvents.snd_netunitspawn(4, (7,8), p2.playerid)
+        NetEvents.snd_netunitspawn(5, (2,2), p1.playerid)
+        NetEvents.snd_netunitspawn(5, (7,7), p2.playerid)
         self.state = "running_pregame"
     
     def objective_lost(self, playerid:int):

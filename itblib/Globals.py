@@ -1,4 +1,4 @@
-from .gridelements.Units import UnitBase,\
+from .gridelements.Units import UnitBase, UnitKnight,\
                                 UnitSaucer,\
                                 UnitBloodWraith,\
                                 UnitHomebase
@@ -34,7 +34,7 @@ class ClassMapping:
         6:EffectTown,
         7:EffectHeal,
     }
-    _unitclasses = [None, UnitBase, UnitSaucer, UnitBloodWraith, UnitHomebase]
+    _unitclasses = [None, UnitBase, UnitSaucer, UnitBloodWraith, UnitHomebase, UnitKnight]
     unitidclassmapping = {}
     unitclassidmapping = {}
     for i in range(len(_unitclasses)):

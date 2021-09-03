@@ -56,6 +56,8 @@ class Textures:
         texturekeys.append(("UnitBloodWraith", o, "Idle", 1))
     for o in ["SW"]:
         texturekeys.append(("UnitCrystal", o, "Idle", 4))
+    for o in ["SW"]:
+        texturekeys.append(("UnitKnight", o, "Idle", 5))
 
     @classmethod
     def get_spritesheet(cls, key:str) -> "list[pygame.Surface]":

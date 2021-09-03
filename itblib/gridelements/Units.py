@@ -147,3 +147,8 @@ class UnitHomebase(UnitBase):
         self.add_ability(ObjectiveAbility)
         self.remove_ability("MovementAbility")
         self.remove_ability("PunchAbility")
+
+
+class UnitKnight(UnitBase):
+      def __init__(self, grid, pos, ownerid, name:str="UnitKnight"):
+        super().__init__(grid, pos, ownerid, name=name)
