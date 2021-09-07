@@ -152,3 +152,7 @@ class UnitHomebase(UnitBase):
 class UnitKnight(UnitBase):
       def __init__(self, grid, pos, ownerid, name:str="UnitKnight"):
         super().__init__(grid, pos, ownerid, name=name)
+
+class UnitBurrower(UnitBase):
+      def __init__(self, grid, pos, ownerid, name:str="UnitBurrower"):
+        super().__init__(grid, pos, ownerid, name=name)

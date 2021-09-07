@@ -179,6 +179,9 @@ class NetEvents():
         unitpos, abilityname, targets = obj
         targets = [(x[0],x[1]) for x in targets]
         unit = NetEvents.grid.get_unit(unitpos)
+        if not unit:
+            print("Target request '"+posnametargetsjson+"'is unfulfillable, unit not found.")
+            return
         ability = [a for a in unit.abilities if type(a).__name__ == abilityname][0]
         ability.selected_targets.clear()
         if NetEvents.connector.authority:

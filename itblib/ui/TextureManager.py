@@ -47,7 +47,6 @@ class Textures:
         texturekeys.append((p,))
     for p in backgroundtexturemapping.values():
         texturekeys.append((p,))
-
     for o in ["NE","SE","SW","NW"]:
         texturekeys.append(("UnitBase", o, "Idle", 1))
     for o in ["SW"]:
@@ -58,6 +57,10 @@ class Textures:
         texturekeys.append(("UnitCrystal", o, "Idle", 4))
     for o in ["SW"]:
         texturekeys.append(("UnitKnight", o, "Idle", 5))
+    for o in ["SW"]:
+        texturekeys.append(("UnitBurrower", o, "Burrowed", 10))
+    for o in ["SW"]:
+        texturekeys.append(("UnitBurrower", o, "Idle", 1))
 
     @classmethod
     def get_spritesheet(cls, key:str) -> "list[pygame.Surface]":

@@ -21,7 +21,7 @@ class RosterSelectionScene(SceneBase):
              ENTER to add/remove unit", True, (50,200,150,255))
         self.image.blit(t, (width*.5 - t.get_width()*.5, 20))
         self.image.blit(esctext, (width*.5 - esctext.get_width()*.5, 55))
-        self.unitnames = ["BloodWraith",  "Saucer", "Knight"]
+        self.unitnames = ["BloodWraith",  "Saucer", "Knight", "Burrower"]
         self.unitlist = Surface((width, 400)).convert_alpha()
         self.tilewidth = 128
         self.tilemarginx = 3
@@ -41,7 +41,9 @@ class RosterSelectionScene(SceneBase):
                 )
                 unitindex = y*self.tilecountline+x
                 if unitindex < len(self.unitnames):
-                    tex = Textures.get_spritesheet("Unit"+self.unitnames[unitindex]+"SWIdle")[0]
+                    tex = Surface((64,64)).convert_alpha() 
+                    t = Textures.get_spritesheet("Unit"+self.unitnames[unitindex]+"SWIdle")[0]
+                    tex.blit(t, (0,0,64,64))
                     s = Surface((self.tilewidth, self.tileheight)).convert_alpha()
                     pygame.transform.scale(tex, s.get_size(), s)
                     self.unitlist.blit(s, self.c_to_s((x,y)))

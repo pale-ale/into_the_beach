@@ -44,11 +44,13 @@ class Session:
         NetEvents.snd_netmaptransfer(MapGrasslands())
         p1, p2 = self._players.values()
         self._grid.add_unit((2,1), 4, p1.playerid)
-        self._grid.add_unit((7,8), 4, p2.playerid)
         NetEvents.snd_netunitspawn(4, (2,1), p1.playerid)
+        self._grid.add_unit((7,8), 4, p2.playerid)
         NetEvents.snd_netunitspawn(4, (7,8), p2.playerid)
+        self._grid.add_unit((2,2), 5, p2.playerid)
         NetEvents.snd_netunitspawn(5, (2,2), p1.playerid)
-        NetEvents.snd_netunitspawn(5, (7,7), p2.playerid)
+        self._grid.add_unit((7,7), 6, p2.playerid)
+        NetEvents.snd_netunitspawn(6, (7,7), p2.playerid)
         self.state = "running_pregame"
     
     def objective_lost(self, playerid:int):
