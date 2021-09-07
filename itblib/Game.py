@@ -51,12 +51,13 @@ class Session:
         NetEvents.snd_netunitspawn(5, (2,2), p1.playerid)
         self._grid.add_unit((7,7), 6, p2.playerid)
         NetEvents.snd_netunitspawn(6, (7,7), p2.playerid)
-        self.state = "running_pregame"
+        self.state = "runningPregame"
     
     def objective_lost(self, playerid:int):
         opponent = [p for p in self._players.keys() if p != playerid][0]
         if NetEvents.connector.authority:
             NetEvents.snd_netplayerwon(opponent)
+            NetEvents.session.state = "gameOver"
 
 
 class Game:

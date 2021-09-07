@@ -50,4 +50,8 @@ while True:
     manage_players()
     dt = clock.tick(FPS)/1000.0
     #dt = int(input()) / 1000.0
-    serversession._grid.tick(dt)
+    if serversession.state in ["running", "runningPregame"]:
+        serversession._grid.tick(dt)
+    if serversession.state == "gameOver":
+        serversession = Session(c)
+        NetEvents.session = serversession

@@ -19,7 +19,7 @@ class UnitBase(GridElement):
         self.name = name
         self.hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
-        self.baseattack = {"physical": 4, "magical": 0}
+        self.baseattack = {"physical": 20, "magical": 0}
         self.statuseffects:"list[StatusEffect]" = []
         self.canswim = canswim
         self.ownerid = ownerid

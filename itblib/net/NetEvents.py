@@ -1,3 +1,5 @@
+from itblib.SceneManager import SceneManager
+from itblib.scenes.MainMenuScene import MainMenuScene
 from itblib.Maps import Map
 from itblib.Player import Player
 import json
@@ -5,6 +7,7 @@ import json
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from itblib.Game import Session
+    from itblib.Game import Game
     from itblib.Grid import Grid
     from itblib.gridelements.Units import UnitBase
     from itblib.net.Connector import Connector
@@ -16,6 +19,7 @@ class NetEvents():
     session:"Session" = None
     connector:"Connector" = None
     hud:"Hud" = None
+    scenemanager:"SceneManager" = None
 
     @staticmethod
     def snd_netmaptransfer(map:"Map"):
@@ -195,14 +199,13 @@ class NetEvents():
                 NetEvents.session._players,
                 "NetPlayerWon",
                 str(playerid))
-            exit(0)
 
     @staticmethod
     def rcv_netplayerwon(playeridstr:str):
         if not NetEvents.connector.authority:
-            NetEvents.session.state == "gameOver"
-            NetEvents.hud.player_won(int(playeridstr))
-            exit(0)
+            NetEvents.session.state = "gameOver"
+            NetEvents.hud.player_won(int(playeridstr)) 
+            NetEvents.scenemanager.load_scene("MainMenuScene")         
 
     @staticmethod
     def rcv_event_caller(prefix:str, contents:str):

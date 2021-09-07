@@ -1,3 +1,4 @@
+from itblib.Game import Game
 import pygame
 import pygame.display
 import pygame.time
@@ -36,6 +37,7 @@ class Client:
         NetEvents.connector = gamescene.connector
         NetEvents.session = gamescene.session
         NetEvents.hud = gamescene.hud
+        NetEvents.scenemanager = self.scenemanager
         self.selector = Selector(gamescene.grid, gamescene.hud)
         self.scenemanager.add_scene("GameScene", gamescene)
         self.scenemanager.add_scene("MainMenuScene", mainmenuscene)

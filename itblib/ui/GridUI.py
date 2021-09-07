@@ -137,6 +137,9 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
         self.uitileeffects:"list[list[EffectBaseUI]]" = [[] for i in range(c)]
         self.uiuniteffects:"list[list[EffectBaseUI]]" = [[] for i in range(c)]
         self.uiunits:"list[UnitBaseUI|None]" = [None]*c
+        self.unitsprites.empty()
+        self.tilesprites.empty()
+        self.effectsprites.empty()
     
     def on_load_map(self, map:Map):
         """Clear all the residual graphic objects, as they will be added during map load."""

@@ -225,9 +225,13 @@ class Grid:
         """Return the tile effects at (x,y)."""
         return self.worldeffects[self.c_to_i(pos)]
    
-    def get_unit(self, pos:"tuple[int,int]"):
+    def get_unit(self, pos:"tuple[int,int]") -> Optional[int]:
         """Return the unit at (x,y)."""
-        return self.units[self.c_to_i(pos)]
+        i = self.c_to_i(pos)
+        if i >= 0 and i < len(self.units) :
+            return self.units[i]
+        else:
+            return None
 
     def c_to_i(self, coords:"tuple[int,int]") -> int:
         """Convert xy-coordinates to the corresponding index."""
