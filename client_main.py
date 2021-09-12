@@ -9,8 +9,10 @@ from itblib.SceneManager import SceneManager
 from itblib.Selector import Selector
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.TextureManager import Textures
+from itblib.Player import PlayerData
 
 import os
+import sys
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0,0)
 
 class Client:
@@ -20,8 +22,10 @@ class Client:
         self.normal_displaysize = (1280, 640)
         self.displaysize = self.normal_displaysize
         self.running = True
+        self.playerfilepath = sys.argv[1]
 
         pygame.display.init()
+        PlayerData.load(self.playerfilepath)
         self.fullscreen_displaysize = (pygame.display.Info().current_w, pygame.display.Info().current_h)
         pygame.font.init()
         pygame.display.set_caption("Into The Bleach (for covid purposes only)")

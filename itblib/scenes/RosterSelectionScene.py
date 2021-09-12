@@ -3,16 +3,21 @@ from pygame.surface import Surface
 from itblib.Vec import Vec
 from itblib.SceneManager import SceneManager
 from itblib.scenes.SceneBase import SceneBase
+from itblib.Player import PlayerData
+from itblib.Globals import ClassMapping
 import pygame
 import pygame.font
 import pygame.transform
 import pygame.draw
 import itblib.gridelements.Units as Units
+import json
+import sys
 
 class RosterSelectionScene(SceneBase):
     """The user can select his lineup here."""
     def __init__(self, scenemanager:"SceneManager", width: int, height: int) -> None:
         super().__init__(scenemanager, width, height)
+        self.playerfilepath = sys.argv[1]
         self.titlefont = pygame.font.SysFont('latinmodernmono', 50)
         self.subfont = pygame.font.SysFont('latinmodernmono', 20)
         t = self.titlefont.render("Select your lineup here.", True, (50,200,150,255))
@@ -21,13 +26,14 @@ class RosterSelectionScene(SceneBase):
              ENTER to add/remove unit", True, (50,200,150,255))
         self.image.blit(t, (width*.5 - t.get_width()*.5, 20))
         self.image.blit(esctext, (width*.5 - esctext.get_width()*.5, 55))
-        self.unitnames = ["BloodWraith",  "Saucer", "Knight", "Burrower"]
+        self.unitids = [1, 2, 3, 5, 6]
         self.unitlist = Surface((width, 400)).convert_alpha()
         self.tilewidth = 128
         self.tilemarginx = 3
         self.cursorpos = [0,0]
         self.tileheight = 128
         self.tilemarginy = 3
+        self.maxnumberunits = 3
         self.tilecountline = 7 #int(width / (self.tilewidth + self.tilemarginx))
         freespace = width - self.tilecountline*self.tilewidth
         self.xspacer = int(freespace / (self.tilecountline+1))
@@ -40,9 +46,11 @@ class RosterSelectionScene(SceneBase):
                     (*self.c_to_s((x,y)), self.tilewidth, self.tileheight)
                 )
                 unitindex = y*self.tilecountline+x
-                if unitindex < len(self.unitnames):
+                if unitindex < len(self.unitids):
                     tex = Surface((64,64)).convert_alpha() 
-                    t = Textures.get_spritesheet("Unit"+self.unitnames[unitindex]+"SWIdle")[0]
+                    t = Textures.get_spritesheet(
+                        ClassMapping.unitidclassmapping[self.unitids[unitindex]].__name__+"SWIdle"
+                    )[0]
                     tex.blit(t, (0,0,64,64))
                     s = Surface((self.tilewidth, self.tileheight)).convert_alpha()
                     pygame.transform.scale(tex, s.get_size(), s)
@@ -88,9 +96,17 @@ class RosterSelectionScene(SceneBase):
                 self.scenemanager.load_scene("GameScene")
             elif keyevent.key == pygame.K_RETURN:
                 i = self.cursorpos[1]*self.tilecountline+self.cursorpos[0]
-                self.selects[i] = not self.selects[i]
+                self.selects[i] += 1
                 self.draw_tangle(self.cursorpos, self.selects[i])
                 self.update_cursor_pos((0,0))
+                if sum(self.selects) == self.maxnumberunits:
+                    self.units_selected(self.selects)
+            elif keyevent.key == pygame.K_BACKSPACE:
+                i = self.cursorpos[1]*self.tilecountline+self.cursorpos[0]
+                if self.selects[i] > 0:
+                    self.selects[i] -= 1
+                    self.draw_tangle(self.cursorpos, self.selects[i])
+                    self.update_cursor_pos((0,0))
             elif keyevent.key == pygame.K_UP:
                 self.update_cursor_pos((0,-1))
             elif keyevent.key == pygame.K_RIGHT:
@@ -99,4 +115,13 @@ class RosterSelectionScene(SceneBase):
                 self.update_cursor_pos((0,1))
             elif keyevent.key == pygame.K_LEFT:
                 self.update_cursor_pos((-1,0))
-    
+
+    def units_selected(self, selects):
+        initialunits = []
+        for index in range(len(selects)):
+            for i in range(selects[index]):
+                initialunits.append(self.unitids[index])
+        PlayerData.load(self.playerfilepath)
+        PlayerData.roster = initialunits
+        PlayerData.save(self.playerfilepath)
+        self.scenemanager.load_scene("GameScene")
