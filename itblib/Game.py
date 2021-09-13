@@ -42,6 +42,7 @@ class Session:
         self._grid.load_map(MapGrasslands(), from_authority=True)
         #game mode specific
         NetEvents.snd_netmaptransfer(MapGrasslands())
+        NetEvents.snd_netphasechange(0)
         p1, p2 = self._players.values()
         self._grid.add_unit((2,1), 4, p1.playerid)
         NetEvents.snd_netunitspawn(4, (2,1), p1.playerid)

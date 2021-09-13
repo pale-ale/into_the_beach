@@ -55,3 +55,5 @@ while True:
     if serversession.state == "gameOver":
         serversession = Session(c)
         NetEvents.session = serversession
+        NetEvents.grid = serversession._grid
+        
