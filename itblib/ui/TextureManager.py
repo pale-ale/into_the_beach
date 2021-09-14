@@ -18,6 +18,7 @@ class Textures:
         3:"PushAbility",
         4:"ObjectiveAbility",
         5:"HealAbility",
+        6:"BurrowAbility",
     }
     backgroundtexturemapping = {
         0:"ProperBackdropWhite",
