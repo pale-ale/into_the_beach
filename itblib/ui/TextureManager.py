@@ -63,9 +63,9 @@ class Textures:
         texturekeys.append(("UnitBurrower", o, "Idle", 1))
 
     @classmethod
-    def get_spritesheet(cls, key:str) -> "list[pygame.Surface]":
-        """Returns the according spritesheet as a list of images."""
-        return cls.textures[key]
+    def get_spritesheet(cls, key:str) -> "list[pygame.Surface]|None":
+        """Returns the according spritesheet as a list of images or None if it it doesn't exist"""
+        return cls.textures[key] if key in cls.textures else None
     
     @staticmethod
     def load_textures(scale:"tuple[float,float]"=(1.0,1.0)):

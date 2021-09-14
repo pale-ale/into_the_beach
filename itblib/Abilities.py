@@ -1,3 +1,4 @@
+from itblib.gridelements.Effects import EffectBurrowed
 from itblib.Enums import PREVIEWS
 from itblib.net.NetEvents import NetEvents
 from typing import TYPE_CHECKING
@@ -272,22 +273,11 @@ class PushAbility(AbilityBase):
     def activate(self):
         super().activate()
         if len(self.selected_targets):
-            unitposx, unitposy = self._unit.pos
             targetpos = self.selected_targets[0]
-            targetunit = self._unit.grid.get_unit(targetpos)
+            unitposx, unitposy = self._unit.pos
             newpos = (2*targetpos[0]-unitposx, 2*targetpos[1]-unitposy)
-            if not self._unit.grid.is_coord_in_bounds(newpos) or \
-            self._unit.grid.is_space_empty(True, newpos):
-                pass # unit falls from grid
-            else:
-                if self._unit.grid.is_space_empty(False, newpos):
-                    self._unit.grid.move_unit(targetpos, newpos)
-                    targetunit.get_movement_ability().selected_targets.clear()
-                else:
-                    targetint = self._unit.grid.c_to_i(targetpos)
-                    self._unit.grid.units[targetint].on_change_hp(-1, "collision")
-                    newposint = self._unit.grid.c_to_i(newpos)
-                    self._unit.grid.units[newposint].on_change_hp(-1, "collision")
+            targetunit = self._unit.grid.get_unit(targetpos)
+            targetunit.on_receive_shove(newpos)
         self.selected_targets.clear()
         self.area_of_effect.clear()
 
@@ -347,4 +337,31 @@ class BleedingEffect(AbilityBase):
             super().activate()
             self._unit.on_change_hp(-1, "physical")
 
+class BurrowAbility(AbilityBase):
+    def __init__(self, unit: "UnitBase"):
+        super().__init__(unit)
+        self.id = 6
+        self.phase = 2
+    
+    def on_select_ability(self):
+        super().on_select_ability()
+        if len(self.selected_targets) == 0:
+            self.selected_targets = [self._unit.pos]
+        else:
+            self.selected_targets.clear()
+        NetEvents.snd_netabilitytarget(self)
+    
+    def add_targets(self, targets):
+        super().add_targets(targets)
+        self.selected_targets = targets
 
+    def activate(self):
+        if len(self.selected_targets) == 0:
+            return
+        effect = self._unit.get_statuseffect("EffectBurrowed")
+        if effect:
+            self._unit.remove_statuseffect(effect)
+        else:
+            burroweffect = EffectBurrowed(self._unit)
+            self._unit.add_statuseffect(burroweffect)
+            print("BurrowAbility: Burrowed unit:", self._unit.name)

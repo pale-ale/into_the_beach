@@ -1,8 +1,8 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from itblib.gridelements.GridElement import GridElement
 from itblib.net.NetEvents import NetEvents
-from itblib.gridelements.Effects import StatusEffect, EffectBleed
-from itblib.Abilities import AbilityBase, HealAbility, \
+from itblib.gridelements.Effects import StatusEffect, EffectBleeding
+from itblib.Abilities import AbilityBase, BurrowAbility, HealAbility, \
     MovementAbility, \
     ObjectiveAbility, \
     PunchAbility, \
@@ -41,6 +41,19 @@ class UnitBase(GridElement):
     
     def add_statuseffect(self, statuseffect:"StatusEffect"):
         self.statuseffects.append(statuseffect)
+    
+    def remove_statuseffect(self, statuseffect:"StatusEffect"):
+        for se in self.statuseffects:
+            if se == statuseffect:
+                se.on_purge()
+                self.statuseffects.remove(se)
+                return
+    
+    def get_statuseffect(self, name:str) -> "Optional[StatusEffect]": 
+        for se in self.statuseffects:
+            if se.name == name:
+                return se
+        return None
 
     def remove_ability(self, ability_class_name:str):
         print("Removing ability:", ability_class_name)
@@ -107,6 +120,19 @@ class UnitBase(GridElement):
         for ability in self.abilities:
             ability.on_death()
         self.grid.remove_unit(self.pos)
+    
+    def on_receive_shove(self, to:"tuple[int,int]"):
+        if not self.grid.is_coord_in_bounds(to) or self.grid.is_space_empty(True, to):
+            return
+        if self.grid.is_space_empty(False, to):
+            self.grid.move_unit(self.pos, to)
+            self.get_movement_ability().selected_targets.clear()
+        else:
+            #we collide with a different unit or object
+            targetint = self.grid.c_to_i(to)
+            self.grid.units[targetint].on_change_hp(-1, "collision")
+            newposint = self.grid.c_to_i(to)
+            self.grid.units[newposint].on_change_hp(-1, "collision")
 
     
 class UnitSaucer(UnitBase):
@@ -156,3 +182,5 @@ class UnitKnight(UnitBase):
 class UnitBurrower(UnitBase):
       def __init__(self, grid, pos, ownerid, name:str="UnitBurrower"):
         super().__init__(grid, pos, ownerid, name=name)
+        self.add_ability(BurrowAbility)
+

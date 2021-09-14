@@ -59,7 +59,12 @@ class UnitDisplay(pygame.sprite.Sprite):
     def display_statuseffects(self, unit:UnitBase):
         self.image.fill((0), (0,100,200,16))
         for i in range(len(unit.statuseffects)):
-            self.image.blit(Textures.get_spritesheet(unit.statuseffects[i].name+"Icon")[0], (i,100))
+            texkey = unit.statuseffects[i].name+"Icon"
+            spritesheet = Textures.get_spritesheet(texkey)
+            if spritesheet:
+                self.image.blit(spritesheet[0], (i,100))
+            else:
+                self.image.fill((255,0,255), (i,100,32,32))
 
     def display_abilities(self, unit:UnitBase):
         """Display the abilities of a unit."""

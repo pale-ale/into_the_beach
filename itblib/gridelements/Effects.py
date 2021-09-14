@@ -8,6 +8,7 @@ class EffectBase(GridElement):
         super().__init__(grid, pos, age, done, name)
     
     def on_spawn(self):
+        """Triggers when the effect is spawned, i.e. placed on the world"""
         pass
 
   
@@ -58,16 +59,34 @@ class StatusEffect:
         self.target = target
         self.name = name
     
-    def on_update_phase(newphase:int):
+    def on_update_phase(self, newphase:int):
+        "Triggers when the phase changes"
+        pass
+
+    def on_purge(self):
+        "Triggers when the effect is removed from a unit"
         pass
 
 
-class EffectBleed(StatusEffect):
-    def __init__(self, target):
-        super().__init__(target, name="EffectBleed")
+class EffectBleeding(StatusEffect):
+    def __init__(self, target: GridElement):
+        super().__init__(target, name="EffectBleeding")
     
     def on_update_phase(self, newphase: int):
         super().on_update_phase()
         if newphase == 3:
             self.target.hitpoints -= 1
-            
+
+class EffectBurrowed(StatusEffect):
+    def __init__(self, target: GridElement):
+        super().__init__(target, name="EffectBurrowed")
+        self.original_shove = target.on_receive_shove
+        target.on_receive_shove = self.disabled_shove
+    
+    def disabled_shove(self, pos):
+        "Placeholder method to disable the unit's standard shove method"
+        return
+    
+    def on_purge(self):
+        self.target.on_receive_shove = self.original_shove
+
