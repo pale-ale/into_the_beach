@@ -3,7 +3,7 @@ from typing import Optional
 from itblib.net.Connector import Connector
 from itblib.gridelements.Tiles import TileBase
 from .gridelements.Effects import EffectBase
-from .gridelements.Units import UnitBase, UnitSaucer
+from .gridelements.units.UnitBase import UnitBase
 from .Maps import Map
 
 from .Globals import ClassMapping

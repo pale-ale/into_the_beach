@@ -1,4 +1,4 @@
-from .gridelements.Units import UnitBase, UnitKnight, UnitBurrower,\
+from .gridelements.units.Units import UnitBase, UnitKnight, UnitBurrower,\
                                 UnitSaucer,\
                                 UnitBloodWraith,\
                                 UnitHomebase

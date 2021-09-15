@@ -5,7 +5,7 @@ from ..gridelements.Effects import EffectBase
 from ..gridelements.EffectsUI import EffectBaseUI, EffectHealUI, EffectRiverUI
 from ..gridelements.Tiles import TileBase
 from ..gridelements.TilesUI import TileBaseUI
-from ..gridelements.Units import UnitBase
+from itblib.gridelements.units.UnitBase import UnitBase
 from ..gridelements.UnitsUI import UnitBaseUI
 from ..Maps import Map
 from . import IGridObserver

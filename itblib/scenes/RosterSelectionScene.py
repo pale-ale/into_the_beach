@@ -9,7 +9,7 @@ import pygame
 import pygame.font
 import pygame.transform
 import pygame.draw
-import itblib.gridelements.Units as Units
+import itblib.gridelements.units.Units as Units
 import json
 import sys
 
