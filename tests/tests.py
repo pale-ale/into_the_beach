@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/..")
 
 from itblib.Grid import Grid
-from itblib.gridelements.Units import UnitBase
+from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.Tiles import TileBase
 
 class TestGridMethods(unittest.TestCase):

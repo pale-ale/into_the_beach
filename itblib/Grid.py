@@ -11,8 +11,6 @@ from .Enums import PHASES
 from .ui.IGridObserver import IGridObserver
 from itblib.net.NetEvents import NetEvents
 
-import random
-
 class Grid:
     """Manager for Data-Only-Objects like units, tiles, effects, etc."""
 
@@ -62,7 +60,7 @@ class Grid:
                     obstacles.append(unit.pos)
                     unit.done = True
                 else:
-                    unit.get_movement_ability().activate()
+                    unit.get_movement_ability().on_trigger()
                     movingunits.append(unit)
         if len(movingunits) > 0:
             nextpositions:dict[tuple[int,int],list[UnitBase]] = {} #position:[units that want to go here]

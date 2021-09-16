@@ -109,7 +109,7 @@ class UnitBase(GridElement):
     def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
         for ability in self.abilities:
             if ability.selected:
-                ability.add_targets(targets)
+                ability.set_targets(targets)
     
     def on_death(self):
         for ability in self.abilities:

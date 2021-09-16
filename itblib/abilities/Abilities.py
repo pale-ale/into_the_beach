@@ -7,46 +7,12 @@ from itblib.abilities.AbilityBase import AbilityBase
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
-class PunchAbility(AbilityBase):
-    """A simple damaging ability. Deals damage to a neighboring target."""
 
-    def __init__(self, unit:"UnitBase"):
-        super().__init__(unit)
-        self.id = 1
-        self.phase = 2
-
-    def on_select_ability(self):
-        super().on_select_ability()
-        for neighbor in self._unit.grid.get_ordinal_neighbors(*self._unit.pos):
-            self.area_of_effect.append((neighbor, PREVIEWS[0]))
-
-    def add_targets(self, targets:"list[tuple[int,int]]"):
-        super().add_targets(targets)
-        assert len(targets) == 1
-        target = targets[0]
-        positions = [x[0] for x in self.area_of_effect]
-        if target in positions or NetEvents.connector.authority:
-            self.selected_targets = [target]
-            self.area_of_effect.clear()
-            self.on_deselect_ability()
-            NetEvents.snd_netabilitytarget(self)
-            
-    def activate(self):
-        if len(self.selected_targets) > 0 and NetEvents.connector.authority:
-            super().activate()
-            damage = [self._unit.baseattack["physical"], "physical"]
-            self._unit.attack(self.selected_targets[0], *damage)
-            self.area_of_effect.clear()
-            self.selected_targets.clear()
-
-    
 class RangedAttackAbility(AbilityBase):
     """A simple ranged attack, with a targeting scheme like the artillery in ITB."""
 
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit)
-        self.id = 2
-        self.phase = 2
+        super().__init__(unit, 2, 2)
 
     def get_ordinals(self):
         x,y = self._unit.pos
@@ -68,8 +34,8 @@ class RangedAttackAbility(AbilityBase):
         #for coord in coords:
         #    self.area_of_effect.append(coord)
 
-    def add_targets(self, targets:"list[tuple[int,int]]"):
-        super().add_targets(targets)
+    def set_targets(self, targets:"list[tuple[int,int]]"):
+        super().set_targets(targets)
         assert len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
@@ -77,8 +43,8 @@ class RangedAttackAbility(AbilityBase):
             self.selected_targets = [target]
             self.area_of_effect.clear()
 
-    def activate(self):
-        super().activate()
+    def on_trigger(self):
+        super().on_trigger()
         if len(self.selected_targets) > 0:
             damage = [self._unit.baseattack["physical"], "physical"]
             self._unit.attack(self.selected_targets[0], *damage)
@@ -88,13 +54,10 @@ class PushAbility(AbilityBase):
     """A melee attack pushing a target away from the attacker."""
 
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit)
-        self.id = 3
-        self.phase = 2
-        self.cooldown = 2
+        super().__init__(unit, 3, 2, cooldown=2)
 
-    def add_targets(self, targets:"list[tuple[int,int]]"):
-        super().add_targets(targets)
+    def set_targets(self, targets:"list[tuple[int,int]]"):
+        super().set_targets(targets)
         assert len(targets) == 1
         positions = [x[0] for x in self.area_of_effect]
         target = targets[0]
@@ -108,8 +71,8 @@ class PushAbility(AbilityBase):
         for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
             self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
-    def activate(self):
-        super().activate()
+    def on_trigger(self):
+        super().on_trigger()
         if len(self.selected_targets):
             targetpos = self.selected_targets[0]
             unitposx, unitposy = self._unit.pos
@@ -123,8 +86,7 @@ class PushAbility(AbilityBase):
 class ObjectiveAbility(AbilityBase):
     """This ability makes a unit an "Objective", meaning the player loses if it dies."""
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit)
-        self.id = 4
+        super().__init__(unit, 4, -1, 0)
 
     def on_death(self):
         super().on_death()
@@ -174,32 +136,3 @@ class BleedingEffect(AbilityBase):
         if NetEvents.connector.authority:
             super().activate()
             self._unit.on_change_hp(-1, "physical")
-
-class BurrowAbility(AbilityBase):
-    def __init__(self, unit: "UnitBase"):
-        super().__init__(unit)
-        self.id = 6
-        self.phase = 2
-    
-    def on_select_ability(self):
-        super().on_select_ability()
-        if len(self.selected_targets) == 0:
-            self.selected_targets = [self._unit.pos]
-        else:
-            self.selected_targets.clear()
-        NetEvents.snd_netabilitytarget(self)
-    
-    def add_targets(self, targets):
-        super().add_targets(targets)
-        self.selected_targets = targets
-
-    def activate(self):
-        if len(self.selected_targets) == 0:
-            return
-        effect = self._unit.get_statuseffect("EffectBurrowed")
-        if effect:
-            self._unit.remove_statuseffect(effect)
-        else:
-            burroweffect = EffectBurrowed(self._unit)
-            self._unit.add_statuseffect(burroweffect)
-            print("BurrowAbility: Burrowed unit:", self._unit.name)

@@ -1,5 +1,4 @@
 from itblib.SceneManager import SceneManager
-from itblib.scenes.MainMenuScene import MainMenuScene
 from itblib.Maps import Map
 from itblib.Player import Player
 import json
@@ -7,12 +6,10 @@ import json
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from itblib.Game import Session
-    from itblib.Game import Game
     from itblib.Grid import Grid
-    from itblib.gridelements.Units import UnitBase
+    from itblib.abilities.AbilityBase import AbilityBase
     from itblib.net.Connector import Connector
     from itblib.ui.HUD import Hud
-    from itblib.Abilities import AbilityBase
 
 class NetEvents():
     grid:"Grid" = None
@@ -164,10 +161,10 @@ class NetEvents():
     @staticmethod
     def snd_netabilitytarget(ability:"AbilityBase"):
         targets = ability.selected_targets
-        posnametargets = (ability._unit.pos, type(ability).__name__,  targets)
-        posnametargetsjson = json.dumps(posnametargets)
+        posnametargetsprimed = (ability._unit.pos, type(ability).__name__,  targets, ability.primed)
+        posnametargetsprimedjson = json.dumps(posnametargetsprimed)
         if not NetEvents.connector.authority:
-            NetEvents.connector.send("NetAbilityTarget", posnametargetsjson)
+            NetEvents.connector.send("NetAbilityTarget", posnametargetsprimedjson)
         else:
             pass
             # NetEvents.connector.send_to_clients(
@@ -177,20 +174,21 @@ class NetEvents():
             # )
 
     @staticmethod
-    def rcv_netabilitytarget(posnametargetsjson):
-        obj = json.loads(posnametargetsjson)
-        # unit path will now be a list[list[int,int]], since tuples dont exist in json
-        unitpos, abilityname, targets = obj
+    def rcv_netabilitytarget(posnametargetsprimedjson):
+        obj = json.loads(posnametargetsprimedjson)
+        # targets will now be a list[list[int,int]], since tuples dont exist in json
+        # so we need to convert them back to list[tuple[int,int]]
+        unitpos, abilityname, targets, primed = obj
         targets = [(x[0],x[1]) for x in targets]
         unit = NetEvents.grid.get_unit(unitpos)
         print("RCV AbilityTarget:", obj)
         if not unit:
-            print("Target request '"+posnametargetsjson+"'is unfulfillable, unit not found.")
+            print("NetEvents: Target request '"+posnametargetsprimedjson+"'is unfulfillable, unit not found.")
             return
         ability = [a for a in unit.abilities if type(a).__name__ == abilityname][0]
         ability.selected_targets.clear()
         if NetEvents.connector.authority:
-            ability.add_targets(targets)
+            ability.set_targets(primed, targets)
 
     @staticmethod
     def snd_netplayerwon(playerid:int):

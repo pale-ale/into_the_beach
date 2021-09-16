@@ -14,11 +14,8 @@ class MovementAbility(AbilityBase):
     """
 
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit)
-        self.id = 0
-        self.phase = 4
+        super().__init__(unit, 0, 4, cooldown=0)
         self.timinginfo = unit.age
-        self.cooldown = 0
         self.remainingcooldown = 0
         self.durationperstep = .5 #seconds
     
@@ -39,16 +36,12 @@ class MovementAbility(AbilityBase):
                 coordwithpreviewid = (neighbor, PREVIEWS[delta])
                 self.area_of_effect.append(coordwithpreviewid)
 
-    def add_targets(self, targets:"list[tuple[int,int]]"):
-        """Handle the user's target selection."""
-        super().add_targets(targets)
-        for target in targets:
-            if len(self.selected_targets) >= self._unit.moverange:
-                return
-            self.add_to_movement(target)
-            if not NetEvents.connector.authority:
-                self.collect_movement_info()
-        self.on_deselect_ability()
+    def set_targets(self, targets:"list[tuple[int,int]]"):
+        super().set_targets(len(targets) > 0, targets)
+        if len(targets) > 0:
+            self._unit.done = False
+        if not NetEvents.connector.authority:
+            self.collect_movement_info()
     
     def update_path_display(self):
         """Display the new path using proximity textures."""
@@ -89,8 +82,8 @@ class MovementAbility(AbilityBase):
             else:
                 self.on_deselect_ability()
     
-    def activate(self):
+    def on_trigger(self):
         """Trigger effects based on the movement of this unit, and set the timing for animation."""
-        super().activate()
+        super().on_trigger()
         self.timinginfo = self._unit.age
         self._unit.done = False

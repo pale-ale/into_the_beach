@@ -1,10 +1,11 @@
 from itblib.abilities.MovementAbility import MovementAbility
 from itblib.gridelements.units.UnitBase import UnitBase
-from itblib.abilities.Abilities import PunchAbility, RangedAttackAbility,\
+from itblib.abilities.PunchAbility import PunchAbility
+from itblib.abilities.BurrowAbility import BurrowAbility
+from itblib.abilities.Abilities import RangedAttackAbility,\
     PushAbility,\
     HealAbility,\
-    ObjectiveAbility,\
-    BurrowAbility
+    ObjectiveAbility
 
 class UnitSaucer(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="UnitSaucer"):
