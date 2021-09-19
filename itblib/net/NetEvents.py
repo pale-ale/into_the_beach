@@ -20,7 +20,7 @@ class NetEvents():
 
     @staticmethod
     def snd_netmaptransfer(map:"Map"):
-        NetEvents.connector.send_to_clients(
+        NetEvents.connector.send_server_all(
             NetEvents.session._players, 
             "NetMapTransfer", 
             map.export_to_str()
@@ -37,13 +37,13 @@ class NetEvents():
     def snd_netunitspawn(unitid:int, pos:"tuple[int,int]", ownerid:int):
         unitspawntuple = (unitid, pos, ownerid)
         if NetEvents.connector.authority:
-            NetEvents.connector.send_to_clients(
+            NetEvents.connector.send_server_all(
                 NetEvents.session._players,
                 "NetUnitSpawn", 
                 json.dumps(unitspawntuple)
             )
         else:
-            NetEvents.connector.send("NetUnitSpawn", json.dumps(unitspawntuple))
+            NetEvents.connector.send_client("NetUnitSpawn", json.dumps(unitspawntuple))
     
     @staticmethod
     def rcv_netunitspawn(unitspawntuplestr):
@@ -61,13 +61,13 @@ class NetEvents():
     def snd_neteffectspawn(effectid:int, pos:"tuple[int,int]"):
         effectspawntuple = (effectid, pos)
         if NetEvents.connector.authority:
-            NetEvents.connector.send_to_clients(
+            NetEvents.connector.send_server_all(
                 NetEvents.session._players,
                 "NetEffectSpawn", 
                 json.dumps(effectspawntuple)
             )
         else:
-            NetEvents.connector.send("NetEffectSpawn", json.dumps(effectspawntuple))
+            NetEvents.connector.send_client("NetEffectSpawn", json.dumps(effectspawntuple))
     
     @staticmethod
     def rcv_neteffectspawn(effectspawntuplestr):
@@ -86,7 +86,7 @@ class NetEvents():
         if c and c.authority:
             froto = [fro, to]
             frotodata = json.dumps(froto)
-            c.send_to_clients(
+            c.send_server_all(
                 NetEvents.session._players,
                 "NetUnitMove",
                 frotodata
@@ -103,7 +103,7 @@ class NetEvents():
         c = NetEvents.connector
         pos_hp_data = json.dumps([pos, new_hp])
         if c.authority:
-            c.send_to_clients(
+            c.send_server_all(
                 NetEvents.session._players,
                 "NetUnitHpChange",
                 pos_hp_data
@@ -119,7 +119,7 @@ class NetEvents():
     def snd_netplayerjoin(targetconnection, player:Player, localcontrol:bool):
         d = player.get_info()
         d["localcontrol"] = localcontrol
-        NetEvents.connector.send_custom(targetconnection, "NetPlayerJoin", json.dumps(d))
+        NetEvents.connector.send_server_single(targetconnection, "NetPlayerJoin", json.dumps(d))
 
     @staticmethod
     def rcv_netplayerjoin(playerdata):
@@ -132,8 +132,11 @@ class NetEvents():
 
     @staticmethod
     def snd_netphasechange(phasenumber):
-        for player in NetEvents.session._players.values():
-            NetEvents.connector.send_custom(player.playersocket, "NetPhaseChange", str(phasenumber))
+        NetEvents.connector.send_server_all(
+            NetEvents.session._players, 
+            "NetPhaseChange", 
+            str(phasenumber)
+        )
     
     @staticmethod
     def rcv_netphasechange(phasenumber:int):
@@ -143,9 +146,9 @@ class NetEvents():
     @staticmethod
     def snd_netplayerleave(leavingplayer:"Player"):
         if not NetEvents.connector.authority:
-            NetEvents.connector.send("NetPlayerLeave", str(leavingplayer.playerid))
+            NetEvents.connector.send_client("NetPlayerLeave", str(leavingplayer.playerid))
         else:
-            NetEvents.connector.send_to_clients(
+            NetEvents.connector.send_server_all(
                 NetEvents.session._players,
                 "NetPlayerLeave",
                 str(leavingplayer.playerid))
@@ -164,7 +167,7 @@ class NetEvents():
         posnametargetsprimed = (ability._unit.pos, type(ability).__name__,  targets, ability.primed)
         posnametargetsprimedjson = json.dumps(posnametargetsprimed)
         if not NetEvents.connector.authority:
-            NetEvents.connector.send("NetAbilityTarget", posnametargetsprimedjson)
+            NetEvents.connector.send_client("NetAbilityTarget", posnametargetsprimedjson)
         else:
             pass
             # NetEvents.connector.send_to_clients(
@@ -193,7 +196,7 @@ class NetEvents():
     @staticmethod
     def snd_netplayerwon(playerid:int):
         if NetEvents.connector.authority:
-            NetEvents.connector.send_to_clients(
+            NetEvents.connector.send_server_all(
                 NetEvents.session._players,
                 "NetPlayerWon",
                 str(playerid))
@@ -215,13 +218,13 @@ class NetEvents():
     @staticmethod
     def snd_netunitremove(pos:"tuple[int,int]"):
         if NetEvents.connector.authority:
-            NetEvents.connector.send_to_clients(
+            NetEvents.connector.send_server_all(
                 NetEvents.session._players,
                 "NetUnitRemove", 
                 json.dumps(pos)
             )
         else:
-            NetEvents.connector.send("NetUnitRemove", json.dumps(pos))
+            NetEvents.connector.send_client("NetUnitRemove", json.dumps(pos))
     
     @staticmethod
     def rcv_netunitremove(unitremoveposstr):

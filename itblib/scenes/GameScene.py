@@ -45,7 +45,7 @@ class GameScene(SceneBase):
 
     def update(self, dt:float):
         super().update(dt)
-        data = self.connector.receive()
+        data = self.connector.receive_client()
         if data:
             prefix, contents = data
             NetEvents.rcv_event_caller(prefix, contents)

@@ -22,7 +22,7 @@ class TargetAbilityBase(AbilityBase):
         for target in self.selected_targets:
             self.apply_to_target(target)
 
-    def set_targets(self, targets:"list[tuple[int,int]]"):
-        super().set_targets(len(targets) > 0, targets)
+    def set_targets(self, primed:bool, targets:"list[tuple[int,int]]"):
+        super().set_targets(primed, targets)
         self.area_of_effect.clear()
         self.on_deselect_ability()

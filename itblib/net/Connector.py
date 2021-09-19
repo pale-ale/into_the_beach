@@ -7,7 +7,12 @@ class Connector():
         self.authority = authority
         self.connection:Optional[socket.socket] = None
         self.acc_connection:Optional[socket.socket] = None
-        self.CONTENT_SIZE = 3000
+        self.RCV_PEEK_SIZE = 100
+        self.SEPARATOR = '\0'
+        self.PREAMBLE = self.SEPARATOR*1
+        self.TERMINAL = self.SEPARATOR*2
+        self.PREAMBLE_SIZE = len(self.PREAMBLE)
+        self.TERMINAL_SIZE = len(self.TERMINAL)
 
     def server_init(self):
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -44,48 +49,69 @@ class Connector():
         except:
             pass
     
-    def send(self, prefix:str, content:str):
-        assert len(prefix) <= 50, print(len(prefix))
-        assert len(content) <= self.CONTENT_SIZE, print(len(content))
-        prefixdata = (prefix + '\0').ljust(50) .encode("utf8")
-        contentdata = (content).ljust(self.CONTENT_SIZE).encode("utf8")
-        if self.acc_connection:
-            print("SND:", prefix, content)
-            self.acc_connection.send(prefixdata + contentdata)
+    def send(self, connection:socket.socket, prefix:str, content:str):
+        prefixdata = (prefix + self.PREAMBLE).encode("utf8")
+        contentdata = (content + self.TERMINAL).encode("utf8")
+        if connection:
+            print("Connector: SND:", prefix, content)
+            connection.send(prefixdata + contentdata)
         else:
-            print("I am not Connected!")
-   
-    def send_custom(self, connection:socket.socket, prefix:str, content:str):
-        assert len(prefix) <= 50, print(len(prefix))
-        assert len(content) <= self.CONTENT_SIZE, print(len(content))
-        prefixdata = (prefix + '\0').ljust(50) .encode("utf8")
-        contentdata = (content).ljust(self.CONTENT_SIZE).encode("utf8")
-        connection.send(prefixdata + contentdata)
+            print("Connector: Invalid connection.")
     
-    def send_to_clients(self, players:"dict[int, Player]", prefix:str, content:str):
+    def send_client(self, prefix:str, content:str):
+        self.send(self.acc_connection, prefix, content)
+    
+    def send_server_single(self, connection:socket.socket, prefix:str, content:str):
+        self.send(connection, prefix, content)
+    
+    def send_server_all(self, players:"dict[int, Player]", prefix:str, content:str):
         for player in players.values():
-            self.send_custom(player.playersocket, prefix, content)
+            self.send_server_single(player.playersocket, prefix, content)
 
-    def receive(self):
-        if self.acc_connection:
+    def receive(self, connection:socket.socket):
+        if connection:
+            prefix = ""
+            content = ""
+            tmpdat = ""
             try:
-                data = self.acc_connection.recv(self.CONTENT_SIZE + 50)
-                if data:
-                    prefix, content = [d.strip() for d in data.decode("utf8").split('\0', 1) if d]
-                    return prefix, content
+                while len(prefix) == 0 or len(content) == 0:
+                    peekdata = connection.recv(
+                        self.RCV_PEEK_SIZE + max(self.PREAMBLE_SIZE, self.TERMINAL_SIZE), 
+                        socket.MSG_PEEK
+                    )
+                    if len(peekdata) == 0:
+                        return None
+                    peekstr = peekdata.decode("utf-8")
+                    preamble_index = peekstr.find(self.PREAMBLE)
+                    terminal_index = peekstr.find(self.TERMINAL)
+                    index = self.RCV_PEEK_SIZE - 1
+                    if preamble_index >= 0:
+                        index = preamble_index
+                    if terminal_index >= 0 and terminal_index < preamble_index:
+                        index = terminal_index
+                    #if our message starts with a preamble or terminal separator, index is 0
+                    if index == 0:
+                        #i.e. we need to decide wether tmpdat is the preamble or content
+                        if terminal_index == 0:
+                            #note: the preamble is a substring of the terminal
+                            content = tmpdat
+                            connection.recv(self.TERMINAL_SIZE)
+                            # remove the separators from the beginning
+                        else:
+                            prefix = tmpdat
+                            connection.recv(self.PREAMBLE_SIZE)
+                        tmpdat = ""
+                    else:
+                        tmpdat += connection.recv(index).decode("utf-8")
+                return prefix, content
             except BlockingIOError as bioe:
                 return None
-        else:
-            print("I'm not connected to anything!")
-
-    def receive_custom(self, playerconnection:socket.socket):
-            if playerconnection:
-                try:
-                    data = playerconnection.recv(self.CONTENT_SIZE + 50)
-                    if data:
-                        prefix, content = [d.strip() for d in data.decode("utf8").split('\0', 1) if d]
-                        return prefix, content
-                except BlockingIOError as bioe:
-                    return None
-            else:
-                print("I'm not connected to anything!")
+            finally:
+                pass
+        print("Connector: Connection is invalid.")
+    
+    def receive_server(self, playerconnection:socket.socket):
+        return self.receive(playerconnection)
+    
+    def receive_client(self):
+        return self.receive(self.acc_connection)
