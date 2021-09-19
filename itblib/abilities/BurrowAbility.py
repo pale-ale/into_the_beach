@@ -11,6 +11,7 @@ class BurrowAbility(ToggleAbilityBase):
         super().__init__(unit, 6, 2)
     
     def on_trigger(self):
+        super().on_trigger()
         effect = self._unit.get_statuseffect("EffectBurrowed")
         if effect:
             self._unit.remove_statuseffect(effect)

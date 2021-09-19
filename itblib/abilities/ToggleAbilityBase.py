@@ -11,4 +11,5 @@ class ToggleAbilityBase(AbilityBase):
     def on_select_ability(self):
         super().on_select_ability()
         self.set_targets(not self.primed, [])
+        self.on_deselect_ability()
     
