@@ -1,3 +1,4 @@
+from itblib.scenes.MapSelectionScene import MapSelectionScene
 from itblib.Game import Game
 import pygame
 import pygame.display
@@ -37,6 +38,7 @@ class Client:
         mainmenuscene = MainMenuScene(self, self.scenemanager, *self.displaysize)
         gamescene = GameScene(self.scenemanager, *self.displaysize)
         rosterselectionscene = RosterSelectionScene(self.scenemanager, *self.displaysize)
+        mapselectionscene = MapSelectionScene(self.scenemanager, *self.displaysize)
         NetEvents.grid = gamescene.grid
         NetEvents.connector = gamescene.connector
         NetEvents.session = gamescene.session
@@ -46,6 +48,7 @@ class Client:
         self.scenemanager.add_scene("GameScene", gamescene)
         self.scenemanager.add_scene("MainMenuScene", mainmenuscene)
         self.scenemanager.add_scene("RosterSelectionScene", rosterselectionscene)
+        self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)
         self.scenemanager.load_scene("MainMenuScene")
 
     def update_fullscreen(self, fullscreen:bool = False):

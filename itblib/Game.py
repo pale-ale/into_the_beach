@@ -1,6 +1,6 @@
 from itblib.net.Connector import Connector
 from itblib.Player import Player
-from itblib.Maps import MapGrasslands
+from itblib.Maps import MapGrasslands, MapIceAge, MapRockValley
 from itblib.Grid import Grid
 from itblib.net.NetEvents import NetEvents 
 
@@ -40,8 +40,12 @@ class Session:
     def start_game(self):
         """Begin the Unit Placement Phase, after which the normal turn cycle ensues."""
         self._grid.load_map(MapGrasslands(), from_authority=True)
+        #self._grid.load_map(MapIceAge(), from_authority=True)
+        #self._grid.load_map(MapRockValley(), from_authority=True)
         #game mode specific
         NetEvents.snd_netmaptransfer(MapGrasslands())
+        #NetEvents.snd_netmaptransfer(MapIceAge())
+        #NetEvents.snd_netmaptransfer(MapRockValley())
         NetEvents.snd_netphasechange(0)
         p1, p2 = self._players.values()
         self._grid.add_unit((2,1), 4, p1.playerid)
