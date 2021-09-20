@@ -6,7 +6,7 @@ g2 = Grid(None, None)
 m = MapGrasslands()
 g.load_map(m, False)
 
-d = g.extract_data(["width", "height", "phasetime", "tiles"])
+d = g.extract_data()
 print(d)
 g2.insert_data(d)
 g.show()

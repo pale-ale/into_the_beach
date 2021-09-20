@@ -81,19 +81,19 @@ class TestGridMethods(unittest.TestCase):
         self.assertIsNotNone(self.grid.get_unit(endpos))
     
     def test_grid_extract_data(self):
-        d = self.grid.extract_data(["width", "height", "phasetime", "tiles"])
+        d = self.grid.extract_data()
         self.assertEqual(
             d,
             {'width': 3, 'height': 5, 'phasetime': 0, 'tiles': [None]*15})
     
-    def test_grid_insert_data(self):
-        self.assertTrue(False)
+    # def test_grid_insert_data(self):
+    #     self.assertTrue(False)
     
-    def test_is_coord_in_bounds(self):
-        self.assertTrue(False)
+    # def test_is_coord_in_bounds(self):
+    #     self.assertTrue(False)
 
-    def test_get_ordinal_neighbors(self):
-        self.assertTrue(False)
+    # def test_get_ordinal_neighbors(self):
+    #     self.assertTrue(False)
 
 if __name__ == "__main__":
     unittest.main()

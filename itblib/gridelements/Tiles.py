@@ -1,5 +1,5 @@
 from itblib.Serializable import Serializable
-from .GridElement import GridElement
+from itblib.gridelements.GridElement import GridElement
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from itblib.Grid import Grid
@@ -7,7 +7,9 @@ if TYPE_CHECKING:
 
 class TileBase(GridElement, Serializable):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileBase"):
-        super().__init__(grid, pos, age, done, name)
+        # no super() because of multiple inheritance
+        GridElement.__init__(self, grid, pos, age, done, name)
+        Serializable.__init__(self, ["name"])
         self.onfire = False
 
     def on_enter(self, unit:"UnitBase"):

@@ -180,7 +180,7 @@ class NetEvents():
     def rcv_netabilitytarget(posnametargetsprimedjson):
         obj = json.loads(posnametargetsprimedjson)
         # targets will now be a list[list[int,int]], since tuples dont exist in json
-        # so we need to convert them back to list[tuple[int,int]]
+        # for consistency we convert them back to list[tuple[int,int]]
         unitpos, abilityname, targets, primed = obj
         targets = [(x[0],x[1]) for x in targets]
         unit = NetEvents.grid.get_unit(unitpos)
@@ -237,6 +237,24 @@ class NetEvents():
         else:
             NetEvents.grid.remove_unit(unitremovetuple)
 
+    @staticmethod
+    def snd_netsync():
+        if NetEvents.connector.authority:
+            data = NetEvents.grid.extract_data()
+            datastr = json.dumps(data)
+            NetEvents.connector.send_server_all(
+                NetEvents.session._players,
+                "NetSync",
+                datastr
+            )
+    
+    @staticmethod
+    def rcv_netsync(datastr):
+        if not NetEvents.connector.authority:
+            data = json.loads(datastr)
+            print("NetEvents: RCV Sync:", data)
+
+
 RcvNetEventsMap = {
     "NetAbilityTarget":NetEvents.rcv_netabilitytarget,
     "NetEffectSpawn":NetEvents.rcv_neteffectspawn,
@@ -249,5 +267,6 @@ RcvNetEventsMap = {
     "NetUnitMove":NetEvents.rcv_netunitmove,
     "NetUnitSpawn":NetEvents.rcv_netunitspawn,
     "NetUnitRemove":NetEvents.rcv_netunitremove,
+    "NetSync":NetEvents.rcv_netsync,
 }
     

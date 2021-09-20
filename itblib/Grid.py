@@ -16,6 +16,7 @@ class Grid(Serializable):
     """Manager for Data-Only-Objects like units, tiles, effects, etc."""
 
     def __init__(self, connector:Connector, observer:Optional[IGridObserver]=None, width:int=10, height:int=10):
+        super().__init__(["width", "height", "phasetime", "tiles"])
         self.height = height
         self.width = width
         self.phasetime = 0
@@ -29,9 +30,9 @@ class Grid(Serializable):
         self.observer = observer
         self.phase = 0
     
-    def extract_data(self, properties:"list[str]", custom:"dict[str,object]"={}) -> dict:
-        customtiles = [t.extract_data(["name"]) if t else None for t in self.tiles]
-        return super().extract_data(properties, custom={"tiles":customtiles})
+    def extract_data(self) -> dict:
+        customtiles = [t.extract_data() if t else None for t in self.tiles]
+        return super().extract_data(custom_fields={"tiles":customtiles})
     
     def insert_data(self, data):
         self.phasetime = data["phasetime"]
@@ -42,12 +43,8 @@ class Grid(Serializable):
             tilename = data["tiles"][i]["name"]
             for tiletype in ClassMapping.tileidclassmapping.values():
                 if tiletype and tiletype.__name__ == tilename:
-                    print("adding")
                     self.add_tile(self.i_to_c(i), ClassMapping.tileclassidmapping[tiletype])
-                    continue
-            else:
-                print("not found:", tilename)
-    
+
     def update_observer(self, observer:Optional[IGridObserver]):
         """
         Set a new observer, which will receive events for e.g. a spawned unit.
@@ -301,10 +298,15 @@ class Grid(Serializable):
                         self.advance_phase()
                         NetEvents.snd_netphasechange(self.phase)
                         self.phasetime = 0.0
-            elif self.phase in [2,3,4]:
+            elif self.phase in [2,3]:
                 if self.everybody_done():
                     self.advance_phase()
                     NetEvents.snd_netphasechange(self.phase)
+            elif self.phase == 4:
+                if self.everybody_done():
+                    self.advance_phase()
+                    NetEvents.snd_netphasechange(self.phase)
+                    NetEvents.snd_netsync()
                 else:
                     if self.phasetime >= 0.5:
                         self.phasetime = 0.0
