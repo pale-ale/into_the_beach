@@ -38,7 +38,7 @@ class Textures:
         ("EffectBleed", "Icon", 1),
         ("EffectBurrowed", "Icon", 1),
 
-        ("TileDirt", "Default", 1),
+        ("TileBase", "Default", 1),
         ("TileWater", "Default", 1),
         ("TileLava", "Default", 1),
         ("TileRock", "Default", 1),

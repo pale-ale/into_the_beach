@@ -13,8 +13,8 @@ class TestGridMethods(unittest.TestCase):
         self.grid = Grid(connector=None, observer=None, width=self.w, height=self.h)
     
     def tearDown(self):
-        self.grid.units.clear()
-        self.grid.tiles.clear()
+        self.grid.units = [None]*len(self.grid.units)
+        self.grid.tiles = [None]*len(self.grid.tiles)
 
     def test_init(self):
         self.assertEqual(len(self.grid.units), self.w*self.h)
@@ -79,6 +79,15 @@ class TestGridMethods(unittest.TestCase):
         self.assertTrue(self.grid.move_unit(startpos, endpos))
         self.assertIsNone(self.grid.get_unit(startpos))
         self.assertIsNotNone(self.grid.get_unit(endpos))
+    
+    def test_grid_extract_data(self):
+        d = self.grid.extract_data(["width", "height", "phasetime", "tiles"])
+        self.assertEqual(
+            d,
+            {'width': 3, 'height': 5, 'phasetime': 0, 'tiles': [None]*15})
+    
+    def test_grid_insert_data(self):
+        self.assertTrue(False)
     
     def test_is_coord_in_bounds(self):
         self.assertTrue(False)

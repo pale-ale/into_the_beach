@@ -10,8 +10,9 @@ from .Globals import ClassMapping
 from .Enums import PHASES
 from .ui.IGridObserver import IGridObserver
 from itblib.net.NetEvents import NetEvents
+from itblib.Serializable import Serializable
 
-class Grid:
+class Grid(Serializable):
     """Manager for Data-Only-Objects like units, tiles, effects, etc."""
 
     def __init__(self, connector:Connector, observer:Optional[IGridObserver]=None, width:int=10, height:int=10):
@@ -27,12 +28,31 @@ class Grid:
         self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
         self.observer = observer
         self.phase = 0
-
+    
+    def extract_data(self, properties:"list[str]", custom:"dict[str,object]"={}) -> dict:
+        customtiles = [t.extract_data(["name"]) if t else None for t in self.tiles]
+        return super().extract_data(properties, custom={"tiles":customtiles})
+    
+    def insert_data(self, data):
+        self.phasetime = data["phasetime"]
+        self.width = data["width"]
+        self.height = data["height"]
+        self.tiles:"list[Optional[TileBase]]" = [None]*self.width*self.height
+        for i in range(len(data["tiles"])):
+            tilename = data["tiles"][i]["name"]
+            for tiletype in ClassMapping.tileidclassmapping.values():
+                if tiletype and tiletype.__name__ == tilename:
+                    print("adding")
+                    self.add_tile(self.i_to_c(i), ClassMapping.tileclassidmapping[tiletype])
+                    continue
+            else:
+                print("not found:", tilename)
+    
     def update_observer(self, observer:Optional[IGridObserver]):
         """
         Set a new observer, which will receive events for e.g. a spawned unit.
 
-        Useful in event-based scenarios, like loading a grpahical display for the new unit.
+        Useful in event-based scenarios, like loading a graphical display for the new unit.
         """
         self.observer = observer
     
@@ -137,7 +157,7 @@ class Grid:
 
     def add_tile(self, pos:"tuple[int,int]", tileid:int) -> bool:
         """Add a tile to the grid at given position."""
-        tiletype = ClassMapping.tileclassmapping[tileid]
+        tiletype = ClassMapping.tileidclassmapping[tileid]
         newtile = tiletype(self, pos)
         index = self.c_to_i(pos)
         if index >= 0 and index < len(self.tiles):
@@ -234,6 +254,10 @@ class Grid:
     def c_to_i(self, coords:"tuple[int,int]") -> int:
         """Convert xy-coordinates to the corresponding index."""
         return self.width*coords[1] + coords[0]
+    
+    def i_to_c(self, i:int) -> "tuple[int,int]":
+        """Convert index to the corresponding xy-coordinates."""
+        return (i%self.width, int(i/self.width))
 
     def is_coord_in_bounds(self, pos:"tuple[int,int]"):
         """Check whether a coordinate is inside the grid space."""
@@ -293,7 +317,7 @@ class Grid:
             for y in range(self.height):
                 tile = self.tiles[self.width*y+x]
                 if tile:
-                    text += str(tile.id)
+                    text += str(tile.name)+" "
                 else:
                     text += " "
             text += "\n"

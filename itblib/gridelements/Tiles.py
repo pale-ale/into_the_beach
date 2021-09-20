@@ -1,11 +1,12 @@
+from itblib.Serializable import Serializable
 from .GridElement import GridElement
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from itblib.Grid import Grid
-    from itblib.gridelements.Units import UnitBase
+    from itblib.gridelements.units.UnitBase import UnitBase
 
-class TileBase(GridElement):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileDirt"):
+class TileBase(GridElement, Serializable):
+    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileBase"):
         super().__init__(grid, pos, age, done, name)
         self.onfire = False
 
@@ -32,7 +33,6 @@ class TileLava(TileBase):
     def on_enter(self, unit:"UnitBase"):
         """Assuming that entering the Lava Tile would cause a unit damage."""
         pass
-
 
 
 class TileRock(TileBase):

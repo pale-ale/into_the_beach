@@ -17,13 +17,6 @@ class ClassMapping:
     the respective ids.
     """
     
-    tileclassmapping = {
-        0:None,
-        1:TileBase,
-        2:TileWater,
-        3:TileLava,
-        4:TileRock
-    }
     effectclassmapping = {
         0:None,
         1:EffectBase,
@@ -35,8 +28,14 @@ class ClassMapping:
         7:EffectHeal,
     }
     _unitclasses = [None, UnitBase, UnitSaucer, UnitBloodWraith, UnitHomebase, UnitKnight, UnitBurrower]
+    _tileclasses = [None, TileBase, TileWater, TileLava, TileRock]
     unitidclassmapping = {}
     unitclassidmapping = {}
     for i in range(len(_unitclasses)):
         unitidclassmapping[i] = _unitclasses[i]
         unitclassidmapping[_unitclasses[i]] = i
+    tileidclassmapping = {}
+    tileclassidmapping = {}
+    for i in range(len(_tileclasses)):
+        tileidclassmapping[i] = _tileclasses[i]
+        tileclassidmapping[_tileclasses[i]] = i
