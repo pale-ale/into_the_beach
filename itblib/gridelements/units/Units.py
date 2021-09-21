@@ -32,7 +32,7 @@ class UnitBloodWraith(UnitBase):
 
 
 class UnitHomebase(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="UnitCrystal"):
+    def __init__(self, grid, pos, ownerid, name:str="UnitHomebase"):
         super().__init__(grid, pos, ownerid, name=name, abilities=[ObjectiveAbility])
 
 

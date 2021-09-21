@@ -54,9 +54,9 @@ class MapGrasslands(Map):
         self.tileids[42] = 2
         self.tileids[51] = 4
         self.tileids[52] = 4
-        self.tileids[44] = 3
+        self.tileids[44] = 0
         self.tileids[45] = 3
-        self.tileids[54] = 3
+        self.tileids[54] = 0
         self.tileids[55] = 3
         self.tileids[47] = 4
         self.tileids[48] = 4

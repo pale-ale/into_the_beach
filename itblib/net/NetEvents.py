@@ -252,7 +252,7 @@ class NetEvents():
     def rcv_netsync(datastr):
         if not NetEvents.connector.authority:
             data = json.loads(datastr)
-            print("NetEvents: RCV Sync:", data)
+            NetEvents.grid.insert_data(data)
 
 
 RcvNetEventsMap = {

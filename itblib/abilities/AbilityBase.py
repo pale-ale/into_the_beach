@@ -71,6 +71,7 @@ class AbilityBase:
     def on_update_phase(self, newphase:int):
         """Called when a phase change occured. Not necessarily a new turn."""
         if self.phase == newphase and self.primed:
+            self._unit.done = False
             self.on_trigger()
         elif self.reduce_cooldown_each_turn:
             self.remainingcooldown = max(self.remainingcooldown-1, 0)

@@ -38,8 +38,6 @@ class MovementAbility(AbilityBase):
 
     def set_targets(self, primed:bool, targets:"list[tuple[int,int]]"):
         super().set_targets(len(targets) > 0, targets)
-        if len(targets) > 0:
-            self._unit.done = False
         if not NetEvents.connector.authority:
             self.collect_movement_info()
     

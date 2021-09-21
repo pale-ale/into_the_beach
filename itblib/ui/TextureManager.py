@@ -56,7 +56,7 @@ class Textures:
     for o in ["SW"]:
         texturekeys.append(("UnitBloodWraith", o, "Idle", 1))
     for o in ["SW"]:
-        texturekeys.append(("UnitCrystal", o, "Idle", 4))
+        texturekeys.append(("UnitHomebase", o, "Idle", 4))
     for o in ["SW"]:
         texturekeys.append(("UnitKnight", o, "Idle", 5))
     for o in ["SW"]:
