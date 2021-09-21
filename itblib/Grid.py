@@ -16,7 +16,7 @@ class Grid(Serializable):
     """Manager for Data-Only-Objects like units, tiles, effects, etc."""
 
     def __init__(self, connector:Connector, observer:Optional[IGridObserver]=None, width:int=10, height:int=10):
-        super().__init__(["width", "height", "phasetime", "tiles", "units"])
+        super().__init__(["width", "height", "phasetime", "tiles", "units", "worldeffects"])
         self.height = height
         self.width = width
         self.phasetime = 0
@@ -33,7 +33,20 @@ class Grid(Serializable):
     def extract_data(self) -> dict:
         customtiles = [t.extract_data() if t else None for t in self.tiles]
         customunits = [u.extract_data() if u else None for u in self.units]
-        return super().extract_data(custom_fields={"tiles":customtiles, "units":customunits})
+        customworldeffects = []
+        for effectstack in self.worldeffects:
+            s = []
+            for effect in effectstack:
+                s.append(effect.extract_data())
+            customworldeffects.append(s)
+
+        return super().extract_data(
+            custom_fields={
+                "tiles":customtiles, 
+                "units":customunits,
+                "worldeffects":customworldeffects
+            }
+        )
     
     def insert_data(self, data):
         # TODO: constructing everything every turn might be a bit much, maybe moving
@@ -60,6 +73,16 @@ class Grid(Serializable):
                             self.i_to_c(i), 
                             ClassMapping.unitclassidmapping[unittype], 
                             unitdata["ownerid"])
+        for i in range(len(data["worldeffects"])):
+            effectstackdata = data["worldeffects"][i]
+            for effectdata in effectstackdata:
+                for effecttype in ClassMapping.effectidclassmapping.values():
+                    if effecttype and effecttype.__name__ == effectdata["name"]:
+                        self.add_worldeffect(
+                            self.i_to_c(i), 
+                            ClassMapping.effectclassidmapping[effecttype], 
+                            True)
+        
         
     def update_observer(self, observer:Optional[IGridObserver]):
         """
@@ -184,7 +207,7 @@ class Grid(Serializable):
     def add_worldeffect(self, pos:"tuple[int,int]", tileeffectid:int, from_authority:bool, use_net=True):
         """Add an tile effect to the grid at given position."""
         if from_authority:
-            effecttype:EffectBase = ClassMapping.effectclassmapping[tileeffectid]       
+            effecttype:EffectBase = ClassMapping.effectidclassmapping[tileeffectid]       
             neweffect:EffectBase = effecttype(self, pos)
             self.worldeffects[self.c_to_i(pos)].append(neweffect)
             if self.observer:

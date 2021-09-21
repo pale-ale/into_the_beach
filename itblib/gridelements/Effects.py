@@ -1,11 +1,13 @@
 from typing import TYPE_CHECKING
-from .GridElement import GridElement
+from itblib.gridelements.GridElement import GridElement
+from itblib.Serializable import Serializable
 if TYPE_CHECKING:
-    from itblib.gridelements.Units import UnitBase
+    from itblib.gridelements.units.UnitBase import UnitBase
 
-class EffectBase(GridElement):
+class EffectBase(GridElement, Serializable):
     def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectTrees"):
-        super().__init__(grid, pos, age, done, name)
+        GridElement.__init__(self,grid, pos, age, done, name)
+        Serializable.__init__(self, ["name"])
     
     def on_spawn(self):
         """Triggers when the effect is spawned, i.e. placed on the world"""
@@ -35,6 +37,7 @@ class EffectWheat(EffectBase):
 class EffectTown(EffectBase):
     def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectTown"):
         super().__init__(grid, pos, age, done, name)
+
 
 class EffectHeal(EffectBase):
     def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=False, name="EffectHeal"):
@@ -76,6 +79,7 @@ class EffectBleeding(StatusEffect):
         super().on_update_phase()
         if newphase == 3:
             self.target.hitpoints -= 1
+
 
 class EffectBurrowed(StatusEffect):
     def __init__(self, target: GridElement):
