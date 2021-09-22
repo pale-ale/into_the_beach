@@ -57,8 +57,9 @@ class EffectHeal(EffectBase):
             self.grid.remove_tileeffect(self, self.pos)
 
 
-class StatusEffect:
+class StatusEffect(Serializable):
     def __init__(self, target:GridElement, name:str):
+        super().__init__(["name"])
         self.target = target
         self.name = name
     

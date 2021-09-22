@@ -19,3 +19,4 @@ class BurrowAbility(ToggleAbilityBase):
             burroweffect = EffectBurrowed(self._unit)
             self._unit.add_statuseffect(burroweffect)
             print("BurrowAbility: Burrowed unit:", self._unit.name)
+        self._unit.done = True

@@ -2,6 +2,7 @@ from itblib.Serializable import Serializable
 from typing import TYPE_CHECKING, Type
 from itblib.gridelements.GridElement import GridElement
 from itblib.net.NetEvents import NetEvents
+from itblib.gridelements.Effects import EffectBurrowed, EffectBleeding
 
 if TYPE_CHECKING:
     from itblib.Grid import Grid
@@ -12,7 +13,7 @@ class UnitBase(GridElement, Serializable):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
     name:str="UnitBase", hitpoints:int=5, canswim:bool=False, abilities:"list[Type[AbilityBase]]"=[]):
         GridElement.__init__(self, grid, pos)
-        Serializable.__init__(self, ["name", "hitpoints", "ownerid"])
+        Serializable.__init__(self, ["name", "hitpoints", "ownerid", "statuseffects"])
         self.name = name
         self.hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
@@ -24,6 +25,17 @@ class UnitBase(GridElement, Serializable):
         self.orientation = "sw"
         self.abilities:"list[AbilityBase]" = [ability(self) for ability in abilities]
     
+    def extract_data(self, custom_fields: "dict[str,any]" = ...) -> dict:
+        customstatuseffects = [x.extract_data() for x in self.statuseffects]
+        return Serializable.extract_data(self, custom_fields={"statuseffects":customstatuseffects})
+    
+    def insert_data(self, data):
+        Serializable.insert_data(self, data)
+        for effectdata in data["statuseffects"]:
+            for effectclass in [EffectBurrowed, EffectBleeding]:
+                if effectclass.__name__ == effectdata["name"]:
+                    self.add_statuseffect(effectclass(self))
+
     def tick(self, dt: float):
         super().tick(dt)
         for ability in self.abilities:

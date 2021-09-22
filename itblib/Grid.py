@@ -56,6 +56,7 @@ class Grid(Serializable):
         self.height = data["height"]
         self.tiles:"list[Optional[TileBase]]" = [None]*self.width*self.height
         self.units:"list[Optional[UnitBase]]" = [None]*self.width*self.height
+        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(self.width*self.height)]
         if self.observer:
             self.observer.on_load_map(None)
         for i in range(len(data["tiles"])):
@@ -69,10 +70,11 @@ class Grid(Serializable):
             if unitdata:
                 for unittype in ClassMapping.unitidclassmapping.values():
                     if unittype and unittype.__name__ == unitdata["name"]:
-                        self.add_unit(
+                        unit = self.add_unit(
                             self.i_to_c(i), 
                             ClassMapping.unitclassidmapping[unittype], 
                             unitdata["ownerid"])
+                        unit.insert_data(unitdata)
         for i in range(len(data["worldeffects"])):
             effectstackdata = data["worldeffects"][i]
             for effectdata in effectstackdata:
@@ -221,7 +223,7 @@ class Grid(Serializable):
     def request_add_unit(self, x, y, unitid:int, playerid:int):
         NetEvents.snd_netunitspawn(unitid, (x,y), playerid)
 
-    def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int) -> bool:
+    def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int) -> Optional[UnitBase]:
         """Add a unit to the grid at given position, owned by ownerid."""
         unitclass = ClassMapping.unitidclassmapping[unitid]
         newunit = unitclass(self, pos, ownerid)
@@ -230,10 +232,9 @@ class Grid(Serializable):
             self.units[index] = newunit
             if self.observer:
                 self.observer.on_add_unit(newunit)
-                print("obserer add unit")
-            return True
+            return newunit
         print("Grid: Tried to add unit at index", index, "which is out if range.")
-        return False
+        return None
 
     def remove_unit(self, pos:"tuple[int,int]"):
         """Remove a unit at given position."""
