@@ -86,6 +86,8 @@ class EffectBurrowed(StatusEffect):
     def __init__(self, target: GridElement):
         super().__init__(target, name="EffectBurrowed")
         self.original_shove = target.on_receive_shove
+        self.original_moverange = target.moverange
+        target.moverange = 0
         target.on_receive_shove = self.disabled_shove
     
     def disabled_shove(self, pos):
@@ -94,4 +96,5 @@ class EffectBurrowed(StatusEffect):
     
     def on_purge(self):
         self.target.on_receive_shove = self.original_shove
+        self.target.moverange = self.original_moverange
 

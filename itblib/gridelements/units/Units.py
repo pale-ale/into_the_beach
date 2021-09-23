@@ -37,10 +37,10 @@ class UnitHomebase(UnitBase):
 
 
 class UnitKnight(UnitBase):
-      def __init__(self, grid, pos, ownerid, name:str="UnitKnight"):
+    def __init__(self, grid, pos, ownerid, name:str="UnitKnight"):
         super().__init__(grid, pos, ownerid, name=name, abilities=[MovementAbility, PunchAbility])
 
 
 class UnitBurrower(UnitBase):
-      def __init__(self, grid, pos, ownerid, name:str="UnitBurrower"):
-        super().__init__(grid, pos, ownerid, name=name, abilities=[BurrowAbility])
+    def __init__(self, grid, pos, ownerid, name:str="UnitBurrower"):
+        super().__init__(grid, pos, ownerid, name=name, abilities=[BurrowAbility, MovementAbility, PunchAbility])
