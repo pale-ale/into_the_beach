@@ -1,21 +1,19 @@
-from typing import TYPE_CHECKING, Optional
+from itblib.Serializable import Serializable
+from typing import TYPE_CHECKING, Type
 from itblib.gridelements.GridElement import GridElement
 from itblib.net.NetEvents import NetEvents
-from itblib.gridelements.Effects import StatusEffect, EffectBleeding
-from itblib.Abilities import AbilityBase, BurrowAbility, HealAbility, \
-    MovementAbility, \
-    ObjectiveAbility, \
-    PunchAbility, \
-    PushAbility, \
-    RangedAttackAbility
+from itblib.gridelements.Effects import EffectBurrowed, EffectBleeding
 
 if TYPE_CHECKING:
     from itblib.Grid import Grid
+    from itblib.abilities.AbilityBase import AbilityBase
+    from itblib.gridelements.Effects import StatusEffect
 
-class UnitBase(GridElement):
+class UnitBase(GridElement, Serializable):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
-    name:str="UnitBase", hitpoints:int=5, canswim:bool=False):
-        super().__init__(grid, pos)
+    name:str="UnitBase", hitpoints:int=5, canswim:bool=False, abilities:"list[Type[AbilityBase]]"=[]):
+        GridElement.__init__(self, grid, pos)
+        Serializable.__init__(self, ["name", "hitpoints", "ownerid", "statuseffects"])
         self.name = name
         self.hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
@@ -25,14 +23,25 @@ class UnitBase(GridElement):
         self.ownerid = ownerid
         self.moverange = 5
         self.orientation = "sw"
-        self.abilities:list[AbilityBase] = [MovementAbility(self), PunchAbility(self)]
+        self.abilities:"list[AbilityBase]" = [ability(self) for ability in abilities]
     
+    def extract_data(self, custom_fields: "dict[str,any]" = ...) -> dict:
+        customstatuseffects = [x.extract_data() for x in self.statuseffects]
+        return Serializable.extract_data(self, custom_fields={"statuseffects":customstatuseffects})
+    
+    def insert_data(self, data):
+        Serializable.insert_data(self, data)
+        for effectdata in data["statuseffects"]:
+            for effectclass in [EffectBurrowed, EffectBleeding]:
+                if effectclass.__name__ == effectdata["name"]:
+                    self.add_statuseffect(effectclass(self))
+
     def tick(self, dt: float):
         super().tick(dt)
         for ability in self.abilities:
             ability.tick(dt)
     
-    def add_ability(self, ability_class:AbilityBase):
+    def add_ability(self, ability_class:"AbilityBase"):
         for ability in self.abilities:
             if ability is ability_class:
                 print(ability_class.__name__, "-class already exists")
@@ -49,7 +58,7 @@ class UnitBase(GridElement):
                 self.statuseffects.remove(se)
                 return
     
-    def get_statuseffect(self, name:str) -> "Optional[StatusEffect]": 
+    def get_statuseffect(self, name:str) -> "StatusEffect|None": 
         for se in self.statuseffects:
             if se.name == name:
                 return se
@@ -74,7 +83,7 @@ class UnitBase(GridElement):
     
     def get_movement_ability(self):
         for ability in self.abilities[:]:
-            if type(ability) is MovementAbility:
+            if ability.id == 0:
                 return ability
     
     def on_change_hp(self, delta_hp:int, hp_change_type:str):
@@ -114,7 +123,7 @@ class UnitBase(GridElement):
     def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
         for ability in self.abilities:
             if ability.selected:
-                ability.add_targets(targets)
+                ability.set_targets(True, targets)
     
     def on_death(self):
         for ability in self.abilities:
@@ -135,52 +144,3 @@ class UnitBase(GridElement):
             self.grid.units[newposint].on_change_hp(-1, "collision")
 
     
-class UnitSaucer(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="UnitSaucer"):
-        super().__init__(grid, pos, ownerid, name=name)
-        self.add_ability(RangedAttackAbility)
-        self.add_ability(PushAbility)
-
-
-class UnitMagician(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="m"):
-        super().__init__(grid, pos, ownerid, name=name)
-
-
-class UnitBarbarian(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="U"):
-        super().__init__(grid, pos, ownerid, name=name)
-
-
-class UnitBloodWraith(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="UnitBloodWraith"):
-        super().__init__(grid, pos, ownerid, name=name)
-        self.add_ability(HealAbility)
-        
-    def attack(self, target:"tuple[int,int]" , damage:int, damagetype:str):
-        print("UnitBloodWraith: target:", target)
-        unit = self.grid.get_unit(target)
-        if unit:
-            killingblow = unit.hitpoints > 0
-            unit.on_change_hp(-1, "physical")
-            if unit.hitpoints <= 0 and killingblow:
-                self.on_change_hp(1,"physical")
-
-
-class UnitHomebase(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="UnitCrystal"):
-        super().__init__(grid, pos, ownerid, name=name)
-        self.add_ability(ObjectiveAbility)
-        self.remove_ability("MovementAbility")
-        self.remove_ability("PunchAbility")
-
-
-class UnitKnight(UnitBase):
-      def __init__(self, grid, pos, ownerid, name:str="UnitKnight"):
-        super().__init__(grid, pos, ownerid, name=name)
-
-class UnitBurrower(UnitBase):
-      def __init__(self, grid, pos, ownerid, name:str="UnitBurrower"):
-        super().__init__(grid, pos, ownerid, name=name)
-        self.add_ability(BurrowAbility)
-

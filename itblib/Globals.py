@@ -1,4 +1,4 @@
-from .gridelements.Units import UnitBase, UnitKnight, UnitBurrower,\
+from .gridelements.units.Units import UnitBase, UnitKnight, UnitBurrower,\
                                 UnitSaucer,\
                                 UnitBloodWraith,\
                                 UnitHomebase
@@ -17,26 +17,24 @@ class ClassMapping:
     the respective ids.
     """
     
-    tileclassmapping = {
-        0:None,
-        1:TileBase,
-        2:TileWater,
-        3:TileLava,
-        4:TileRock
-    }
-    effectclassmapping = {
-        0:None,
-        1:EffectBase,
-        2:EffectFire,
-        3:EffectMountain,
-        4:EffectRiver,
-        5:EffectWheat,
-        6:EffectTown,
-        7:EffectHeal,
-    }
+    _effectclasses = [
+        None, EffectBase, EffectFire, EffectMountain, EffectRiver, EffectWheat,
+        EffectTown, EffectHeal
+    ]
     _unitclasses = [None, UnitBase, UnitSaucer, UnitBloodWraith, UnitHomebase, UnitKnight, UnitBurrower]
+    _tileclasses = [None, TileBase, TileWater, TileLava, TileRock]
     unitidclassmapping = {}
     unitclassidmapping = {}
     for i in range(len(_unitclasses)):
         unitidclassmapping[i] = _unitclasses[i]
         unitclassidmapping[_unitclasses[i]] = i
+    tileidclassmapping = {}
+    tileclassidmapping = {}
+    for i in range(len(_tileclasses)):
+        tileidclassmapping[i] = _tileclasses[i]
+        tileclassidmapping[_tileclasses[i]] = i
+    effectidclassmapping = {}
+    effectclassidmapping = {}
+    for i in range(len(_effectclasses)):
+        effectidclassmapping[i] = _effectclasses[i]
+        effectclassidmapping[_effectclasses[i]] = i

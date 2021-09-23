@@ -36,8 +36,9 @@ class Textures:
         ("EffectWheat", "Default", 1),
         ("EffectHeal", "Default", 10),
         ("EffectBleed", "Icon", 1),
+        ("EffectBurrowed", "Icon", 1),
 
-        ("TileDirt", "Default", 1),
+        ("TileBase", "Default", 1),
         ("TileWater", "Default", 1),
         ("TileLava", "Default", 1),
         ("TileRock", "Default", 1),
@@ -55,7 +56,7 @@ class Textures:
     for o in ["SW"]:
         texturekeys.append(("UnitBloodWraith", o, "Idle", 1))
     for o in ["SW"]:
-        texturekeys.append(("UnitCrystal", o, "Idle", 4))
+        texturekeys.append(("UnitHomebase", o, "Idle", 4))
     for o in ["SW"]:
         texturekeys.append(("UnitKnight", o, "Idle", 5))
     for o in ["SW"]:

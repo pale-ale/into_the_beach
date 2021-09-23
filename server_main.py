@@ -20,7 +20,7 @@ NetEvents.grid = serversession._grid
 def handle_networking_events():
     for player in serversession._players.values():
         while True:
-            data = c.receive_custom(player.playersocket)
+            data = c.receive_server(player.playersocket)
             if data:
                 prefix, contents = data
                 NetEvents.rcv_event_caller(prefix, contents)

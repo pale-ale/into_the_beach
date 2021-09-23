@@ -11,7 +11,7 @@ from itblib.gridelements.EffectsUI import EffectBaseUI
 from itblib.ui.GridUI import GridUI
 from itblib.Game import Session
 from itblib.Vec import Vec
-from itblib.gridelements.Units import UnitBase
+from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.net.NetEvents import NetEvents
 
 class UnitDisplay(pygame.sprite.Sprite):
@@ -68,6 +68,7 @@ class UnitDisplay(pygame.sprite.Sprite):
 
     def display_abilities(self, unit:UnitBase):
         """Display the abilities of a unit."""
+        print(len(unit.abilities))
         abilities = unit.abilities
         index = 0
         for ability in abilities:

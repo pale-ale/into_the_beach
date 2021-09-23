@@ -3,20 +3,20 @@ from typing import Optional
 from itblib.net.Connector import Connector
 from itblib.gridelements.Tiles import TileBase
 from .gridelements.Effects import EffectBase
-from .gridelements.Units import UnitBase, UnitSaucer
+from .gridelements.units.UnitBase import UnitBase
 from .Maps import Map
 
 from .Globals import ClassMapping
 from .Enums import PHASES
 from .ui.IGridObserver import IGridObserver
 from itblib.net.NetEvents import NetEvents
+from itblib.Serializable import Serializable
 
-import random
-
-class Grid:
+class Grid(Serializable):
     """Manager for Data-Only-Objects like units, tiles, effects, etc."""
 
     def __init__(self, connector:Connector, observer:Optional[IGridObserver]=None, width:int=10, height:int=10):
+        super().__init__(["width", "height", "phasetime", "tiles", "units", "worldeffects"])
         self.height = height
         self.width = width
         self.phasetime = 0
@@ -29,12 +29,68 @@ class Grid:
         self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
         self.observer = observer
         self.phase = 0
+    
+    def extract_data(self) -> dict:
+        customtiles = [t.extract_data() if t else None for t in self.tiles]
+        customunits = [u.extract_data() if u else None for u in self.units]
+        customworldeffects = []
+        for effectstack in self.worldeffects:
+            s = []
+            for effect in effectstack:
+                s.append(effect.extract_data())
+            customworldeffects.append(s)
 
+        return super().extract_data(
+            custom_fields={
+                "tiles":customtiles, 
+                "units":customunits,
+                "worldeffects":customworldeffects
+            }
+        )
+    
+    def insert_data(self, data):
+        # TODO: constructing everything every turn might be a bit much, maybe moving
+        # units around is a better way to go performance-wise...
+        self.phasetime = data["phasetime"]
+        self.width = data["width"]
+        self.height = data["height"]
+        self.tiles:"list[Optional[TileBase]]" = [None]*self.width*self.height
+        self.units:"list[Optional[UnitBase]]" = [None]*self.width*self.height
+        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(self.width*self.height)]
+        if self.observer:
+            self.observer.on_load_map(None)
+        for i in range(len(data["tiles"])):
+            tiledata = data["tiles"][i]
+            if tiledata:
+                for tiletype in ClassMapping.tileidclassmapping.values():
+                    if tiletype and tiletype.__name__ == tiledata["name"]:
+                        self.add_tile(self.i_to_c(i), ClassMapping.tileclassidmapping[tiletype])
+        for i in range(len(data["units"])):
+            unitdata = data["units"][i]
+            if unitdata:
+                for unittype in ClassMapping.unitidclassmapping.values():
+                    if unittype and unittype.__name__ == unitdata["name"]:
+                        unit = self.add_unit(
+                            self.i_to_c(i), 
+                            ClassMapping.unitclassidmapping[unittype], 
+                            unitdata["ownerid"])
+                        unit.insert_data(unitdata)
+        for i in range(len(data["worldeffects"])):
+            effectstackdata = data["worldeffects"][i]
+            for effectdata in effectstackdata:
+                for effecttype in ClassMapping.effectidclassmapping.values():
+                    if effecttype and effecttype.__name__ == effectdata["name"]:
+                        self.add_worldeffect(
+                            self.i_to_c(i), 
+                            ClassMapping.effectclassidmapping[effecttype], 
+                            True)
+        
+        
     def update_observer(self, observer:Optional[IGridObserver]):
         """
         Set a new observer, which will receive events for e.g. a spawned unit.
 
-        Useful in event-based scenarios, like loading a grpahical display for the new unit.
+        Useful in event-based scenarios, like loading a graphical display for the new unit.
         """
         self.observer = observer
     
@@ -62,7 +118,7 @@ class Grid:
                     obstacles.append(unit.pos)
                     unit.done = True
                 else:
-                    unit.get_movement_ability().activate()
+                    unit.get_movement_ability().on_trigger()
                     movingunits.append(unit)
         if len(movingunits) > 0:
             nextpositions:dict[tuple[int,int],list[UnitBase]] = {} #position:[units that want to go here]
@@ -139,7 +195,7 @@ class Grid:
 
     def add_tile(self, pos:"tuple[int,int]", tileid:int) -> bool:
         """Add a tile to the grid at given position."""
-        tiletype = ClassMapping.tileclassmapping[tileid]
+        tiletype = ClassMapping.tileidclassmapping[tileid]
         newtile = tiletype(self, pos)
         index = self.c_to_i(pos)
         if index >= 0 and index < len(self.tiles):
@@ -153,7 +209,7 @@ class Grid:
     def add_worldeffect(self, pos:"tuple[int,int]", tileeffectid:int, from_authority:bool, use_net=True):
         """Add an tile effect to the grid at given position."""
         if from_authority:
-            effecttype:EffectBase = ClassMapping.effectclassmapping[tileeffectid]       
+            effecttype:EffectBase = ClassMapping.effectidclassmapping[tileeffectid]       
             neweffect:EffectBase = effecttype(self, pos)
             self.worldeffects[self.c_to_i(pos)].append(neweffect)
             if self.observer:
@@ -167,7 +223,7 @@ class Grid:
     def request_add_unit(self, x, y, unitid:int, playerid:int):
         NetEvents.snd_netunitspawn(unitid, (x,y), playerid)
 
-    def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int) -> bool:
+    def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int) -> Optional[UnitBase]:
         """Add a unit to the grid at given position, owned by ownerid."""
         unitclass = ClassMapping.unitidclassmapping[unitid]
         newunit = unitclass(self, pos, ownerid)
@@ -176,9 +232,9 @@ class Grid:
             self.units[index] = newunit
             if self.observer:
                 self.observer.on_add_unit(newunit)
-            return True
+            return newunit
         print("Grid: Tried to add unit at index", index, "which is out if range.")
-        return False
+        return None
 
     def remove_unit(self, pos:"tuple[int,int]"):
         """Remove a unit at given position."""
@@ -236,6 +292,10 @@ class Grid:
     def c_to_i(self, coords:"tuple[int,int]") -> int:
         """Convert xy-coordinates to the corresponding index."""
         return self.width*coords[1] + coords[0]
+    
+    def i_to_c(self, i:int) -> "tuple[int,int]":
+        """Convert index to the corresponding xy-coordinates."""
+        return (i%self.width, int(i/self.width))
 
     def is_coord_in_bounds(self, pos:"tuple[int,int]"):
         """Check whether a coordinate is inside the grid space."""
@@ -279,10 +339,16 @@ class Grid:
                         self.advance_phase()
                         NetEvents.snd_netphasechange(self.phase)
                         self.phasetime = 0.0
-            elif self.phase in [2,3,4]:
+            elif self.phase in [2,3]:
                 if self.everybody_done():
                     self.advance_phase()
                     NetEvents.snd_netphasechange(self.phase)
+            elif self.phase == 4:
+                print("test")
+                if self.everybody_done():
+                    self.advance_phase()
+                    NetEvents.snd_netphasechange(self.phase)
+                    NetEvents.snd_netsync()
                 else:
                     if self.phasetime >= 0.5:
                         self.phasetime = 0.0
@@ -295,7 +361,7 @@ class Grid:
             for y in range(self.height):
                 tile = self.tiles[self.width*y+x]
                 if tile:
-                    text += str(tile.id)
+                    text += str(tile.name)+" "
                 else:
                     text += " "
             text += "\n"

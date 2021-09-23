@@ -54,9 +54,9 @@ class MapGrasslands(Map):
         self.tileids[42] = 2
         self.tileids[51] = 4
         self.tileids[52] = 4
-        self.tileids[44] = 3
+        self.tileids[44] = 0
         self.tileids[45] = 3
-        self.tileids[54] = 3
+        self.tileids[54] = 0
         self.tileids[55] = 3
         self.tileids[47] = 4
         self.tileids[48] = 4
@@ -80,3 +80,41 @@ class MapGrasslands(Map):
         self.tileeffectids[36].append(2)
         self.tileeffectids[63].append(2)
 
+class MapRockValley(Map):
+    def __init__(self):
+        super().__init__()
+        for x in range (0, 100):
+            self.tileids[x] = 4
+        lava = [0, 1, 2, 7, 8, 9, 10, 19, 20, 29, 70, 80, 90, 91, 92, 97, 98, 99, 79, 89]
+        for x in lava:
+            self.tileids[x] = 3
+        mountain = [44, 45, 54, 55]
+        for x in mountain:
+            self.tileeffectids[x].append(3)
+            self.tileids[x] = 1
+        water = [3, 4, 5, 6, 30, 40, 50, 60, 93, 94, 95, 96, 39, 49, 59, 69]
+        for x in water:
+            self.tileids[x] = 2
+        wheat = [17, 18, 27, 28, 71, 72, 81, 82]
+        for x in wheat:
+            self.tileids[x] = 1
+            self.tileeffectids[x].append(5)
+        self.tileeffectids[33].append(6)
+        self.tileeffectids[66].append(6)
+        self.tileeffectids[36].append(6)
+        self.tileeffectids[63].append(6)
+
+class MapIceAge(Map):
+    def __init__(self):
+        super().__init__()
+        for x in range (0, 100):
+            self.tileids[x] = 2
+
+        mountain = [7, 8, 9, 19, 29, 70, 80, 90, 91, 92]
+        for x in mountain:
+            self.tileeffectids[x].append(3)
+        
+        rock = [0, 1, 2, 10 ,20, 79, 89, 99, 97, 98]
+        for x in rock:
+            self.tileids[x] = 4
+        

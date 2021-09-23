@@ -5,7 +5,7 @@ from ..gridelements.Effects import EffectBase
 from ..gridelements.EffectsUI import EffectBaseUI, EffectHealUI, EffectRiverUI
 from ..gridelements.Tiles import TileBase
 from ..gridelements.TilesUI import TileBaseUI
-from ..gridelements.Units import UnitBase
+from itblib.gridelements.units.UnitBase import UnitBase
 from ..gridelements.UnitsUI import UnitBaseUI
 from ..Maps import Map
 from . import IGridObserver
@@ -187,5 +187,11 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
                 r = (c[0] + int(squaresize/2) , c[1] + o)
                 t = (c[0], c[1] - int(squaresize/3) + o -1)
                 b = (c[0], c[1] + int(squaresize/3) + o +1)
-                draw.lines(self.image, NetEvents.session._players[uiunit._parentelement.ownerid].color, True, (l, t, r, b), 2)
+                draw.lines(
+                    self.image,
+                    NetEvents.session._players[uiunit._parentelement.ownerid].color,
+                    True, 
+                    (l, t, r, b), 
+                    2
+                )
         self.unitsprites.draw(self.image)

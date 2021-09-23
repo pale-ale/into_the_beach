@@ -36,6 +36,9 @@ class EffectRiverUI(EffectBaseUI):
                 prevdelta = (pos[0] - prev[0], pos[1] - prev[1])
                 nextdelta = (next[0] - pos[0], next[1] - pos[1])
                 imageid = RIVER[(*nextdelta, *prevdelta)]
+            else:
+                print("EffectRiverUI: Weird riverposs:", riverposs)
+                return False
             newanimframe = 6*int(self._parentelement.age) % 2 + imageid
             if self.animframe != newanimframe:
                 self.image = self._textures[newanimframe]

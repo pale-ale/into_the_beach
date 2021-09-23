@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/..")
 
 from itblib.Grid import Grid
-from itblib.gridelements.Units import UnitBase
+from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.Tiles import TileBase
 from itblib.scenes.RosterSelectionScene import RosterSelectionScene
 
@@ -14,8 +14,8 @@ class TestGridMethods(unittest.TestCase):
         self.grid = Grid(connector=None, observer=None, width=self.w, height=self.h)
     
     def tearDown(self):
-        self.grid.units.clear()
-        self.grid.tiles.clear()
+        self.grid.units = [None]*len(self.grid.units)
+        self.grid.tiles = [None]*len(self.grid.tiles)
 
     def test_init(self):
         self.assertEqual(len(self.grid.units), self.w*self.h)
@@ -122,6 +122,21 @@ class TestUnitBaseMethods(unittest.TestCase):
 
     def test_init(self):
         self.assertTrue(False)
+    
+    def test_grid_extract_data(self):
+        d = self.grid.extract_data()
+        self.assertEqual(
+            d,
+            {'width': 3, 'height': 5, 'phasetime': 0, 'tiles': [None]*15})
+    
+    # def test_grid_insert_data(self):
+    #     self.assertTrue(False)
+    
+    # def test_is_coord_in_bounds(self):
+    #     self.assertTrue(False)
+
+    # def test_get_ordinal_neighbors(self):
+    #     self.assertTrue(False)
 
     def test_add_ability(self):
         ability = Pushability(Unit.self)

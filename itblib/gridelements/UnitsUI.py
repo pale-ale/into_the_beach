@@ -1,9 +1,6 @@
 from itblib.Vec import Vec
-from typing import TYPE_CHECKING
 from .GridElementUI import GridElementUI
-from .Units import UnitBase
-if TYPE_CHECKING:
-    from itblib.ui.GridUI import GridUI
+from itblib.gridelements.units.UnitBase import UnitBase
 
 class UnitBaseUI(GridElementUI):
     def __init__(self, unit:UnitBase):

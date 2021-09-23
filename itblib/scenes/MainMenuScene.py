@@ -14,7 +14,7 @@ class MainMenuScene(SceneBase):
         s = self.subfont.render("Settings", True, (50,200,150,255))
         s1 = self.subfont.render("      F: Toggle Fullscreen", True, (50,200,150,255))
         s2 = self.subfont.render("      R: Edit Roster", True, (50,200,150,255))
-        s3 = self.subfont.render("      Another great setting.", True, (50,200,150,255))
+        s3 = self.subfont.render("      M: Mapselection.", True, (50,200,150,255))
         y = self.subfont.render("ESC to quit, SPACE to queue", True, (50,200,150,255))
         self.image.blit(x, (100,100))
         self.fullscreen = False
@@ -33,6 +33,8 @@ class MainMenuScene(SceneBase):
                 self.scenemanager.load_scene("GameScene")
             elif keyevent.key == pygame.K_r:
                 self.scenemanager.load_scene("RosterSelectionScene")
+            elif keyevent.key == pygame.K_m:
+                self.scenemanager.load_scene("MapSelectionScene")
             elif keyevent.key == pygame.K_f:
                 self.fullscreen = not self.fullscreen
                 self.client.update_fullscreen(self.fullscreen)
