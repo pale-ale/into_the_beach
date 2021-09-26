@@ -8,7 +8,7 @@ from itblib.abilities.Abilities import RangedAttackAbility,\
     ObjectiveAbility
 
 class UnitSaucer(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="UnitSaucer"):
+    def __init__(self, grid, pos, ownerid, name:str="Saucer"):
         super().__init__(grid, pos, ownerid, name=name, 
             abilities=[
                 MovementAbility,
@@ -19,7 +19,7 @@ class UnitSaucer(UnitBase):
 
 
 class UnitBloodWraith(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="UnitBloodWraith"):
+    def __init__(self, grid, pos, ownerid, name:str="BloodWraith"):
         super().__init__(grid, pos, ownerid, name=name, abilities=[HealAbility])
         
     def attack(self, target:"tuple[int,int]" , damage:int, damagetype:str):
@@ -32,15 +32,15 @@ class UnitBloodWraith(UnitBase):
 
 
 class UnitHomebase(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="UnitHomebase"):
+    def __init__(self, grid, pos, ownerid, name:str="Homebase"):
         super().__init__(grid, pos, ownerid, name=name, abilities=[ObjectiveAbility])
 
 
 class UnitKnight(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="UnitKnight"):
+    def __init__(self, grid, pos, ownerid, name:str="Knight"):
         super().__init__(grid, pos, ownerid, name=name, abilities=[MovementAbility, PunchAbility])
 
 
 class UnitBurrower(UnitBase):
-    def __init__(self, grid, pos, ownerid, name:str="UnitBurrower"):
+    def __init__(self, grid, pos, ownerid, name:str="Burrower"):
         super().__init__(grid, pos, ownerid, name=name, abilities=[BurrowAbility, MovementAbility, PunchAbility])

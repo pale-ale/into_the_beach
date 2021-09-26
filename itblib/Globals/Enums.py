@@ -66,3 +66,30 @@ RIVER = {
     (1,0,1,0):5,
     (1,0,-1,0):5,
 }
+
+TILE_IDS = [
+    None,
+    "Base",
+    "Water",
+    "Lava",
+    "Rock"
+]
+EFFECT_IDS = [
+    None,
+    "Base,",
+    "Fire",
+    "Mountain",
+    "River",
+    "Wheat",
+    "Town",
+    "Heal"
+]
+UNIT_IDS = [
+    None,
+    "Base",
+    "Saucer", 
+    "BloodWraith", 
+    "Homebase", 
+    "Knight", 
+    "Burrower"
+]

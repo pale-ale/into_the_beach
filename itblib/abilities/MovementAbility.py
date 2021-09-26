@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from itblib.abilities.AbilityBase import AbilityBase
-from itblib.Enums import PREVIEWS
+from itblib.Globals.Enums import PREVIEWS
 from itblib.net.NetEvents import NetEvents
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase

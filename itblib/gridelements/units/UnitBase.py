@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class UnitBase(GridElement, Serializable):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
-    name:str="UnitBase", hitpoints:int=5, canswim:bool=False, abilities:"list[Type[AbilityBase]]"=[]):
+    name:str="Base", hitpoints:int=5, canswim:bool=False, abilities:"list[Type[AbilityBase]]"=[]):
         GridElement.__init__(self, grid, pos)
         Serializable.__init__(self, ["name", "hitpoints", "ownerid", "statuseffects"])
         self.name = name

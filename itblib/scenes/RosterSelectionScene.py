@@ -1,10 +1,11 @@
+from itblib.Globals.Enums import UNIT_IDS
+from itblib.Globals.GridElementFactory import GridElementFactory
 from itblib.ui.TextureManager import Textures
 from pygame.surface import Surface
 from itblib.Vec import Vec
 from itblib.SceneManager import SceneManager
 from itblib.scenes.SceneBase import SceneBase
 from itblib.Player import PlayerData
-from itblib.Globals import ClassMapping
 import pygame
 import pygame.font
 import pygame.transform
@@ -46,10 +47,10 @@ class RosterSelectionScene(SceneBase):
                     (*self.c_to_s((x,y)), self.tilewidth, self.tileheight)
                 )
                 unitindex = y*self.tilecountline+x
-                if unitindex < len(self.unitids):
-                    tex = Surface((64,64)).convert_alpha() 
+                if unitindex+1 < len(self.unitids):
+                    tex = Surface((64,64)).convert_alpha()
                     t = Textures.get_spritesheet(
-                        ClassMapping.unitidclassmapping[self.unitids[unitindex]].__name__+"SWIdle"
+                        UNIT_IDS[unitindex+1]+"SWIdle"
                     )[0]
                     tex.blit(t, (0,0,64,64))
                     s = Surface((self.tilewidth, self.tileheight)).convert_alpha()

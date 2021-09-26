@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from itblib.Enums import PREVIEWS
+from itblib.Globals.Enums import PREVIEWS
 from itblib.abilities.TargetAbilityBase import TargetAbilityBase
 
 if TYPE_CHECKING:

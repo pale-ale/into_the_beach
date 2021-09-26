@@ -3,7 +3,7 @@ import pygame
 import pygame.transform
 import pygame.image
 import pygame.surface
-from ..Enums import PREVIEWS
+from itblib.Globals.Enums import PREVIEWS
 
 class Textures:
     """Provides easy access to the textures used in this game."""
@@ -28,20 +28,20 @@ class Textures:
         4:"ProperBackdropOrange",
     }
     texturekeys = [
-        ("EffectFire", "Default", 2),
-        ("EffectMountain", "Default", 1),
-        ("EffectRiver", "Default", 6),
-        ("EffectTown", "Default", 1),
-        ("EffectTrees", "Default", 1),
-        ("EffectWheat", "Default", 1),
-        ("EffectHeal", "Default", 10),
-        ("EffectBleed", "Icon", 1),
-        ("EffectBurrowed", "Icon", 1),
+        ("Fire", "Default", 2),
+        ("Mountain", "Default", 1),
+        ("River", "Default", 6),
+        ("Town", "Default", 1),
+        ("Trees", "Default", 1),
+        ("Wheat", "Default", 1),
+        ("Heal", "Default", 10),
+        ("Bleed", "Icon", 1),
+        ("Burrowed", "Icon", 1),
 
-        ("TileBase", "Default", 1),
-        ("TileWater", "Default", 1),
-        ("TileLava", "Default", 1),
-        ("TileRock", "Default", 1),
+        ("Base", "Default", 1),
+        ("Water", "Default", 1),
+        ("Lava", "Default", 1),
+        ("Rock", "Default", 1),
     ]
     for p in PREVIEWS.values():
         texturekeys.append((p, 1))
@@ -50,24 +50,27 @@ class Textures:
     for p in backgroundtexturemapping.values():
         texturekeys.append((p,))
     for o in ["NE","SE","SW","NW"]:
-        texturekeys.append(("UnitBase", o, "Idle", 1))
+        texturekeys.append(("Base", o, "Idle", 1))
     for o in ["SW"]:
-        texturekeys.append(("UnitSaucer", o, "Idle", 2))
+        texturekeys.append(("Saucer", o, "Idle", 2))
     for o in ["SW"]:
-        texturekeys.append(("UnitBloodWraith", o, "Idle", 1))
+        texturekeys.append(("BloodWraith", o, "Idle", 1))
     for o in ["SW"]:
-        texturekeys.append(("UnitHomebase", o, "Idle", 4))
+        texturekeys.append(("Homebase", o, "Idle", 4))
     for o in ["SW"]:
-        texturekeys.append(("UnitKnight", o, "Idle", 5))
+        texturekeys.append(("Knight", o, "Idle", 5))
     for o in ["SW"]:
-        texturekeys.append(("UnitBurrower", o, "Burrowed", 10))
+        texturekeys.append(("Burrower", o, "Burrowed", 10))
     for o in ["SW"]:
-        texturekeys.append(("UnitBurrower", o, "Idle", 1))
+        texturekeys.append(("Burrower", o, "Idle", 1))
 
     @classmethod
     def get_spritesheet(cls, key:str) -> "list[pygame.Surface]|None":
         """Returns the according spritesheet as a list of images or None if it it doesn't exist"""
-        return cls.textures[key] if key in cls.textures else None
+        if key in cls.textures:
+            return cls.textures[key]
+        print(f"Texturemanager: Key '{key}' not found.")
+        return None
     
     @staticmethod
     def load_textures(scale:"tuple[float,float]"=(1.0,1.0)):

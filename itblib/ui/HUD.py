@@ -4,7 +4,7 @@ import pygame.transform
 import pygame.font
 import pygame.image
 from itblib.ui.TextureManager import Textures
-from itblib.Enums import PHASES, PREVIEWS
+from itblib.Globals.Enums import PHASES, PREVIEWS
 from itblib.gridelements.UnitsUI import UnitBaseUI
 from itblib.gridelements.TilesUI import TileBaseUI
 from itblib.gridelements.EffectsUI import EffectBaseUI

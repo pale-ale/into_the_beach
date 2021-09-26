@@ -1,3 +1,4 @@
+from itblib.Globals.GridElementFactory import GridElementFactory
 from itblib.gridelements.GridElement import GridElement
 from typing import Optional
 from itblib.net.Connector import Connector
@@ -5,9 +6,7 @@ from itblib.gridelements.Tiles import TileBase
 from .gridelements.Effects import EffectBase
 from .gridelements.units.UnitBase import UnitBase
 from .Maps import Map
-
-from .Globals import ClassMapping
-from .Enums import PHASES
+from itblib.Globals.Enums import EFFECT_IDS, PHASES, TILE_IDS, UNIT_IDS
 from .ui.IGridObserver import IGridObserver
 from itblib.net.NetEvents import NetEvents
 from itblib.Serializable import Serializable
@@ -62,28 +61,32 @@ class Grid(Serializable):
         for i in range(len(data["tiles"])):
             tiledata = data["tiles"][i]
             if tiledata:
-                for tiletype in ClassMapping.tileidclassmapping.values():
-                    if tiletype and tiletype.__name__ == tiledata["name"]:
-                        self.add_tile(self.i_to_c(i), ClassMapping.tileclassidmapping[tiletype])
+                tiletype = GridElementFactory.find_tile_class(tiledata["name"])
+                if tiletype:
+                    self.add_tile(
+                        self.i_to_c(i), 
+                        TILE_IDS.index(tiledata["name"])
+                    )
         for i in range(len(data["units"])):
             unitdata = data["units"][i]
             if unitdata:
-                for unittype in ClassMapping.unitidclassmapping.values():
-                    if unittype and unittype.__name__ == unitdata["name"]:
-                        unit = self.add_unit(
-                            self.i_to_c(i), 
-                            ClassMapping.unitclassidmapping[unittype], 
-                            unitdata["ownerid"])
-                        unit.insert_data(unitdata)
+                unittype =  GridElementFactory.find_unit_class(unitdata["name"])
+                if unittype:
+                    unit = self.add_unit(
+                        self.i_to_c(i), 
+                        UNIT_IDS.index(unitdata["name"]), 
+                        unitdata["ownerid"]
+                    )
+                    unit.insert_data(unitdata)
         for i in range(len(data["worldeffects"])):
             effectstackdata = data["worldeffects"][i]
             for effectdata in effectstackdata:
-                for effecttype in ClassMapping.effectidclassmapping.values():
-                    if effecttype and effecttype.__name__ == effectdata["name"]:
-                        self.add_worldeffect(
-                            self.i_to_c(i), 
-                            ClassMapping.effectclassidmapping[effecttype], 
-                            True)
+                effecttype = GridElementFactory.find_effect_class(effectdata["name"])
+                if effecttype:
+                    self.add_worldeffect(
+                        self.i_to_c(i), 
+                        EFFECT_IDS.index(effectdata["name"]), 
+                        True)
         
         
     def update_observer(self, observer:Optional[IGridObserver]):
@@ -195,7 +198,7 @@ class Grid(Serializable):
 
     def add_tile(self, pos:"tuple[int,int]", tileid:int) -> bool:
         """Add a tile to the grid at given position."""
-        tiletype = ClassMapping.tileidclassmapping[tileid]
+        tiletype = GridElementFactory.find_tile_class(TILE_IDS[tileid])
         newtile = tiletype(self, pos)
         index = self.c_to_i(pos)
         if index >= 0 and index < len(self.tiles):
@@ -209,7 +212,7 @@ class Grid(Serializable):
     def add_worldeffect(self, pos:"tuple[int,int]", tileeffectid:int, from_authority:bool, use_net=True):
         """Add an tile effect to the grid at given position."""
         if from_authority:
-            effecttype:EffectBase = ClassMapping.effectidclassmapping[tileeffectid]       
+            effecttype:EffectBase = GridElementFactory.find_effect_class(EFFECT_IDS[tileeffectid])     
             neweffect:EffectBase = effecttype(self, pos)
             self.worldeffects[self.c_to_i(pos)].append(neweffect)
             if self.observer:
@@ -225,7 +228,7 @@ class Grid(Serializable):
 
     def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int) -> Optional[UnitBase]:
         """Add a unit to the grid at given position, owned by ownerid."""
-        unitclass = ClassMapping.unitidclassmapping[unitid]
+        unitclass = GridElementFactory.find_unit_class(UNIT_IDS[unitid])
         newunit = unitclass(self, pos, ownerid)
         index = self.c_to_i(pos)
         if index >= 0 and index < len(self.units):

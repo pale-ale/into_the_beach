@@ -26,7 +26,8 @@ class GridElementUI(pygame.sprite.Sprite):
         else:
             texturekey += "Default"
         spritesheet = Textures.get_spritesheet(texturekey)
-        self.update_texture_source(spritesheet)
+        if spritesheet:
+            self.update_texture_source(spritesheet)
 
 
     def update_texture_source(self, source:"list[pygame.Surface]"):

@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
 class EffectBase(GridElement, Serializable):
-    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectTrees"):
+    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="Trees"):
         GridElement.__init__(self,grid, pos, age, done, name)
         Serializable.__init__(self, ["name"])
     
@@ -15,32 +15,32 @@ class EffectBase(GridElement, Serializable):
 
   
 class EffectFire(EffectBase):
-    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectFire"):
+    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="Fire"):
         super().__init__(grid, pos, age, done, name)
 
 
 class EffectMountain(EffectBase):
-    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectMountain"):
+    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="Mountain"):
         super().__init__(grid, pos, age, done, name)
 
 
 class EffectRiver(EffectBase):
-    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectRiver"):
+    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="River"):
         super().__init__(grid, pos, age, done, name)
 
 
 class EffectWheat(EffectBase):
-    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectWheat"):
+    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="Wheat"):
         super().__init__(grid, pos, age, done, name)
 
 
 class EffectTown(EffectBase):
-    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="EffectTown"):
+    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="Town"):
         super().__init__(grid, pos, age, done, name)
 
 
 class EffectHeal(EffectBase):
-    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=False, name="EffectHeal"):
+    def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=False, name="Heal"):
         super().__init__(grid, pos, age, done, name)
         self.done = False
     
@@ -74,7 +74,7 @@ class StatusEffect(Serializable):
 
 class EffectBleeding(StatusEffect):
     def __init__(self, target: GridElement):
-        super().__init__(target, name="EffectBleeding")
+        super().__init__(target, name="Bleeding")
     
     def on_update_phase(self, newphase: int):
         super().on_update_phase()
@@ -84,7 +84,7 @@ class EffectBleeding(StatusEffect):
 
 class EffectBurrowed(StatusEffect):
     def __init__(self, target: GridElement):
-        super().__init__(target, name="EffectBurrowed")
+        super().__init__(target, name="Burrowed")
         self.original_shove = target.on_receive_shove
         self.original_moverange = target.moverange
         target.moverange = 0

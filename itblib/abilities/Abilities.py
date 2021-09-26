@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from itblib.Enums import PREVIEWS
+from itblib.Globals.Enums import PREVIEWS
 from itblib.gridelements.Effects import EffectBurrowed
 from itblib.net.NetEvents import NetEvents
 from itblib.abilities.AbilityBase import AbilityBase
