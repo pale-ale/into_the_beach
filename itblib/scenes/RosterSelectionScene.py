@@ -46,17 +46,19 @@ class RosterSelectionScene(SceneBase):
                     (int(x/self.tilecountline*255), int(y/self.lines*255), 100, 255),
                     (*self.c_to_s((x,y)), self.tilewidth, self.tileheight)
                 )
-                unitindex = y*self.tilecountline+x
-                if unitindex+1 < len(self.unitids):
-                    tex = Surface((64,64)).convert_alpha()
-                    t = Textures.get_spritesheet(
-                        UNIT_IDS[unitindex+1]+"SWIdle"
-                    )[0]
-                    tex.blit(t, (0,0,64,64))
-                    s = Surface((self.tilewidth, self.tileheight)).convert_alpha()
-                    pygame.transform.scale(tex, s.get_size(), s)
-                    self.unitlist.blit(s, self.c_to_s((x,y)))
-                self.draw_tangle((x,y))
+        for unitindex in range(len(self.unitids)):
+            x = unitindex%self.tilecountline
+            y = int(unitindex/self.tilecountline)
+            tex = Surface((64,64)).convert_alpha()
+            tex.fill((0))
+            t = Textures.get_spritesheet(
+                UNIT_IDS[self.unitids[unitindex]]+"SWIdle"
+            )[0]
+            tex.blit(t, (0,0,64,64))
+            s = Surface((self.tilewidth, self.tileheight)).convert_alpha()
+            pygame.transform.scale(tex, s.get_size(), s)
+            self.unitlist.blit(s, self.c_to_s((x,y)))
+            self.draw_tangle((x,y))
         self.image.blit(self.unitlist, (0, 100))
         self.update_cursor_pos((0,0))
     

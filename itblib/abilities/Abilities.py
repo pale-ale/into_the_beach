@@ -96,11 +96,8 @@ class ObjectiveAbility(AbilityBase):
 class HealAbility(AbilityBase):
     """Spawn a heal at selected neighboring tile, healing any unit by 1."""
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit)
-        self.id = 5
-        self.cooldown = 3
+        super().__init__(unit, 5, 2, cooldown=3)
         self.remainingcooldown = 0
-        self.phase = 2
     
     def on_select_ability(self):
         super().on_select_ability()
