@@ -48,7 +48,10 @@ class EffectHeal(EffectBase):
         super().on_spawn()
         unit = self.grid.get_unit(self.pos)
         if unit:
-            unit.on_change_hp(5, "magic")
+            unit.on_change_hp(1, "magic")
+            bleed = unit.get_statuseffect("Bleeding")
+            if bleed:
+                unit.remove_statuseffect(bleed)
 
     def tick(self, dt:float):
         super().tick(dt)
@@ -77,7 +80,7 @@ class EffectBleeding(StatusEffect):
         super().__init__(target, name="Bleeding")
     
     def on_update_phase(self, newphase: int):
-        super().on_update_phase()
+        super().on_update_phase(newphase)
         if newphase == 3:
             self.target.hitpoints -= 1
 

@@ -14,7 +14,7 @@ class MovementAbility(AbilityBase):
     """
 
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit, 0, 4, cooldown=0)
+        super().__init__(unit, 4, cooldown=0)
         self.timinginfo = unit.age
         self.remainingcooldown = 0
         self.durationperstep = .5 #seconds

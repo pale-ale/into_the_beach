@@ -17,7 +17,7 @@ class UnitBase(GridElement, Serializable):
         self.name = name
         self.hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
-        self.baseattack = {"physical": 20, "magical": 0}
+        self.baseattack = {"physical": 1, "magical": 0}
         self.statuseffects:"list[StatusEffect]" = []
         self.canswim = canswim
         self.ownerid = ownerid
@@ -33,7 +33,7 @@ class UnitBase(GridElement, Serializable):
         Serializable.insert_data(self, data)
         for effectdata in data["statuseffects"]:
             for effectclass in [EffectBurrowed, EffectBleeding]:
-                if effectclass.__name__ == effectdata["name"]:
+                if effectclass.__name__ == "Effect" + effectdata["name"]:
                     self.add_statuseffect(effectclass(self))
 
     def tick(self, dt: float):
@@ -83,7 +83,7 @@ class UnitBase(GridElement, Serializable):
     
     def get_movement_ability(self):
         for ability in self.abilities[:]:
-            if ability.id == 0:
+            if type(ability).__name__ == "MovementAbility":
                 return ability
     
     def on_change_hp(self, delta_hp:int, hp_change_type:str):

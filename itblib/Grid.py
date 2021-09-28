@@ -99,15 +99,17 @@ class Grid(Serializable):
     
     def everybody_done(self) -> bool:
         """Check whether every member of the grid has finished it's actions, like moving."""
+        notdone = []
         for group in (self.units, self.tiles):    
             for member in group:
                 if member and not member.done:
-                    return False
+                    notdone.append(member)
         for effectstack in self.worldeffects:    
             for effect in effectstack:
                 if effect and not effect.done:
-                    return False
-        return True
+                    notdone.append(member)
+        print("Grid: Not done:", notdone)
+        return len(notdone) == 0
 
     def update_unit_movement(self):
         """Move units by one step and handle collisions between them or other obstacles. Server Only"""

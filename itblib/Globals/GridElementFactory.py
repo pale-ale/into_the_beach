@@ -7,13 +7,10 @@ class GridElementFactory:
     """
     Useful if you want to spawn the right tile/unit/effect based on name
     """
-    #classes = [import_module('itblib.gridelements.units.Units.Unit' + s) for s in IDs.TILE_IDS if s]
-    #tiles = import_module('itblib.gridelements.units.Units')
-    #effects = import_module('itblib.gridelements.units.Units')
-    #exit()
 
     @staticmethod 
     def _find_class(name:str, classes):
+        """Return a class named 'name' in 'classes' or None if not found"""
         if name in classes.__dict__.keys():
             cls = classes.__dict__[name]
             return cls
@@ -22,12 +19,15 @@ class GridElementFactory:
 
     @staticmethod
     def find_unit_class(name:str):
+        """Return a class named 'name' in 'itblib.gridelements.units.Units' or None if not found"""
         return GridElementFactory._find_class("Unit" + name, units)
 
     @staticmethod
     def find_tile_class(name:str):
+        """Return a class named 'name' in 'itblib.gridelements.Tiles' or None if not found"""
         return GridElementFactory._find_class("Tile" + name, tiles)
 
     @staticmethod
     def find_effect_class(name:str):
+        """Return a class named 'name' in 'itblib.gridelements.Effects' or None if not found"""
         return GridElementFactory._find_class("Effect" + name, effects)

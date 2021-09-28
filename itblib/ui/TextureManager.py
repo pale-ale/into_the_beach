@@ -12,7 +12,7 @@ class Textures:
     textures:"dict[str,list]" = {}
 
     abilitytexturemapping = {
-        0:"MoveAbility",
+        0:"MovementAbility",
         1:"PunchAbility",
         2:"PunchAbility",
         3:"PushAbility",
@@ -35,7 +35,7 @@ class Textures:
         ("Trees", "Default", 1),
         ("Wheat", "Default", 1),
         ("Heal", "Default", 10),
-        ("Bleed", "Icon", 1),
+        ("Bleeding", "Icon", 1),
         ("Burrowed", "Icon", 1),
 
         ("Base", "Default", 1),

@@ -64,16 +64,16 @@ class UnitDisplay(pygame.sprite.Sprite):
             if spritesheet:
                 self.image.blit(spritesheet[0], (i,100))
             else:
+                print(f"HUD: Texture {texkey} not found.")
                 self.image.fill((255,0,255), (i,100,32,32))
 
     def display_abilities(self, unit:UnitBase):
         """Display the abilities of a unit."""
-        print(len(unit.abilities))
         abilities = unit.abilities
         index = 0
         for ability in abilities:
-            if ability.id in Textures.abilitytexturemapping.keys():
-                abilityimage = Textures.get_spritesheet(Textures.abilitytexturemapping[ability.id])[0]
+            if type(ability).__name__ in Textures.abilitytexturemapping.values():
+                abilityimage = Textures.get_spritesheet(type(ability).__name__)[0]
                 self.image.blit(abilityimage, Vec.comp_add2(self.abilityimagepos, (16*index, 2)), (0,0,16,16))
                 if ability.phase >= 0:
                     if ability.remainingcooldown > 0:
@@ -84,6 +84,8 @@ class UnitDisplay(pygame.sprite.Sprite):
                         self.image.fill(self.phasecolors[ability.phase], 
                             (*Vec.comp_add2(self.abilityphasepos, (16*index, 0)), 16, 20)
                         )
+            else:
+                print(f"HUD: Texture {type(ability).__name__} not found.")
             if self.displayunit and unit == self.displayunit._parentelement:
                 numberimage = self.font.render(str(index+1), True, (255,255,255,255))
                 self.image.blit(numberimage, Vec.comp_add2(self.abilityphasepos, (16*index, 0)))

@@ -9,7 +9,7 @@ class PunchAbility(TargetAbilityBase):
     """A simple damaging ability. Deals damage to a neighboring target."""
 
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit, 1, 2, 0)
+        super().__init__(unit, 1, 0)
 
     def on_select_ability(self):
         super().on_select_ability()

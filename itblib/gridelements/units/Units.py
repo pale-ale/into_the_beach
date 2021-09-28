@@ -1,3 +1,4 @@
+from itblib.abilities.SerrateAbility import SerrateAbility
 from itblib.abilities.MovementAbility import MovementAbility
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.abilities.PunchAbility import PunchAbility
@@ -20,13 +21,13 @@ class UnitSaucer(UnitBase):
 
 class UnitBloodWraith(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="BloodWraith"):
-        super().__init__(grid, pos, ownerid, name=name, abilities=[HealAbility])
+        super().__init__(grid, pos, ownerid, name=name, abilities=[HealAbility, MovementAbility, SerrateAbility])
         
     def attack(self, target:"tuple[int,int]" , damage:int, damagetype:str):
         unit = self.grid.get_unit(target)
         if unit:
             killingblow = unit.hitpoints > 0
-            unit.on_change_hp(-1, "physical")
+            super().attack(target, damage, damagetype)
             if unit.hitpoints <= 0 and killingblow:
                 self.on_change_hp(1,"physical")
 

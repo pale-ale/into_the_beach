@@ -10,8 +10,11 @@ class Serializable:
     def __init__(self, serializable_fields:"list[str]") -> None:
         self.serializable_fields = serializable_fields[:]
     
-    def insert_data(self, data):
-        pass
+    def insert_data(self, data:dict):
+        for p in self.serializable_fields:
+            if p in data.keys():
+                if isinstance(data[p], (bool, int, float, str)):
+                    setattr(self, p, data[p])
 
     def extract_data(self, custom_fields:"dict[str,any]"={}) -> dict:
         data = {}

@@ -12,9 +12,8 @@ class AbilityBase:
     a cost, cooldowns and other mechanics.
     """
 
-    def __init__(self, unit:"UnitBase", id:int, phase:int, cooldown=1):
+    def __init__(self, unit:"UnitBase", phase:int, cooldown=1):
         self._unit = unit
-        self.id = id
         self.phase = phase
         self.cooldown = cooldown
         self.primed = False
@@ -71,7 +70,6 @@ class AbilityBase:
     def on_update_phase(self, newphase:int):
         """Called when a phase change occured. Not necessarily a new turn."""
         if self.phase == newphase and self.primed:
-            self._unit.done = False
             self.on_trigger()
         elif self.reduce_cooldown_each_turn:
             self.remainingcooldown = max(self.remainingcooldown-1, 0)
