@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from itblib.Enums import PREVIEWS
+from itblib.Globals.Enums import PREVIEWS
 from itblib.gridelements.Effects import EffectBurrowed
 from itblib.net.NetEvents import NetEvents
 from itblib.abilities.AbilityBase import AbilityBase
@@ -12,7 +12,7 @@ class RangedAttackAbility(AbilityBase):
     """A simple ranged attack, with a targeting scheme like the artillery in ITB."""
 
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit, 2, 2)
+        super().__init__(unit, 2, cooldown=2)
 
     def get_ordinals(self):
         x,y = self._unit.pos
@@ -54,7 +54,7 @@ class PushAbility(AbilityBase):
     """A melee attack pushing a target away from the attacker."""
 
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit, 3, 2, cooldown=2)
+        super().__init__(unit, 3, cooldown=2)
 
     def set_targets(self, targets:"list[tuple[int,int]]"):
         super().set_targets(targets)
@@ -86,7 +86,7 @@ class PushAbility(AbilityBase):
 class ObjectiveAbility(AbilityBase):
     """This ability makes a unit an "Objective", meaning the player loses if it dies."""
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit, 4, -1, 0)
+        super().__init__(unit, 0, 0)
 
     def on_death(self):
         super().on_death()
@@ -94,13 +94,10 @@ class ObjectiveAbility(AbilityBase):
 
 
 class HealAbility(AbilityBase):
-    """Spawn a heal at selected neighboring tile, healing any unit by 1."""
+    """Spawn a heal at selected neighboring tile, healing any unit by 1 and purging bleeding."""
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit)
-        self.id = 5
-        self.cooldown = 3
+        super().__init__(unit, 2, cooldown=3)
         self.remainingcooldown = 0
-        self.phase = 2
     
     def on_select_ability(self):
         super().on_select_ability()
@@ -125,14 +122,3 @@ class HealAbility(AbilityBase):
             self._unit.grid.add_worldeffect(self.selected_targets[0], 7, True)
             self.area_of_effect.clear()
             self.selected_targets.clear()
-
-class BleedingEffect(AbilityBase):
-    def __init__(self, unit:"UnitBase"):
-        super().__init__(unit)
-        self.id = 5
-        self.phase = 4
-    
-    def activate(self):
-        if NetEvents.connector.authority:
-            super().activate()
-            self._unit.on_change_hp(-1, "physical")

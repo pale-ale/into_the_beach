@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from itblib.abilities.AbilityBase import AbilityBase
-from itblib.Enums import PREVIEWS
+from itblib.Globals.Enums import PREVIEWS
 from itblib.net.NetEvents import NetEvents
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
@@ -14,7 +14,7 @@ class MovementAbility(AbilityBase):
     """
 
     def __init__(self, unit:"UnitBase"):
-        super().__init__(unit, 0, 4, cooldown=0)
+        super().__init__(unit, 4, cooldown=0)
         self.timinginfo = unit.age
         self.remainingcooldown = 0
         self.durationperstep = .5 #seconds

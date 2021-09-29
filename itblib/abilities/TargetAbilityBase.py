@@ -1,6 +1,6 @@
 from itblib.abilities.AbilityBase import AbilityBase
 from typing import TYPE_CHECKING
-from itblib.Enums import PREVIEWS
+from itblib.Globals.Enums import PREVIEWS
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase

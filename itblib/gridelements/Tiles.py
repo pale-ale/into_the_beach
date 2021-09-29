@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
 class TileBase(GridElement, Serializable):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileBase"):
+    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="Base"):
         # no super() because of multiple inheritance
         GridElement.__init__(self, grid, pos, age, done, name)
         Serializable.__init__(self, ["name"])
@@ -20,7 +20,7 @@ class TileBase(GridElement, Serializable):
 
 
 class TileWater(TileBase):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileWater"):
+    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="Water"):
         super().__init__(grid, pos, age, done, name)
 
     def on_enter(self, unit:"UnitBase"):
@@ -29,7 +29,7 @@ class TileWater(TileBase):
 
 
 class TileLava(TileBase):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileLava"):
+    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="Lava"):
         super().__init__(grid, pos, age, done, name)
     
     def on_enter(self, unit:"UnitBase"):
@@ -38,5 +38,5 @@ class TileLava(TileBase):
 
 
 class TileRock(TileBase):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="TileRock"):
+    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="Rock"):
         super().__init__(grid, pos, age, done, name)

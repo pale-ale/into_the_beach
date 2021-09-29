@@ -53,7 +53,10 @@ class Connector():
         prefixdata = (prefix + self.PREAMBLE).encode("utf8")
         contentdata = (content + self.TERMINAL).encode("utf8")
         if connection:
-            print("Connector: SND:", prefix, content)
+            if len(content) > 100:
+                print("Connector: SND:", prefix, content[:100] + "[...]")
+            else:
+                print("Connector: SND:", prefix, content)
             connection.send(prefixdata + contentdata)
         else:
             print("Connector: Invalid connection.")

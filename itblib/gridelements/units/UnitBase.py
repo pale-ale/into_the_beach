@@ -11,13 +11,13 @@ if TYPE_CHECKING:
 
 class UnitBase(GridElement, Serializable):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
-    name:str="UnitBase", hitpoints:int=5, canswim:bool=False, abilities:"list[Type[AbilityBase]]"=[]):
+    name:str="Base", hitpoints:int=5, canswim:bool=False, abilities:"list[Type[AbilityBase]]"=[]):
         GridElement.__init__(self, grid, pos)
         Serializable.__init__(self, ["name", "hitpoints", "ownerid", "statuseffects"])
         self.name = name
         self.hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
-        self.baseattack = {"physical": 20, "magical": 0}
+        self.baseattack = {"physical": 1, "magical": 0}
         self.statuseffects:"list[StatusEffect]" = []
         self.canswim = canswim
         self.ownerid = ownerid
@@ -33,7 +33,7 @@ class UnitBase(GridElement, Serializable):
         Serializable.insert_data(self, data)
         for effectdata in data["statuseffects"]:
             for effectclass in [EffectBurrowed, EffectBleeding]:
-                if effectclass.__name__ == effectdata["name"]:
+                if effectclass.__name__ == "Effect" + effectdata["name"]:
                     self.add_statuseffect(effectclass(self))
 
     def tick(self, dt: float):
@@ -83,16 +83,17 @@ class UnitBase(GridElement, Serializable):
     
     def get_movement_ability(self):
         for ability in self.abilities[:]:
-            if ability.id == 0:
+            if type(ability).__name__ == "MovementAbility":
                 return ability
     
-    def on_change_hp(self, delta_hp:int, hp_change_type:str):
+    def on_change_hp(self, delta_hp:int, hp_change_type:str, use_net=True):
         if delta_hp > 0:
             self.hitpoints += delta_hp
         else:
             reduceddamage = delta_hp + self.defense[hp_change_type]
             self.hitpoints += min(0,reduceddamage)
-        NetEvents.snd_netunithpchange(self.pos, self.hitpoints)
+        if use_net:
+            NetEvents.snd_netunithpchange(self.pos, self.hitpoints)
         if self.hitpoints <= 0:
             self.on_death()
     
@@ -125,10 +126,10 @@ class UnitBase(GridElement, Serializable):
             if ability.selected:
                 ability.set_targets(True, targets)
     
-    def on_death(self):
+    def on_death(self, use_net=True):
         for ability in self.abilities:
             ability.on_death()
-        self.grid.remove_unit(self.pos)
+        self.grid.remove_unit(self.pos, use_net=use_net)
     
     def on_receive_shove(self, to:"tuple[int,int]"):
         if not self.grid.is_coord_in_bounds(to) or self.grid.is_space_empty(True, to):

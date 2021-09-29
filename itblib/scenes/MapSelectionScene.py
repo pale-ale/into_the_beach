@@ -4,7 +4,6 @@ from pygame.surface import Surface
 from itblib.Vec import Vec
 from itblib.SceneManager import SceneManager
 from itblib.scenes.SceneBase import SceneBase
-from itblib.Globals import ClassMapping
 import pygame
 import pygame.font
 import pygame.transform

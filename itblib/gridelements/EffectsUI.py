@@ -1,7 +1,7 @@
 from .Effects import EffectBase, EffectRiver
 from .GridElementUI import GridElementUI
 from ..ui.TextureManager import Textures
-from itblib.Enums import RIVER
+from itblib.Globals.Enums import RIVER
 
 class EffectBaseUI(GridElementUI):
     def __init__(self, effect:EffectBase, width:int=64, height:int=64, framespeed:float=.5):  

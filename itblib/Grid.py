@@ -1,3 +1,4 @@
+from itblib.Globals.GridElementFactory import GridElementFactory
 from itblib.gridelements.GridElement import GridElement
 from typing import Optional
 from itblib.net.Connector import Connector
@@ -5,9 +6,7 @@ from itblib.gridelements.Tiles import TileBase
 from .gridelements.Effects import EffectBase
 from .gridelements.units.UnitBase import UnitBase
 from .Maps import Map
-
-from .Globals import ClassMapping
-from .Enums import PHASES
+from itblib.Globals.Enums import EFFECT_IDS, PHASES, TILE_IDS, UNIT_IDS
 from .ui.IGridObserver import IGridObserver
 from itblib.net.NetEvents import NetEvents
 from itblib.Serializable import Serializable
@@ -62,28 +61,32 @@ class Grid(Serializable):
         for i in range(len(data["tiles"])):
             tiledata = data["tiles"][i]
             if tiledata:
-                for tiletype in ClassMapping.tileidclassmapping.values():
-                    if tiletype and tiletype.__name__ == tiledata["name"]:
-                        self.add_tile(self.i_to_c(i), ClassMapping.tileclassidmapping[tiletype])
+                tiletype = GridElementFactory.find_tile_class(tiledata["name"])
+                if tiletype:
+                    self.add_tile(
+                        self.i_to_c(i), 
+                        TILE_IDS.index(tiledata["name"])
+                    )
         for i in range(len(data["units"])):
             unitdata = data["units"][i]
             if unitdata:
-                for unittype in ClassMapping.unitidclassmapping.values():
-                    if unittype and unittype.__name__ == unitdata["name"]:
-                        unit = self.add_unit(
-                            self.i_to_c(i), 
-                            ClassMapping.unitclassidmapping[unittype], 
-                            unitdata["ownerid"])
-                        unit.insert_data(unitdata)
+                unittype =  GridElementFactory.find_unit_class(unitdata["name"])
+                if unittype:
+                    unit = self.add_unit(
+                        self.i_to_c(i), 
+                        UNIT_IDS.index(unitdata["name"]), 
+                        unitdata["ownerid"]
+                    )
+                    unit.insert_data(unitdata)
         for i in range(len(data["worldeffects"])):
             effectstackdata = data["worldeffects"][i]
             for effectdata in effectstackdata:
-                for effecttype in ClassMapping.effectidclassmapping.values():
-                    if effecttype and effecttype.__name__ == effectdata["name"]:
-                        self.add_worldeffect(
-                            self.i_to_c(i), 
-                            ClassMapping.effectclassidmapping[effecttype], 
-                            True)
+                effecttype = GridElementFactory.find_effect_class(effectdata["name"])
+                if effecttype:
+                    self.add_worldeffect(
+                        self.i_to_c(i), 
+                        EFFECT_IDS.index(effectdata["name"]), 
+                        True)
         
         
     def update_observer(self, observer:Optional[IGridObserver]):
@@ -96,15 +99,17 @@ class Grid(Serializable):
     
     def everybody_done(self) -> bool:
         """Check whether every member of the grid has finished it's actions, like moving."""
+        notdone = []
         for group in (self.units, self.tiles):    
             for member in group:
                 if member and not member.done:
-                    return False
+                    notdone.append(member)
         for effectstack in self.worldeffects:    
             for effect in effectstack:
                 if effect and not effect.done:
-                    return False
-        return True
+                    notdone.append(member)
+        print("Grid: Not done:", notdone)
+        return len(notdone) == 0
 
     def update_unit_movement(self):
         """Move units by one step and handle collisions between them or other obstacles. Server Only"""
@@ -195,7 +200,7 @@ class Grid(Serializable):
 
     def add_tile(self, pos:"tuple[int,int]", tileid:int) -> bool:
         """Add a tile to the grid at given position."""
-        tiletype = ClassMapping.tileidclassmapping[tileid]
+        tiletype = GridElementFactory.find_tile_class(TILE_IDS[tileid])
         newtile = tiletype(self, pos)
         index = self.c_to_i(pos)
         if index >= 0 and index < len(self.tiles):
@@ -209,7 +214,7 @@ class Grid(Serializable):
     def add_worldeffect(self, pos:"tuple[int,int]", tileeffectid:int, from_authority:bool, use_net=True):
         """Add an tile effect to the grid at given position."""
         if from_authority:
-            effecttype:EffectBase = ClassMapping.effectidclassmapping[tileeffectid]       
+            effecttype:EffectBase = GridElementFactory.find_effect_class(EFFECT_IDS[tileeffectid])     
             neweffect:EffectBase = effecttype(self, pos)
             self.worldeffects[self.c_to_i(pos)].append(neweffect)
             if self.observer:
@@ -225,7 +230,7 @@ class Grid(Serializable):
 
     def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int) -> Optional[UnitBase]:
         """Add a unit to the grid at given position, owned by ownerid."""
-        unitclass = ClassMapping.unitidclassmapping[unitid]
+        unitclass = GridElementFactory.find_unit_class(UNIT_IDS[unitid])
         newunit = unitclass(self, pos, ownerid)
         index = self.c_to_i(pos)
         if index >= 0 and index < len(self.units):
@@ -236,12 +241,12 @@ class Grid(Serializable):
         print("Grid: Tried to add unit at index", index, "which is out if range.")
         return None
 
-    def remove_unit(self, pos:"tuple[int,int]"):
+    def remove_unit(self, pos:"tuple[int,int]", use_net=True):
         """Remove a unit at given position."""
         if self.is_space_empty(False, pos):
             print(f"Grid: Tried to remove unit at {pos}, which is empty.")
             return False
-        elif NetEvents.connector and NetEvents.connector.authority:
+        elif NetEvents.connector and NetEvents.connector.authority and use_net:
             NetEvents.snd_netunitremove(pos)
         self.units[self.c_to_i(pos)] = None
         if self.observer:
@@ -254,7 +259,7 @@ class Grid(Serializable):
         if self.observer:
             self.observer.on_remove_tileeffect(effect, pos)
 
-    def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]") -> bool:
+    def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]", use_net=True) -> bool:
         """Move a unit from (x,y) to (tagretx,targety)."""
         if self.is_space_empty(False, from_pos):
             print(f"Grid: Tried to move unit at {from_pos} which does not exist.")
@@ -264,7 +269,8 @@ class Grid(Serializable):
             self.units[self.c_to_i(from_pos)] = None
             self.units[self.c_to_i(to_pos)] = unit
             unit.pos = to_pos
-            NetEvents.snd_netunitmove(from_pos, to_pos)
+            if use_net:
+                NetEvents.snd_netunitmove(from_pos, to_pos)
             self.tiles[self.c_to_i(to_pos)].on_enter(unit)
             if self.observer:
                 self.observer.on_move_unit(from_pos, to_pos)

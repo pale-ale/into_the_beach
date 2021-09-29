@@ -20,16 +20,19 @@ class Session:
         """Add a player to the sesion."""
         if self.connector:
             for playerid in self._players.keys():
-                NetEvents.snd_netplayerjoin(self._players[playerid].playersocket, player, False)
+                if self._players[playerid].playersocket:
+                    NetEvents.snd_netplayerjoin(self._players[playerid].playersocket, player, False)
             for playerid in self._players.keys():
-                NetEvents.snd_netplayerjoin(player.playersocket, self._players[playerid], False)
-            NetEvents.snd_netplayerjoin(player.playersocket, player, True)
+                if player.playersocket:
+                    NetEvents.snd_netplayerjoin(player.playersocket, self._players[playerid], False)
+            if player.playersocket:
+                NetEvents.snd_netplayerjoin(player.playersocket, player, True)
         self._players[player.playerid] = player
     
-    def remove_player(self, playerid:int):
+    def remove_player(self, playerid:int, use_net=True):
         """Remove all players with matching playerid from the session."""
         player = self._players[playerid]
-        if self.connector and self.connector.authority:
+        if self.connector and self.connector.authority and use_net:
             for playerid in self._players.keys():
                 NetEvents.snd_netplayerleave(player)
             # for playerid in self._players.keys():
