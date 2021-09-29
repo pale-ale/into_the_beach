@@ -7,6 +7,11 @@ from itblib.Grid import Grid
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.Tiles import TileBase
 from itblib.scenes.RosterSelectionScene import RosterSelectionScene
+from itblib.abilities.BurrowAbility import BurrowAbility
+from itblib.gridelements.Effects import EffectBurrowed
+from itblib.net.Connector import Connector
+from itblib.Player import Player
+from itblib.Game import Session, Game
 
 class TestGridMethods(unittest.TestCase):
     def setUp(self):
@@ -63,19 +68,19 @@ class TestGridMethods(unittest.TestCase):
     def test_add_worldeffect(self):
         pos = (2,3)
         effectids = [2,3]
-        self.assertIsNone(self.grid.get_tieleeffects(pos=pos))
-        self.assertTrue(self.grid.add_worldeffect(pos=pos, effectid=effectids[0], from_authority=True))
-        self.assertTrue(self.grid.add_worldeffect(pos=pos, effectid=effectids[1], from_authority=True))
+        self.assertFalse(self.grid.get_tileeffects(pos=pos))
+        self.assertTrue(self.grid.add_worldeffect(pos=pos, tileeffectid=effectids[0], from_authority=True))
+        self.assertTrue(self.grid.add_worldeffect(pos=pos, tileeffectid=effectids[1], from_authority=True))
         self.assertIsInstance(self.grid.get_tileeffects(pos=pos)[0], EffectBase)
         self.assertIsInstance(self.grid.get_tileeffects(pos=pos)[1], EffectBase)
     
     def test_remove_worldeffect(self):
         pos = (2,3)
         effectid = 2
-        self.assertIsNone(self.grid.get_tileeffect(pos=pos))
-        self.assertTrue(self.grid.add_worldeffect(pos=pos, effectid=effectid, from_authority=True))
+        self.assertFalse(self.grid.get_tileeffects(pos=pos))
+        self.assertTrue(self.grid.add_worldeffect(pos=pos, tileeffectid=effectid, from_authority=True))
         self.assertTrue(self.grid.remove_tileeffect(pos=pos))
-        self.assertIsNone(self.grid.get_tileeffects(pos)[0])
+        self.assertFalse(self.grid.get_tileeffects(pos)[0])
 
     def test_move_unit(self):
         startpos = (0,2)
@@ -99,17 +104,17 @@ class TestGridMethods(unittest.TestCase):
         self.assertIsNotNone(self.grid.get_unit(endpos))
 
     def test_is_coord_in_bounds(self):
-        self.assertTrue(self.grid.is_coord_in_bounds(self.w-1,self.h-1))
-        self.assertFalse(self.grid.is_coord_in_bounds(self.w,self.h-1))
-        self.assertFalse(self.grid.is_coord_in_bounds(self.w-1,-1))
+        self.assertTrue(self.grid.is_coord_in_bounds([self.w-1,self.h-1]))
+        self.assertFalse(self.grid.is_coord_in_bounds([self.w,self.h-1]))
+        self.assertFalse(self.grid.is_coord_in_bounds([self.w-1,-1]))
 
     def test_get_ordinal_neighbors(self):
         pos1 = [1,2]
         pos2 = [0,0]
-        ordinals1 = [[1,1],[1,3],[0,2],[2,2]]
-        ordinals2 = [[0,1],[1,0]]
-        self.assertCountEqual(ordinals1,self.Grid.get_ordinal_neighbors(pos1))
-        self.assertCountEqual(ordinals2,self.Grid.get_ordinal_neighbors(pos2))
+        ordinals1 = [(1,1),(1,3),(0,2),(2,2)]
+        ordinals2 = [(0,1),(1,0)]
+        self.assertCountEqual(ordinals1,self.grid.get_ordinal_neighbors(*pos1))
+        self.assertCountEqual(ordinals2,self.grid.get_ordinal_neighbors(*pos2))
 
 
 class TestUnitBaseMethods(unittest.TestCase):
@@ -117,11 +122,12 @@ class TestUnitBaseMethods(unittest.TestCase):
         self.gridw, self.gridh = 3,5
         self.pos = (2,3)
         self.ownerid = 0
-        self.grid = Grid(connector=None, observer=None, width=self.gridw, height=self.gridh)
-        self.unit = UnitBase(self.gird, self.pos, self.ownerid)
+        connector = Connector(True)
+        self.grid = Grid(connector=connector, observer=None, width=self.gridw, height=self.gridh)
+        self.unit = UnitBase(self.grid, self.pos, self.ownerid)
 
-    def test_init(self):
-        self.assertTrue(False)
+#    def test_init(self):
+#        self.assertTrue(False)
     
     def test_grid_extract_data(self):
         d = self.grid.extract_data()
@@ -139,27 +145,31 @@ class TestUnitBaseMethods(unittest.TestCase):
     #     self.assertTrue(False)
 
     def test_add_ability(self):
-        ability = Pushability(Unit.self)
+        ability = BurrowAbility(self.unit)
         self.assertTrue(ability not in self.unit.abilities)
-        self.assertTrue(self.unit.add_ability(PushAbility))
-        assert ability in self.unit.abilities
+        self.assertTrue(self.unit.add_ability(BurrowAbility))
+        self.assertTrue(ability in self.unit.abilities)
     
     def test_remove_ability(self):
-        ability = Pushability(Unit.self)
-        assert ability in self.unit.abilities
-        self.assertTrue(self.unit.remove_ability("PushAbility"))
-        assert ability not in self.unit.abilities
+        ability = BurrowAbility(self.unit)
+        self.unit.add_ability(BurrowAbility)
+        self.assertTrue(ability in self.unit.abilities)
+        self.assertTrue(self.unit.remove_ability("BurrowAbility"))
+        self.assertTrue(ability not in self.unit.abilities)
     
     def test_add_statuseffect(self):
-        statuseffect = "EffectBurrowed"
+        statuseffect = EffectBurrowed(self.unit)
         self.assertIsNone(self.unit.get_statuseffect(statuseffect))
         self.assertTrue(self.unit.add_statuseffect(statuseffect))
-        assert statuseffect in self.unit.statuseffects
+        self.assertTrue(statuseffect in self.unit.statuseffects)
     
     def test_remove_statuseffect(self):
-        statuseffect = "EffectBurrowed"
-        assert statuseffect in self.unit.statuseffects
-        self.assertTrue(self.unit.remove_statuseffect(statuseffect))
+        #statuseffect = "EffectBurrowed"
+        statuseffect = EffectBurrowed(self.unit)
+        self.unit.add_statuseffect(statuseffect)
+        self.assertTrue(statuseffect in self.unit.statuseffects)
+        self.assertTrue(self.unit.remove_statuseffect("EffectBurrowed"))
+        #self.assertTrue(self.unit.remove_statuseffect(statuseffect))
         self.assertIsNone(self.unit.get_statuseffect(statuseffect))
     
     def test_on_change_hp(self):
@@ -169,16 +179,40 @@ class TestUnitBaseMethods(unittest.TestCase):
         self.assertEqual(hp+1, self.unit.hitpoints)
     
     def test_on_death(self):
+        unitid = 2
+        ownerid = 0
+        self.assertIsNone(self.grid.get_unit(pos=self.pos))
+        self.assertTrue(self.grid.add_unit(pos=self.pos, unitid=unitid, ownerid=ownerid))
         self.assertIsInstance(self.grid.get_unit(self.pos), UnitBase)
         self.assertTrue(self.unit.on_death())
         self.assertIsNone(self.grid.get_unit(self.pos))
 
+class TestSessionMethods(unittest.TestCase):
+    def setup(self):
+        self.connector = Connector(True)
+        self.session = Session(self.connector)
+        self.player = Player(0, None)
+        self.session._players["0"] = self.player #???
 
-class TestRoster(unittest.TestCase):
-    def test_roster_selection(self):
-        selects = [0,1,2,0]
-        
-        self.assertTrue(False)
+    def test_add_player(self):
+        self.assertTrue(self.session.add_player(self.player))
+        self.assertTrue(self.session._players[0].playerid == 0)
+
+    def test_remove_player(self):
+        self.session.add_player(self.player)
+        self.assertTrue(self.session.remove_player(0))
+        self.assertFalse("0" in self.session._players)
+
+    def test_start_game(self):
+        pass
+
+    def test_objective_lost(self):
+        pass
+
+#class TestRoster(unittest.TestCase):
+#    def test_roster_selection(self):
+#        selects = [0,1,2,0]
+#        self.assertTrue(False)
 
 
 if __name__ == "__main__":
