@@ -19,21 +19,6 @@ class NetEvents():
     scenemanager:"SceneManager" = None
 
     @staticmethod
-    def snd_netmaptransfer(map:"Map"):
-        NetEvents.connector.send_server_all(
-            NetEvents.session._players, 
-            "NetMapTransfer", 
-            map.export_to_str()
-        )
-
-    @staticmethod
-    def rcv_netmaptransfer(mapjson:str):
-        newmap = Map()
-        newmap.import_from_str(mapjson)
-        print("Client: loading map...")
-        NetEvents.grid.load_map(newmap, from_authority=True)
-
-    @staticmethod
     def snd_netunitspawn(unitid:int, pos:"tuple[int,int]", ownerid:int):
         unitspawntuple = (unitid, pos, ownerid)
         if NetEvents.connector.authority:
@@ -57,64 +42,6 @@ class NetEvents():
         else:
             NetEvents.grid.add_unit(pos, unitid, ownerid)
     
-    @staticmethod
-    def snd_neteffectspawn(effectid:int, pos:"tuple[int,int]"):
-        effectspawntuple = (effectid, pos)
-        if NetEvents.connector.authority:
-            NetEvents.connector.send_server_all(
-                NetEvents.session._players,
-                "NetEffectSpawn", 
-                json.dumps(effectspawntuple)
-            )
-        else:
-            NetEvents.connector.send_client("NetEffectSpawn", json.dumps(effectspawntuple))
-    
-    @staticmethod
-    def rcv_neteffectspawn(effectspawntuplestr):
-        effectspawntuple = json.loads(effectspawntuplestr)
-        effectid, pos = effectspawntuple
-        if NetEvents.connector.authority:
-            #if valid command:...
-            NetEvents.grid.add_worldeffect(pos, effectid, from_authority=False)
-        else:
-            NetEvents.grid.add_worldeffect(pos, effectid, from_authority=True)
-
-    @staticmethod
-    def snd_netunitmove(fro:"tuple[int,int]", to:"tuple[int,int]"):
-        #only the server my send actual unit-moves
-        c = NetEvents.connector
-        if c and c.authority:
-            froto = [fro, to]
-            frotodata = json.dumps(froto)
-            c.send_server_all(
-                NetEvents.session._players,
-                "NetUnitMove",
-                frotodata
-            )
-
-    @staticmethod
-    def rcv_netunitmove(movedata):
-        #this method is called on clients only
-        fromto = json.loads(movedata)
-        NetEvents.grid.move_unit(*fromto)
-
-    @staticmethod
-    def snd_netunithpchange(pos:"tuple[int,int]", new_hp:"int"):
-        c = NetEvents.connector
-        pos_hp_data = json.dumps([pos, new_hp])
-        if c.authority:
-            c.send_server_all(
-                NetEvents.session._players,
-                "NetUnitHpChange",
-                pos_hp_data
-            )
-
-    @staticmethod
-    def rcv_netunithpchange(pos_hp_data):
-        pos , new_hp = json.loads(pos_hp_data)
-        if not NetEvents.connector.authority:
-            NetEvents.grid.get_unit(pos).hitpoints = new_hp
-
     @staticmethod
     def snd_netplayerjoin(targetconnection, player:Player, localcontrol:bool):
         d = player.get_info()
@@ -257,14 +184,10 @@ class NetEvents():
 
 RcvNetEventsMap = {
     "NetAbilityTarget":NetEvents.rcv_netabilitytarget,
-    "NetEffectSpawn":NetEvents.rcv_neteffectspawn,
-    "NetMapTransfer":NetEvents.rcv_netmaptransfer,
     "NetPhaseChange":NetEvents.rcv_netphasechange,
     "NetPlayerJoin":NetEvents.rcv_netplayerjoin,
     "NetPlayerLeave":NetEvents.rcv_netplayerleave,
     "NetPlayerWon":NetEvents.rcv_netplayerwon,
-    "NetUnitHpChange":NetEvents.rcv_netunithpchange,
-    "NetUnitMove":NetEvents.rcv_netunitmove,
     "NetUnitSpawn":NetEvents.rcv_netunitspawn,
     "NetUnitRemove":NetEvents.rcv_netunitremove,
     "NetSync":NetEvents.rcv_netsync,

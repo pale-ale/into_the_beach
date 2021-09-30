@@ -86,14 +86,12 @@ class UnitBase(GridElement, Serializable):
             if type(ability).__name__ == "MovementAbility":
                 return ability
     
-    def on_change_hp(self, delta_hp:int, hp_change_type:str, use_net=True):
+    def on_change_hp(self, delta_hp:int, hp_change_type:str):
         if delta_hp > 0:
             self.hitpoints += delta_hp
         else:
             reduceddamage = delta_hp + self.defense[hp_change_type]
             self.hitpoints += min(0,reduceddamage)
-        if use_net:
-            NetEvents.snd_netunithpchange(self.pos, self.hitpoints)
         if self.hitpoints <= 0:
             self.on_death()
     
@@ -126,10 +124,10 @@ class UnitBase(GridElement, Serializable):
             if ability.selected:
                 ability.set_targets(True, targets)
     
-    def on_death(self, use_net=True):
+    def on_death(self):
         for ability in self.abilities:
             ability.on_death()
-        self.grid.remove_unit(self.pos, use_net=use_net)
+        self.grid.remove_unit(self.pos)
     
     def on_receive_shove(self, to:"tuple[int,int]"):
         if not self.grid.is_coord_in_bounds(to) or self.grid.is_space_empty(True, to):

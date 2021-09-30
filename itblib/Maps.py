@@ -9,7 +9,6 @@ class Map:
         self.tileids:"list[int|None]" = [None]*self.width*self.height
         self.unitids:"list[int|None]" = [None]*self.width*self.height
         self.tileeffectids:"list[list[int]]" = [[] for i in range(self.width*self.height)]
-        self.uniteffectids:"list[list[int]]" = [[] for i in range(self.width*self.height)]
     
     def import_from_str(self, importstr):
         """Deserialize a json-str and update the data accordingly."""
@@ -19,7 +18,6 @@ class Map:
         self.tileids = data["tileids"]
         self.unitids = data["unitids"]
         self.tileeffectids = data["tileeffectids"]
-        self.uniteffectids = data["uniteffectids"]
     
     def export_to_str(self):
         """Serialize the contained data into a json-str."""
@@ -28,7 +26,6 @@ class Map:
                 "tileids": self.tileids,
                 "unitids": self.unitids,
                 "tileeffectids": self.tileeffectids,
-                "uniteffectids": self.uniteffectids,
                 }
         jsonstr = json.dumps(data)
         return jsonstr
@@ -40,7 +37,6 @@ class Map:
                 yield (x,y),\
                     self.tileids[y*self.width+x],\
                     self.tileeffectids[y*self.width+x],\
-                    self.uniteffectids[y*self.width+x],\
                     self.unitids[y*self.width+x]
 
 class MapGrasslands(Map):

@@ -11,12 +11,14 @@ class Serializable:
         self.serializable_fields = serializable_fields[:]
     
     def insert_data(self, data:dict):
+        """Insert data from the dict into an object, configuring it."""
         for p in self.serializable_fields:
             if p in data.keys():
                 if isinstance(data[p], (bool, int, float, str)):
                     setattr(self, p, data[p])
 
     def extract_data(self, custom_fields:"dict[str,any]"={}) -> dict:
+        """Extract data of given fields into a smiple dict for easy data transfer."""
         data = {}
         for p in self.serializable_fields:
             if p in custom_fields.keys():

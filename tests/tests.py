@@ -47,8 +47,8 @@ class TestGridMethods(unittest.TestCase):
         unitid = 2
         ownerid = 0
         self.assertIsNone(self.grid.get_unit(pos=pos))
-        self.assertTrue(self.grid.add_unit(pos=pos, unitid=unitid, ownerid=ownerid))
-        self.assertTrue(self.grid.remove_unit(pos=pos, use_net=False))
+        self.assertIsInstance(self.grid.add_unit(pos=pos, unitid=unitid, ownerid=ownerid), UnitBase)
+        self.assertTrue(self.grid.remove_unit(pos=pos))
         self.assertIsNone(self.grid.get_unit(pos))
 
     def test_add_tile(self):
@@ -65,28 +65,27 @@ class TestGridMethods(unittest.TestCase):
         self.assertIsNone(self.grid.get_unit(pos))
         self.assertTrue(self.grid.add_unit(pos, unitid, ownerid))
         self.assertIsNotNone(self.grid.get_unit(pos))
-        self.assertTrue(self.grid.remove_unit(pos, use_net=False))
+        self.assertTrue(self.grid.remove_unit(pos))
         self.assertIsNone(self.grid.get_unit(pos))
 
     def test_add_worldeffect(self):
         pos = (2,3)
         effectids = [2,3]
-        self.assertFalse(self.grid.get_tileeffects(pos=pos))
+        self.assertFalse(self.grid.get_worldeffects(pos=pos))
         self.grid.add_worldeffect(
-            pos=pos, tileeffectid=effectids[0], from_authority=True, use_net=False)
+            pos=pos, worldeffectid=effectids[0])
         self.grid.add_worldeffect(
-            pos=pos, tileeffectid=effectids[1], from_authority=True, use_net=False)
-        self.assertIsInstance(self.grid.get_tileeffects(pos=pos)[0], EffectBase)
-        self.assertIsInstance(self.grid.get_tileeffects(pos=pos)[1], EffectBase)
+            pos=pos, worldeffectid=effectids[1])
+        self.assertIsInstance(self.grid.get_worldeffects(pos=pos)[0], EffectBase)
+        self.assertIsInstance(self.grid.get_worldeffects(pos=pos)[1], EffectBase)
     
     def test_remove_worldeffect(self):
         pos = (2,3)
         effectid = 2
-        self.assertFalse(self.grid.get_tileeffects(pos=pos))
-        effect = self.grid.add_worldeffect(
-            pos=pos, tileeffectid=effectid, from_authority=True, use_net=False)
-        #self.assertTrue(self.grid.remove_tileeffect(effect=effect, pos=pos)) FIXME
-        #self.assertFalse(self.grid.get_tileeffects(pos)[0])
+        self.assertFalse(self.grid.get_worldeffects(pos=pos))
+        effect = self.grid.add_worldeffect(pos=pos, worldeffectid=effectid)
+        self.assertTrue(self.grid.remove_worldeffect(effect=effect, pos=pos))
+        self.assertEqual(len(self.grid.get_worldeffects(pos)), 0)
 
     def test_move_unit(self):
         startpos = (0,2)
@@ -133,8 +132,8 @@ class TestUnitBaseMethods(unittest.TestCase):
         self.grid = Grid(connector=connector, observer=None, width=self.gridw, height=self.gridh)
         self.unit = UnitBase(self.grid, self.pos, self.ownerid)
 
-#    def test_init(self):
-#        self.assertTrue(False)
+    # def test_init(self):
+    #    self.assertTrue(False)
     
     def test_grid_extract_data(self):
         d = self.grid.extract_data()
@@ -185,7 +184,7 @@ class TestUnitBaseMethods(unittest.TestCase):
     def test_on_change_hp(self):
         hp = self.unit.hitpoints
         change = 1
-        self.unit.on_change_hp(change, "physical", use_net=False)
+        self.unit.on_change_hp(change, "physical")
         self.assertEqual(hp+1, self.unit.hitpoints)
     
     def test_on_death(self):
@@ -194,7 +193,7 @@ class TestUnitBaseMethods(unittest.TestCase):
         self.assertIsNone(self.grid.get_unit(pos=self.pos))
         self.assertTrue(self.grid.add_unit(pos=self.pos, unitid=unitid, ownerid=ownerid))
         self.assertIsInstance(self.grid.get_unit(self.pos), UnitBase)
-        self.unit.on_death(use_net=False)
+        self.unit.on_death()
         self.assertIsNone(self.grid.get_unit(self.pos))
 
 class TestSessionMethods(unittest.TestCase):

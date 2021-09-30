@@ -57,7 +57,7 @@ class EffectHeal(EffectBase):
         super().tick(dt)
         if self.age >= 1:
             self.done = True
-            self.grid.remove_tileeffect(self, self.pos)
+            self.grid.remove_worldeffect(self, self.pos)
 
 
 class StatusEffect(Serializable):

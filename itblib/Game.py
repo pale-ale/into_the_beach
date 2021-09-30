@@ -45,20 +45,13 @@ class Session:
         self._grid.load_map(MapGrasslands(), from_authority=True)
         #self._grid.load_map(MapIceAge(), from_authority=True)
         #self._grid.load_map(MapRockValley(), from_authority=True)
-        #game mode specific
-        NetEvents.snd_netmaptransfer(MapGrasslands())
-        #NetEvents.snd_netmaptransfer(MapIceAge())
-        #NetEvents.snd_netmaptransfer(MapRockValley())
         NetEvents.snd_netphasechange(0)
         p1, p2 = self._players.values()
         self._grid.add_unit((2,1), 4, p1.playerid)
-        NetEvents.snd_netunitspawn(4, (2,1), p1.playerid)
+        self._grid.add_unit((2,2), 5, p1.playerid)
         self._grid.add_unit((7,8), 4, p2.playerid)
-        NetEvents.snd_netunitspawn(4, (7,8), p2.playerid)
-        self._grid.add_unit((2,2), 5, p2.playerid)
-        NetEvents.snd_netunitspawn(5, (2,2), p1.playerid)
         self._grid.add_unit((7,7), 6, p2.playerid)
-        NetEvents.snd_netunitspawn(6, (7,7), p2.playerid)
+        NetEvents.snd_netsync()
         self.state = "runningPregame"
     
     def objective_lost(self, playerid:int):

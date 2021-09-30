@@ -1,33 +1,36 @@
+from itblib.net.Connector import Connector
+from itblib.gridelements.Effects import EffectBase
 from itblib.Globals.GridElementFactory import GridElementFactory
 from itblib.gridelements.GridElement import GridElement
-from typing import Optional
-from itblib.net.Connector import Connector
-from itblib.gridelements.Tiles import TileBase
-from .gridelements.Effects import EffectBase
-from .gridelements.units.UnitBase import UnitBase
-from .Maps import Map
-from itblib.Globals.Enums import EFFECT_IDS, PHASES, TILE_IDS, UNIT_IDS
 from .ui.IGridObserver import IGridObserver
+from itblib.Maps import Map
 from itblib.net.NetEvents import NetEvents
 from itblib.Serializable import Serializable
+from itblib.gridelements.Tiles import TileBase
+from itblib.gridelements.units.UnitBase import UnitBase
+from itblib.Globals.Enums import EFFECT_IDS, PHASES, TILE_IDS, UNIT_IDS
 
 class Grid(Serializable):
     """Manager for Data-Only-Objects like units, tiles, effects, etc."""
 
-    def __init__(self, connector:Connector, observer:Optional[IGridObserver]=None, width:int=10, height:int=10):
+    def __init__(self, connector:Connector, observer:"IGridObserver|None"=None, width:int=10, height:int=10):
         super().__init__(["width", "height", "phasetime", "tiles", "units", "worldeffects"])
-        self.height = height
-        self.width = width
+        self.remake_grid(width, height)
         self.phasetime = 0
         self.gametime = 0
         self.connector = connector
         self.planningphasetime = 10
         self.pregametime = 10
-        self.tiles:"list[Optional[TileBase]]" = [None]*width*height
-        self.units:"list[Optional[UnitBase]]" = [None]*width*height
-        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
         self.observer = observer
         self.phase = 0
+    
+    def remake_grid(self, width, height) -> None:
+        """Empty the grid lists and create new ones with the given dimensions."""
+        self.width, self.height = width, height
+        c = width * height
+        self.tiles:"list[TileBase|None]" = [None]*c
+        self.units:"list[UnitBase|None]" = [None]*c
+        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(c)]
     
     def extract_data(self) -> dict:
         customtiles = [t.extract_data() if t else None for t in self.tiles]
@@ -47,15 +50,13 @@ class Grid(Serializable):
             }
         )
     
-    def insert_data(self, data):
+    def insert_data(self, data) -> None:
+        """Insert the received data into the grid, creating and configuring new units, tiles, etc. accordingly.
+        Clears the grid beforehand."""
         # TODO: constructing everything every turn might be a bit much, maybe moving
         # units around is a better way to go performance-wise...
         self.phasetime = data["phasetime"]
-        self.width = data["width"]
-        self.height = data["height"]
-        self.tiles:"list[Optional[TileBase]]" = [None]*self.width*self.height
-        self.units:"list[Optional[UnitBase]]" = [None]*self.width*self.height
-        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(self.width*self.height)]
+        self.remake_grid(data["width"], data["height"])
         if self.observer:
             self.observer.on_load_map(None)
         for i in range(len(data["tiles"])):
@@ -85,11 +86,10 @@ class Grid(Serializable):
                 if effecttype:
                     self.add_worldeffect(
                         self.i_to_c(i), 
-                        EFFECT_IDS.index(effectdata["name"]), 
-                        True)
+                        EFFECT_IDS.index(effectdata["name"])
+                    )
         
-        
-    def update_observer(self, observer:Optional[IGridObserver]):
+    def update_observer(self, observer:"IGridObserver|None") -> None:
         """
         Set a new observer, which will receive events for e.g. a spawned unit.
 
@@ -111,7 +111,7 @@ class Grid(Serializable):
         print("Grid: Not done:", notdone)
         return len(notdone) == 0
 
-    def update_unit_movement(self):
+    def update_unit_movement(self) -> None:
         """Move units by one step and handle collisions between them or other obstacles. Server Only"""
         movingunits:"list[UnitBase]" = []
         obstacles:"list[GridElement]" = []
@@ -161,7 +161,7 @@ class Grid(Serializable):
                 elif len(units) == 1:
                     self.move_unit(units[0].pos, position)
 
-    def change_phase(self, phase):
+    def change_phase(self, phase) -> None:
         """Set the phase to a certain number."""
         self.phase = phase
         self.phasetime = 0
@@ -169,95 +169,116 @@ class Grid(Serializable):
             if unit:
                 unit.on_update_abilities_phases(self.phase)
 
-    def advance_phase(self):
+    def advance_phase(self) -> None:
         """Advance phase cycle by one, starting from the planning phase once the end is reached."""
         maxphase = len(PHASES)-1
         nextphase = (self.phase)%maxphase+1
         self.change_phase(nextphase)
 
-    def load_map(self, map:Map, from_authority:bool):
+    def load_map(self, map:Map, from_authority:bool) -> None:
         """Load a map, spawning all the required units, tiles, etc.."""
         if self.observer:
             self.observer.on_load_map(map)
-        self.width = map.width
-        self.height = map.height
-        c = self.width*self.height
-        self.tiles = [None]*c
-        self.units = [None]*c
-        self.worldeffects = [[] for i in range(c)]
-        self.uniteffects = [[] for i in range(c)]
-        for pos, tileid, tileeffectids, uniteffectids, unitid in map.iterate_tiles():
+        self.remake_grid(map.width, map.height)
+        for pos, tileid, tileeffectids, unitid in map.iterate_tiles():
             if tileid:
                 self.add_tile(pos, tileid)
             if tileeffectids:
                 for tileeffectid in tileeffectids:
-                    self.add_worldeffect(pos, tileeffectid, from_authority=from_authority, use_net=False)
-            if uniteffectids:
-                for uniteffectid in uniteffectids:
-                    self.add_uniteffect(pos, uniteffectid, from_authority=from_authority, use_net=False)
+                    self.add_worldeffect(pos, tileeffectid)
             if unitid:
                 self.add_unit(pos, unitid, -1)
 
-    def add_tile(self, pos:"tuple[int,int]", tileid:int) -> bool:
+    def add_gridelement(self, pos:"tuple[int,int]", gridelement:GridElement) -> "TileBase|UnitBase|EffectBase|None":
+        """Helper to add an object at pos to the grid."""
+        if not self.is_coord_in_bounds(pos):
+            print("Grid: Tried to add element at", pos, "which is not on the grid.")
+            return None
+        index = self.c_to_i(pos)
+        if isinstance(gridelement, TileBase):
+            self.tiles[index] = gridelement
+            if self.observer:
+                self.observer.on_add_tile(gridelement)
+        elif isinstance(gridelement, EffectBase):
+            self.worldeffects[index].append(gridelement)
+            if self.observer:
+                self.observer.on_add_worldeffect(gridelement)
+        elif isinstance(gridelement, UnitBase):
+            self.units[index] = gridelement
+            if self.observer:
+                self.observer.on_add_unit(gridelement)
+        return gridelement
+
+    def add_tile(self, pos:"tuple[int,int]", tileid:int) -> "TileBase|None":
         """Add a tile to the grid at given position."""
-        tiletype = GridElementFactory.find_tile_class(TILE_IDS[tileid])
-        newtile = tiletype(self, pos)
-        index = self.c_to_i(pos)
-        if index >= 0 and index < len(self.tiles):
-            self.tiles[self.c_to_i(pos)] = newtile
-            if self.observer:
-                self.observer.on_add_tile(newtile)
-            return True
-        print("Grid: Tried to add tile at index", index, "which is out if range.")
-        return False
+        tiletype:TileBase = GridElementFactory.find_tile_class(TILE_IDS[tileid])
+        newtile:TileBase = tiletype(self, pos)
+        return self.add_gridelement(pos, newtile)
 
-    def add_worldeffect(self, pos:"tuple[int,int]", tileeffectid:int, from_authority:bool, use_net=True):
-        """Add an tile effect to the grid at given position."""
-        if from_authority:
-            effecttype:EffectBase = GridElementFactory.find_effect_class(EFFECT_IDS[tileeffectid])     
-            neweffect:EffectBase = effecttype(self, pos)
-            self.worldeffects[self.c_to_i(pos)].append(neweffect)
-            if self.observer:
-                self.observer.on_add_worldeffect(neweffect)
-            if use_net and NetEvents.connector.authority:
-                NetEvents.snd_neteffectspawn(tileeffectid, pos)
-            neweffect.on_spawn()
-        else:
-            pass #NetEvents.snd_neteffectspawn(effectid, pos)
+    def add_worldeffect(self, pos:"tuple[int,int]", worldeffectid:int) -> "TileBase|None":
+        """Add a world effect to the grid at given position."""
+        effecttype:EffectBase = GridElementFactory.find_effect_class(EFFECT_IDS[worldeffectid])     
+        neweffect:EffectBase = effecttype(self, pos)
+        neweffect.on_spawn()
+        return self.add_gridelement(pos, neweffect)
 
-    def request_add_unit(self, x, y, unitid:int, playerid:int):
-        NetEvents.snd_netunitspawn(unitid, (x,y), playerid)
-
-    def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int) -> Optional[UnitBase]:
+    def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int) -> "UnitBase|None":
         """Add a unit to the grid at given position, owned by ownerid."""
-        unitclass = GridElementFactory.find_unit_class(UNIT_IDS[unitid])
-        newunit = unitclass(self, pos, ownerid)
-        index = self.c_to_i(pos)
-        if index >= 0 and index < len(self.units):
-            self.units[index] = newunit
-            if self.observer:
-                self.observer.on_add_unit(newunit)
-            return newunit
-        print("Grid: Tried to add unit at index", index, "which is out if range.")
-        return None
+        unittype:UnitBase = GridElementFactory.find_unit_class(UNIT_IDS[unitid])
+        newunit:UnitBase = unittype(self, pos, ownerid)
+        return self.add_gridelement(pos, newunit) 
 
-    def remove_unit(self, pos:"tuple[int,int]", use_net=True):
-        """Remove a unit at given position."""
-        if self.is_space_empty(False, pos):
-            print(f"Grid: Tried to remove unit at {pos}, which is empty.")
-            return False
-        elif NetEvents.connector and NetEvents.connector.authority and use_net:
-            NetEvents.snd_netunitremove(pos)
-        self.units[self.c_to_i(pos)] = None
-        if self.observer:
-            self.observer.on_remove_unit(pos)
-        return True
+    def request_add_unit(self, pos:"tuple[int,int]", unitid:int, playerid:int) -> None:
+        """Request a unit with unitid to be spawned at (x,y), owned by a playerid."""
+        NetEvents.snd_netunitspawn(unitid, pos, playerid)
     
-    def remove_tileeffect(self, effect:"EffectBase", pos:"tuple[int,int]"):
+    def remove_gridelement(self, pos:"tuple[int,int]", effect:"EffectBase|None"=None, rmflags=0b100) -> bool:
+        """Remove a gridelement at given position. 
+        Use the flags to specify Tiles, Units, and Effects respectively.
+        When removing effects, effect shouldn't be None."""
+        tiles = rmflags & 0b100
+        units = rmflags & 0b010
+        effects = rmflags & 0b001
+        if not self.is_coord_in_bounds(pos):
+            print("Grid: Tried to remove element at", pos, "which is not on the grid.")
+            return False
+        if tiles and self.is_space_empty(True, pos):
+            print("Grid: Tried to remove tile at", pos, "which is empty.")
+            return False
+        if units and self.is_space_empty(False, pos):
+            print("Grid: Tried to remove unit at", pos, "which is empty.")
+            return False
+        index = self.c_to_i(pos)
+        if effects:
+            if effect not in self.worldeffects[index]:
+                print("Grid: Tried to remove effect", effect, "at", pos, "which is does not exist.")
+                return False
+
+        if tiles:
+            self.tiles[index] = None
+            if self.observer:
+                self.observer.on_remove_tile(pos)
+        if units:
+            self.units[index] = None
+            if self.observer:
+                self.observer.on_remove_unit(pos)
+        if effects:
+            self.worldeffects[index].remove(effect)
+            if self.observer:
+                self.observer.on_remove_worldeffect(effect, pos)
+        return True
+
+    def remove_tile(self, pos:"tuple[int,int]") -> bool:
+        """Remove a unit at given position."""
+        return self.remove_gridelement(pos, rmflags=0b100)
+    
+    def remove_unit(self, pos:"tuple[int,int]") -> bool:
+        """Remove a unit at given position."""
+        return self.remove_gridelement(pos, rmflags=0b010)
+    
+    def remove_worldeffect(self, effect:"EffectBase", pos:"tuple[int,int]") -> bool:
         """Remove an effect at given position."""
-        self.worldeffects[self.c_to_i(pos)].remove(effect)
-        if self.observer:
-            self.observer.on_remove_tileeffect(effect, pos)
+        return self.remove_gridelement(pos, effect=effect, rmflags=0b001)
 
     def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]", use_net=True) -> bool:
         """Move a unit from (x,y) to (tagretx,targety)."""
@@ -279,15 +300,15 @@ class Grid(Serializable):
             print(f"Grid: Unit would have fallen from the grid at {to_pos}.")
             return False
 
-    def get_tile(self, pos:"tuple[int,int]"):
+    def get_tile(self, pos:"tuple[int,int]") -> "TileBase|None":
         """Return the tile at (x,y)."""
         return self.tiles[self.c_to_i(pos)]
    
-    def get_tileeffects(self, pos:"tuple[int,int]"):
-        """Return the tile effects at (x,y)."""
+    def get_worldeffects(self, pos:"tuple[int,int]") -> "list[EffectBase]":
+        """Return the world effects at (x,y)."""
         return self.worldeffects[self.c_to_i(pos)]
    
-    def get_unit(self, pos:"tuple[int,int]") -> "Optional[UnitBase]":
+    def get_unit(self, pos:"tuple[int,int]") -> "UnitBase|None":
         """Return the unit at (x,y)."""
         i = self.c_to_i(pos)
         if i >= 0 and i < len(self.units) :
@@ -303,16 +324,16 @@ class Grid(Serializable):
         """Convert index to the corresponding xy-coordinates."""
         return (i%self.width, int(i/self.width))
 
-    def is_coord_in_bounds(self, pos:"tuple[int,int]"):
+    def is_coord_in_bounds(self, pos:"tuple[int,int]") -> bool:
         """Check whether a coordinate is inside the grid space."""
         return pos[0]>=0 and pos[0]<self.width and pos[1]>=0 and pos[1]<self.height
 
-    def is_space_empty(self, tiles:bool, pos:"tuple[int,int]")->bool:
+    def is_space_empty(self, tiles:bool, pos:"tuple[int,int]") -> bool:
         """Check whether a tile or a unit is at the given position."""
         return self.is_coord_in_bounds(pos) and \
             not (self.tiles if tiles else self.units)[self.c_to_i(pos)]
 
-    def get_ordinal_neighbors(self, x, y):
+    def get_ordinal_neighbors(self, x, y) -> "list[tuple[int,int]]":
         """Returns the coordinates of neighboring tiles when inside bounds."""
         assert isinstance(x, int) and isinstance(y, int)
         up = (x-1,y)
@@ -321,7 +342,7 @@ class Grid(Serializable):
         left = (x,y-1)
         return [n for n in (up, right, down, left) if self.is_coord_in_bounds(n)]
 
-    def tick(self, dt:float):
+    def tick(self, dt:float) -> None:
         """Ticks the game, updating phases, movement and other things."""
         self.gametime += dt
         for u in self.units:
@@ -350,7 +371,6 @@ class Grid(Serializable):
                     self.advance_phase()
                     NetEvents.snd_netphasechange(self.phase)
             elif self.phase == 4:
-                print("test")
                 if self.everybody_done():
                     self.advance_phase()
                     NetEvents.snd_netphasechange(self.phase)
@@ -360,7 +380,7 @@ class Grid(Serializable):
                         self.phasetime = 0.0
                         self.update_unit_movement()
 
-    def show(self):
+    def show(self) -> None:
         """Print the grid onto the console."""
         text = ""
         for x in range(self.width):
