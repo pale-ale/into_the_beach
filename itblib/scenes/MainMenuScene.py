@@ -1,7 +1,9 @@
+from itblib.scenes.SceneBase import SceneBase
 from itblib.SceneManager import SceneManager
+from itblib.ui.TextBox import TextBox
 import pygame
 import pygame.font
-from itblib.scenes.SceneBase import SceneBase
+
 
 class MainMenuScene(SceneBase):
     """Main menu placeholder."""
@@ -15,21 +17,27 @@ class MainMenuScene(SceneBase):
         s1 = self.subfont.render("      F: Toggle Fullscreen", True, (50,200,150,255))
         s2 = self.subfont.render("      R: Edit Roster", True, (50,200,150,255))
         s3 = self.subfont.render("      M: Mapselection.", True, (50,200,150,255))
-        y = self.subfont.render("ESC to quit, SPACE to queue", True, (50,200,150,255))
         self.image.blit(x, (100,100))
+        self.tb1 = TextBox((175,30), "↑ Battle", fontsize=20)
+        self.tb2 = TextBox((175,30), "→ Game Settings", fontsize=20)
+        self.tb3 = TextBox((100,30), "Loadout ←", fontsize=20)
+        self.tb4 = TextBox((175,30), "↓ Exit", fontsize=20)
         self.fullscreen = False
         self.image.blit(s, (100,200))
         self.image.blit(s1, (100,230))
         self.image.blit(s2, (100,250))
         self.image.blit(s3, (100,270))
-        self.image.blit(y, (100,300))
+        self.image.blit(self.tb1.image, (560,510))
+        self.image.blit(self.tb2.image, (630,540))
+        self.image.blit(self.tb3.image, (500,540))
+        self.image.blit(self.tb4.image, (549,570))
     
     def on_keyevent(self, keyevent):
         super().on_keyevent(keyevent)
         if keyevent.type == pygame.KEYDOWN:
             if keyevent.key == pygame.K_ESCAPE:
                 exit(0)
-            elif keyevent.key == pygame.K_SPACE:
+            elif keyevent.key == pygame.K_UP:
                 self.scenemanager.load_scene("GameScene")
             elif keyevent.key == pygame.K_r:
                 self.scenemanager.load_scene("RosterSelectionScene")
