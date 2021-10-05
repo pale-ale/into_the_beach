@@ -118,7 +118,8 @@ class NetEvents():
         ability = [a for a in unit.abilities if type(a).__name__ == abilityname][0]
         ability.selected_targets.clear()
         if NetEvents.connector.authority:
-            ability.set_targets(primed, targets)
+            ability.set_targets(targets)
+            ability.primed = primed
 
     @staticmethod
     def snd_netplayerwon(playerid:int):

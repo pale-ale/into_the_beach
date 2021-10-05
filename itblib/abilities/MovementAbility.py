@@ -21,27 +21,45 @@ class MovementAbility(AbilityBase):
     
     def on_select_ability(self):
         super().on_select_ability()
-        if  self.selected:
-            self.area_of_effect.clear()
-            self.selected_targets.clear()
-            self.collect_movement_info()
+        if self.selected:
+            self._collect_movement_info()
 
-    def collect_movement_info(self):
+    def set_targets(self, targets:"list[tuple[int,int]]"):
+        super().set_targets(targets)
+        if not NetEvents.connector.authority:
+            self._collect_movement_info()
+    
+    def on_update_cursor(self, newcursorpos:"tuple[int,int]"):
+        """Add the new cursor position to the path if the unit can move there."""
+        super().on_update_cursor(newcursorpos)
+        if self.selected:
+            if len(self.selected_targets) < self._unit.moverange:
+                self._add_to_movement(newcursorpos)
+            else:
+                self.on_deselect_ability()
+    
+    def on_trigger(self):
+        """Trigger effects based on the movement of this unit, and set the timing for animation."""
+        super().on_trigger()
+        self.timinginfo = self._unit.age
+        self._unit.done = False
+  
+    def get_valid_targets(self) -> "list[tuple[int,int]]":
+        pathwithself = [self._unit.pos] + self.selected_targets
+        valid_targets = self._unit.grid.get_ordinal_neighbors(pathwithself[-1]) 
+        return valid_targets
+
+    def _collect_movement_info(self):
         """Gather the tiles we can move to and add them to the displayed AOE."""
         pathwithself = [self._unit.pos] + self.selected_targets
         if len(pathwithself) <= self._unit.moverange:
             pos = pathwithself[-1]
-            for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
+            for neighbor in self.get_valid_targets():
                 delta = (neighbor[0] - pos[0], neighbor[1] - pos[1])
                 coordwithpreviewid = (neighbor, PREVIEWS[delta])
                 self.area_of_effect.append(coordwithpreviewid)
 
-    def set_targets(self, primed:bool, targets:"list[tuple[int,int]]"):
-        super().set_targets(len(targets) > 0, targets)
-        if not NetEvents.connector.authority:
-            self.collect_movement_info()
-    
-    def update_path_display(self):
+    def _update_path_display(self):
         """Display the new path using proximity textures."""
         self.area_of_effect.clear()
         pathwithself = [self._unit.pos]
@@ -59,29 +77,14 @@ class MovementAbility(AbilityBase):
                 self.area_of_effect.append(currentwithpreview)
             self.area_of_effect.append(first)
             self.area_of_effect.append(last)
-        self.collect_movement_info()
+        self._collect_movement_info()
 
-    def add_to_movement(self, target:"tuple[int,int]"):
+    def _add_to_movement(self, target:"tuple[int,int]"):
         """Add a "step" to the path we want to take."""
         pathwithself = [self._unit.pos]
         pathwithself.extend(self.selected_targets)
         if target != pathwithself[-1]:
-            self.selected_targets.append(target)
-            NetEvents.snd_netabilitytarget(self)
+            new_targets = self.selected_targets + [target]
+            self.set_targets(new_targets)
             if not NetEvents.connector.authority:
-                self.update_path_display()
-
-    def on_update_cursor(self, newcursorpos:"tuple[int,int]"):
-        """Add the new cursor position to the path if we can move there."""
-        super().on_update_cursor(newcursorpos)
-        if self.selected:
-            if len(self.selected_targets) < self._unit.moverange:
-                self.add_to_movement(newcursorpos)
-            else:
-                self.on_deselect_ability()
-    
-    def on_trigger(self):
-        """Trigger effects based on the movement of this unit, and set the timing for animation."""
-        super().on_trigger()
-        self.timinginfo = self._unit.age
-        self._unit.done = False
+                self._update_path_display()

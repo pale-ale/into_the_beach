@@ -36,12 +36,24 @@ class AbilityBase:
             self.primed = False
         print("AbilityBase: Triggered", type(self._unit).__name__ + "'s", type(self).__name__)
     
-    def set_targets(self, primed:bool, targets:"list[tuple[int,int]]"):
-        """Set selected_targets to the specified coordinates. Replicated."""
+    def set_targets(self, targets:"list[tuple[int,int]]"):
+        """Set selected_targets to the specified coordinates."""
         self.selected_targets = targets
-        self.primed = primed
-        NetEvents.snd_netabilitytarget(self)
         print("AbilityBase: Set targets of", type(self).__name__, "to", targets)
+    
+    def confirm_target(self, target:"tuple[int,int]"):
+        """Called when the players confirms the target(s) with ENTER, 
+        passing along the position where the cursor was when ENTER was pressed"""
+        self.primed = True
+        NetEvents.snd_netabilitytarget(self)
+        print("AbilityBase: Confirmed targets of", type(self).__name__, ":", self.selected_targets)
+
+    def reset(self):
+        """Reset the ability to e.g. remove old targeting info."""
+        self.selected_targets.clear()
+        self.area_of_effect.clear()
+        self.primed = False
+        self.selected = False
 
     def on_select_ability(self):
         """Called when a player selects this ability. Use to e.g. show target outlines"""
@@ -69,11 +81,21 @@ class AbilityBase:
 
     def on_update_phase(self, newphase:int):
         """Called when a phase change occured. Not necessarily a new turn."""
+        if newphase == 1:
+            self.reset()
+            if self.reduce_cooldown_each_turn:
+                self.remainingcooldown = max(self.remainingcooldown-1, 0)
         if self.phase == newphase and self.primed:
             self.on_trigger()
-        elif self.reduce_cooldown_each_turn:
-            self.remainingcooldown = max(self.remainingcooldown-1, 0)
     
     def on_death(self):
         """Called when this ability's unit dies."""
         print("AbilityBase: This unit has died.")
+    
+    def get_valid_targets(self) -> "list[tuple[int,int]]":
+        """Return a list of valid target coordinates."""
+        print("AbilityBase: Please override.")
+    
+    def is_valid_target(self, target:"tuple[int,int]") -> bool:
+        """Determine whether a target is valid (e.g. in range) or not."""
+        return target in self.get_valid_targets()

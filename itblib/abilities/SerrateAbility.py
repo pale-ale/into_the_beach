@@ -1,15 +1,14 @@
 from itblib.gridelements.Effects import EffectBleeding
 from typing import TYPE_CHECKING
 from itblib.abilities.TargetAbilityBase import TargetAbilityBase
-from itblib.net.NetEvents import NetEvents
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
 class SerrateAbility(TargetAbilityBase):
-    """Causes a unit take 1 damage and be inflicted with bleeding."""
+    """Deals 1 damage to a unit and causes bleeding."""
     def __init__(self, unit: "UnitBase"):
-        super().__init__(unit, 1, 2)
+        super().__init__(unit, 2, 1)
    
     def apply_to_target(self, target: "tuple[int,int]"):
         super().apply_to_target(target)

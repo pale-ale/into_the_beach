@@ -48,7 +48,7 @@ class EffectHeal(EffectBase):
         super().on_spawn()
         unit = self.grid.get_unit(self.pos)
         if unit:
-            unit.on_change_hp(1, "magic")
+            unit.change_hp(1, "magic")
             bleed = unit.get_statuseffect("Bleeding")
             if bleed:
                 unit.remove_statuseffect(bleed)
@@ -82,7 +82,7 @@ class EffectBleeding(StatusEffect):
     def on_update_phase(self, newphase: int):
         super().on_update_phase(newphase)
         if newphase == 3:
-            self.target.hitpoints -= 1
+            self.target.change_hp(-1, "physical")
 
 
 class EffectBurrowed(StatusEffect):

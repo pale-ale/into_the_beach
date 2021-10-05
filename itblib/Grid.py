@@ -112,7 +112,7 @@ class Grid(Serializable):
         return len(notdone) == 0
 
     def update_unit_movement(self) -> None:
-        """Move units by one step and handle collisions between them or other obstacles. Server Only"""
+        """Move units by one step and handle collisions between them or other obstacles."""
         movingunits:"list[UnitBase]" = []
         obstacles:"list[GridElement]" = []
         #filter units that cannot move
@@ -280,7 +280,7 @@ class Grid(Serializable):
         """Remove an effect at given position."""
         return self.remove_gridelement(pos, effect=effect, rmflags=0b001)
 
-    def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]", use_net=True) -> bool:
+    def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]") -> bool:
         """Move a unit from (x,y) to (tagretx,targety)."""
         if self.is_space_empty(False, from_pos):
             print(f"Grid: Tried to move unit at {from_pos} which does not exist.")
@@ -290,8 +290,6 @@ class Grid(Serializable):
             self.units[self.c_to_i(from_pos)] = None
             self.units[self.c_to_i(to_pos)] = unit
             unit.pos = to_pos
-            if use_net:
-                NetEvents.snd_netunitmove(from_pos, to_pos)
             self.tiles[self.c_to_i(to_pos)].on_enter(unit)
             if self.observer:
                 self.observer.on_move_unit(from_pos, to_pos)
@@ -333,9 +331,9 @@ class Grid(Serializable):
         return self.is_coord_in_bounds(pos) and \
             not (self.tiles if tiles else self.units)[self.c_to_i(pos)]
 
-    def get_ordinal_neighbors(self, x, y) -> "list[tuple[int,int]]":
+    def get_ordinal_neighbors(self, pos:"tuple[int,int]") -> "list[tuple[int,int]]":
         """Returns the coordinates of neighboring tiles when inside bounds."""
-        assert isinstance(x, int) and isinstance(y, int)
+        x,y = pos
         up = (x-1,y)
         right = (x,y+1)
         down = (x+1,y)
@@ -376,6 +374,12 @@ class Grid(Serializable):
                     NetEvents.snd_netphasechange(self.phase)
                     NetEvents.snd_netsync()
                 else:
+                    if self.phasetime >= 0.5:
+                        self.phasetime = 0.0
+                        self.update_unit_movement()
+        else:
+            if self.phase == 4:
+                if not self.everybody_done():
                     if self.phasetime >= 0.5:
                         self.phasetime = 0.0
                         self.update_unit_movement()

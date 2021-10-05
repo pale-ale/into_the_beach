@@ -10,7 +10,7 @@ class TargetAbilityBase(AbilityBase):
 
     def on_select_ability(self):
         super().on_select_ability()
-        for neighbor in self._unit.grid.get_ordinal_neighbors(*self._unit.pos):
+        for neighbor in self._unit.grid.get_ordinal_neighbors(self._unit.pos):
             self.area_of_effect.append((neighbor, PREVIEWS[0]))
     
     def apply_to_target(self, target:"tuple[int,int]"):
@@ -22,7 +22,11 @@ class TargetAbilityBase(AbilityBase):
         for target in self.selected_targets:
             self.apply_to_target(target)
 
-    def set_targets(self, primed:bool, targets:"list[tuple[int,int]]"):
-        super().set_targets(primed, targets)
+    def set_targets(self, targets:"list[tuple[int,int]]"):
+        super().set_targets(targets)
         self.area_of_effect.clear()
         self.on_deselect_ability()
+
+    def confirm_target(self, target:"tuple[int,int]"):
+        self.set_targets([target])
+        super().confirm_target(target)

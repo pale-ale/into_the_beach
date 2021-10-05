@@ -1,10 +1,9 @@
-from itblib.Player import Player
-from itblib.Game import Session
-import time
-import pygame
-import random
 from itblib.net.Connector import Connector
 from itblib.net.NetEvents import NetEvents
+from itblib.Player import Player
+from itblib.Game import Session
+import pygame
+import random
 
 FPS = 10
 
@@ -45,15 +44,18 @@ def manage_players():
         print("added player", newplayer.playerid)
         newplayerid += 1
 
-while True:
-    handle_networking_events()
-    manage_players()
-    dt = clock.tick(FPS)/1000.0
-    #dt = int(input()) / 1000.0
-    if serversession.state in ["running", "runningPregame"]:
-        serversession._grid.tick(dt)
-    if serversession.state == "gameOver":
-        serversession = Session(c)
-        NetEvents.session = serversession
-        NetEvents.grid = serversession._grid
-        
+def main():
+    global serversession
+    while True:
+        handle_networking_events()
+        manage_players()
+        dt = clock.tick(FPS)/1000.0
+        if serversession.state in ["running", "runningPregame"]:
+            serversession._grid.tick(dt)
+        if serversession.state == "gameOver":
+            serversession = Session(c)
+            NetEvents.session = serversession
+            NetEvents.grid = serversession._grid
+
+if __name__ == '__main__':
+    main()

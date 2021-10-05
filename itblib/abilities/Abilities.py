@@ -30,7 +30,7 @@ class RangedAttackAbility(AbilityBase):
         super().on_select_ability()
         pos = self._unit.pos
         coords = self.get_ordinals()
-        coords = coords.difference(self._unit.grid.get_ordinal_neighbors(*pos))
+        coords = coords.difference(self._unit.grid.get_ordinal_neighbors(pos))
         #for coord in coords:
         #    self.area_of_effect.append(coord)
 
@@ -68,7 +68,7 @@ class PushAbility(AbilityBase):
     def on_select_ability(self):
         super().on_select_ability()
         pos = self._unit.pos
-        for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
+        for neighbor in self._unit.grid.get_ordinal_neighbors(pos):
             self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
     def on_trigger(self):
@@ -102,7 +102,7 @@ class HealAbility(AbilityBase):
     def on_select_ability(self):
         super().on_select_ability()
         pos = self._unit.pos
-        for neighbor in self._unit.grid.get_ordinal_neighbors(*pos):
+        for neighbor in self._unit.grid.get_ordinal_neighbors(pos):
             self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
     def add_targets(self, targets:"list[tuple[int,int]]"):

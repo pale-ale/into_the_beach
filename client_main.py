@@ -1,17 +1,16 @@
-from itblib.scenes.MapSelectionScene import MapSelectionScene
-from itblib.Game import Game
-import pygame
-import pygame.display
-import pygame.time
 from itblib.scenes.GameScene import GameScene
 from itblib.scenes.MainMenuScene import MainMenuScene
+from itblib.scenes.MapSelectionScene import MapSelectionScene
+from itblib.net.NetEvents import NetEvents
+from itblib.Player import PlayerData
 from itblib.scenes.RosterSelectionScene import RosterSelectionScene
 from itblib.SceneManager import SceneManager
 from itblib.Selector import Selector
-from itblib.net.NetEvents import NetEvents
 from itblib.ui.TextureManager import Textures
-from itblib.Player import PlayerData
 
+import pygame
+import pygame.display
+import pygame.time
 import os
 import sys
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0,0)
@@ -61,17 +60,21 @@ class Client:
             self.screen = pygame.display.set_mode(self.normal_displaysize, pygame.NOFRAME).convert_alpha()
             self.screen = pygame.display.set_mode(self.normal_displaysize, pygame.NOFRAME).convert_alpha()
 
-client = Client()
+def main():
+    client = Client()
 
-while client.running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            client.running = False
-        elif pygame.key.get_focused() and (event.type == pygame.KEYDOWN or event.type == pygame.KEYUP):
-            client.scenemanager.activescene.on_keyevent(event)
-    dt = client.clock.tick(client.fps_cap)/1000.0
-    client.scenemanager.activescene.update(dt) 
-    client.screen.fill((0,0,0,0))
-    client.screen.blit(client.scenemanager.activescene.image, (0,0))
-    pygame.display.update()
-pygame.quit()
+    while client.running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                client.running = False
+            elif pygame.key.get_focused() and (event.type == pygame.KEYDOWN or event.type == pygame.KEYUP):
+                client.scenemanager.activescene.on_keyevent(event)
+        dt = client.clock.tick(client.fps_cap)/1000.0
+        client.scenemanager.activescene.update(dt) 
+        client.screen.fill((0,0,0,0))
+        client.screen.blit(client.scenemanager.activescene.image, (0,0))
+        pygame.display.update()
+    pygame.quit()
+
+if __name__ == '__main__':
+    main()

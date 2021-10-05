@@ -21,7 +21,7 @@ class EffectRiverUI(EffectBaseUI):
         if self.visible:
             grid = self._parentelement.grid
             pos = self._parentelement.pos
-            neighborposs = grid.get_ordinal_neighbors(*pos)
+            neighborposs = grid.get_ordinal_neighbors(pos)
             riverposs = []
             for rpos in neighborposs: 
                 for effect in grid.get_worldeffects(rpos):

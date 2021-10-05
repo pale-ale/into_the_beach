@@ -13,9 +13,9 @@ class UnitBase(GridElement, Serializable):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
     name:str="Base", hitpoints:int=5, canswim:bool=False, abilities:"list[Type[AbilityBase]]"=[]):
         GridElement.__init__(self, grid, pos)
-        Serializable.__init__(self, ["name", "hitpoints", "ownerid", "statuseffects"])
+        Serializable.__init__(self, ["name", "_hitpoints", "ownerid", "statuseffects"])
         self.name = name
-        self.hitpoints = hitpoints
+        self._hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
         self.baseattack = {"physical": 1, "magical": 0}
         self.statuseffects:"list[StatusEffect]" = []
@@ -79,20 +79,20 @@ class UnitBase(GridElement, Serializable):
         print("target", target)
         unit = self.grid.get_unit(target)
         if unit:
-            unit.on_change_hp(-damage, damagetype)
+            unit.change_hp(-damage, damagetype)
     
     def get_movement_ability(self):
         for ability in self.abilities[:]:
             if type(ability).__name__ == "MovementAbility":
                 return ability
     
-    def on_change_hp(self, delta_hp:int, hp_change_type:str):
+    def change_hp(self, delta_hp:int, hp_change_type:str):
         if delta_hp > 0:
-            self.hitpoints += delta_hp
+            self._hitpoints += delta_hp
         else:
             reduceddamage = delta_hp + self.defense[hp_change_type]
-            self.hitpoints += min(0,reduceddamage)
-        if self.hitpoints <= 0:
+            self._hitpoints += min(0,reduceddamage)
+        if self._hitpoints <= 0:
             self.on_death()
     
     def on_update_abilities_phases(self, newphase:int):
@@ -114,15 +114,15 @@ class UnitBase(GridElement, Serializable):
             ability.on_parentunit_deselect()
     
     def on_activate_ability(self, slot:int):
-        if slot < len(self.abilities):
+        if slot >= 0 and slot < len(self.abilities):
             ability = self.abilities[slot]
             if ability.remainingcooldown == 0:
                 ability.on_select_ability()
 
-    def on_targets_chosen(self, targets:"list[tuple[int,int]]"):
+    def on_confirm_target(self, target:"tuple[int,int]"):
         for ability in self.abilities:
             if ability.selected:
-                ability.set_targets(True, targets)
+                ability.confirm_target(target)
     
     def on_death(self):
         for ability in self.abilities:
@@ -138,8 +138,8 @@ class UnitBase(GridElement, Serializable):
         else:
             #we collide with a different unit or object
             targetint = self.grid.c_to_i(to)
-            self.grid.units[targetint].on_change_hp(-1, "collision")
+            self.grid.units[targetint].change_hp(-1, "collision")
             newposint = self.grid.c_to_i(to)
-            self.grid.units[newposint].on_change_hp(-1, "collision")
+            self.grid.units[newposint].change_hp(-1, "collision")
 
     

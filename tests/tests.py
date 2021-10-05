@@ -99,12 +99,12 @@ class TestGridMethods(unittest.TestCase):
         self.assertIsNotNone(self.grid.get_unit(startpos))
         self.assertIsNone(self.grid.get_unit(endpos))
         # unit should fall from the grid in this case, so nothing should have changed
-        self.assertFalse(self.grid.move_unit(startpos, endpos, use_net=False))
+        self.assertFalse(self.grid.move_unit(startpos, endpos))
         self.assertIsNotNone(self.grid.get_unit(startpos))
         self.assertIsNone(self.grid.get_unit(endpos))
         # adding the tile allows us to move the unit
         self.grid.add_tile(endpos, tileid)
-        self.assertTrue(self.grid.move_unit(startpos, endpos, use_net=False))
+        self.assertTrue(self.grid.move_unit(startpos, endpos))
         self.assertIsNone(self.grid.get_unit(startpos))
         self.assertIsNotNone(self.grid.get_unit(endpos))
 
@@ -118,8 +118,8 @@ class TestGridMethods(unittest.TestCase):
         pos2 = [0,0]
         ordinals1 = [(1,1),(1,3),(0,2),(2,2)]
         ordinals2 = [(0,1),(1,0)]
-        self.assertCountEqual(ordinals1,self.grid.get_ordinal_neighbors(*pos1))
-        self.assertCountEqual(ordinals2,self.grid.get_ordinal_neighbors(*pos2))
+        self.assertCountEqual(ordinals1,self.grid.get_ordinal_neighbors(pos1))
+        self.assertCountEqual(ordinals2,self.grid.get_ordinal_neighbors(pos2))
 
 
 class TestUnitBaseMethods(unittest.TestCase):
@@ -182,10 +182,10 @@ class TestUnitBaseMethods(unittest.TestCase):
         self.assertIsNone(self.unit.get_statuseffect(statuseffect))
     
     def test_on_change_hp(self):
-        hp = self.unit.hitpoints
+        hp = self.unit._hitpoints
         change = 1
-        self.unit.on_change_hp(change, "physical")
-        self.assertEqual(hp+1, self.unit.hitpoints)
+        self.unit.change_hp(change, "physical")
+        self.assertEqual(hp+1, self.unit._hitpoints)
     
     def test_on_death(self):
         unitid = 2

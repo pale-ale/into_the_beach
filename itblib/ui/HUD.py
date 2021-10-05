@@ -199,7 +199,7 @@ class Hud(pygame.sprite.Sprite):
             self.selectedunitui = None
         self.redraw()
     
-    def targetselect(self, position:"tuple[int,int]"):
+    def targetconfirm(self, position:"tuple[int,int]"):
         """Forward the position of the selected target to the selected unit's hooks or spawn a unit."""
         if self.gridui.grid.phase == 0 and \
         len(self.session._players[self.playerid]._initialunitids) > 0 and\
@@ -207,12 +207,12 @@ class Hud(pygame.sprite.Sprite):
             id = self.session._players[self.playerid]._initialunitids.pop(0)
             self.gridui.grid.request_add_unit(position, id, self.playerid)
         elif self.selectedunitui:
-            self.selectedunitui._parentelement.on_targets_chosen([position])
+            self.selectedunitui._parentelement.on_confirm_target(position)
         self.redraw()
 
     def activate_ability(self, slot:int):
         """Activate the ability with the according number, and deselect all others."""
-        if self.selectedunitui and self.selectedunitui._parentelement:
+        if self.selectedunitui and self.selectedunitui._parentelement and self.gridui.grid.phase == 1:
             self.selectedunitui._parentelement.on_deselect()
             self.selectedunitui._parentelement.on_activate_ability(slot-1)
             self.redraw()
@@ -221,7 +221,7 @@ class Hud(pygame.sprite.Sprite):
         """Display the health bar on top of a unit."""
         #x,y = self.transform_grid_screen_scaled(Vec.comp_add2(unit.pos, [32,0]))
         maxbarwidth = 100
-        hitpoints = unit.hitpoints
+        hitpoints = unit._hitpoints
         slotwidth = (maxbarwidth - hitpoints -1) / max(1, hitpoints)
         barwidth = min(maxbarwidth, 10*max(1, hitpoints))
         #self.image.fill((0,0,255,255), (50, 50, barwidth, 20))

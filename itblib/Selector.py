@@ -32,7 +32,7 @@ class Selector:
                 self.hud.unitselect(self.cursorposition)
                 return
             if event.key == pygame.K_RETURN:
-                self.hud.targetselect(self.cursorposition)
+                self.hud.targetconfirm(self.cursorposition)
                 return
 
             # active abilities
