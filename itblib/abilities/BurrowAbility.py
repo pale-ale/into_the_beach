@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 class BurrowAbility(ToggleAbilityBase):
     def __init__(self, unit: "UnitBase"):
-        super().__init__(unit, 6, 2)
+        super().__init__(unit, 2)
     
     def on_trigger(self):
         super().on_trigger()

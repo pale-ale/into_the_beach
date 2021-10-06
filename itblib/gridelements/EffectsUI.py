@@ -17,7 +17,7 @@ class EffectRiverUI(EffectBaseUI):
     def __init__(self, effect:EffectRiver, width:int=64, height:int=64):  
         super().__init__(width=width, height=height, effect=effect)
     
-    def update(self):
+    def update(self, dt:float):
         if self.visible:
             grid = self._parentelement.grid
             pos = self._parentelement.pos

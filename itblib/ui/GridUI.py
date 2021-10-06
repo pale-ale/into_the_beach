@@ -106,11 +106,11 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
                 self.uieffects[self.grid.c_to_i(pos)].remove(uieffect)
                 return
 
-    def update(self):
+    def update(self, dt:float):
         """Update the graphics and animations' frames."""
-        self.tilesprites.update()
-        self.effectsprites.update()
-        self.unitsprites.update()
+        self.tilesprites.update(dt)
+        self.effectsprites.update(dt)
+        self.unitsprites.update(dt)
         self.redraw_grid_2()
 
     def reload_from_grid(self):

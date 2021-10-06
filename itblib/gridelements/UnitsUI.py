@@ -17,8 +17,8 @@ class UnitBaseUI(GridElementUI):
         self.speed = speed
         self.movementtime = self._parentelement.age
 
-    def update(self):
-        super().update()
+    def update(self, dt:float):
+        super().update(dt)
         if self.fromscreenpos and self.toscreenpos:
             diff = Vec.comp_sub2(self.toscreenpos, self.fromscreenpos)
             timepercent = min((self._parentelement.age - self.movementtime) / self.speed, 1)

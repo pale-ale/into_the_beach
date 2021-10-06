@@ -52,7 +52,7 @@ class GameScene(SceneBase):
         self.image.fill((0,0,0,0))
         self.hud.redraw()
         self.grid.tick(dt)
-        self.gridui.update()
+        self.gridui.update(dt)
         self.image.blit(self.hud.background, (0,0))
         pygame.transform.scale(self.gridui.image, self.griduiscaleimage.get_size(), self.griduiscaleimage)
         self.image.blit(self.griduiscaleimage, self.gridui.rect.topleft)
