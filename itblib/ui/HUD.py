@@ -3,16 +3,17 @@ import pygame.sprite
 import pygame.transform
 import pygame.font
 import pygame.image
-from itblib.ui.TextureManager import Textures
-from itblib.Globals.Enums import PHASES, PREVIEWS
-from itblib.gridelements.UnitsUI import UnitBaseUI
-from itblib.gridelements.TilesUI import TileBaseUI
 from itblib.gridelements.EffectsUI import EffectBaseUI
 from itblib.ui.GridUI import GridUI
-from itblib.Game import Session
-from itblib.Vec import Vec
-from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.net.NetEvents import NetEvents
+from itblib.ui.animations.PlayerVersus import PlayerVersusAnimation
+from itblib.Globals.Enums import PHASES, PREVIEWS
+from itblib.Game import Session
+from itblib.ui.TextureManager import Textures
+from itblib.gridelements.TilesUI import TileBaseUI
+from itblib.gridelements.UnitsUI import UnitBaseUI
+from itblib.gridelements.units.UnitBase import UnitBase
+from itblib.Vec import Vec
 
 class UnitDisplay(pygame.sprite.Sprite):
     """Allows for easier display of a unit on the HUD."""
@@ -51,7 +52,7 @@ class UnitDisplay(pygame.sprite.Sprite):
             self.display_abilities(unit._parentelement)
             self.display_statuseffects(unit._parentelement)
     
-    def update(self):
+    def update(self, dt):
         self.image.fill(self.defaultimagecolor, (*self.imagepos,64,64))
         if self.displayunit:
             self.image.blit(self.displayunit.image, Vec.comp_add2(self.imagepos, (0,10)))
@@ -112,7 +113,7 @@ class TileDisplay(pygame.sprite.Sprite):
         self.displaytile = tile
         self.displayeffects = effects
         
-    def update(self):
+    def update(self, dt):
         self.image.fill(self.defaultimagecolor, (*self.imagepos,64,64))
         self.image.fill(self.defaulttextboxcolor, (*self.titlepos,128,20))
         if self.displaytile:
@@ -133,10 +134,9 @@ class Hud(pygame.sprite.Sprite):
 
     def __init__(self, width:int, height:int, gridui:GridUI, playerid:int, session:Session):
         super().__init__()
-        #default colors
         self.defaultimagecolor = (30,0,0,255)
         self.defaulttextboxcolor = (50,50,50,255)
-
+        self.playerversusanimation:"PlayerVersusAnimation|None" = None
         self.image = pygame.Surface((width, height)).convert_alpha()
         self.rect = self.image.get_rect()
         self.selectedunitui:UnitBaseUI = None
@@ -197,7 +197,7 @@ class Hud(pygame.sprite.Sprite):
                 print(self.playerid, unitui._parentelement.ownerid)
         else:
             self.selectedunitui = None
-        self.redraw()
+        self.redraw(0)
     
     def targetconfirm(self, position:"tuple[int,int]"):
         """Forward the position of the selected target to the selected unit's hooks or spawn a unit."""
@@ -208,14 +208,14 @@ class Hud(pygame.sprite.Sprite):
             self.gridui.grid.request_add_unit(position, id, self.playerid)
         elif self.selectedunitui:
             self.selectedunitui._parentelement.on_confirm_target(position)
-        self.redraw()
+        self.redraw(0)
 
     def activate_ability(self, slot:int):
         """Activate the ability with the according number, and deselect all others."""
         if self.selectedunitui and self.selectedunitui._parentelement and self.gridui.grid.phase == 1:
             self.selectedunitui._parentelement.on_deselect()
             self.selectedunitui._parentelement.on_activate_ability(slot-1)
-            self.redraw()
+            self.redraw(0)
 
     def display_healthbar(self, unit:UnitBase):
         """Display the health bar on top of a unit."""
@@ -255,13 +255,13 @@ class Hud(pygame.sprite.Sprite):
         self.gridui.grid.uniteffects.clear()
         self.gridui.reload_from_grid()
 
-    def redraw(self):
+    def redraw(self, dt:float):
         """Update the internal image, so that no residual blits are seen."""
         self.background = self.backgrounds[self.gridui.grid.phase]
         self.image.fill((0,0,0,0))
         if self.selectedunitui and self.selectedunitui._parentelement:
             self.draw_unit_ability_previews(self.selectedunitui._parentelement)
-        self.hudsprites.update()
+        self.hudsprites.update(dt)
         self.hudsprites.draw(self.image)
         maxphasetime = PHASES[self.gridui.grid.phase][1]
         currentphasetime = self.gridui.grid.phasetime
@@ -284,5 +284,9 @@ class Hud(pygame.sprite.Sprite):
         self.cursorscreenpos = self.transform_grid_true(position)
         if self.selectedunitui and self.selectedunitui._parentelement:
             self.selectedunitui._parentelement.on_update_cursor(position)
-        self.redraw()
+        self.redraw(0)
     
+    def on_start_game(self):
+        p1, p2 = self.session._players.values()
+        self.playerversusanimation = PlayerVersusAnimation(p1, p2, *self.image.get_size())
+        self.hudsprites.add(self.playerversusanimation)

@@ -50,7 +50,7 @@ class GameScene(SceneBase):
             prefix, contents = data
             NetEvents.rcv_event_caller(prefix, contents)
         self.image.fill((0,0,0,0))
-        self.hud.redraw()
+        self.hud.redraw(dt)
         self.grid.tick(dt)
         self.gridui.update(dt)
         self.image.blit(self.hud.background, (0,0))

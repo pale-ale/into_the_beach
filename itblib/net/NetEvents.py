@@ -56,6 +56,8 @@ class NetEvents():
         NetEvents.session._players[player.playerid] = player
         if player.localcontrol:
             NetEvents.hud.playerid = player.playerid
+        if len(NetEvents.session._players) >= 2 and not NetEvents.connector.authority:
+            NetEvents.hud.on_start_game()
 
     @staticmethod
     def snd_netphasechange(phasenumber):

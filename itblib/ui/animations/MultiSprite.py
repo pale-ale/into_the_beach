@@ -1,6 +1,8 @@
 import pygame
 
 class MultiSprite(pygame.sprite.Sprite):
+    """This class can be used to create "animated" sprites, using either a given set of textures
+    that will be flipped through or by overriding the update and start methods to create variable animations"""
     def __init__(self, textures:"list[pygame.Surface]", width:int=64, height:int=64, frametime:float=.5):
         super().__init__()
         self.image = pygame.Surface((width, height), pygame.SRCALPHA).convert_alpha()
@@ -8,15 +10,17 @@ class MultiSprite(pygame.sprite.Sprite):
         self._textures = textures
         self.frametime = frametime
         self.framenumber = 0
-        self.timestamp = -1
+        self.animtime = -1
         self.playing = False
-        self.set_frame(0)
+        if len(self._textures) > 0:
+            self.set_frame(0)
 
     def update(self, dt:float):
+        """Called every frame, advances one anim frame if the frametime is reached."""
         if not self.playing:
             return
-        self.timestamp += dt
-        currentframe = int(self.timestamp/self.frametime)
+        self.animtime += dt
+        currentframe = int(self.animtime/self.frametime)
         if currentframe > self.framenumber:
             if currentframe >= len(self._textures):
                 self.stop()
@@ -25,13 +29,16 @@ class MultiSprite(pygame.sprite.Sprite):
                 self.image.blit(self._textures[self.framenumber])
 
     def start(self):
-        if not self.playing:
+        """Set this animation into a "playing" state, enabling the update method."""
+        if not self.playing and len(self._textures) > 0:
             self.playing = True
-            self.timestamp = 0
+            self.animtime = 0
 
     def stop(self):
+        """Stop the animation, disabling the update method"""
         if self.playing:
             self.playing = False
     
     def set_frame(self, framenumber:int):
+        """Set the animation to a certain frame. When start() is called, play from there."""
         self.image.blit(self._textures[self.framenumber], (0,0))
