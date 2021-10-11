@@ -1,8 +1,5 @@
-from itblib.Vec import Vec
 from itblib.SceneManager import SceneManager
-from itblib.Game import Session
 from itblib.Grid import Grid
-from itblib.net.Connector import Connector
 from itblib.scenes.SceneBase import SceneBase
 from itblib.Selector import Selector
 from itblib.ui.GridUI import GridUI
@@ -16,19 +13,17 @@ class GameScene(SceneBase):
     """Contains the main game (grid, hud, etc.)"""
     def __init__(self, scenemanager:SceneManager, width: int, height: int) -> None:
         super().__init__(scenemanager, width, height)
-        self.connector = Connector(False)
-        self.session = Session(self.connector)
-        self.grid = Grid(self.connector)
+        self.grid = Grid(NetEvents.connector)
         self.gridui = GridUI(self.grid)
         self.grid.update_observer(self.gridui) 
-        self.hud = Hud(width, height, self.gridui, 0, self.session)
+        self.hud = Hud(width, height, self.gridui, 0, NetEvents.session)
         self.selector = Selector(self.grid, self.hud)
         self.griddisplaysize = (1280, 984)
         self.griduiscaleimage = pygame.Surface(self.griddisplaysize, pygame.SRCALPHA).convert_alpha()
-
+    
     def load(self):
         super().load()
-        self.connector.client_init()
+        self.hud.on_start_game()
 
     def on_keyevent(self, keyevent):
         super().on_keyevent(keyevent)
@@ -45,10 +40,6 @@ class GameScene(SceneBase):
 
     def update(self, dt:float):
         super().update(dt)
-        data = self.connector.receive_client()
-        if data:
-            prefix, contents = data
-            NetEvents.rcv_event_caller(prefix, contents)
         self.image.fill((0,0,0,0))
         self.hud.redraw(dt)
         self.grid.tick(dt)

@@ -1,5 +1,7 @@
 import pygame
 
+from itblib.net.NetEvents import NetEvents
+
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from itblib.SceneManager import SceneManager
@@ -27,7 +29,11 @@ class SceneBase(pygame.sprite.Sprite):
         pass #self.image = pygame.Surface(newsize)
         
     def update(self, dt:float):
-        pass
+        if NetEvents.connector and NetEvents.connector.acc_connection:
+            data = NetEvents.connector.receive_client()
+            if data:
+                prefix, contents = data
+                NetEvents.rcv_event_caller(prefix, contents)
 
     def load(self):
         """Initialize a scene, load textures, etc."""

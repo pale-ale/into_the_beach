@@ -38,7 +38,7 @@ class MainMenuScene(SceneBase):
             if keyevent.key == pygame.K_ESCAPE:
                 exit(0)
             elif keyevent.key == pygame.K_UP:
-                self.scenemanager.load_scene("GameScene")
+                self.scenemanager.load_scene("LobbyScene")
             elif keyevent.key == pygame.K_r:
                 self.scenemanager.load_scene("RosterSelectionScene")
             elif keyevent.key == pygame.K_m:

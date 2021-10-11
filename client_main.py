@@ -1,6 +1,9 @@
+from itblib.net.Connector import Connector
+from itblib.Game import Session
 from itblib.scenes.GameScene import GameScene
 from itblib.scenes.MainMenuScene import MainMenuScene
 from itblib.scenes.MapSelectionScene import MapSelectionScene
+from itblib.scenes.LobbyScene import LobbyScene
 from itblib.net.NetEvents import NetEvents
 from itblib.Player import PlayerData
 from itblib.scenes.RosterSelectionScene import RosterSelectionScene
@@ -25,26 +28,37 @@ class Client:
         self.playerfilepath = sys.argv[1]
 
         pygame.display.init()
-        PlayerData.load(self.playerfilepath)
-        self.fullscreen_displaysize = (pygame.display.Info().current_w, pygame.display.Info().current_h)
-        pygame.font.init()
-        pygame.display.set_caption("Into The Bleach (for covid purposes only)")
-        self.displayinfo = pygame.display.Info()
-        self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode(self.displaysize, pygame.NOFRAME)
         Textures.load_textures()
+        pygame.font.init()
+        
         self.scenemanager = SceneManager()
+        
+        self.connector = Connector(False)
+        self.session = Session(NetEvents.connector)
+      
+        NetEvents.connector = self.connector
+        NetEvents.session = self.session
+        
+        lobbyscene = LobbyScene(self.scenemanager, *self.displaysize, self.session)
         mainmenuscene = MainMenuScene(self, self.scenemanager, *self.displaysize)
         gamescene = GameScene(self.scenemanager, *self.displaysize)
         rosterselectionscene = RosterSelectionScene(self.scenemanager, *self.displaysize)
         mapselectionscene = MapSelectionScene(self.scenemanager, *self.displaysize)
+
+        self.session._observer = lobbyscene
+
+        PlayerData.load(self.playerfilepath)
+        self.fullscreen_displaysize = (pygame.display.Info().current_w, pygame.display.Info().current_h)
+        pygame.display.set_caption("Into The Bleach (for covid purposes only)")
+        self.displayinfo = pygame.display.Info()
+        self.clock = pygame.time.Clock()
         NetEvents.grid = gamescene.grid
-        NetEvents.connector = gamescene.connector
-        NetEvents.session = gamescene.session
         NetEvents.hud = gamescene.hud
         NetEvents.scenemanager = self.scenemanager
         self.selector = Selector(gamescene.grid, gamescene.hud)
         self.scenemanager.add_scene("GameScene", gamescene)
+        self.scenemanager.add_scene("LobbyScene", lobbyscene)
         self.scenemanager.add_scene("MainMenuScene", mainmenuscene)
         self.scenemanager.add_scene("RosterSelectionScene", rosterselectionscene)
         self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)

@@ -33,8 +33,7 @@ def get_color(key:int):
 
 def manage_players():
     if len(serversession._players) > 1:
-        if not serversession.state.startswith("running"):
-            print("starting game")
+        if not serversession._state.startswith("running"):
             serversession.start_game()
         return
     for newconnection in c.get_incoming_connections():
@@ -50,9 +49,9 @@ def main():
         handle_networking_events()
         manage_players()
         dt = clock.tick(FPS)/1000.0
-        if serversession.state in ["running", "runningPregame"]:
+        if serversession._state in ["running", "runningPregame"]:
             serversession._grid.tick(dt)
-        if serversession.state == "gameOver":
+        if serversession._state == "gameOver":
             serversession = Session(c)
             NetEvents.session = serversession
             NetEvents.grid = serversession._grid

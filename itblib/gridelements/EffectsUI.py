@@ -40,9 +40,9 @@ class EffectRiverUI(EffectBaseUI):
                 print("EffectRiverUI: Weird riverposs:", riverposs)
                 return False
             newanimframe = 6*int(self._parentelement.age) % 2 + imageid
-            if self.animframe != newanimframe:
+            if self.framenumber != newanimframe:
                 self.image = self._textures[newanimframe]
-                self.animframe = newanimframe
+                self.framenumber = newanimframe
                 self.needsredraw = True
                 return True
         return False

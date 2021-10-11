@@ -1,5 +1,3 @@
-from itblib.SceneManager import SceneManager
-from itblib.Maps import Map
 from itblib.Player import Player
 import json
 
@@ -16,10 +14,10 @@ class NetEvents():
     session:"Session" = None
     connector:"Connector" = None
     hud:"Hud" = None
-    scenemanager:"SceneManager" = None
 
     @staticmethod
     def snd_netunitspawn(unitid:int, pos:"tuple[int,int]", ownerid:int):
+        """Send a unit spawn event over the network. Server and Client."""
         unitspawntuple = (unitid, pos, ownerid)
         if NetEvents.connector.authority:
             NetEvents.connector.send_server_all(
@@ -32,6 +30,7 @@ class NetEvents():
     
     @staticmethod
     def rcv_netunitspawn(unitspawntuplestr):
+        """Called when a unit spawn event was received. Server and Client."""
         unitspawntuple = json.loads(unitspawntuplestr)
         unitid, pos, ownerid = unitspawntuple
         if NetEvents.connector.authority:
@@ -44,23 +43,24 @@ class NetEvents():
     
     @staticmethod
     def snd_netplayerjoin(targetconnection, player:Player, localcontrol:bool):
+        """Send info about a joined player to a client. Server only."""
         d = player.get_info()
         d["localcontrol"] = localcontrol
         NetEvents.connector.send_server_single(targetconnection, "NetPlayerJoin", json.dumps(d))
 
     @staticmethod
     def rcv_netplayerjoin(playerdata):
+        """Called when a player is added to the game. Client only."""
         obj = json.loads(playerdata)
         player = Player(0, None)
         player.set_info(obj)
-        NetEvents.session._players[player.playerid] = player
+        NetEvents.session.add_player(player)
         if player.localcontrol:
             NetEvents.hud.playerid = player.playerid
-        if len(NetEvents.session._players) >= 2 and not NetEvents.connector.authority:
-            NetEvents.hud.on_start_game()
 
     @staticmethod
     def snd_netphasechange(phasenumber):
+        """Send the new phase to every connected client. Server only."""
         NetEvents.connector.send_server_all(
             NetEvents.session._players, 
             "NetPhaseChange", 
@@ -69,11 +69,15 @@ class NetEvents():
     
     @staticmethod
     def rcv_netphasechange(phasenumber:int):
+        """Set the phase to the one sent by the server. Client only."""
         phasenumber = int(phasenumber)
         NetEvents.grid.change_phase(phasenumber)
 
     @staticmethod
     def snd_netplayerleave(leavingplayer:"Player"):
+        """Send the player leave event.\n
+        If client, to the server. If server, to every other client.\n
+        Server and Client."""
         if not NetEvents.connector.authority:
             NetEvents.connector.send_client("NetPlayerLeave", str(leavingplayer.playerid))
         else:
@@ -84,6 +88,7 @@ class NetEvents():
 
     @staticmethod
     def rcv_netplayerleave(playerid:int):
+        """Called when a player leave event is received. Remove the player from the session. Server and Client."""
         print("Bye")
         playerid = int(playerid)
         session = NetEvents.session
@@ -92,6 +97,7 @@ class NetEvents():
     
     @staticmethod
     def snd_netabilitytarget(ability:"AbilityBase"):
+        """Send a user's targeting preference to the server. Client only."""
         targets = ability.selected_targets
         posnametargetsprimed = (ability._unit.pos, type(ability).__name__,  targets, ability.primed)
         posnametargetsprimedjson = json.dumps(posnametargetsprimed)
@@ -107,6 +113,7 @@ class NetEvents():
 
     @staticmethod
     def rcv_netabilitytarget(posnametargetsprimedjson):
+        """Apply the user's target choice whne received. Server only."""
         obj = json.loads(posnametargetsprimedjson)
         # targets will now be a list[list[int,int]], since tuples dont exist in json
         # for consistency we convert them back to list[tuple[int,int]]
@@ -125,6 +132,7 @@ class NetEvents():
 
     @staticmethod
     def snd_netplayerwon(playerid:int):
+        """Send a player win event to every connected client. Server only."""
         if NetEvents.connector.authority:
             NetEvents.connector.send_server_all(
                 NetEvents.session._players,
@@ -133,42 +141,22 @@ class NetEvents():
 
     @staticmethod
     def rcv_netplayerwon(playeridstr:str):
+        """Called when a player win event was received. End the game and show who won. Client only."""
         if not NetEvents.connector.authority:
-            NetEvents.session.state = "gameOver"
+            NetEvents.session.set_state("gameOver")
             NetEvents.hud.player_won(int(playeridstr)) 
-            NetEvents.scenemanager.load_scene("MainMenuScene")         
 
     @staticmethod
     def rcv_event_caller(prefix:str, contents:str):
+        """Reroute the json data to the correct handler. If no handler was found, exit."""
         if prefix not in RcvNetEventsMap:
             print(f"Bad NetEvent prefix: '{prefix}'")
             exit(1)
         RcvNetEventsMap[prefix](contents)
-    
-    @staticmethod
-    def snd_netunitremove(pos:"tuple[int,int]"):
-        if NetEvents.connector.authority:
-            NetEvents.connector.send_server_all(
-                NetEvents.session._players,
-                "NetUnitRemove", 
-                json.dumps(pos)
-            )
-        else:
-            NetEvents.connector.send_client("NetUnitRemove", json.dumps(pos))
-    
-    @staticmethod
-    def rcv_netunitremove(unitremoveposstr):
-        unitremovetuple = json.loads(unitremoveposstr)
-        if NetEvents.connector.authority:
-            #check whether this request is fulfillable, if not: return
-            if not NetEvents.grid.is_space_empty(False, unitremovetuple):
-                NetEvents.snd_netunitremove(unitremovetuple)
-                NetEvents.grid.remove_unit(unitremovetuple)
-        else:
-            NetEvents.grid.remove_unit(unitremovetuple)
-
+   
     @staticmethod
     def snd_netsync():
+        """Send the game state to every client. Potentially expensive. Server only."""
         if NetEvents.connector.authority:
             data = NetEvents.grid.extract_data()
             datastr = json.dumps(data)
@@ -180,9 +168,24 @@ class NetEvents():
     
     @staticmethod
     def rcv_netsync(datastr):
+        """Apply received game state from the server. Potentially expensive. Client only."""
         if not NetEvents.connector.authority:
             data = json.loads(datastr)
             NetEvents.grid.insert_data(data)
+    
+    @staticmethod
+    def snd_netsessionstatechange(new_session_state:str):
+        """Change the session state of every connected client. Server only."""
+        NetEvents.connector.send_server_all(
+            NetEvents.session._players,
+            "NetSessionStateChange",
+            new_session_state
+        )
+
+    @staticmethod
+    def rcv_netsessionstatechange(new_session_state:str):
+        """Set the new session state. Client only."""
+        NetEvents.session.set_state(new_session_state)
 
 
 RcvNetEventsMap = {
@@ -192,7 +195,7 @@ RcvNetEventsMap = {
     "NetPlayerLeave":NetEvents.rcv_netplayerleave,
     "NetPlayerWon":NetEvents.rcv_netplayerwon,
     "NetUnitSpawn":NetEvents.rcv_netunitspawn,
-    "NetUnitRemove":NetEvents.rcv_netunitremove,
     "NetSync":NetEvents.rcv_netsync,
+    "NetSessionStateChange":NetEvents.rcv_netsessionstatechange
 }
     

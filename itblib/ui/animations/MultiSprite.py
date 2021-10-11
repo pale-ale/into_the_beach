@@ -3,7 +3,7 @@ import pygame
 class MultiSprite(pygame.sprite.Sprite):
     """This class can be used to create "animated" sprites, using either a given set of textures
     that will be flipped through or by overriding the update and start methods to create variable animations"""
-    def __init__(self, textures:"list[pygame.Surface]", width:int=64, height:int=64, frametime:float=.5):
+    def __init__(self, textures:"list[pygame.Surface]", width:int=64, height:int=64, frametime:float=.5, playing=False, looping=True):
         super().__init__()
         self.image = pygame.Surface((width, height), pygame.SRCALPHA).convert_alpha()
         self.rect = self.image.get_rect()
@@ -11,7 +11,8 @@ class MultiSprite(pygame.sprite.Sprite):
         self.frametime = frametime
         self.framenumber = 0
         self.animtime = -1
-        self.playing = False
+        self.playing = playing
+        self.looping = looping
         if len(self._textures) > 0:
             self.set_frame(0)
 
@@ -23,10 +24,14 @@ class MultiSprite(pygame.sprite.Sprite):
         currentframe = int(self.animtime/self.frametime)
         if currentframe > self.framenumber:
             if currentframe >= len(self._textures):
-                self.stop()
+                if self.looping:
+                    self.framenumber = 0
+                    self.animtime = self.frametime
+                else:
+                    self.stop()
             else:
                 self.framenumber = currentframe
-                self.image.blit(self._textures[self.framenumber])
+                self.set_frame(self.framenumber)
 
     def start(self):
         """Set this animation into a "playing" state, enabling the update method."""
@@ -41,4 +46,5 @@ class MultiSprite(pygame.sprite.Sprite):
     
     def set_frame(self, framenumber:int):
         """Set the animation to a certain frame. When start() is called, play from there."""
+        self.image.fill(0)
         self.image.blit(self._textures[self.framenumber], (0,0))
