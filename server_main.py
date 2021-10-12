@@ -17,7 +17,7 @@ NetEvents.connector = c
 NetEvents.grid = serversession._grid
 
 def handle_networking_events():
-    for player in serversession._players.values():
+    for player in serversession._players.copy().values():
         while True:
             data = c.receive_server(player.playersocket)
             if data:

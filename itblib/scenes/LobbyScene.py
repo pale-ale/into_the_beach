@@ -16,12 +16,21 @@ class LobbyScene(SceneBase):
         NetEvents.connector.client_init()
 
     def update_data(self):
-        if self._session._state is not "needsPlayers":
+        if self._session._state != "needsPlayers":
             self.scenemanager.load_scene("GameScene")
             return
         self.image.fill(0)
         y = 0
+        header = self.font.render(f"Waiting for players ({len(self._session._players)}/?)...", True, (100,255,255,255))
+        self.image.blit(header, (self.image.get_width()/2-header.get_width()/2, 50))
         for player in self._session._players.values():
-            nametag = self.font.render(player.name, True, player.color)
+            nametag = self.font.render(player.name.ljust(45) + "LVL: "+str(player.level).zfill(3), True, player.color, (100,100,100,255))
             self.image.blit(nametag, (100, 100+y))
             y += 100
+
+    def on_keyevent(self, keyevent):
+        super().on_keyevent(keyevent)
+        if keyevent.type == pygame.KEYDOWN:
+            if keyevent.key == pygame.K_ESCAPE:
+                NetEvents.snd_netplayerleave([p for p in self._session._players.values() if p.localcontrol][0])
+                self.scenemanager.load_scene("MainMenuScene")

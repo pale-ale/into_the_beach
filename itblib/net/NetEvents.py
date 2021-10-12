@@ -89,11 +89,15 @@ class NetEvents():
     @staticmethod
     def rcv_netplayerleave(playerid:int):
         """Called when a player leave event is received. Remove the player from the session. Server and Client."""
-        print("Bye")
+        print(f"NetEvents: Removing player '{playerid}'")
         playerid = int(playerid)
         session = NetEvents.session
         session.remove_player(playerid)
-        exit(0)
+        if NetEvents.connector.authority:
+            NetEvents.connector.send_server_all(
+                NetEvents.session._players,
+                "NetPlayerLeave",
+                str(playerid))
     
     @staticmethod
     def snd_netabilitytarget(ability:"AbilityBase"):

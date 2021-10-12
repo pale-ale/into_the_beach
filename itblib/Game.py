@@ -50,6 +50,8 @@ class Session:
             #     NetEvents.snd_netplayerjoin(player.playersocket, self._players[playerid], False)
             # NetEvents.snd_netplayerjoin(player.playersocket, player, True)
         self._players.pop(playerid)
+        if self._observer:
+            self._observer.update_data()
 
     def start_game(self):
         """Begin the Unit Placement Phase, after which the normal turn cycle ensues."""

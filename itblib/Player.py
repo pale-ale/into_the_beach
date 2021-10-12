@@ -11,9 +11,10 @@ class Player:
         self._initialunitids = PlayerData.roster
         self._controlledunits = []
         self.playerid = id
+        self.level = 0
         self.playersocket = playersocket
         self.localcontrol = False
-        self.replicatedproperties = ["name", "color", "_controlledunits", "playerid", "localcontrol"]
+        self.replicatedproperties = ["name", "color", "_controlledunits", "playerid", "level", "localcontrol"]
 
     def get_info(self):
         d = {}
