@@ -74,30 +74,23 @@ class NetEvents():
         NetEvents.grid.change_phase(phasenumber)
 
     @staticmethod
-    def snd_netplayerleave(leavingplayer:"Player"):
+    def snd_netplayerleave(leavingplayerid:int):
         """Send the player leave event.\n
         If client, to the server. If server, to every other client.\n
         Server and Client."""
         if not NetEvents.connector.authority:
-            NetEvents.connector.send_client("NetPlayerLeave", str(leavingplayer.playerid))
+            NetEvents.connector.send_client("NetPlayerLeave", str(leavingplayerid))
         else:
             NetEvents.connector.send_server_all(
                 NetEvents.session._players,
                 "NetPlayerLeave",
-                str(leavingplayer.playerid))
+                str(leavingplayerid))
 
     @staticmethod
-    def rcv_netplayerleave(playerid:int):
+    def rcv_netplayerleave(leavingplayerid:str):
         """Called when a player leave event is received. Remove the player from the session. Server and Client."""
-        print(f"NetEvents: Removing player '{playerid}'")
-        playerid = int(playerid)
-        session = NetEvents.session
-        session.remove_player(playerid)
-        if NetEvents.connector.authority:
-            NetEvents.connector.send_server_all(
-                NetEvents.session._players,
-                "NetPlayerLeave",
-                str(playerid))
+        leavingplayerid = int(leavingplayerid)
+        NetEvents.session.remove_player(leavingplayerid)
     
     @staticmethod
     def snd_netabilitytarget(ability:"AbilityBase"):

@@ -22,6 +22,8 @@ class Session:
         if new_state not in ["needsPlayers", "running", "runningPregame", "gameOver"]:
             print(f"Session: Unknown state: '{new_state}'")
         self._state = new_state
+        if NetEvents.connector.authority:
+            NetEvents.snd_netsessionstatechange(new_state)
         if self._observer:
             self._observer.update_data()
     
@@ -42,10 +44,11 @@ class Session:
     
     def remove_player(self, playerid:int, use_net=True):
         """Remove all players with matching playerid from the session."""
-        player = self._players[playerid]
+        print("Session: Removing player", playerid)
         if self.connector and self.connector.authority and use_net:
-            for playerid in self._players.keys():
-                NetEvents.snd_netplayerleave(player)
+            NetEvents.snd_netplayerleave(playerid)
+            if len(self._players) -1 < 2:
+                self.set_state("gameOver")
             # for playerid in self._players.keys():
             #     NetEvents.snd_netplayerjoin(player.playersocket, self._players[playerid], False)
             # NetEvents.snd_netplayerjoin(player.playersocket, player, True)

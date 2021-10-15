@@ -10,18 +10,23 @@ class LobbyScene(SceneBase):
         super().__init__(scenemanager, width, height)
         self._session = session
         self.font = pygame.font.SysFont("latinmodernmono", 20)
+        self.loaded_gamescene = False
     
     def load(self):
         super().load()
+        self.loaded_gamescene = False
         NetEvents.connector.client_init()
 
     def update_data(self):
-        if self._session._state != "needsPlayers":
-            self.scenemanager.load_scene("GameScene")
-            return
+        if self._session._state in ["running", "runningPregame"]:
+            if not self.loaded_gamescene:
+                self.loaded_gamescene = True
+                self.scenemanager.load_scene("GameScene")
+        elif self.loaded_gamescene:
+            self.scenemanager.load_scene("MainMenuScene")
         self.image.fill(0)
         y = 0
-        header = self.font.render(f"Waiting for players ({len(self._session._players)}/?)...", True, (100,255,255,255))
+        header = self.font.render(f"Waiting for players ({len(self._session._players)}/2)...", True, (100,255,255,255))
         self.image.blit(header, (self.image.get_width()/2-header.get_width()/2, 50))
         for player in self._session._players.values():
             nametag = self.font.render(player.name.ljust(45) + "LVL: "+str(player.level).zfill(3), True, player.color, (100,100,100,255))

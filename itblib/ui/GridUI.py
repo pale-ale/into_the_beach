@@ -187,9 +187,13 @@ class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
                 r = (c[0] + int(squaresize/2) , c[1] + o)
                 t = (c[0], c[1] - int(squaresize/3) + o -1)
                 b = (c[0], c[1] + int(squaresize/3) + o +1)
+                if uiunit._parentelement.ownerid in NetEvents.session._players:
+                    playercolor = NetEvents.session._players[uiunit._parentelement.ownerid].color
+                else:
+                    playercolor = (50,50,50,255)
                 draw.lines(
                     self.image,
-                    NetEvents.session._players[uiunit._parentelement.ownerid].color,
+                    playercolor,
                     True, 
                     (l, t, r, b), 
                     2

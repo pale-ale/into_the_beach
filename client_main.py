@@ -82,11 +82,11 @@ def main():
             if event.type == pygame.QUIT:
                 client.running = False
             elif pygame.key.get_focused() and (event.type == pygame.KEYDOWN or event.type == pygame.KEYUP):
-                client.scenemanager.activescene.on_keyevent(event)
+                client.scenemanager._activescene.on_keyevent(event)
         dt = client.clock.tick(client.fps_cap)/1000.0
-        client.scenemanager.activescene.update(dt) 
+        client.scenemanager.update(dt) 
         client.screen.fill((0,0,0,0))
-        client.screen.blit(client.scenemanager.activescene.image, (0,0))
+        client.screen.blit(client.scenemanager._activescene.image, (0,0))
         pygame.display.update()
     pygame.quit()
 

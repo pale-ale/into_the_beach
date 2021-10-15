@@ -181,7 +181,7 @@ class Hud(pygame.sprite.Sprite):
     
     def escape_pressed(self):
         """Tell the server that the player wants to leave."""
-        NetEvents.snd_netplayerleave(self.session._players[self.playerid])
+        NetEvents.snd_netplayerleave(self.playerid)
 
     def unitselect(self, position:"tuple[int,int]"):
         """Mark a unit as selected, displaying it's stats in greater detail and allowing ability use."""
@@ -289,4 +289,5 @@ class Hud(pygame.sprite.Sprite):
     def on_start_game(self):
         p1, p2 = self.session._players.values()
         self.playerversusanimation = PlayerVersusAnimation(p1, p2, *self.image.get_size())
+        self.hudsprites.empty()
         self.hudsprites.add(self.playerversusanimation)
