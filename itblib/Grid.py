@@ -355,15 +355,16 @@ class Grid(Serializable):
         self.phasetime += dt
         if self.connector.authority:
             if self.phase == 0:
-                    if self.phasetime >= self.pregametime:
-                        self.advance_phase()
-                        NetEvents.snd_netphasechange(self.phase)
-                        self.phasetime = 0.0
+                if self.phasetime >= self.pregametime:
+                    self.advance_phase()
+                    NetEvents.snd_netphasechange(self.phase)
+                    self.phasetime = 0.0
             elif self.phase == 1:
-                    if self.phasetime >= self.planningphasetime:
-                        self.advance_phase()
-                        NetEvents.snd_netphasechange(self.phase)
-                        self.phasetime = 0.0
+                if self.phasetime >= self.planningphasetime:
+                    NetEvents.snd_netsync()
+                    self.advance_phase()
+                    NetEvents.snd_netphasechange(self.phase)
+                    self.phasetime = 0.0
             elif self.phase in [2,3]:
                 if self.everybody_done():
                     self.advance_phase()

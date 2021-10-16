@@ -31,7 +31,8 @@ class UnitDisplay(pygame.sprite.Sprite):
         self.image = pygame.Surface(self.rect.size).convert_alpha()
         self.image.fill((0))
         self.displayunit:UnitBaseUI = None
-        self.phasecolors = ((255,255,0,255) ,(75,75,55,255), (50,255,50,255), (255,50,50,255), (255,200,0,255))
+        self.phasecolors = ((255,255,255,255) ,(75,75,255,255), (255,255,50,255), (255,50,50,255), (50,255,0,255))
+        # pregamewhite, planningblue, preorange, battlred, postgreen 
         self.set_displayunit(None)
     
     def set_displayunit(self, unit:UnitBaseUI):
@@ -78,7 +79,7 @@ class UnitDisplay(pygame.sprite.Sprite):
                 self.image.blit(abilityimage, Vec.comp_add2(self.abilityimagepos, (16*index, 2)), (0,0,16,16))
                 if ability.phase >= 0:
                     if ability.remainingcooldown > 0:
-                        self.image.fill((100,100,100,255), 
+                        self.image.fill((255,100,255,255), 
                             (*Vec.comp_add2(self.abilityphasepos, (16*index, 0)), 16, 20)
                         )
                     else:
@@ -88,7 +89,8 @@ class UnitDisplay(pygame.sprite.Sprite):
             else:
                 print(f"HUD: Texture {type(ability).__name__} not found.")
             if self.displayunit and unit == self.displayunit._parentelement:
-                numberimage = self.font.render(str(index+1), True, (255,255,255,255))
+                text = str(index+1) + (f" {ability.remainingcooldown}" if ability.remainingcooldown > 0 else "")
+                numberimage = self.font.render(text, True, (255,255,255,255))
                 self.image.blit(numberimage, Vec.comp_add2(self.abilityphasepos, (16*index, 0)))
             index += 1
 
@@ -288,6 +290,7 @@ class Hud(pygame.sprite.Sprite):
     
     def on_start_game(self):
         p1, p2 = self.session._players.values()
+        if self.playerversusanimation:
+            self.hudsprites.remove(self.playerversusanimation)
         self.playerversusanimation = PlayerVersusAnimation(p1, p2, *self.image.get_size())
-        self.hudsprites.empty()
         self.hudsprites.add(self.playerversusanimation)

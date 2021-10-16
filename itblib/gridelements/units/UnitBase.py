@@ -1,7 +1,6 @@
 from itblib.Serializable import Serializable
 from typing import TYPE_CHECKING, Type
 from itblib.gridelements.GridElement import GridElement
-from itblib.net.NetEvents import NetEvents
 from itblib.gridelements.Effects import EffectBurrowed, EffectBleeding
 
 if TYPE_CHECKING:
@@ -13,7 +12,7 @@ class UnitBase(GridElement, Serializable):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
     name:str="Base", hitpoints:int=5, canswim:bool=False, abilities:"list[Type[AbilityBase]]"=[]):
         GridElement.__init__(self, grid, pos)
-        Serializable.__init__(self, ["name", "_hitpoints", "ownerid", "statuseffects"])
+        Serializable.__init__(self, ["name", "_hitpoints", "ownerid", "statuseffects", "abilities"])
         self.name = name
         self._hitpoints = hitpoints
         self.defense = {"physical": 0, "magical": 0, "collision": 0}
@@ -27,14 +26,21 @@ class UnitBase(GridElement, Serializable):
     
     def extract_data(self, custom_fields: "dict[str,any]" = ...) -> dict:
         customstatuseffects = [x.extract_data() for x in self.statuseffects]
-        return Serializable.extract_data(self, custom_fields={"statuseffects":customstatuseffects})
+        customabilities = [x.extract_data() for x in self.abilities]
+        return Serializable.extract_data(self, custom_fields={"statuseffects":customstatuseffects, "abilities":customabilities})
     
     def insert_data(self, data):
-        Serializable.insert_data(self, data)
+        Serializable.insert_data(self, data, exclude=["statuseffects", "abilities"])
         for effectdata in data["statuseffects"]:
             for effectclass in [EffectBurrowed, EffectBleeding]:
                 if effectclass.__name__ == "Effect" + effectdata["name"]:
                     self.add_statuseffect(effectclass(self))
+        for abilitydata in data["abilities"]:
+            #TODO: spawn the abilities, do not rely on the __init__ ones
+            for ability in self.abilities:
+                if type(ability).__name__ == abilitydata["name"]:
+                    abilitydata["selected_targets"] = [(x,y) for x,y in abilitydata["selected_targets"]]
+                    ability.insert_data(abilitydata, exclude=["name"])
 
     def tick(self, dt: float):
         super().tick(dt)

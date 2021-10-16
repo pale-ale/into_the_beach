@@ -1,10 +1,11 @@
+from itblib.Serializable import Serializable
 from itblib.net.NetEvents import NetEvents
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
 
-class AbilityBase:
+class AbilityBase(Serializable):
     """
     The base class for all the other abilities.
     Abilities are used to provide unique actions to units.
@@ -13,6 +14,7 @@ class AbilityBase:
     """
 
     def __init__(self, unit:"UnitBase", phase:int, cooldown=1):
+        Serializable.__init__(self, ["name", "selected_targets", "primed"])
         self._unit = unit
         self.phase = phase
         self.cooldown = cooldown
@@ -99,3 +101,6 @@ class AbilityBase:
     def is_valid_target(self, target:"tuple[int,int]") -> bool:
         """Determine whether a target is valid (e.g. in range) or not."""
         return target in self.get_valid_targets()
+    
+    def extract_data(self, custom_fields: "dict[str,any]" = ...) -> dict:
+        return super().extract_data(custom_fields={"name":type(self).__name__, "selected_targets":self.selected_targets})

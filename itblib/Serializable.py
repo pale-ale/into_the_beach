@@ -10,12 +10,11 @@ class Serializable:
     def __init__(self, serializable_fields:"list[str]") -> None:
         self.serializable_fields = serializable_fields[:]
     
-    def insert_data(self, data:dict):
+    def insert_data(self, data:dict, exclude:"list[str]"=[]):
         """Insert data from the dict into an object, configuring it."""
         for p in self.serializable_fields:
-            if p in data.keys():
-                if isinstance(data[p], (bool, int, float, str)):
-                    setattr(self, p, data[p])
+            if p in data.keys() and not p in exclude:
+                setattr(self, p, data[p])
 
     def extract_data(self, custom_fields:"dict[str,any]"={}) -> dict:
         """Extract data of given fields into a smiple dict for easy data transfer."""
