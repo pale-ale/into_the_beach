@@ -48,6 +48,7 @@ class UnitBase(GridElement, Serializable):
             ability.tick(dt)
     
     def add_ability(self, ability_class:"AbilityBase"):
+        """Add an ability to this unit. Will spawn and initialize the required class."""
         for ability in self.abilities:
             if ability is ability_class:
                 print(ability_class.__name__, "-class already exists")
@@ -55,44 +56,50 @@ class UnitBase(GridElement, Serializable):
         self.abilities.append(ability_class(self))
     
     def add_statuseffect(self, statuseffect:"StatusEffect"):
+        """Add a status effect."""
         self.statuseffects.append(statuseffect)
     
     def remove_statuseffect(self, statuseffect:"StatusEffect"):
+        """Remove a status effect."""
         for se in self.statuseffects:
             if se == statuseffect:
                 se.on_purge()
                 self.statuseffects.remove(se)
                 return
     
-    def get_statuseffect(self, name:str) -> "StatusEffect|None": 
+    def get_statuseffect(self, name:str) -> "StatusEffect|None":
+        """Return the statuseffect with name name, or None if not found."""
         for se in self.statuseffects:
             if se.name == name:
                 return se
         return None
 
     def remove_ability(self, ability_class_name:str):
-        print("Removing ability:", ability_class_name)
+        """Remove an ability by class name"""
         for ability in self.abilities[:]:
             if type(ability).__name__ == ability_class_name:
                 print("Removed ability:", ability)
                 self.abilities.remove(ability)
     
     def drown(self):
+        """Called when a unit drowns."""
         print("I drowned :(")
         self.grid.remove_unit(self.pos)
 
     def attack(self, target:"tuple[int,int]", damage:int, damagetype:str):
-        print("target", target)
+        """Attack target position with damage amount and damage type."""
         unit = self.grid.get_unit(target)
         if unit:
             unit.change_hp(-damage, damagetype)
     
     def get_movement_ability(self):
+        """Return the MovementAbility of this unit or None if it doesn't have one."""
         for ability in self.abilities[:]:
             if type(ability).__name__ == "MovementAbility":
                 return ability
     
     def change_hp(self, delta_hp:int, hp_change_type:str):
+        """Change hp by amount. Influenced by damage reduction etc.."""
         if delta_hp > 0:
             self._hitpoints += delta_hp
         else:
@@ -102,40 +109,48 @@ class UnitBase(GridElement, Serializable):
             self.on_death()
     
     def on_update_abilities_phases(self, newphase:int):
+        """Propagate a phase change to this unit's abilities."""
         for ability in self.abilities:
             ability.on_update_phase(newphase)
         for statuseffect in self.statuseffects:
             statuseffect.on_update_phase(newphase)
     
     def on_update_cursor(self, newcursorpos:"tuple[int,int]"):
+        """Called when the user moves the cursor."""
         for ability in self.abilities:
             ability.on_update_cursor(newcursorpos)
     
     def on_select(self):
+        """Called when this unit is selected."""
         for ability in self.abilities:
             ability.on_parentunit_select()
     
     def on_deselect(self):
+        """Called when this unit is deselected."""
         for ability in self.abilities:
             ability.on_parentunit_deselect()
     
     def on_activate_ability(self, slot:int):
+        """Called when the user wishes to use an ability by pressing one of the assigned slot numbers."""
         if slot >= 0 and slot < len(self.abilities):
             ability = self.abilities[slot]
             if ability.remainingcooldown == 0:
                 ability.on_select_ability()
 
     def on_confirm_target(self, target:"tuple[int,int]"):
+        """Called when the user hits enter, passes on the cursor position where the event occured."""
         for ability in self.abilities:
             if ability.selected:
                 ability.confirm_target(target)
     
     def on_death(self):
+        """Called when this unit's hitpoints are reduced to <= 0"""
         for ability in self.abilities:
             ability.on_death()
         self.grid.remove_unit(self.pos)
     
     def on_receive_shove(self, to:"tuple[int,int]"):
+        """Called when a shoving attack hits this unit, trying to push it to "to"."""
         if not self.grid.is_coord_in_bounds(to) or self.grid.is_space_empty(True, to):
             return
         if self.grid.is_space_empty(False, to):

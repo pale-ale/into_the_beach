@@ -12,7 +12,7 @@ class BurrowAbility(ToggleAbilityBase):
     
     def on_trigger(self):
         super().on_trigger()
-        effect = self._unit.get_statuseffect("EffectBurrowed")
+        effect = self._unit.get_statuseffect("Burrowed")
         if effect:
             self._unit.remove_statuseffect(effect)
         else:

@@ -43,10 +43,10 @@ class AbilityBase(Serializable):
         self.selected_targets = targets
         print("AbilityBase: Set targets of", type(self).__name__, "to", targets)
     
-    def confirm_target(self, target:"tuple[int,int]"):
+    def confirm_target(self, target:"tuple[int,int]", primed=True):
         """Called when the players confirms the target(s) with ENTER, 
         passing along the position where the cursor was when ENTER was pressed"""
-        self.primed = True
+        self.primed = primed
         NetEvents.snd_netabilitytarget(self)
         print("AbilityBase: Confirmed targets of", type(self).__name__, ":", self.selected_targets)
 

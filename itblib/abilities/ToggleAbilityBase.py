@@ -9,7 +9,5 @@ class ToggleAbilityBase(AbilityBase):
         super().__init__(unit, phase, 1)
     
     def on_select_ability(self):
-        super().on_select_ability()
-        self.set_targets(not self.primed, [])
-        self.on_deselect_ability()
+        self.confirm_target(self._unit.pos,  not self.primed)
     
