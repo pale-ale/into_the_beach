@@ -251,11 +251,6 @@ class Hud(pygame.sprite.Sprite):
             print("\nI Won!\n")
         else:
             print("\nI Lost!\n")
-        self.gridui.grid.units.clear()        
-        self.gridui.grid.tiles.clear()        
-        self.gridui.grid.worldeffects.clear()
-        self.gridui.grid.uniteffects.clear()
-        self.gridui.reload_from_grid()
 
     def redraw(self, dt:float):
         """Update the internal image, so that no residual blits are seen."""
