@@ -13,8 +13,6 @@ class MultiSprite(pygame.sprite.Sprite):
         self.animtime = -1
         self.playing = playing
         self.looping = looping
-        if len(self._textures) > 0:
-            self.set_frame(0)
 
     def update(self, dt:float):
         """Called every frame, advances one anim frame if the frametime is reached."""
@@ -25,13 +23,12 @@ class MultiSprite(pygame.sprite.Sprite):
         if currentframe > self.framenumber:
             if currentframe >= len(self._textures):
                 if self.looping:
-                    self.framenumber = 0
-                    self.animtime = self.frametime
+                    self.set_frame(0)
+                    self.animtime = 0
                 else:
                     self.stop()
             else:
-                self.framenumber = currentframe
-                self.set_frame(self.framenumber)
+                self.set_frame(currentframe)
 
     def start(self):
         """Set this animation into a "playing" state, enabling the update method."""
@@ -46,5 +43,6 @@ class MultiSprite(pygame.sprite.Sprite):
     
     def set_frame(self, framenumber:int):
         """Set the animation to a certain frame. When start() is called, play from there."""
+        self.framenumber = framenumber
         self.image.fill(0)
         self.image.blit(self._textures[self.framenumber], (0,0))
