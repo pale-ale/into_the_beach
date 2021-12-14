@@ -1,9 +1,11 @@
 from typing import Optional
+
 import pygame
-import pygame.transform
 import pygame.image
 import pygame.surface
-from itblib.Globals.Enums import PREVIEWS
+import pygame.transform
+from itblib.globals.Enums import PREVIEWS
+
 
 class Textures:
     """Provides easy access to the textures used in this game."""
@@ -28,7 +30,6 @@ class Textures:
         4:"ProperBackdropOrange",
     }
     texturekeys = [
-        ("Fire", "Default", 2),
         ("Mountain", "Default", 1),
         ("River", "Default", 6),
         ("Town", "Default", 1),
@@ -38,7 +39,7 @@ class Textures:
         ("Bleeding", "Icon", 1),
         ("Burrowed", "Icon", 1),
 
-        ("Base", "Default", 1),
+        ("Dirt", "Default", 1),
         ("Water", "Default", 1),
         ("Lava", "Default", 1),
         ("Rock", "Default", 1),
@@ -120,12 +121,12 @@ class LoaderMethods():
                 path = Textures.texturepath + key + str(i+1) + ".png"
                 img = LoaderMethods.load_image(path)
                 scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
-                Textures.textures[key].append(pygame.transform.scale(img, scaledsize))
+                Textures.textures[key].append(pygame.transform.scale(img, scaledsize).convert_alpha())
         else:
             path = Textures.texturepath + key + ".png"
             img = LoaderMethods.load_image(path)
             scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
-            Textures.textures[key].append(pygame.transform.scale(img, scaledsize))
+            Textures.textures[key].append(pygame.transform.scale(img, scaledsize).convert_alpha())
 
    
     @staticmethod

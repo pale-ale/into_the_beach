@@ -17,16 +17,16 @@ class GridElementFactory:
         return None
 
     @staticmethod
-    def find_unit_class(name:str):
+    def find_unit_class(name:str) -> "units.UnitBase|None":
         """Return a class named 'name' in 'itblib.gridelements.units.Units' or None if not found"""
         return GridElementFactory._find_class("Unit" + name, units)
 
     @staticmethod
-    def find_tile_class(name:str):
+    def find_tile_class(name:str) -> "tiles.TileBase|None":
         """Return a class named 'name' in 'itblib.gridelements.Tiles' or None if not found"""
         return GridElementFactory._find_class("Tile" + name, tiles)
 
     @staticmethod
-    def find_effect_class(name:str):
+    def find_effect_class(name:str) -> "effects.EffectBase|None":
         """Return a class named 'name' in 'itblib.gridelements.Effects' or None if not found"""
         return GridElementFactory._find_class("Effect" + name, effects)

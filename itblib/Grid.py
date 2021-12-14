@@ -1,21 +1,24 @@
-from itblib.net.Connector import Connector
+from itblib.globals.Enums import EFFECT_IDS, PHASES, TILE_IDS, UNIT_IDS
+from itblib.globals.GridElementFactory import GridElementFactory
 from itblib.gridelements.Effects import EffectBase
-from itblib.Globals.GridElementFactory import GridElementFactory
 from itblib.gridelements.GridElement import GridElement
-from .ui.IGridObserver import IGridObserver
-from itblib.Maps import Map
-from itblib.net.NetEvents import NetEvents
-from itblib.Serializable import Serializable
 from itblib.gridelements.Tiles import TileBase
 from itblib.gridelements.units.UnitBase import UnitBase
-from itblib.Globals.Enums import EFFECT_IDS, PHASES, TILE_IDS, UNIT_IDS
+from itblib.Maps import Map
+from itblib.net.Connector import Connector
+from itblib.net.NetEvents import NetEvents
+from itblib.Serializable import Serializable
+
+from .ui.IGridObserver import IGridObserver
+
 
 class Grid(Serializable):
     """Manager for Data-Only-Objects like units, tiles, effects, etc."""
 
     def __init__(self, connector:Connector, observer:"IGridObserver|None"=None, width:int=10, height:int=10):
-        super().__init__(["width", "height", "phasetime", "tiles", "units", "worldeffects"])
+        super().__init__(["size", "phasetime", "tiles", "units", "worldeffects"])
         self.remake_grid(width, height)
+        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
         self.phasetime = 0
         self.gametime = 0
         self.connector = connector
@@ -26,11 +29,11 @@ class Grid(Serializable):
     
     def remake_grid(self, width, height) -> None:
         """Empty the grid lists and create new ones with the given dimensions."""
-        self.width, self.height = width, height
+        self.size:"tuple[int,int]" = (width, height)
         c = width * height
         self.tiles:"list[TileBase|None]" = [None]*c
         self.units:"list[UnitBase|None]" = [None]*c
-        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(c)]
+        #self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(c)]
     
     def extract_data(self) -> dict:
         customtiles = [t.extract_data() if t else None for t in self.tiles]
@@ -46,9 +49,11 @@ class Grid(Serializable):
             custom_fields={
                 "tiles":customtiles, 
                 "units":customunits,
-                "worldeffects":customworldeffects
+                "worldeffects":customworldeffects,
+                "size":self.size
             }
         )
+    
     
     def insert_data(self, data) -> None:
         """Insert the received data into the grid, creating and configuring new units, tiles, etc. accordingly.
@@ -56,38 +61,62 @@ class Grid(Serializable):
         # TODO: constructing everything every turn might be a bit much, maybe moving
         # units around is a better way to go performance-wise...
         self.phasetime = data["phasetime"]
-        self.remake_grid(data["width"], data["height"])
-        if self.observer:
-            self.observer.on_load_map(None)
+        new_x, new_y = data["size"]
+        new_count:int = new_x * new_y
+        new_tiles:"list[TileBase|None]" = [None]*new_count
+        old_tiles = self.tiles
+        self.tiles = new_tiles
+        self.remake_grid(new_x, new_y)
+        self.size = (new_x, new_y)
         for i in range(len(data["tiles"])):
             tiledata = data["tiles"][i]
             if tiledata:
                 tiletype = GridElementFactory.find_tile_class(tiledata["name"])
-                if tiletype:
+                pos = self.i_to_c(i)
+                existing_tile = old_tiles[i]
+                if isinstance(existing_tile, tiletype):
+                    self.tiles[i] = old_tiles[i]
+                elif tiletype:
                     self.add_tile(
-                        self.i_to_c(i), 
+                        pos, 
                         TILE_IDS.index(tiledata["name"])
                     )
         for i in range(len(data["units"])):
             unitdata = data["units"][i]
             if unitdata:
-                unittype =  GridElementFactory.find_unit_class(unitdata["name"])
-                if unittype:
-                    unit = self.add_unit(
-                        self.i_to_c(i), 
-                        UNIT_IDS.index(unitdata["name"]), 
-                        unitdata["ownerid"]
-                    )
-                    unit.insert_data(unitdata)
-        for i in range(len(data["worldeffects"])):
-            effectstackdata = data["worldeffects"][i]
-            for effectdata in effectstackdata:
-                effecttype = GridElementFactory.find_effect_class(effectdata["name"])
-                if effecttype:
-                    self.add_worldeffect(
-                        self.i_to_c(i), 
-                        EFFECT_IDS.index(effectdata["name"])
-                    )
+                name = unitdata["name"]
+                if name != "None":
+                    unittype =  GridElementFactory.find_unit_class(unitdata["name"])
+                    if unittype:
+                        unit = self.add_unit(
+                            self.i_to_c(i), 
+                            UNIT_IDS.index(unitdata["name"]), 
+                            unitdata["ownerid"]
+                        )
+                        unit.insert_data(unitdata)
+        self._insert_effect_data(data)
+
+    def _insert_effect_data(self, effect_data):
+        new_effects:"list[list[EffectBase]]" = [[] for c in range(self.size[0]*self.size[1])]
+        old_effects = self.worldeffects
+        self.worldeffects = new_effects
+
+        for i in range(len(effect_data["worldeffects"])):
+            effect_stack_data = effect_data["worldeffects"][i]
+            for effect_data_index in range(len(effect_stack_data)):
+                single_effect_data = effect_stack_data[effect_data_index]
+                effect_type = GridElementFactory.find_effect_class(single_effect_data["name"])
+                pos = self.i_to_c(i)
+                existing_stack = old_effects[i]
+                if effect_data_index < len(existing_stack):
+                    existing_effect = existing_stack[effect_data_index]
+                    if type(existing_effect) == effect_type:
+                        self.worldeffects[i].append(old_effects[i][effect_data_index])
+                        continue
+                self.add_worldeffect(
+                    pos, 
+                    EFFECT_IDS.index(single_effect_data["name"])
+                )
         
     def update_observer(self, observer:"IGridObserver|None") -> None:
         """
@@ -108,7 +137,6 @@ class Grid(Serializable):
             for effect in effectstack:
                 if effect and not effect.done:
                     notdone.append(member)
-        print("Grid: Not done:", notdone)
         return len(notdone) == 0
 
     def update_unit_movement(self) -> None:
@@ -165,9 +193,11 @@ class Grid(Serializable):
         """Set the phase to a certain number."""
         self.phase = phase
         self.phasetime = 0
+        if self.observer:
+            self.observer.on_change_phase(phase)
         for unit in self.units:
             if unit:
-                unit.on_update_abilities_phases(self.phase)
+                unit.ability_component.on_update_abilities_phases(self.phase)
 
     def advance_phase(self) -> None:
         """Advance phase cycle by one, starting from the planning phase once the end is reached."""
@@ -207,6 +237,8 @@ class Grid(Serializable):
             self.units[index] = gridelement
             if self.observer:
                 self.observer.on_add_unit(gridelement)
+        else:
+            exit(1)
         return gridelement
 
     def add_tile(self, pos:"tuple[int,int]", tileid:int) -> "TileBase|None":
@@ -316,15 +348,15 @@ class Grid(Serializable):
 
     def c_to_i(self, coords:"tuple[int,int]") -> int:
         """Convert xy-coordinates to the corresponding index."""
-        return self.width*coords[1] + coords[0]
+        return self.size[0]*coords[1] + coords[0]
     
     def i_to_c(self, i:int) -> "tuple[int,int]":
         """Convert index to the corresponding xy-coordinates."""
-        return (i%self.width, int(i/self.width))
+        return (i%self.size[0], int(i/self.size[0]))
 
     def is_coord_in_bounds(self, pos:"tuple[int,int]") -> bool:
         """Check whether a coordinate is inside the grid space."""
-        return pos[0]>=0 and pos[0]<self.width and pos[1]>=0 and pos[1]<self.height
+        return pos[0]>=0 and pos[0]<self.size[0] and pos[1]>=0 and pos[1]<self.size[1]
 
     def is_space_empty(self, tiles:bool, pos:"tuple[int,int]") -> bool:
         """Check whether a tile or a unit is at the given position."""
@@ -388,9 +420,9 @@ class Grid(Serializable):
     def show(self) -> None:
         """Print the grid onto the console."""
         text = ""
-        for x in range(self.width):
-            for y in range(self.height):
-                tile = self.tiles[self.width*y+x]
+        for x in range(self.size[0]):
+            for y in range(self.size[1]):
+                tile = self.tiles[self.size[0]*y+x]
                 if tile:
                     text += str(tile.name)+" "
                 else:

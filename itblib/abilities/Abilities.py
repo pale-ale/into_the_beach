@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
-from itblib.Globals.Enums import PREVIEWS
+
+from itblib.abilities.AbilityBase import AbilityBase
+from itblib.globals.Enums import PREVIEWS
 from itblib.gridelements.Effects import EffectBurrowed
 from itblib.net.NetEvents import NetEvents
-from itblib.abilities.AbilityBase import AbilityBase
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
@@ -13,26 +14,16 @@ class RangedAttackAbility(AbilityBase):
 
     def __init__(self, unit:"UnitBase"):
         super().__init__(unit, 2, cooldown=2)
-
-    def get_ordinals(self):
-        x,y = self._unit.pos
-        width = self._unit.grid.width
-        height = self._unit.grid.height
-        ordinals = set()
-        for i in range (width):
-            ordinals.add((i,y))
-        for i in range (height):
-            ordinals.add((x,i))
-        ordinals.remove((x,y))
-        return ordinals
     
     def on_select_ability(self):
         super().on_select_ability()
-        pos = self._unit.pos
-        coords = self.get_ordinals()
-        coords = coords.difference(self._unit.grid.get_ordinal_neighbors(pos))
-        #for coord in coords:
-        #    self.area_of_effect.append(coord)
+        owner = self.get_owner()
+        if owner:
+            pos = owner.pos
+            coords = self._get_ordinals(pos, owner.grid.size)
+            coords = coords.difference(owner.grid.get_ordinal_neighbors(pos))
+            for coord in coords:
+                self.area_of_effect.append((coord, PREVIEWS[0]))
 
     def set_targets(self, targets:"list[tuple[int,int]]"):
         super().set_targets(targets)
@@ -45,9 +36,20 @@ class RangedAttackAbility(AbilityBase):
 
     def on_trigger(self):
         super().on_trigger()
-        if len(self.selected_targets) > 0:
-            damage = [self._unit.baseattack["physical"], "physical"]
-            self._unit.attack(self.selected_targets[0], *damage)
+        owner = self.get_owner()
+        if owner and len(self.selected_targets) > 0:
+            damage = [owner.baseattack["physical"], "physical"]
+            self.get_owner().attack(self.selected_targets[0], *damage)
+    
+    def _get_ordinals(self, origin:"tuple[int,int]", dimensions:"tuple[int,int]"):
+        x,y = origin
+        ordinals:"set[tuple[int,int]]" = set()
+        for i in range (dimensions[0]):
+            ordinals.add((i,y))
+        for i in range (dimensions[1]):
+            ordinals.add((x,i))
+        ordinals.remove((x,y))
+        return ordinals
     
 
 class PushAbility(AbilityBase):
@@ -90,7 +92,7 @@ class ObjectiveAbility(AbilityBase):
 
     def on_death(self):
         super().on_death()
-        NetEvents.session.objective_lost(self._unit.ownerid)
+        NetEvents.session.objective_lost(self.get_owner().ownerid)
 
 
 class HealAbility(AbilityBase):

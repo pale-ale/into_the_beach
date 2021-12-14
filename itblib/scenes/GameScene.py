@@ -1,50 +1,62 @@
-from itblib.SceneManager import SceneManager
+from typing import Generator
+
+import pygame
+from pygame.constants import K_ESCAPE
+import pygame.surface
+import pygame.transform
+from itblib.globals.Enums import NORTH, SOUTH
 from itblib.Grid import Grid
+from itblib.net.NetEvents import NetEvents
+from itblib.SceneManager import SceneManager
 from itblib.scenes.SceneBase import SceneBase
 from itblib.Selector import Selector
 from itblib.ui.GridUI import GridUI
-from itblib.ui.HUD import Hud
-from itblib.net.NetEvents import NetEvents
-import pygame
-import pygame.surface
-import pygame.transform
+from itblib.ui.hud.HUD import Hud
+
 
 class GameScene(SceneBase):
     """Contains the main game (grid, hud, etc.)"""
-    def __init__(self, scenemanager:SceneManager, width: int, height: int) -> None:
-        super().__init__(scenemanager, width, height)
+    def __init__(self, scenemanager:SceneManager) -> None:
+        super().__init__(scenemanager)
         self.grid = Grid(NetEvents.connector)
         self.gridui = GridUI(self.grid)
         self.grid.update_observer(self.gridui) 
-        self.hud = Hud(width, height, self.gridui, 0, NetEvents.session)
+        self.hud = Hud(scenemanager.scene_size, self.gridui, 0, NetEvents.session)
         self.selector = Selector(self.grid, self.hud)
-        self.griddisplaysize = (1280, 984)
-        self.griduiscaleimage = pygame.Surface(self.griddisplaysize, pygame.SRCALPHA).convert_alpha()
+        self.register_input_listeners(self.selector, self.hud)
     
     def load(self):
         super().load()
         self.hud.on_start_game()
 
-    def on_keyevent(self, keyevent):
-        super().on_keyevent(keyevent)
-        if keyevent.type == pygame.KEYDOWN:
-            if keyevent.mod & pygame.KMOD_SHIFT and keyevent.key == pygame.K_UP:
+    def handle_key_event(self, event) -> bool:
+        if super().handle_key_event(event):
+            return True
+        elif event.type == pygame.KEYDOWN:
+            if event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_UP:
                 self.gridui.update_pan((self.gridui.pan[0], self.gridui.pan[1] + 2*22*self.hud.displayscale))
-                self.selector.move_cursor((-1,-1))
-                return
-            if keyevent.mod & pygame.KMOD_SHIFT and keyevent.key == pygame.K_DOWN:
+                self.selector.move_cursor(SOUTH)
+                self.selector.move_cursor(SOUTH)
+                return True
+            elif event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_DOWN:
                 self.gridui.update_pan((self.gridui.pan[0], self.gridui.pan[1] - 2*22*self.hud.displayscale))
-                self.selector.move_cursor((1,1))
-                return
-        self.selector.handle_input(keyevent)
+                self.selector.move_cursor(NORTH)
+                self.selector.move_cursor(NORTH)
+                return True
+            if event.key == K_ESCAPE:
+                self.scenemanager.load_scene("MainMenuScene")
+                return True
+        return False
 
-    def update(self, dt:float):
-        super().update(dt)
-        self.image.fill((0,0,0,0))
-        self.hud.redraw(dt)
-        self.grid.tick(dt)
-        self.gridui.update(dt)
-        self.image.blit(self.hud.background, (0,0))
-        pygame.transform.scale(self.gridui.image, self.griduiscaleimage.get_size(), self.griduiscaleimage)
-        self.image.blit(self.griduiscaleimage, self.gridui.rect.topleft)
-        self.image.blit(self.hud.image, (0,0))
+    def update(self, delta_time:float):
+        super().update(delta_time)
+        self.grid.tick(delta_time)
+        self.gridui.update(delta_time)
+        self.hud.update(delta_time)
+    
+    def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+        yield from self.blits
+        self.blits.clear()
+        yield from self.gridui.get_blits()
+        yield from self.hud.get_blits()
+

@@ -96,7 +96,7 @@ class NetEvents():
     def snd_netabilitytarget(ability:"AbilityBase"):
         """Send a user's targeting preference to the server. Client only."""
         targets = ability.selected_targets
-        posnametargetsprimed = (ability._unit.pos, type(ability).__name__,  targets, ability.primed)
+        posnametargetsprimed = (ability._owning_component.owner.pos, type(ability).__name__,  targets, ability.primed)
         posnametargetsprimedjson = json.dumps(posnametargetsprimed)
         if not NetEvents.connector.authority:
             NetEvents.connector.send_client("NetAbilityTarget", posnametargetsprimedjson)
@@ -121,7 +121,7 @@ class NetEvents():
         if not unit:
             print("NetEvents: Target request '"+posnametargetsprimedjson+"'is unfulfillable, unit not found.")
             return
-        ability = [a for a in unit.abilities if type(a).__name__ == abilityname][0]
+        ability = [a for a in unit.ability_component._abilities if type(a).__name__ == abilityname][0]
         ability.selected_targets.clear()
         if NetEvents.connector.authority:
             ability.set_targets(targets)

@@ -1,10 +1,11 @@
+from abc import ABC
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.Effects import EffectBase
 from itblib.gridelements.Tiles import TileBase
 from itblib.Maps import Map
 
 
-class IGridObserver:
+class IGridObserver(ABC):
     
     def on_add_tile(self, tile:TileBase):
         pass
@@ -28,4 +29,7 @@ class IGridObserver:
         pass
 
     def on_load_map(self, map:Map):
+        pass
+
+    def on_change_phase(self, phase:int):
         pass

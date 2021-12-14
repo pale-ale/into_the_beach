@@ -1,201 +1,171 @@
-from itblib.Vec import Vec
-from pygame import Rect, draw
-from itblib.net.NetEvents import NetEvents 
+from typing import Generator
+
+import pygame
+from itblib.globals.Constants import STANDARD_TILE_SIZE, STANDARD_UNIT_SIZE
+from itblib.globals.GridElementUIFactory import GridElementUIFactory
+from itblib.gridelements.GridElementUI import GridElementUI
+from itblib.gridelements.units.UnitBase import UnitBase
+from itblib.ui.PerfSprite import PerfSprite
+from itblib.components.ComponentAcceptor import ComponentAcceptor
+from itblib.components.TransformComponent import TransformComponent
+from itblib.Vec import add
+
+from ..Grid import Grid
 from ..gridelements.Effects import EffectBase
-from ..gridelements.EffectsUI import EffectBaseUI, EffectHealUI, EffectRiverUI
+from ..gridelements.EffectsUI import EffectBaseUI
 from ..gridelements.Tiles import TileBase
 from ..gridelements.TilesUI import TileBaseUI
-from itblib.gridelements.units.UnitBase import UnitBase
 from ..gridelements.UnitsUI import UnitBaseUI
 from ..Maps import Map
 from . import IGridObserver
-from .. import Grid
 
-import pygame.sprite
-import pygame.transform
 
-class GridUI(pygame.sprite.Sprite, IGridObserver.IGridObserver):
+class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
     """The Graphical representation of the grid."""
-
-    def __init__(self, grid:Grid.Grid):  
-        pygame.sprite.Sprite.__init__(self)
-        self.standard_tilesize = (64,96)
-        self.tilesize = self.standard_tilesize
+    def __init__(self, grid:Grid):  
+        PerfSprite.__init__(self)
+        ComponentAcceptor.__init__(self)
+        self.tfc = TransformComponent()
+        self.tfc.attach_component(self)
         self.grid = grid
-        lefttile = self.transform_grid_world((grid.width-1, 0))
-        righttile = self.transform_grid_world((0, grid.height-1))
-        bottomtile = self.transform_grid_world((grid.width-1, grid.height-1))
-        self.width = righttile[0] - lefttile[0] + self.tilesize[0]
-        self.height = bottomtile[1] + self.tilesize[1]
-        self.image = pygame.surface.Surface((self.width,self.height), pygame.SRCALPHA)
-        self.rect = self.image.get_rect()
-        self.uitiles:"list[TileBaseUI|None]" = [None]*grid.width*grid.height
-        self.uitileeffects:"list[list[EffectBaseUI]]" = [[] for i in range(grid.width*grid.height)]
-        self.uiuniteffects:"list[list[EffectBaseUI]]" = [[] for i in range(grid.width*grid.height)]
-        self.uiunits:"list[UnitBaseUI|None]" = [None]*grid.width*grid.height
-        self.tilesprites = pygame.sprite.Group()
-        self.effectsprites = pygame.sprite.Group()
-        self.unitsprites = pygame.sprite.Group()
-        self.unitdrawoffset = -10
-        self.pan = [0,0]
+        self.tile_size = STANDARD_TILE_SIZE
+        left_tile = self.transform_grid_world((grid.size[0]-1, 0))
+        right_tile = self.transform_grid_world((0, grid.size[1]-1))
+        bottom_tile = self.transform_grid_world((grid.size[0]-1, grid.size[1]-1))
+        self.width = right_tile[0] - left_tile[0] + self.tile_size[0]
+        self.height = bottom_tile[1] + self.tile_size[1]
+        self.board_size = (self.width, self.height)
+        self.ui_tiles:"list[TileBaseUI|None]" = [None]*grid.size[0]*grid.size[1]
+        self.ui_worldeffects:"list[list[EffectBaseUI]]" = [[] for i in range(grid.size[0]*grid.size[1])]
+        self.ui_units:"list[UnitBaseUI|None]" = [None]*grid.size[0]*grid.size[1]
+        self.ui_unit_effects:"list[list[EffectBaseUI]]" = [[] for i in range(grid.size[0]*grid.size[1])]
+        self.unit_draw_offset = (0,-10)
+        self.pan = (96,0)
+        self.phase_change_callback = None
+        self.blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
+        # self.mid_blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
+        # self.post_blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
+     
+    def on_change_phase(self, phase: int):
+        if self.phase_change_callback:
+            self.phase_change_callback(phase)
 
     def on_add_tile(self, tile:TileBase):
         """Add the UI version of the new tile added to the normal grid."""
-        uitile = TileBaseUI(tile)
-        uitile.rect = Rect(*self.transform_grid_screen(tile.pos), 64, 96)
-        self.uitiles[self.grid.c_to_i(tile.pos)] = uitile
-        self.tilesprites.add(uitile)
+        ui_tile_class = GridElementUIFactory.find_tile_class(type(tile).__name__ + "UI")
+        if ui_tile_class:
+            ui_tile = ui_tile_class(tile,  pygame.Rect(*self.transform_grid_screen(tile.pos), 64, 96))
+            self.ui_tiles[self.grid.c_to_i(tile.pos)] = ui_tile
+            self.add_gridui_element(ui_tile)
     
     def update_pan(self, newpan:"tuple[int,int]"):
-        h, w = self.rect.size
-        x, y = self.rect.topleft
-        self.rect = Rect(x - self.pan[0] + newpan[0], y - self.pan[1] + newpan[1], h, w)
+        s = pygame.Surface(self.board_size)
+        s.fill((0))
+        self.blits.append((s, s.get_rect().move(self.pan),s.get_rect()))
         self.pan = newpan
+    
+    def add_gridui_element(self, elem:GridElementUI):
+        elem_tfc:TransformComponent = elem.get_component(TransformComponent)
+        if elem_tfc:
+            elem_tfc.set_transform_target(self)
 
     def on_add_unit(self, unit:UnitBase):
         """Add the UI version of the new unit added to the normal grid."""
-        uiunit = UnitBaseUI(unit) 
-        x, y = self.transform_grid_screen(unit.pos)
-        uiunit.rect = Rect(x, y + self.unitdrawoffset, 64, 64)
-        self.uiunits[self.grid.c_to_i(unit.pos)] = uiunit
-        self.unitsprites.add(uiunit)
+        ui_unit_class = GridElementUIFactory.find_unit_class(type(unit).__name__ + "UI")
+        if ui_unit_class:   
+            ui_unit = ui_unit_class(unit, pygame.Rect(*add(self.unit_draw_offset, self.transform_grid_screen(unit.pos)), *STANDARD_UNIT_SIZE))
+            self.ui_units[self.grid.c_to_i(unit.pos)] = ui_unit
+            self.add_gridui_element(ui_unit)
     
     def on_add_worldeffect(self, effect:EffectBase):
         """Add the UI version of the new effect added to the normal grid."""
-        assert isinstance(effect, EffectBase)
         gridindex = self.grid.c_to_i(effect.pos)
-        if type(effect).__name__ == "EffectRiver":
-            uieffect = EffectRiverUI(effect)
-        elif type(effect).__name__ == "EffectHeal":
-            uieffect = EffectHealUI(effect)
-        else:
-            uieffect = EffectBaseUI(effect)
-        self.uitileeffects[gridindex].append(uieffect)
-        uieffect.rect = Rect(*self.transform_grid_screen(effect.pos), 64, 64)
-        self.effectsprites.add(uieffect)
+        ui_worldeffect_class = GridElementUIFactory.find_effect_class(type(effect).__name__ + "UI")
+        if ui_worldeffect_class:
+            ui_worldeffect = ui_worldeffect_class(effect, pygame.Rect(*self.transform_grid_screen(effect.pos), *STANDARD_UNIT_SIZE))
+            self.ui_worldeffects[gridindex].append(ui_worldeffect)
+            self.add_gridui_element(ui_worldeffect)
 
     def on_move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
         """Move the UI version of the moved unit from the normal grid."""
         print("GridUI: Moving unit from", from_pos, "to", to_pos)
-        uiunit = self.uiunits[self.grid.c_to_i(from_pos)]
-        fsp = Vec.comp_add2(self.transform_grid_screen(from_pos), (0,self.unitdrawoffset))
-        tsp = Vec.comp_add2(self.transform_grid_screen(to_pos), (0,self.unitdrawoffset))
+        uiunit = self.ui_units[self.grid.c_to_i(from_pos)]
+        fsp = add(self.transform_grid_screen(from_pos), self.unit_draw_offset)
+        tsp = add(self.transform_grid_screen(to_pos), self.unit_draw_offset)
         uiunit.set_interp_movement(fsp, tsp, .5)
-        self.uiunits[self.grid.c_to_i(from_pos)] = None
-        self.uiunits[self.grid.c_to_i(to_pos)] = uiunit
+        self.ui_units[self.grid.c_to_i(from_pos)] = None
+        self.ui_units[self.grid.c_to_i(to_pos)] = uiunit
     
     def on_remove_unit(self, pos:"tuple[int,int]"):
         """Remove a UI-unit at the given position."""
-        uiunit = self.uiunits[self.grid.c_to_i(pos)]
-        self.unitsprites.remove(uiunit)
-        self.uiunits[self.grid.c_to_i(pos)] = None
+        self.ui_units[self.grid.c_to_i(pos)] = None
 
     def on_remove_tile_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
         """Remove a UI-effect at the given position."""
-        for uieffect in self.uitileeffects[self.grid.c_to_i(pos)][:]:
+        for uieffect in self.ui_worldeffects[self.grid.c_to_i(pos)][:]:
             if uieffect._parentelement == effect:
-                self.effectsprites.remove(uieffect)
-                self.uieffects[self.grid.c_to_i(pos)].remove(uieffect)
+                self.ui_worldeffects[self.grid.c_to_i(pos)].remove(uieffect)
                 return
        
     def on_remove_unit_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
-        """Remove a UI-effect at the given position."""
-        for uieffect in self.uiuniteffects[self.grid.c_to_i(pos)][:]:
-            if uieffect._parentelement == effect:
-                self.effectsprites.remove(uieffect)
-                self.uieffects[self.grid.c_to_i(pos)].remove(uieffect)
-                return
+        pass
+        # """Remove a UI-effect at the given position."""
+        # for uieffect in self.uiuniteffects[self.grid.c_to_i(pos)][:]:
+        #     if uieffect._parentelement == effect:
+        #         self.uieffects[self.grid.c_to_i(pos)].remove(uieffect)
+        #         return
 
-    def update(self, dt:float):
+    def update(self, delta_time:float):
         """Update the graphics and animations' frames."""
-        self.tilesprites.update(dt)
-        self.effectsprites.update(dt)
-        self.unitsprites.update(dt)
-        self.redraw_grid_2()
-
-    def reload_from_grid(self):
-        """Reload everything from the grid. Useful to update e.g. graphic scale."""
-        g = self.grid
-        self.clear_map()
-        for unitdata in g.units:
-            if unitdata:
-                self.on_add_unit(unitdata)
-        for tiledata in g.tiles:
-            if tiledata:
-                self.on_add_tile(tiledata)
-        for tileeffectdata in g.worldeffects:
-            if tileeffectdata:
-                self.on_add_tile_effect(tileeffectdata)
-        for uniteffectdata in g.uniteffects:
-            if uniteffectdata:
-                self.on_add_unit_effect(uniteffectdata)
-
-    def clear_map(self):
-        """Sets every graphic's data source to 'None'."""
-        c = self.grid.width*self.grid.height
-        self.uitiles:"list[TileBaseUI|None]" = [None]*c
-        self.uitileeffects:"list[list[EffectBaseUI]]" = [[] for i in range(c)]
-        self.uiuniteffects:"list[list[EffectBaseUI]]" = [[] for i in range(c)]
-        self.uiunits:"list[UnitBaseUI|None]" = [None]*c
-        self.unitsprites.empty()
-        self.tilesprites.empty()
-        self.effectsprites.empty()
+        [x.update(delta_time) for x in self.ui_tiles if x]
+        [x.update(delta_time) for x in self.ui_units if x]
+        [x.update(delta_time) for y in self.ui_worldeffects for x in y if x]
     
     def on_load_map(self, map:Map):
         """Clear all the residual graphic objects, as they will be added during map load."""
-        self.clear_map()
-    
+        
     def get_unitui(self, pos:"tuple[int,int]"):
         """Return the UI-unit at given position."""
-        return self.uiunits[self.grid.c_to_i(pos)]
+        return self.ui_units[self.grid.c_to_i(pos)]
    
     def get_tileui(self, pos:"tuple[int,int]"):
         """Return the UI-tile at given position."""
-        return self.uitiles[self.grid.c_to_i(pos)]
+        return self.ui_tiles[self.grid.c_to_i(pos)]
     
     def get_tile_effectsui(self, pos:"tuple[int,int]"):
         """Return the UI-effects at given position."""
-        return self.uitileeffects[self.grid.c_to_i(pos)]
+        return self.ui_worldeffects[self.grid.c_to_i(pos)]
     
     def get_unit_effectsui(self, pos:"tuple[int,int]"):
         """Return the UI-effects at given position."""
-        return self.uiuniteffects[self.grid.c_to_i(pos)]
+        return self.ui_unit_effects[self.grid.c_to_i(pos)]
 
     def transform_grid_world(self, gridpos:"tuple[int,int]"):
         """Return the world position of a given grid coordinate."""
         return (
-            int( (gridpos[1]-gridpos[0]) * (self.tilesize[0]/2)),
+            int( (gridpos[1]-gridpos[0]) * (self.tile_size[0]/2)),
             int( (gridpos[1]+gridpos[0]) * 22)
         )
 
     def transform_grid_screen(self, gridpos:"tuple[int,int]"):
         """Return the screen position of a given grid coordinate."""
         gw = self.transform_grid_world(gridpos)
-        return (int(gw[0] + (self.width-self.tilesize[0])/2), gw[1]+5)
+        return add((int(gw[0] + (self.width-self.tile_size[0])/2), gw[1]+5), self.pan)
 
-    def redraw_grid_2(self):
-        """Redraw every group."""
-        self.image.fill((0))
-        self.tilesprites.draw(self.image)
-        self.effectsprites.draw(self.image)
-        for uiunit in self.uiunits:
-            if uiunit and uiunit.visible:
-                c = uiunit.rect.center
-                o = 7
-                squaresize = 48
-                l = (c[0] - int(squaresize/2) -1 , c[1] + o)
-                r = (c[0] + int(squaresize/2) , c[1] + o)
-                t = (c[0], c[1] - int(squaresize/3) + o -1)
-                b = (c[0], c[1] + int(squaresize/3) + o +1)
-                if uiunit._parentelement.ownerid in NetEvents.session._players:
-                    playercolor = NetEvents.session._players[uiunit._parentelement.ownerid].color
-                else:
-                    playercolor = (50,50,50,255)
-                draw.lines(
-                    self.image,
-                    playercolor,
-                    True, 
-                    (l, t, r, b), 
-                    2
-                )
-        self.unitsprites.draw(self.image)
+    def apply_pan(self, b:"Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]") -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+        for s,g,l in b:
+            yield (s,g.move(self.pan), l)
+
+    def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+        grid_element:"GridElementUI|None"
+        yield from self.blits
+        self.blits.clear()
+        for grid_element in self.ui_tiles:
+            if grid_element:
+                yield from grid_element.get_blits()
+        for position in self.ui_worldeffects:
+            for grid_element in position:
+                yield from grid_element.get_blits()
+        for grid_element in self.ui_units:
+            if grid_element:
+                yield from grid_element.get_blits()

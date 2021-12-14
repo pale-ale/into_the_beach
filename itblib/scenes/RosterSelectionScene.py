@@ -1,30 +1,32 @@
-from itblib.Globals.Enums import UNIT_IDS
-from itblib.Globals.GridElementFactory import GridElementFactory
-from itblib.ui.TextureManager import Textures
-from pygame.surface import Surface
-from itblib.Vec import Vec
-from itblib.SceneManager import SceneManager
-from itblib.scenes.SceneBase import SceneBase
-from itblib.Player import PlayerData
+import sys
+
 import pygame
+import pygame.draw
 import pygame.font
 import pygame.transform
-import pygame.draw
-import itblib.gridelements.units.Units as Units
-import json
-import sys
+from itblib.globals.Colors import GRAY, GREEN, ORANGE, RED
+from itblib.globals.Enums import UNIT_IDS
+from itblib.Player import PlayerData
+from itblib.SceneManager import SceneManager
+from itblib.scenes.SceneBase import SceneBase
+from itblib.ui.TextureManager import Textures
+from itblib.Vec import add
+from pygame.surface import Surface
+
 
 class RosterSelectionScene(SceneBase):
     """The user can select his lineup here."""
-    def __init__(self, scenemanager:"SceneManager", width: int, height: int) -> None:
-        super().__init__(scenemanager, width, height)
+    def __init__(self, scenemanager:"SceneManager") -> None:
+        super().__init__(scenemanager)
+        self.image = pygame.Surface(self.scenemanager.scene_size)
         self.playerfilepath = sys.argv[1]
         self.titlefont = pygame.font.SysFont('latinmodernmono', 50)
         self.subfont = pygame.font.SysFont('latinmodernmono', 20)
         t = self.titlefont.render("Select your lineup here.", True, (50,200,150,255))
         esctext = self.subfont.render(
-            "ESC to quit, SPACE to save when 3(1) units have been selected, \
+            "ESC to quit, SPACE to save when 3 units have been selected, \
              ENTER to add/remove unit", True, (50,200,150,255))
+        width = self.image.get_width()
         self.image.blit(t, (width*.5 - t.get_width()*.5, 20))
         self.image.blit(esctext, (width*.5 - esctext.get_width()*.5, 55))
         self.unitids = [1, 2, 3, 5, 6]
@@ -35,11 +37,14 @@ class RosterSelectionScene(SceneBase):
         self.tileheight = 128
         self.tilemarginy = 3
         self.maxnumberunits = 3
-        self.tilecountline = 7 #int(width / (self.tilewidth + self.tilemarginx))
+        self.tilecountline = int(width / (self.tilewidth + self.tilemarginx))
         freespace = width - self.tilecountline*self.tilewidth
         self.xspacer = int(freespace / (self.tilecountline+1))
-        self.lines = 3
-        self.selects = [False for i in range(self.lines*self.tilecountline)]
+        self.lines = 2
+        self.MAX_SINGLE_UNIT_COUNT = 3
+        self.screenmarginx = 2
+        self.selects = [0 for i in range(self.lines*self.tilecountline)]
+        self.label_offset = (0,100)
         for y in range(self.lines):
             for x in range(self.tilecountline):
                 self.unitlist.fill(
@@ -63,45 +68,41 @@ class RosterSelectionScene(SceneBase):
         self.update_cursor_pos((0,0))
     
     def update_cursor_pos(self, delta:"tuple[int,int]"):
-        x,y = Vec.comp_add2(self.cursorpos, delta)
-        self.cursorpos[0] = max(min(x,self.tilecountline), 0)
-        self.cursorpos[1] = max(min(y,self.lines), 0)
+        x,y = add(self.cursorpos, delta)
+        self.cursorpos[0] = max(min(x,self.tilecountline-1), 0)
+        self.cursorpos[1] = max(min(y,self.lines-1), 0)
+        linewidth = 2
         rect = (
-            self.xspacer+x*(self.xspacer+self.tilewidth),  
-            y*(self.tileheight+self.tilemarginy)+100, 
-            self.tilewidth, 
-            self.tileheight
+            add(add(self.c_to_s(self.cursorpos), self.label_offset), (-linewidth, -linewidth)),
+            (self.tilewidth + 2*linewidth, self.tileheight+2*linewidth)
         )
-        self.image.blit(self.unitlist, (0, 100))
-        pygame.draw.rect(self.image, (255, 50, 150), rect, 2, 5)
+        self.image.fill(0, (0,90,self.image.get_width(), 10))
+        self.image.blit(self.unitlist, self.label_offset)
+        pygame.draw.rect(self.image, (255, 50, 150), rect, linewidth, 5)
     
     def c_to_s(self, c:"tuple[int,int]"):
         x,y = c
-        s = (self.xspacer+x*(self.xspacer+self.tilewidth),  y*(self.tileheight+self.tilemarginy))
-        return s
+        sx = self.screenmarginx + self.xspacer+x*(self.xspacer+self.tilewidth)
+        sy = y*(self.tileheight+self.tilemarginy)
+        return (sx, sy)
     
-    def draw_tangle(self, c:"tuple[int,int]", green:bool=False):
-        verts = [Vec.comp_add2(x, self.c_to_s(c)) for x in ((118,0),(128,0),(128,10))]
+    def draw_tangle(self, c:"tuple[int,int]", count:int=0):
+        tangle_size = 10
+        verts = [add(x, self.c_to_s(c)) for x in ((self.tilewidth-tangle_size-1,0),(self.tilewidth-1,0),(self.tilewidth-1,tangle_size))]
+        pygame.draw.polygon(self.unitlist, [GRAY, RED, ORANGE, GREEN][count], verts)
+        self.image.blit(self.unitlist, self.label_offset)
 
-        pygame.draw.polygon(
-            self.unitlist,
-            (0,255,0) if green else (150,150,150), 
-            verts
-        )
-        self.image.blit(self.unitlist, (0, 100))
-
-    def on_keyevent(self, keyevent):
-        super().on_keyevent(keyevent)
+    def handle_key_event(self, keyevent):
         if keyevent.type == pygame.KEYDOWN:
             if keyevent.key == pygame.K_ESCAPE:
                 self.scenemanager.load_scene("MainMenuScene")
-            elif keyevent.key == pygame.K_SPACE:
-                self.scenemanager.load_scene("GameScene")
             elif keyevent.key == pygame.K_RETURN:
                 i = self.cursorpos[1]*self.tilecountline+self.cursorpos[0]
-                self.selects[i] += 1
-                self.draw_tangle(self.cursorpos, self.selects[i])
-                self.update_cursor_pos((0,0))
+                if self.selects[i] < self.MAX_SINGLE_UNIT_COUNT:
+                    self.selects[i] += 1
+                    self.draw_tangle(self.cursorpos, self.selects[i])
+                    self.update_cursor_pos((0,0))
+            elif keyevent.key == pygame.K_SPACE:
                 if sum(self.selects) == self.maxnumberunits:
                     self.units_selected(self.selects)
             elif keyevent.key == pygame.K_BACKSPACE:
@@ -127,4 +128,6 @@ class RosterSelectionScene(SceneBase):
         PlayerData.load(self.playerfilepath)
         PlayerData.roster = initialunits
         PlayerData.save(self.playerfilepath)
-        self.scenemanager.load_scene("GameScene")
+    
+    def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+        yield (self.image, self.image.get_rect(), self.image.get_rect())

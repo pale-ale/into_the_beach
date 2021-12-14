@@ -1,54 +1,62 @@
 import pygame
+from itblib.input.Input import InputAcceptor
 
-from itblib.ui.HUD import Hud 
+from itblib.ui.hud.HUD import Hud 
 from itblib.Grid import Grid
+from itblib.Vec import add
+from itblib.Log import log
 
-class Selector:
+class Selector(InputAcceptor):
     """A controller used to handle the player's input."""
+    _instance:"Selector" = None
+
+    @staticmethod
+    def get_instance() -> "Selector":
+        if Selector._instance:
+            return Selector._instance
+        Selector._instance = Selector()
+        return Selector._instance
 
     def __init__(self, grid:Grid, hud:Hud):
+        super().__init__()
+        if self._instance:
+            log("Selector: May only be initialized once.", 2)
         self.grid = grid
-        self.cursorposition = (int(),int())
         self.hud = hud
+        self.cursorposition = (0,0)
         self.hud.update_cursor(self.cursorposition)
+        self._instance = self
 
-    def add(self, a:"tuple[int,int]", b:"tuple[int,int]"):
-        """Add two 2d-vectors."""
-        return a[0] + b[0], a[1] + b[1]
-    
-    def move_cursor(self, delta:"tuple[int,int]"):
-        testpos = self.add(self.cursorposition, delta)
+    def move_cursor(self, delta:tuple[int,int]) -> bool:
+        """Try moving cursor by delta. If it fails, return False.
+        @delta: The amount in grid coordinates to move by."""
+        testpos = add(self.cursorposition, delta)
         if self.grid.is_coord_in_bounds(testpos):
             self.cursorposition = testpos
-        self.hud.update_cursor(self.cursorposition)
-    
-    def handle_input(self, event):
-        """Manages pygame's key-events and forwards them to e.g. the HUD."""
-        if event.type == pygame.KEYDOWN:
-            # exit game
-            if event.key == pygame.K_ESCAPE:
-                self.hud.escape_pressed()
-            if event.key == pygame.K_SPACE:
-                self.hud.unitselect(self.cursorposition)
-                return
-            if event.key == pygame.K_RETURN:
-                self.hud.targetconfirm(self.cursorposition)
-                return
+            self.hud.update_cursor(self.cursorposition)
+            return True
+        return False
 
+    def handle_key_event(self, event: any) -> bool:
+        if super().handle_key_event(event):
+            return True
+      
+        if event.type == pygame.KEYDOWN:
             # active abilities
             if event.unicode and event.unicode in "1234":
                 self.hud.activate_ability(int(event.unicode))
-                return
-
+                return True
+            if not event.mod & pygame.KMOD_SHIFT:
             # navigate the grid
-            delta = (0,0)
-            if event.key == pygame.K_UP:
-                delta = (-1,0)
-            elif event.key == pygame.K_RIGHT:
-                delta = (0,1)
-            elif event.key == pygame.K_DOWN:
-                delta = (1,0)
-            elif event.key == pygame.K_LEFT:
-                delta = (0,-1)
-            self.move_cursor(delta)
-            return
+                delta = (0,0)
+                if event.key == pygame.K_UP:
+                    delta = (-1,0)
+                elif event.key == pygame.K_RIGHT:
+                    delta = (0,1)
+                elif event.key == pygame.K_DOWN:
+                    delta = (1,0)
+                elif event.key == pygame.K_LEFT:
+                    delta = (0,-1)
+                self.move_cursor(delta)
+                return delta != (0,0)
+        return False

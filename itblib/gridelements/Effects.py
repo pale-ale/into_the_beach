@@ -61,7 +61,7 @@ class EffectHeal(EffectBase):
 
 
 class StatusEffect(Serializable):
-    def __init__(self, target:GridElement, name:str):
+    def __init__(self, target:"UnitBase", name:str):
         super().__init__(["name"])
         self.target = target
         self.name = name
@@ -76,7 +76,7 @@ class StatusEffect(Serializable):
 
 
 class EffectBleeding(StatusEffect):
-    def __init__(self, target: GridElement):
+    def __init__(self, target: "UnitBase"):
         super().__init__(target, name="Bleeding")
     
     def on_update_phase(self, newphase: int):
@@ -86,11 +86,11 @@ class EffectBleeding(StatusEffect):
 
 
 class EffectBurrowed(StatusEffect):
-    def __init__(self, target: GridElement):
+    def __init__(self, target: "UnitBase"):
         super().__init__(target, name="Burrowed")
         self.original_shove = target.on_receive_shove
-        self.original_moverange = target.moverange
-        target.moverange = 0
+        self.original_moverange = target.get_movement_ability().moverange
+        target.get_movement_ability().moverange = 0
         target.on_receive_shove = self.disabled_shove
     
     def disabled_shove(self, pos):
@@ -99,5 +99,4 @@ class EffectBurrowed(StatusEffect):
     
     def on_purge(self):
         self.target.on_receive_shove = self.original_shove
-        self.target.moverange = self.original_moverange
-
+        self.target.get_movement_ability().moverange = self.original_moverange

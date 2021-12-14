@@ -1,5 +1,5 @@
-from itblib.gridelements.Effects import EffectBleeding
 from typing import TYPE_CHECKING
+from itblib.gridelements.Effects import EffectBleeding
 from itblib.abilities.TargetAbilityBase import TargetAbilityBase
 
 if TYPE_CHECKING:
@@ -7,12 +7,15 @@ if TYPE_CHECKING:
 
 class SerrateAbility(TargetAbilityBase):
     """Deals 1 damage to a unit and causes bleeding."""
+
     def __init__(self, unit: "UnitBase"):
-        super().__init__(unit, 2, 1)
+        super().__init__(unit, 3, 1)
    
     def apply_to_target(self, target: "tuple[int,int]"):
         super().apply_to_target(target)
-        self._unit.attack(target, 1, "physical")
-        u = self._unit.grid.get_unit(target)
-        if u:
-            u.add_statuseffect(EffectBleeding(u))
+        owner = self.get_owner()
+        if owner:
+            owner.attack(target, 1, "physical")
+            u = owner.grid.get_unit(target)
+            if u:
+                u.add_statuseffect(EffectBleeding(u))

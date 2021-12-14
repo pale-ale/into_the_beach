@@ -1,11 +1,11 @@
 from itblib.scenes.SceneBase import SceneBase
-import sys
 
 class SceneManager:
     """Manages the Scenes."""
-    def __init__(self) -> None:
+    def __init__(self, scene_size:"tuple[int,int]") -> None:
         self.scenes:"dict[str, SceneBase]" = {}
         self._activescene:"SceneBase" = None
+        self.scene_size:"tuple[int,int]" = scene_size
     
     def load_scene(self, key:str):
         if key in self.scenes.keys():
@@ -13,8 +13,8 @@ class SceneManager:
                 self._activescene.unload()
             scene = self.scenes[key]
             self._activescene = scene
-            self._activescene.load()
             print(f"SceneManager: Loading scene '{type(scene).__name__}'")
+            self._activescene.load()
         else:
             print("SceneManager: Unknown scene '" + key + "'")
     

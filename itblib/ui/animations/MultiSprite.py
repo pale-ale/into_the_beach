@@ -1,24 +1,27 @@
 import pygame
 
-class MultiSprite(pygame.sprite.Sprite):
+from itblib.ui.PerfSprite import PerfSprite
+
+class MultiSprite(PerfSprite):
     """This class can be used to create "animated" sprites, using either a given set of textures
     that will be flipped through or by overriding the update and start methods to create variable animations"""
-    def __init__(self, textures:"list[pygame.Surface]", width:int=64, height:int=64, frametime:float=.5, playing=False, looping=True):
+    def __init__(self, textures:"list[pygame.Surface]", global_transform:"pygame.Rect", frametime:float=.5, playing=False, looping=True):
         super().__init__()
-        self.image = pygame.Surface((width, height), pygame.SRCALPHA).convert_alpha()
-        self.rect = self.image.get_rect()
         self._textures = textures
         self.frametime = frametime
-        self.framenumber = 0
+        self.framenumber = -1
         self.animtime = -1
         self.playing = playing
         self.looping = looping
+        self.local_transform = (0,0,*(global_transform[2:]))
+        self.global_transform = global_transform
+        self.blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
 
-    def update(self, dt:float):
+    def update(self, delta_time:float):
         """Called every frame, advances one anim frame if the frametime is reached."""
         if not self.playing:
             return
-        self.animtime += dt
+        self.animtime += delta_time
         currentframe = int(self.animtime/self.frametime)
         if currentframe > self.framenumber:
             if currentframe >= len(self._textures):
@@ -32,7 +35,7 @@ class MultiSprite(pygame.sprite.Sprite):
 
     def start(self):
         """Set this animation into a "playing" state, enabling the update method."""
-        if not self.playing and len(self._textures) > 0:
+        if not self.playing:
             self.playing = True
             self.animtime = 0
 
@@ -44,5 +47,8 @@ class MultiSprite(pygame.sprite.Sprite):
     def set_frame(self, framenumber:int):
         """Set the animation to a certain frame. When start() is called, play from there."""
         self.framenumber = framenumber
-        self.image.fill(0)
-        self.image.blit(self._textures[self.framenumber], (0,0))
+        self.blits = [(self._textures[self.framenumber], self.global_transform, self.local_transform)]
+    
+    def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+        yield from self.blits
+    

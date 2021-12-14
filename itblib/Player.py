@@ -6,7 +6,7 @@ class Player:
     """Represents a physical player at the "table"."""
     
     def __init__(self, id:int, playersocket:socket.socket, color=(0,150,50)):
-        self.name = "Player_1"
+        self.name = "Player_" + str(id)
         self.color = color
         self._initialunitids = PlayerData.roster
         self._controlledunits = []

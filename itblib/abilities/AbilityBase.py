@@ -1,11 +1,15 @@
-from itblib.Serializable import Serializable
-from itblib.net.NetEvents import NetEvents
 from typing import TYPE_CHECKING
+
+from itblib.input.Input import InputAcceptor
+from itblib.net.NetEvents import NetEvents
+from itblib.Serializable import Serializable
+
 if TYPE_CHECKING:
+    from itblib.components.AbilityComponent import AbilityComponent
     from itblib.gridelements.units.UnitBase import UnitBase
 
 
-class AbilityBase(Serializable):
+class AbilityBase(Serializable, InputAcceptor):
     """
     The base class for all the other abilities.
     Abilities are used to provide unique actions to units.
@@ -13,9 +17,10 @@ class AbilityBase(Serializable):
     a cost, cooldowns and other mechanics.
     """
 
-    def __init__(self, unit:"UnitBase", phase:int, cooldown=1):
-        Serializable.__init__(self, ["name", "selected_targets", "primed"])
-        self._unit = unit
+    def __init__(self, owning_component:"AbilityComponent", phase:int, cooldown=1):
+        Serializable.__init__(self, ["name", "selected_targets", "primed", "remainingcooldown"])
+        InputAcceptor.__init__(self)
+        self._owning_component = owning_component
         self.phase = phase
         self.cooldown = cooldown
         self.primed = False
@@ -23,9 +28,13 @@ class AbilityBase(Serializable):
         self.needstarget = False
         self.trigger_causes_cooldown = True
         self.reduce_cooldown_each_turn = True
-        self.area_of_effect:"list[tuple[tuple[int,int],int]]" = []
+        self.area_of_effect:"list[tuple[tuple[int,int],str]]" = []
         self.selected_targets:"list[tuple[int,int]]" = []
         self.remainingcooldown = 0
+        self._owning_component.targeting_ability = True
+    
+    def get_owner(self) -> "UnitBase|None":
+        return self._owning_component.owner
     
     def tick(self, dt:float):
         """Made to be overridden."""
@@ -36,7 +45,7 @@ class AbilityBase(Serializable):
         if self.trigger_causes_cooldown:
             self.remainingcooldown = self.cooldown
             self.primed = False
-        print("AbilityBase: Triggered", type(self._unit).__name__ + "'s", type(self).__name__)
+        print("AbilityBase: Triggered", type(self._owning_component.owner).__name__ + "'s", type(self).__name__)
     
     def set_targets(self, targets:"list[tuple[int,int]]"):
         """Set selected_targets to the specified coordinates."""
@@ -59,6 +68,7 @@ class AbilityBase(Serializable):
 
     def on_select_ability(self):
         """Called when a player selects this ability. Use to e.g. show target outlines"""
+        self.reset()
         self.selected = True
         print("AbilityBase: Selected", type(self).__name__)
     

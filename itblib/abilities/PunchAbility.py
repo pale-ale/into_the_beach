@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
-from itblib.Globals.Enums import PREVIEWS
+
 from itblib.abilities.TargetAbilityBase import TargetAbilityBase
+from itblib.globals.Enums import PREVIEWS
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
@@ -13,11 +14,13 @@ class PunchAbility(TargetAbilityBase):
 
     def on_select_ability(self):
         super().on_select_ability()
-        for neighbor in self._unit.grid.get_ordinal_neighbors(self._unit.pos):
+        owner = self.get_owner()
+        for neighbor in owner.grid.get_ordinal_neighbors(owner.pos):
             self.area_of_effect.append((neighbor, PREVIEWS[0]))
 
     def apply_to_target(self, target: "tuple[int,int]"):
         super().apply_to_target(target)
-        damage = [self._unit.baseattack["physical"], "physical"]
-        self._unit.attack(self.selected_targets[0], *damage)
+        owner = self.get_owner()
+        damage = [owner.baseattack["physical"], "physical"]
+        owner.attack(self.selected_targets[0], *damage)
     

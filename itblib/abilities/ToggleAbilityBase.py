@@ -7,7 +7,10 @@ if TYPE_CHECKING:
 class ToggleAbilityBase(AbilityBase):
     def __init__(self, unit: "UnitBase", phase:int):
         super().__init__(unit, phase, 1)
+        self._owning_component.targeting_ability = True
     
     def on_select_ability(self):
-        self.confirm_target(self._unit.pos,  not self.primed)
+        owner = self.get_owner()
+        if owner:
+            self.confirm_target(owner, not self.primed)
     
