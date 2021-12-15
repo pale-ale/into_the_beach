@@ -5,11 +5,11 @@ from typing import Sequence, Union
 
 number = Union[float,int]
 
-def comp_mult2(a:tuple[number,number],b:tuple[number,number]):
+def mult2(a:tuple[number,number],b:tuple[number,number]):
     """Multiply a*b component-wise, i.e (a0*b0, a1*b1)"""
     return (a[0]*b[0], a[1]*b[1])
 
-def scalar_mult(scalar:number, vals:tuple[number]) -> tuple[number]:
+def smult(scalar:number, vals:tuple[number]) -> tuple[number]:
     """Multiply a*b component-wise, i.e (a*b0, a*b1)"""
     return tuple([scalar*b for b in vals])
 

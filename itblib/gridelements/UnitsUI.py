@@ -9,7 +9,7 @@ from itblib.net.NetEvents import NetEvents
 from itblib.ui.HealthBar import HealthBar
 from itblib.ui.hud.OwnerColorRhombus import OwnerColorRhombus
 from itblib.ui.IDisplayable import IDisplayable
-from itblib.Vec import add, scalar_mult, sub
+from itblib.Vec import add, smult, sub
 
 from .GridElementUI import GridElementUI
 
@@ -49,7 +49,7 @@ class UnitBaseUI(GridElementUI, IDisplayable):
         if self.fromscreenpos and self.toscreenpos:
             diff = sub(self.toscreenpos, self.fromscreenpos)
             timepercent = min((self._parentelement.age - self.movementtime) / self.speed, 1)
-            interp_screenpos = add(self.fromscreenpos, scalar_mult(timepercent, diff))
+            interp_screenpos = add(self.fromscreenpos, smult(timepercent, diff))
             self.global_transform.topleft = interp_screenpos
             self._tfc.relative_position = self.global_transform.center
             if timepercent + 0e-4 >= 1:

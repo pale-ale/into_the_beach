@@ -8,7 +8,7 @@ from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.UnitsUI import UnitBaseUI
 from itblib.ui.PerfSprite import PerfSprite
 from itblib.ui.TextureManager import Textures
-from itblib.Vec import add, scalar_mult, sub
+from itblib.Vec import add, smult, sub
 
 
 class UnitDisplay(PerfSprite):
@@ -84,7 +84,7 @@ class UnitDisplay(PerfSprite):
         self.image.fill(self.defaultimagecolor, (*self.imagepos, *STANDARD_UNIT_SIZE))
         if self.displayunit:
             tfc:TransformComponent = self.displayunit.get_component(TransformComponent)
-            unit_pos = add(tfc.get_position(), scalar_mult(-.5, STANDARD_UNIT_SIZE))
+            unit_pos = add(tfc.get_position(), smult(-.5, STANDARD_UNIT_SIZE))
             self.image.blits(
                 [(s,  pygame.Rect(add(sub(g.topleft,unit_pos), self.imagepos), STANDARD_UNIT_SIZE) , l) for s,g,l in self.displayunit.get_blits()]
             )

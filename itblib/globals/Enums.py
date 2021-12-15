@@ -7,6 +7,7 @@ PHASES = {
 }
 
 PREVIEWS = {
+    -1:"Special",
     0:"SelectionPreview",
     1:"MovementPreview",
     2:"TargetMovementPreview",

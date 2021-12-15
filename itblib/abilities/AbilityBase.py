@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 from itblib.input.Input import InputAcceptor
@@ -9,7 +10,7 @@ if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
 
-class AbilityBase(Serializable, InputAcceptor):
+class AbilityBase(Serializable, InputAcceptor, ABC):
     """
     The base class for all the other abilities.
     Abilities are used to provide unique actions to units.
@@ -28,7 +29,7 @@ class AbilityBase(Serializable, InputAcceptor):
         self.needstarget = False
         self.trigger_causes_cooldown = True
         self.reduce_cooldown_each_turn = True
-        self.area_of_effect:"list[tuple[tuple[int,int],str]]" = []
+        self.area_of_effect:"set[tuple[tuple[int,int],str]]" = set()
         self.selected_targets:"list[tuple[int,int]]" = []
         self.remainingcooldown = 0
         self._owning_component.targeting_ability = True
@@ -104,13 +105,13 @@ class AbilityBase(Serializable, InputAcceptor):
         """Called when this ability's unit dies."""
         print("AbilityBase: This unit has died.")
     
-    def get_valid_targets(self) -> "list[tuple[int,int]]":
-        """Return a list of valid target coordinates."""
-        print("AbilityBase: Please override.")
+    @abstractmethod
+    def _get_valid_targets(self) -> "set[tuple[int,int]]":
+        """Return a set of valid target coordinates."""
     
-    def is_valid_target(self, target:"tuple[int,int]") -> bool:
+    def _is_valid_target(self, target:"tuple[int,int]") -> bool:
         """Determine whether a target is valid (e.g. in range) or not."""
-        return target in self.get_valid_targets()
+        return target in self._get_valid_targets()
     
     def extract_data(self, custom_fields: "dict[str,any]" = ...) -> dict:
         return super().extract_data(custom_fields={"name":type(self).__name__, "selected_targets":self.selected_targets})

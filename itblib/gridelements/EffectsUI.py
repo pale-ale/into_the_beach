@@ -5,7 +5,7 @@ from itblib.globals.Enums import RIVER
 from itblib.gridelements.Effects import EffectBase
 from itblib.gridelements.GridElementUI import GridElementUI
 from itblib.ui.IDisplayable import IDisplayable
-from itblib.Vec import scalar_mult
+from itblib.Vec import smult
 
 
 class EffectBaseUI(GridElementUI, IDisplayable):
@@ -79,7 +79,7 @@ class EffectFireUI(EffectBaseUI):
         self.im.fill(100)
         for p in range(self.desired_particles):
             self.im.fill(
-                scalar_mult(
+                smult(
                     min(1,((self.max_particle_lifetime - self.particle_lifetimes[p])/self.max_particle_lifetime)*2.5), 
                     self.particle_colors[p]), 
                 (self.particle_xs[p], self.particle_ys[p], 3, 3))

@@ -17,29 +17,38 @@ class RangedAttackAbility(AbilityBase):
     
     def on_select_ability(self):
         super().on_select_ability()
-        owner = self.get_owner()
-        if owner:
-            pos = owner.pos
-            coords = self._get_ordinals(pos, owner.grid.size)
-            coords = coords.difference(owner.grid.get_ordinal_neighbors(pos))
-            for coord in coords:
-                self.area_of_effect.append((coord, PREVIEWS[0]))
+        for coord in self._get_valid_targets():
+            self.area_of_effect.add((coord, PREVIEWS[0]))
 
     def set_targets(self, targets:"list[tuple[int,int]]"):
+        assert len(targets) == 1, f"Invalid targets: {targets}"
         super().set_targets(targets)
-        assert len(targets) == 1
         target = targets[0]
         positions = [x[0] for x in self.area_of_effect]
         if target in positions:
             self.selected_targets = [target]
             self.area_of_effect.clear()
-
+  
     def on_trigger(self):
         super().on_trigger()
         owner = self.get_owner()
         if owner and len(self.selected_targets) > 0:
             damage = [owner.baseattack["physical"], "physical"]
             self.get_owner().attack(self.selected_targets[0], *damage)
+    
+    def confirm_target(self, target: "tuple[int,int]", primed=True):
+        if self._is_valid_target(target):
+            self.selected_targets = [target]
+            super().confirm_target(target, primed=primed)
+            self.area_of_effect = {(target, PREVIEWS[-1])}
+    
+    def _get_valid_targets(self) -> "set[tuple[int,int]]":
+        owner = self.get_owner()
+        if owner:
+            pos = owner.pos
+            coords = self._get_ordinals(pos, owner.grid.size)
+            coords = coords.difference(owner.grid.get_ordinal_neighbors(pos))
+        return coords
     
     def _get_ordinals(self, origin:"tuple[int,int]", dimensions:"tuple[int,int]"):
         x,y = origin
@@ -84,6 +93,9 @@ class PushAbility(AbilityBase):
         self.selected_targets.clear()
         self.area_of_effect.clear()
 
+    def _get_valid_targets(self) -> "set[tuple[int,int]]":
+        owner = self.get_owner()
+        return set(owner.grid.get_ordinal_neighbors(owner.pos))
 
 class ObjectiveAbility(AbilityBase):
     """This ability makes a unit an "Objective", meaning the player loses if it dies."""
@@ -93,6 +105,9 @@ class ObjectiveAbility(AbilityBase):
     def on_death(self):
         super().on_death()
         NetEvents.session.objective_lost(self.get_owner().ownerid)
+    
+    def _get_valid_targets(self) -> "set[tuple[int,int]]":
+        return set()
 
 
 class HealAbility(AbilityBase):

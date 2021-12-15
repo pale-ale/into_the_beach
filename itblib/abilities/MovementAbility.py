@@ -39,7 +39,7 @@ class MovementAbility(AbilityBase):
         """Add the new cursor position to the path if the unit can move there."""
         super().on_update_cursor(newcursorpos)
         if self.selected:
-            if len(self.selected_targets) < self.moverange and newcursorpos in self.get_valid_targets():
+            if len(self.selected_targets) < self.moverange and self._is_valid_target(newcursorpos):
                 self._add_to_movement(newcursorpos)
             else:
                 self.area_of_effect.clear()
@@ -54,13 +54,13 @@ class MovementAbility(AbilityBase):
         tile = self.get_owner().grid.get_tile(pos)
         return tile and (tile.get_movement_requirements() & self.movement_flags)
   
-    def get_valid_targets(self) -> "list[tuple[int,int]]":
+    def _get_valid_targets(self) -> "set[tuple[int,int]]":
         owner = self.get_owner()
-        valid_targets = []
+        valid_targets = set()
         if owner:
             pathwithself = [owner.pos] + self.selected_targets
             test_targets = owner.grid.get_ordinal_neighbors(pathwithself[-1])
-            valid_targets = [t_pos for t_pos in test_targets if self._can_move_at(t_pos)]
+            valid_targets = {t_pos for t_pos in test_targets if self._can_move_at(t_pos)}
         return valid_targets
 
     def _collect_movement_info(self):
@@ -68,10 +68,10 @@ class MovementAbility(AbilityBase):
         pathwithself = [self._owning_component.owner.pos] + self.selected_targets
         if len(pathwithself) <= self.moverange:
             pos = pathwithself[-1]
-            for neighbor in self.get_valid_targets():
+            for neighbor in self._get_valid_targets():
                 delta = (neighbor[0] - pos[0], neighbor[1] - pos[1])
                 coordwithpreviewid = (neighbor, PREVIEWS[delta])
-                self.area_of_effect.append(coordwithpreviewid)
+                self.area_of_effect.add(coordwithpreviewid)
 
     def _update_path_display(self):
         """Display the new path using proximity textures."""
@@ -88,9 +88,9 @@ class MovementAbility(AbilityBase):
                 prevdelta = (curr[0] - prev[0], curr[1] - prev[1])
                 nextdelta = (next[0] - curr[0], next[1] - curr[1])
                 currentwithpreview = (curr, PREVIEWS[(*nextdelta, *prevdelta)])
-                self.area_of_effect.append(currentwithpreview)
-            self.area_of_effect.append(first)
-            self.area_of_effect.append(last)
+                self.area_of_effect.add(currentwithpreview)
+            self.area_of_effect.add(first)
+            self.area_of_effect.add(last)
         self._collect_movement_info()
 
     def _add_to_movement(self, target:"tuple[int,int]"):
@@ -110,10 +110,9 @@ class MovementAbility(AbilityBase):
     def on_deselect_ability(self):
         self.selected = False
         if self.primed:
-            for x in reversed(self.area_of_effect[:]):
-                if x[1] == PREVIEWS[1]:
-                    return
-                else:
-                    self.area_of_effect.remove(x)
+            valid_preview_lambda = lambda p: False if p[1] in {PREVIEWS[i] for i in range(3,7)} else True
+            self.area_of_effect = {x for x in filter(valid_preview_lambda, self.area_of_effect)}
         else:
             self.reset()
+    
+

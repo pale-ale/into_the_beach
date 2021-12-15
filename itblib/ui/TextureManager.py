@@ -44,8 +44,9 @@ class Textures:
         ("Lava", "Default", 1),
         ("Rock", "Default", 1),
     ]
-    for p in PREVIEWS.values():
-        texturekeys.append((p, 1))
+    for p in PREVIEWS.keys():
+        if p != -1:
+            texturekeys.append((PREVIEWS[p], 1))
     for p in abilitytexturemapping.values():
         texturekeys.append((p,))
     for p in backgroundtexturemapping.values():

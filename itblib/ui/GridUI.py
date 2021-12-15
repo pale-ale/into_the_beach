@@ -47,6 +47,8 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
         # self.post_blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
      
     def on_change_phase(self, phase: int):
+        if phase == 2:
+            self._add_get_clear_blit()
         if self.phase_change_callback:
             self.phase_change_callback(phase)
 
@@ -59,10 +61,9 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
             self.add_gridui_element(ui_tile)
     
     def update_pan(self, newpan:"tuple[int,int]"):
-        s = pygame.Surface(self.board_size)
-        s.fill((0))
-        self.blits.append((s, s.get_rect().move(self.pan),s.get_rect()))
+        self._add_get_clear_blit()
         self.pan = newpan
+        self.tfc.relative_position = newpan
     
     def add_gridui_element(self, elem:GridElementUI):
         elem_tfc:TransformComponent = elem.get_component(TransformComponent)
@@ -148,13 +149,9 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
         )
 
     def transform_grid_screen(self, gridpos:"tuple[int,int]"):
-        """Return the screen position of a given grid coordinate."""
+        """Return the screen position of a given grid coordinate (i.e. applies camera pan)."""
         gw = self.transform_grid_world(gridpos)
         return add((int(gw[0] + (self.width-self.tile_size[0])/2), gw[1]+5), self.pan)
-
-    def apply_pan(self, b:"Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]") -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
-        for s,g,l in b:
-            yield (s,g.move(self.pan), l)
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         grid_element:"GridElementUI|None"
@@ -169,3 +166,8 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
         for grid_element in self.ui_units:
             if grid_element:
                 yield from grid_element.get_blits()
+    
+    def _add_get_clear_blit(self):
+        s = pygame.Surface(self.board_size)
+        s.fill((0))
+        self.blits.append((s, s.get_rect().move(self.pan),s.get_rect()))

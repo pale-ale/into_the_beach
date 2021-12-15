@@ -19,7 +19,7 @@ from itblib.ui.hud.UnitDisplay import UnitDisplay
 from itblib.ui.PerfSprite import PerfSprite
 from itblib.ui.TextureManager import Textures
 from itblib.Vec import add
-
+from itblib.ui.hud.AbilityPreviewDisplay import AbilityPreviewDisplay
 
 class Hud(PerfSprite, InputAcceptor):
     """The HUD is used to display most information, like HP, abilities, etc."""
@@ -40,6 +40,7 @@ class Hud(PerfSprite, InputAcceptor):
         self.displayscale = 2
         self.unitdisplay = UnitDisplay()
         self.tiledisplay = TileDisplay()
+        self.ability_preview_display = AbilityPreviewDisplay(gridui)
         self.unitdisplay.rect.topleft = (self.rect.width - HUD.ELEM_WIDTH, 0) 
         self.tiledisplay.rect.topleft = (0, 0)
         # other info
@@ -108,16 +109,10 @@ class Hud(PerfSprite, InputAcceptor):
     
     def get_unit_ability_preview_blits(self):
         """Retrieve ability previews blits of a unit, e.g. movement and targeting info."""
-        if self.selected_unitui:
-            unit = self.selected_unitui._parentelement
-            for ability in unit.ability_component._abilities:
-                for previewinfo in ability.area_of_effect:
-                    pos, preview_name = previewinfo
-                    yield (
-                        Textures.textures[preview_name][0], 
-                        pygame.Rect(*self.gridui.transform_grid_screen(pos),64,64), 
-                        pygame.Rect(0,0,64,64)
-                    )
+        for unit in self.gridui.grid.units:
+            if unit:
+                self.ability_preview_display.unit = unit
+                yield from self.ability_preview_display.get_blits()
     
     def get_phase_timer_blit(self):
         maxphasetime = PHASES[self.gridui.grid.phase][1]

@@ -77,3 +77,4 @@ class AbilityComponent(ComponentBase, Serializable):
         for ability in self._abilities:
             if ability.selected:
                 ability.confirm_target(target)
+                return
