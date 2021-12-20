@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from itblib.globals.Constants import PHASES
 from itblib.gridelements.GridElement import GridElement
 from itblib.Serializable import Serializable
 if TYPE_CHECKING:
@@ -17,6 +18,13 @@ class EffectBase(GridElement, Serializable):
 class EffectFire(EffectBase):
     def __init__(self, grid, pos:"tuple[int,int]", age=0.0, done=True, name="Fire"):
         super().__init__(grid, pos, age, done, name)
+    
+    def on_update_phase(self, new_phase: int):
+        super().on_update_phase(new_phase)
+        if new_phase == PHASES.BATTLEPHASE:
+            unit = self.grid.get_unit(self.pos)
+            if unit:
+                unit.change_hp(-1, "physical")
 
 
 class EffectMountain(EffectBase):

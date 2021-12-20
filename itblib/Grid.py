@@ -195,9 +195,15 @@ class Grid(Serializable):
         self.phasetime = 0
         if self.observer:
             self.observer.on_change_phase(phase)
-        for unit in self.units:
-            if unit:
-                unit.ability_component.on_update_abilities_phases(self.phase)
+        for element in self.tiles:
+            if element:
+                element.on_update_phase(self.phase)
+        for element in self.units:
+            if element:
+                element.on_update_phase(self.phase)
+        for elements in self.worldeffects:
+            for element in elements:
+                element.on_update_phase(self.phase)
 
     def advance_phase(self) -> None:
         """Advance phase cycle by one, starting from the planning phase once the end is reached."""

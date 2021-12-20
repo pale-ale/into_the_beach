@@ -20,9 +20,6 @@ class TileBase(GridElement, Serializable, ABC):
     def on_enter(self, unit:"UnitBase"):
         pass
 
-    def on_damage(self, damage:int):
-        pass
-
 
 class TileDirt(TileBase):
     def __init__(self, grid: "Grid", pos: "tuple[int,int]", age=0, done=True, name="Dirt"):

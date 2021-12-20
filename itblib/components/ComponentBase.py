@@ -12,6 +12,7 @@ class ComponentBase(abc.ABC):
         self.owner:ComponentAcceptor = None
 
     def attach_component(self, target:"ComponentAcceptor"):
+        """Add the Component to a ComponentAcceptor."""
         if not target:
             log("Tried to attach component to None.", 2)
             return
@@ -20,6 +21,7 @@ class ComponentBase(abc.ABC):
         self.owner.components.append(self)
 
     def detach_component(self):
+        """Remove the Component from a CompnentAcceptor."""
         if not self.owner:
             log("Tried to dettach component which was already detached.", 2)
             return
@@ -28,11 +30,17 @@ class ComponentBase(abc.ABC):
         self.owner = None
 
     def on_attach_component(self, target:"ComponentAcceptor"):
-        pass
-    def on_detach_component(self):
-        pass
-    def on_initialize_component(self):
-        pass
-    def on_destroy_component(self):
+        """Setup method for convenience"""
         pass
     
+    def on_detach_component(self):
+        """Teardown method for convenience"""
+        pass
+    
+    def on_initialize_component(self):
+        """Setup method for convenience"""
+        pass
+    
+    def on_destroy_component(self):
+        """Teardown method for convenience"""
+        pass

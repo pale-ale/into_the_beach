@@ -54,6 +54,7 @@ class GameScene(SceneBase):
         self.gridui.update(delta_time)
         self.hud.update(delta_time)
     
+
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield from self.blits
         self.blits.clear()

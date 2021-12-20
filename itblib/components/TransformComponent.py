@@ -28,6 +28,8 @@ class TransformComponent(ComponentBase):
         return True
 
     def get_position(self) -> tuple[int, int]:
+        """Get the global position of the object.
+        @return: The global position, calculated by adding every transform parent's local offset"""
         pos = self.relative_position
         if self.parent_transform_component:
             pos:tuple[int,int] = add(pos, self.parent_transform_component.get_position())

@@ -7,6 +7,8 @@ if TYPE_CHECKING:
 
 
 class AbilityComponent(ComponentBase, Serializable):
+    """
+    Adds ability behaviour to a ComponentAcceptor. Contains the Abilities and various hooks to trigger for them."""
     def __init__(self, abilities: "list[Type[AbilityBase]]" = []) -> None:
         ComponentBase.__init__(self)
         Serializable.__init__(self, ["_abilities"])
@@ -41,7 +43,8 @@ class AbilityComponent(ComponentBase, Serializable):
                 print("Removed ability:", ability)
                 self._abilities.remove(ability)
 
-    def get_ability(self, ability_class: "Type[AbilityBase]") -> "AbilityBase":
+    def get_ability(self, ability_class: "Type[AbilityBase]") -> "AbilityBase|None":
+        """Return the first ability of type ability_class, or None if none exists."""
         for ability in self._abilities:
             if type(ability) == ability_class:
                 return ability
@@ -54,6 +57,7 @@ class AbilityComponent(ComponentBase, Serializable):
                 ability.on_select_ability()
 
     def on_update_abilities_phases(self, newphase: int):
+        """Called when a phase change occured."""
         for ability in self._abilities:
             ability.on_update_phase(newphase)
 

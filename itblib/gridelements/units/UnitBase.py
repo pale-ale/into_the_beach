@@ -75,10 +75,11 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor):
         """Return the MovementAbility of this unit or None if it doesn't have one."""
         return self.ability_component.get_ability(MovementAbility)
     
-    def on_update_statuseffect_phases(self, newphase:int):
-        """Propagate a phase change to this unit's status effects."""
+    def on_update_phase(self, new_phase: int):
+        super().on_update_phase(new_phase)
         for statuseffect in self.statuseffects:
-            statuseffect.on_update_phase(newphase)
+            statuseffect.on_update_phase(new_phase)
+        self.ability_component.on_update_abilities_phases(new_phase)
     
     def on_death(self):
         """Called when this unit's hitpoints are reduced to <= 0"""
