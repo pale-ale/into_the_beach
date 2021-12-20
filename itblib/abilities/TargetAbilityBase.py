@@ -21,8 +21,8 @@ class TargetAbilityBase(AbilityBase):
 
     def on_trigger(self):
         super().on_trigger()
-        for target in self.selected_targets:
-            self.apply_to_target(target)
+        [self.apply_to_target(target) for target in self.selected_targets if self._is_valid_target(target)]
+            
 
     def set_targets(self, targets:"list[tuple[int,int]]"):
         super().set_targets(targets)
@@ -30,5 +30,6 @@ class TargetAbilityBase(AbilityBase):
         self.on_deselect_ability()
 
     def confirm_target(self, target:"tuple[int,int]"):
-        self.set_targets([target])
-        super().confirm_target(target)
+        if self._is_valid_target(target):
+            self.set_targets([target])
+            super().confirm_target(target)
