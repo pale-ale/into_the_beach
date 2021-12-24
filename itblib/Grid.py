@@ -64,10 +64,14 @@ class Grid(Serializable):
         new_x, new_y = data["size"]
         new_count:int = new_x * new_y
         new_tiles:"list[TileBase|None]" = [None]*new_count
+        new_units:"list[UnitBase|None]" = [None]*new_count
         old_tiles = self.tiles
+        old_units = self.units
         self.tiles = new_tiles
+        self.units = new_units
         self.remake_grid(new_x, new_y)
         self.size = (new_x, new_y)
+
         for i in range(len(data["tiles"])):
             tiledata = data["tiles"][i]
             if tiledata:
@@ -81,19 +85,24 @@ class Grid(Serializable):
                         pos, 
                         TILE_IDS.index(tiledata["name"])
                     )
+
         for i in range(len(data["units"])):
             unitdata = data["units"][i]
             if unitdata:
                 name = unitdata["name"]
                 if name != "None":
                     unittype =  GridElementFactory.find_unit_class(unitdata["name"])
-                    if unittype:
-                        unit = self.add_unit(
+                    pos = self.i_to_c(i)
+                    existing_unit = old_units[i]
+                    if isinstance(existing_unit, unittype):
+                        self.units[i] = old_units[i]
+                        self.units[i].insert_data(unitdata)
+                    elif unittype:
+                        self.add_unit(
                             self.i_to_c(i), 
                             UNIT_IDS.index(unitdata["name"]), 
                             unitdata["ownerid"]
-                        )
-                        unit.insert_data(unitdata)
+                        ).insert_data(unitdata)
         self._insert_effect_data(data)
 
     def _insert_effect_data(self, effect_data):

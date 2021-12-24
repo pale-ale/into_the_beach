@@ -51,4 +51,10 @@ class MultiSprite(PerfSprite):
     
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield from self.blits
+
+    def set_textures(self, textures:"list[pygame.Surface]"):
+        self._textures = textures
+        self.framenumber = 0
+        self.animtime = 0
+        self.set_frame(0)
     

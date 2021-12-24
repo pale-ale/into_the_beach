@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, Generator
 
 import pygame
-from itblib.components.ComponentAcceptor import ComponentAcceptor
 from itblib.components.TransformComponent import TransformComponent
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
-from itblib.gridelements.units.UnitBase import UnitBase
+from itblib.gridelements.Effects import EffectBurrowed, StatusEffect
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.HealthBar import HealthBar
+from itblib.ui.TextureManager import Textures
 from itblib.ui.hud.OwnerColorRhombus import OwnerColorRhombus
 from itblib.ui.IDisplayable import IDisplayable
 from itblib.Vec import add, smult, sub
@@ -14,10 +14,10 @@ from itblib.Vec import add, smult, sub
 from .GridElementUI import GridElementUI
 
 if TYPE_CHECKING:
-    from itblib.ui.GridUI import GridUI
+    from itblib.gridelements.units.UnitBase import UnitBase
 
 class UnitBaseUI(GridElementUI, IDisplayable):
-    def __init__(self, unit:UnitBase, global_transform:pygame.Rect):
+    def __init__(self, unit:"UnitBase", global_transform:pygame.Rect):
         GridElementUI.__init__(self, parentelement=unit, global_transform=global_transform, direction="SW", framespeed=.5)
         self._tfc = self.get_component(TransformComponent)
         if self._tfc:
@@ -35,6 +35,7 @@ class UnitBaseUI(GridElementUI, IDisplayable):
         self.healthbar.tfc.relative_position = (0,15)
         self.owner_color_rhombus = OwnerColorRhombus(NetEvents.session._players[self._parentelement.ownerid].color)
         self.owner_color_rhombus.attach_to_unit(self)
+        self._parentelement.observer = self
     
     def set_interp_movement(self, fromscreenpos:"tuple[int,int]", toscreenpos:"tuple[int,int]", speed:float):
         self.fromscreenpos = fromscreenpos
@@ -69,8 +70,29 @@ class UnitBaseUI(GridElementUI, IDisplayable):
         yield from super().get_blits()
         yield from self.healthbar.get_blits()
 
+    def on_add_statuseffect(effect:StatusEffect):
+        pass
+    
+    def on_remove_statuseffect(effect:StatusEffect):
+        pass
+
 
 class UnitKnightUI(UnitBaseUI):
     def get_display_name(self) -> str:
         return "Knight"
+
+
+class UnitBurrowerUI(UnitBaseUI):
+    def get_display_name(self) -> str:
+        return "Burrower"
     
+    def on_add_statuseffect(self, effect: "StatusEffect"):
+        if isinstance(effect, EffectBurrowed):
+            self.set_textures(Textures.get_spritesheet("BurrowerSWBurrowed"))
+            self.frametime = .15
+   
+    def on_remove_statuseffect(self, effect: "StatusEffect"):
+        print("oyy")
+        if isinstance(effect, EffectBurrowed):
+            self.set_textures(Textures.get_spritesheet("BurrowerSWIdle"))
+            self.frametime = .5

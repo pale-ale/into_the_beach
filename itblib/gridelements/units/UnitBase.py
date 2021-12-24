@@ -6,6 +6,7 @@ from itblib.gridelements.GridElement import GridElement
 from itblib.gridelements.Effects import EffectBurrowed, EffectBleeding
 from itblib.components.ComponentAcceptor import ComponentAcceptor
 from itblib.abilities.MovementAbility import MovementAbility
+from itblib.gridelements.UnitsUI import UnitBaseUI
 
 if TYPE_CHECKING:
     from itblib.Grid import Grid
@@ -27,6 +28,7 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor):
         self.canswim = canswim
         self.ownerid = ownerid
         self.orientation = "sw"
+        self.observer:UnitBaseUI = None
     
     def extract_data(self, custom_fields: "dict[str,any]" = ...) -> dict:
         customstatuseffects = [x.extract_data() for x in self.statuseffects]
@@ -36,7 +38,7 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor):
         Serializable.insert_data(self, data, exclude=["statuseffects", "ability_component", "_hitpoints"])
         for effectdata in data["statuseffects"]:
             for effectclass in [EffectBurrowed, EffectBleeding]:
-                if effectclass.__name__ == "Effect" + effectdata["name"]:
+                if effectclass.__name__ == "Effect" + effectdata["name"] and self.get_statuseffect(effectdata["name"]) is None:
                     self.add_statuseffect(effectclass(self))
         self.ability_component.insert_data(data["ability_component"])
         self.set_hp(data["_hitpoints"])
@@ -44,6 +46,8 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor):
     def add_statuseffect(self, statuseffect:"StatusEffect"):
         """Add a status effect."""
         self.statuseffects.append(statuseffect)
+        if self.observer:
+            self.observer.on_add_statuseffect(statuseffect)
     
     def remove_statuseffect(self, statuseffect:"StatusEffect"):
         """Remove a status effect."""
@@ -51,6 +55,8 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor):
             if se == statuseffect:
                 se.on_purge()
                 self.statuseffects.remove(se)
+                if self.observer:
+                    self.observer.on_remove_statuseffect(statuseffect)
                 return
     
     def get_statuseffect(self, name:str) -> "StatusEffect|None":

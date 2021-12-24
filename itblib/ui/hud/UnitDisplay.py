@@ -36,35 +36,7 @@ class UnitDisplay(PerfSprite):
         self.image.fill((0))
         self.displayunit:UnitBaseUI = None
         self.set_displayunit(None)
-        self.draw_border()
-
-    def draw_border(self):
-        pygame.draw.rect(
-            self.image, 
-            HUD.IMAGE_BORDER_COLOR, 
-            (
-                UnitDisplay.SIZE[0] - UnitDisplay.IMAGE_SIZE_BORDER[0],
-                0,
-                UnitDisplay.IMAGE_SIZE_BORDER[0] - HUD.IMAGE_BORDER_WIDTH/2,
-                UnitDisplay.IMAGE_SIZE_BORDER[1] - HUD.IMAGE_BORDER_WIDTH/2,
-            ), 
-            HUD.IMAGE_BORDER_WIDTH)
-    
-    def _draw_layout(self):
-        self.image.fill(self.defaultimagecolor, (*self.imagepos, *STANDARD_UNIT_SIZE))
-        self.image.fill(self.defaulttextboxcolor, (*self.titlepos,        *UnitDisplay.LABEL_SIZE))
-        self.image.fill(self.defaulttextboxcolor, (*self.abilityimagepos, *UnitDisplay.LABEL_SIZE))
-        self.image.fill(self.defaulttextboxcolor, (*self.abilityphasepos, *UnitDisplay.LABEL_SIZE))
-        self.image.fill(self.defaulttextboxcolor, (*self.statuseffectpos, *UnitDisplay.LABEL_SIZE))
-        pygame.draw.line(
-            self.image, HUD.IMAGE_BORDER_COLOR, add(self.abilityimagepos,(0,-1)), 
-            add(self.abilityimagepos,(UnitDisplay.LABEL_SIZE[0],-1)))
-        pygame.draw.line(
-            self.image, HUD.IMAGE_BORDER_COLOR, add(self.abilityphasepos,(0,-1)), 
-            add(self.abilityphasepos,(UnitDisplay.LABEL_SIZE[0],-1)))
-        pygame.draw.line(
-            self.image, BLACK, add(self.statuseffectpos, (0,-2)), 
-            add(self.statuseffectpos,(UnitDisplay.LABEL_SIZE[0],-2)), 2)
+        self._draw_border()
 
     def set_displayunit(self, unit:UnitBaseUI):
         """Set the new unit to display."""
@@ -136,3 +108,31 @@ class UnitDisplay(PerfSprite):
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield (self.image, self.rect, self.image.get_rect())
+    
+    def _draw_border(self):
+        pygame.draw.rect(
+            self.image, 
+            HUD.IMAGE_BORDER_COLOR, 
+            (
+                UnitDisplay.SIZE[0] - UnitDisplay.IMAGE_SIZE_BORDER[0],
+                0,
+                UnitDisplay.IMAGE_SIZE_BORDER[0] - HUD.IMAGE_BORDER_WIDTH/2,
+                UnitDisplay.IMAGE_SIZE_BORDER[1] - HUD.IMAGE_BORDER_WIDTH/2,
+            ), 
+            HUD.IMAGE_BORDER_WIDTH)
+    
+    def _draw_layout(self):
+        self.image.fill(self.defaultimagecolor, (*self.imagepos, *STANDARD_UNIT_SIZE))
+        self.image.fill(self.defaulttextboxcolor, (*self.titlepos,        *UnitDisplay.LABEL_SIZE))
+        self.image.fill(self.defaulttextboxcolor, (*self.abilityimagepos, *UnitDisplay.LABEL_SIZE))
+        self.image.fill(self.defaulttextboxcolor, (*self.abilityphasepos, *UnitDisplay.LABEL_SIZE))
+        self.image.fill(self.defaulttextboxcolor, (*self.statuseffectpos, *UnitDisplay.LABEL_SIZE))
+        pygame.draw.line(
+            self.image, HUD.IMAGE_BORDER_COLOR, add(self.abilityimagepos,(0,-1)), 
+            add(self.abilityimagepos,(UnitDisplay.LABEL_SIZE[0],-1)))
+        pygame.draw.line(
+            self.image, HUD.IMAGE_BORDER_COLOR, add(self.abilityphasepos,(0,-1)), 
+            add(self.abilityphasepos,(UnitDisplay.LABEL_SIZE[0],-1)))
+        pygame.draw.line(
+            self.image, BLACK, add(self.statuseffectpos, (0,-2)), 
+            add(self.statuseffectpos,(UnitDisplay.LABEL_SIZE[0],-2)), 2)

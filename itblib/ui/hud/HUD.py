@@ -53,6 +53,7 @@ class Hud(PerfSprite, InputAcceptor):
     def update_phase(self, newphase:int):
         if newphase == 1:
             self.selected_unitui = None
+            self.unitdisplay.set_displayunit(self.gridui.get_unitui(self.cursorgridpos))
     
     def handle_key_event(self, event) -> bool:
         if event.type == pygame.KEYDOWN:
