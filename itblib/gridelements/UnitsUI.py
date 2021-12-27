@@ -17,11 +17,11 @@ if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
 class UnitBaseUI(GridElementUI, IDisplayable):
-    def __init__(self, unit:"UnitBase", global_transform:pygame.Rect):
-        GridElementUI.__init__(self, parentelement=unit, global_transform=global_transform, direction="SW", framespeed=.5)
+    def __init__(self, unit:"UnitBase", relative_position:tuple[int,int]):
+        GridElementUI.__init__(self, parentelement=unit, global_transform=(0,0,*STANDARD_UNIT_SIZE), direction="SW", framespeed=.5)
         self._tfc = self.get_component(TransformComponent)
         if self._tfc:
-            self._tfc.relative_position = global_transform.center
+            self._tfc.relative_position = relative_position
         self._parentelement:"UnitBase"
         self.fromscreenpos = None
         self.toscreenpos = None
@@ -32,9 +32,11 @@ class UnitBaseUI(GridElementUI, IDisplayable):
         self.old_frame = self.framenumber
         self.healthbar = HealthBar(self._parentelement)
         self.healthbar.tfc.set_transform_target(self)
-        self.healthbar.tfc.relative_position = (0,15)
-        self.owner_color_rhombus = OwnerColorRhombus(NetEvents.session._players[self._parentelement.ownerid].color)
-        self.owner_color_rhombus.attach_to_unit(self)
+        self.healthbar.tfc.relative_position = (STANDARD_UNIT_SIZE[0]/2,STANDARD_UNIT_SIZE[1]*.8)
+        self.owner_color_rhombus = None
+        if NetEvents.session:
+            self.owner_color_rhombus = OwnerColorRhombus(NetEvents.session._players[self._parentelement.ownerid].color)
+            self.owner_color_rhombus.attach_to_unit(self)
         self._parentelement.observer = self
     
     def set_interp_movement(self, fromscreenpos:"tuple[int,int]", toscreenpos:"tuple[int,int]", speed:float):
@@ -66,7 +68,9 @@ class UnitBaseUI(GridElementUI, IDisplayable):
         return "Another long description ------ weee------"
   
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
-        yield from self.owner_color_rhombus.get_blits()
+        self.global_transform = pygame.Rect(self._tfc.get_position(), STANDARD_UNIT_SIZE)
+        if self.owner_color_rhombus:
+            yield from self.owner_color_rhombus.get_blits()
         yield from super().get_blits()
         yield from self.healthbar.get_blits()
 

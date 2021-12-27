@@ -32,10 +32,10 @@ class AbilityBase(Serializable, InputAcceptor, ABC):
         self.area_of_effect:"set[tuple[tuple[int,int],str]]" = set()
         self.selected_targets:"list[tuple[int,int]]" = []
         self.remainingcooldown = 0
-        self._owning_component.targeting_ability = True
     
     def get_owner(self) -> "UnitBase|None":
-        return self._owning_component.owner
+        if self._owning_component:
+            return self._owning_component.owner
     
     def tick(self, dt:float):
         """Made to be overridden."""

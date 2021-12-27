@@ -55,11 +55,12 @@ class UnitDisplay(PerfSprite):
     def update(self, dt):
         self.image.fill(self.defaultimagecolor, (*self.imagepos, *STANDARD_UNIT_SIZE))
         if self.displayunit:
-            tfc:TransformComponent = self.displayunit.get_component(TransformComponent)
-            unit_pos = add(tfc.get_position(), smult(-.5, STANDARD_UNIT_SIZE))
-            self.image.blits(
-                [(s,  pygame.Rect(add(sub(g.topleft,unit_pos), self.imagepos), STANDARD_UNIT_SIZE) , l) for s,g,l in self.displayunit.get_blits()]
-            )
+            tfc = self.displayunit.get_component(TransformComponent)
+            if tfc:
+                unit_pos = tfc.get_position()
+                self.image.blits(
+                    [(s,  pygame.Rect(add(sub(g.topleft,unit_pos), self.imagepos), STANDARD_UNIT_SIZE) , l) for s,g,l in self.displayunit.get_blits()]
+                )
     
     def display_statuseffects(self, unit:UnitBase):
         self.image.fill((0), (0,100,200,16))

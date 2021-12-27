@@ -95,5 +95,6 @@ UNIT_IDS = [
     "BloodWraith", 
     "Homebase", 
     "Knight", 
-    "Burrower"
+    "Burrower",
+    "SirenHead"
 ]

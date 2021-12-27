@@ -33,6 +33,8 @@ class NetEvents():
         """Called when a unit spawn event was received. Server and Client."""
         unitspawntuple = json.loads(unitspawntuplestr)
         unitid, pos, ownerid = unitspawntuple
+        #convert pos from list to tuple
+        pos = tuple(pos)
         if NetEvents.connector.authority:
             #check whether this request is fulfillable, if not: return
             if NetEvents.grid.is_space_empty(False, pos):

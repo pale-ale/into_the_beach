@@ -1,8 +1,11 @@
 from typing import TYPE_CHECKING, Generator
+
 import pygame
 from itblib.components.ComponentAcceptor import ComponentAcceptor
-from itblib.ui.PerfSprite import PerfSprite
 from itblib.components.TransformComponent import TransformComponent
+from itblib.globals.Constants import STANDARD_UNIT_SIZE
+from itblib.ui.PerfSprite import PerfSprite
+
 if TYPE_CHECKING:
     from itblib.gridelements.UnitsUI import UnitBaseUI
 
@@ -27,7 +30,7 @@ class OwnerColorRhombus(ComponentAcceptor, PerfSprite):
         self._image = pygame.Surface(self._unit_owner_square_size).convert_alpha()
         self._image.fill(0)
         self._draw_lines()
-        self._tc.relative_position = (-24, -9)
+        self._tc.relative_position = ((STANDARD_UNIT_SIZE[0]-x)/2,(STANDARD_UNIT_SIZE[1]-y)-8)
 
     def attach_to_unit(self, unit:"UnitBaseUI"):
         self._unit = unit

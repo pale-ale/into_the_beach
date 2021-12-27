@@ -45,3 +45,8 @@ class UnitKnight(UnitBase):
 class UnitBurrower(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="Burrower"):
         super().__init__(grid, pos, ownerid, name=name, abilities=[BurrowAbility, MovementAbility, PunchAbility])
+
+
+class UnitSirenHead(UnitBase):
+    def __init__(self, grid, pos, ownerid, name:str="SirenHead"):
+        super().__init__(grid, pos, ownerid, name=name, abilities=[MovementAbility, PunchAbility])

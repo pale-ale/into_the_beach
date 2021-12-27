@@ -118,8 +118,8 @@ class TestGridMethods(unittest.TestCase):
         pos2 = [0,0]
         ordinals1 = [(1,1),(1,3),(0,2),(2,2)]
         ordinals2 = [(0,1),(1,0)]
-        self.assertCountEqual(ordinals1,self.grid.get_ordinal_neighbors(pos1))
-        self.assertCountEqual(ordinals2,self.grid.get_ordinal_neighbors(pos2))
+        self.assertCountEqual(ordinals1,self.grid.get_neighbors(pos1))
+        self.assertCountEqual(ordinals2,self.grid.get_neighbors(pos2))
 
 
 class TestUnitBaseMethods(unittest.TestCase):

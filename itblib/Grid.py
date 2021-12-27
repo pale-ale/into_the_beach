@@ -4,12 +4,12 @@ from itblib.gridelements.Effects import EffectBase
 from itblib.gridelements.GridElement import GridElement
 from itblib.gridelements.Tiles import TileBase
 from itblib.gridelements.units.UnitBase import UnitBase
+from itblib.Log import log
 from itblib.Maps import Map
 from itblib.net.Connector import Connector
 from itblib.net.NetEvents import NetEvents
 from itblib.Serializable import Serializable
-
-from .ui.IGridObserver import IGridObserver
+from itblib.ui.IGridObserver import IGridObserver
 
 
 class Grid(Serializable):
@@ -17,8 +17,6 @@ class Grid(Serializable):
 
     def __init__(self, connector:Connector, observer:"IGridObserver|None"=None, width:int=10, height:int=10):
         super().__init__(["size", "phasetime", "tiles", "units", "worldeffects"])
-        self.remake_grid(width, height)
-        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
         self.phasetime = 0
         self.gametime = 0
         self.connector = connector
@@ -26,6 +24,8 @@ class Grid(Serializable):
         self.pregametime = 10
         self.observer = observer
         self.phase = 0
+        self.remake_grid(width, height)
+        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
     
     def remake_grid(self, width, height) -> None:
         """Empty the grid lists and create new ones with the given dimensions."""
@@ -33,6 +33,8 @@ class Grid(Serializable):
         c = width * height
         self.tiles:"list[TileBase|None]" = [None]*c
         self.units:"list[UnitBase|None]" = [None]*c
+        if self.observer:
+            self.observer.on_remake_grid()
         #self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(c)]
     
     def extract_data(self) -> dict:
@@ -222,8 +224,6 @@ class Grid(Serializable):
 
     def load_map(self, map:Map, from_authority:bool) -> None:
         """Load a map, spawning all the required units, tiles, etc.."""
-        if self.observer:
-            self.observer.on_load_map(map)
         self.remake_grid(map.width, map.height)
         for pos, tileid, tileeffectids, unitid in map.iterate_tiles():
             if tileid:
@@ -237,7 +237,7 @@ class Grid(Serializable):
     def add_gridelement(self, pos:"tuple[int,int]", gridelement:GridElement) -> "TileBase|UnitBase|EffectBase|None":
         """Helper to add an object at pos to the grid."""
         if not self.is_coord_in_bounds(pos):
-            print("Grid: Tried to add element at", pos, "which is not on the grid.")
+            log("Grid: Tried to add element at", pos, "which is not on the grid.", 2)
             return None
         index = self.c_to_i(pos)
         if isinstance(gridelement, TileBase):
@@ -273,7 +273,7 @@ class Grid(Serializable):
         """Add a unit to the grid at given position, owned by ownerid."""
         unittype:UnitBase = GridElementFactory.find_unit_class(UNIT_IDS[unitid])
         newunit:UnitBase = unittype(self, pos, ownerid)
-        return self.add_gridelement(pos, newunit) 
+        return self.add_gridelement(pos, newunit)
 
     def request_add_unit(self, pos:"tuple[int,int]", unitid:int, playerid:int) -> None:
         """Request a unit with unitid to be spawned at (x,y), owned by a playerid."""
@@ -287,18 +287,18 @@ class Grid(Serializable):
         units = rmflags & 0b010
         effects = rmflags & 0b001
         if not self.is_coord_in_bounds(pos):
-            print("Grid: Tried to remove element at", pos, "which is not on the grid.")
+            log("Grid: Tried to remove element at", pos, "which is not on the grid.", 2)
             return False
         if tiles and self.is_space_empty(True, pos):
-            print("Grid: Tried to remove tile at", pos, "which is empty.")
+            log("Grid: Tried to remove tile at", pos, "which is empty.", 2)
             return False
         if units and self.is_space_empty(False, pos):
-            print("Grid: Tried to remove unit at", pos, "which is empty.")
+            log("Grid: Tried to remove unit at", pos, "which is empty.", 2)
             return False
         index = self.c_to_i(pos)
         if effects:
             if effect not in self.worldeffects[index]:
-                print("Grid: Tried to remove effect", effect, "at", pos, "which is does not exist.")
+                log("Grid: Tried to remove effect", effect, "at", pos, "which is does not exist.", 2)
                 return False
 
         if tiles:
@@ -378,14 +378,17 @@ class Grid(Serializable):
         return self.is_coord_in_bounds(pos) and \
             not (self.tiles if tiles else self.units)[self.c_to_i(pos)]
 
-    def get_ordinal_neighbors(self, pos:"tuple[int,int]") -> "list[tuple[int,int]]":
+    def get_neighbors(self, pos:"tuple[int,int]", ordinal=True, cardinal=False) -> "list[tuple[int,int]]":
         """Returns the coordinates of neighboring tiles when inside bounds."""
         x,y = pos
-        up = (x-1,y)
-        right = (x,y+1)
-        down = (x+1,y)
-        left = (x,y-1)
-        return [n for n in (up, right, down, left) if self.is_coord_in_bounds(n)]
+        tiles_to_check = set()
+        ordinals = {(x-1,y), (x,y+1), (x+1,y), (x,y-1)}
+        cardinals = {(x-1,y-1), (x-1,y+1), (x+1,y+1), (x+1,y-1)}
+        if ordinal:
+            tiles_to_check.update(ordinals)
+        if cardinal:
+            tiles_to_check.update(cardinals)
+        return [n for n in tiles_to_check if self.is_coord_in_bounds(n)]
 
     def tick(self, dt:float) -> None:
         """Ticks the game, updating phases, movement and other things."""

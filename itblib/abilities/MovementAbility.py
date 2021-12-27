@@ -59,7 +59,7 @@ class MovementAbility(AbilityBase):
         valid_targets = set()
         if owner:
             pathwithself = [owner.pos] + self.selected_targets
-            test_targets = owner.grid.get_ordinal_neighbors(pathwithself[-1])
+            test_targets = owner.grid.get_neighbors(pathwithself[-1])
             valid_targets = {t_pos for t_pos in test_targets if self._can_move_at(t_pos)}
         return valid_targets
 
@@ -76,7 +76,7 @@ class MovementAbility(AbilityBase):
     def _update_path_display(self):
         """Display the new path using proximity textures."""
         self.area_of_effect.clear()
-        pathwithself = [self._owning_component.owner.pos]
+        pathwithself:list[tuple[int,int]] = [self._owning_component.owner.pos]
         pathwithself.extend(self.selected_targets)
         if len(pathwithself) > 1:
             first = (pathwithself[0], PREVIEWS[1])
@@ -95,7 +95,7 @@ class MovementAbility(AbilityBase):
 
     def _add_to_movement(self, target:"tuple[int,int]"):
         """Add a "step" to the path we want to take."""
-        pathwithself = [self._owning_component.owner.pos]
+        pathwithself:list[tuple[int,int]] = [self._owning_component.owner.pos]
         pathwithself.extend(self.selected_targets)
         if target != pathwithself[-1]:
             new_targets = self.selected_targets + [target]

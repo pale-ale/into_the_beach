@@ -25,7 +25,7 @@ class EffectRiverUI(EffectBaseUI):
     def update(self, delta_time:float):
         grid = self._parentelement.grid
         pos = self._parentelement.pos
-        neighborposs = grid.get_ordinal_neighbors(pos)
+        neighborposs = grid.get_neighbors(pos)
         riverposs = []
         for test_pos in neighborposs: 
             for effect in grid.get_worldeffects(test_pos):

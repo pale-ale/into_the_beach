@@ -40,11 +40,12 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
         self.ui_units:"list[UnitBaseUI|None]" = [None]*grid.size[0]*grid.size[1]
         self.ui_unit_effects:"list[list[EffectBaseUI]]" = [[] for i in range(grid.size[0]*grid.size[1])]
         self.unit_draw_offset = (0,-10)
-        self.pan = (96,0)
+        self.pan = (0,0)
         self.phase_change_callback = None
         self.blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
         # self.mid_blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
         # self.post_blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
+        self._dbgsurf = None
      
     def on_change_phase(self, phase: int):
         if phase == 2:
@@ -74,7 +75,10 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
         """Add the UI version of the new unit added to the normal grid."""
         ui_unit_class = GridElementUIFactory.find_unit_class(type(unit).__name__ + "UI")
         if ui_unit_class:   
-            ui_unit = ui_unit_class(unit, pygame.Rect(*add(self.unit_draw_offset, self.transform_grid_screen(unit.pos)), *STANDARD_UNIT_SIZE))
+            ui_unit = ui_unit_class(
+                unit, 
+                add(self.unit_draw_offset, self.transform_grid_screen(unit.pos)), 
+            )
             self.ui_units[self.grid.c_to_i(unit.pos)] = ui_unit
             self.add_gridui_element(ui_unit)
     
@@ -122,8 +126,12 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
         [x.update(delta_time) for x in self.ui_units if x]
         [x.update(delta_time) for y in self.ui_worldeffects for x in y if x]
     
-    def on_load_map(self, map:Map):
+    def on_remake_grid(self):
         """Clear all the residual graphic objects, as they will be added during map load."""
+        c = self.grid.size[0]*self.grid.size[1]
+        self.ui_tiles:"list[TileBaseUI|None]" = [None]*c
+        self.ui_worldeffects:"list[list[EffectBaseUI]]" = [[] for i in range(c)]
+        self.ui_units:"list[UnitBaseUI|None]" = [None]*c
         
     def get_unitui(self, pos:"tuple[int,int]"):
         """Return the UI-unit at given position."""
@@ -148,10 +156,11 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
             int( (gridpos[1]+gridpos[0]) * 22)
         )
 
-    def transform_grid_screen(self, gridpos:"tuple[int,int]"):
-        """Return the screen position of a given grid coordinate (i.e. applies camera pan)."""
+    def transform_grid_screen(self, gridpos:"tuple[int,int]", apply_pan:bool=True):
+        """Return the screen position of a given grid coordinate (can apply camera and center pan)."""
         gw = self.transform_grid_world(gridpos)
-        return add((int(gw[0] + (self.width-self.tile_size[0])/2), gw[1]+5), self.pan)
+        return add((int(gw[0] + (self.width-self.tile_size[0])/2), gw[1]+5), self.pan) if apply_pan \
+        else (int(gw[0] + (self.width-self.tile_size[0])/2), gw[1]+5)
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         grid_element:"GridElementUI|None"
@@ -171,3 +180,21 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
         s = pygame.Surface(self.board_size)
         s.fill((0))
         self.blits.append((s, s.get_rect().move(self.pan),s.get_rect()))
+    
+    def get_debug_surface(self):
+        if self._dbgsurf:
+            return self._dbgsurf
+        self._dbgsurf = pygame.Surface(add(self.board_size, (2,2))).convert_alpha()
+        self._dbgsurf.fill(0)
+        offset = (32,8)
+        for x in range(0, self.grid.size[0]+1):
+            pygame.draw.line(self._dbgsurf, (255,0,255), 
+                add(self.transform_grid_screen((x,                0), apply_pan=False), offset),
+                add(self.transform_grid_screen((x,self.grid.size[1]), apply_pan=False), offset),
+                1)
+        for y in range(0, self.grid.size[1]+1):
+            pygame.draw.line(self._dbgsurf, (255,0,255), 
+                add(self.transform_grid_screen((0,                y), apply_pan=False), offset), 
+                add(self.transform_grid_screen((self.grid.size[0],y), apply_pan=False), offset),
+                1)
+        return self._dbgsurf

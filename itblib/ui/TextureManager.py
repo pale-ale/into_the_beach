@@ -65,6 +65,8 @@ class Textures:
         texturekeys.append(("Burrower", o, "Burrowed", 10))
     for o in ["SW"]:
         texturekeys.append(("Burrower", o, "Idle", 1))
+    for o in ["SW"]:
+        texturekeys.append(("SirenHead", o, "Idle", 1))
 
     @classmethod
     def get_spritesheet(cls, key:str) -> "list[pygame.Surface]|None":
@@ -75,8 +77,10 @@ class Textures:
         return None
     
     @staticmethod
-    def load_textures(scale:"tuple[float,float]"=(1.0,1.0)):
+    def load_textures(scale:"tuple[float,float]"=(1.0,1.0), custom_path:"str|None"=None):
         """Load the textures from the disk via helpers. Expensive, only use once during startup."""
+        if custom_path:
+            Textures.texturepath = custom_path
         for data in Textures.texturekeys:
             if len(data) > 1:
                 key = "".join(data[:-1])
@@ -121,21 +125,24 @@ class LoaderMethods():
             for i in range(framecount):
                 path = Textures.texturepath + key + str(i+1) + ".png"
                 img = LoaderMethods.load_image(path)
-                scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
-                Textures.textures[key].append(pygame.transform.scale(img, scaledsize).convert_alpha())
+                if img:
+                    scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
+                    Textures.textures[key].append(pygame.transform.scale(img, scaledsize).convert_alpha())
         else:
             path = Textures.texturepath + key + ".png"
             img = LoaderMethods.load_image(path)
-            scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
-            Textures.textures[key].append(pygame.transform.scale(img, scaledsize).convert_alpha())
+            if img:
+                scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
+                Textures.textures[key].append(pygame.transform.scale(img, scaledsize).convert_alpha())
 
    
     @staticmethod
     def load_image(path):
         try:
-            return pygame.image.load(path).convert_alpha()
+            img = pygame.image.load(path)
         except:
             print("Could not load image at", path)
             return None
+        return img.convert_alpha()
 
 

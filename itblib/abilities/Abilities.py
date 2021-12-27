@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
 from itblib.abilities.AbilityBase import AbilityBase
+from itblib.components.AbilityComponent import AbilityComponent
 from itblib.globals.Enums import PREVIEWS
-from itblib.gridelements.Effects import EffectBurrowed
 from itblib.net.NetEvents import NetEvents
 
 if TYPE_CHECKING:
@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 class RangedAttackAbility(AbilityBase):
     """A simple ranged attack, with a targeting scheme like the artillery in ITB."""
 
-    def __init__(self, unit:"UnitBase"):
-        super().__init__(unit, 2, cooldown=2)
+    def __init__(self, owning_component:"AbilityComponent"):
+        super().__init__(owning_component=owning_component, phase=2, cooldown=2)
     
     def on_select_ability(self):
         super().on_select_ability()
@@ -47,7 +47,7 @@ class RangedAttackAbility(AbilityBase):
         if owner:
             pos = owner.pos
             coords = self._get_ordinals(pos, owner.grid.size)
-            coords = coords.difference(owner.grid.get_ordinal_neighbors(pos))
+            coords = coords.difference(owner.grid.get_neighbors(pos))
         return coords
     
     def _get_ordinals(self, origin:"tuple[int,int]", dimensions:"tuple[int,int]"):
@@ -95,7 +95,8 @@ class PushAbility(AbilityBase):
 
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
         owner = self.get_owner()
-        return set(owner.grid.get_ordinal_neighbors(owner.pos))
+        return set(owner.grid.get_neighbors(owner.pos))
+
 
 class ObjectiveAbility(AbilityBase):
     """This ability makes a unit an "Objective", meaning the player loses if it dies."""

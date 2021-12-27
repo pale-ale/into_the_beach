@@ -12,7 +12,7 @@ class TargetAbilityBase(AbilityBase):
     def on_select_ability(self):
         super().on_select_ability()
         owner = self.get_owner()
-        for neighbor in owner.grid.get_ordinal_neighbors(owner.pos):
+        for neighbor in owner.grid.get_neighbors(owner.pos):
             self.area_of_effect.add((neighbor, PREVIEWS[0]))
     
     def apply_to_target(self, target:"tuple[int,int]"):

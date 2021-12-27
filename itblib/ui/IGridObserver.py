@@ -28,7 +28,7 @@ class IGridObserver(ABC):
     def on_move_unit(self, src:"tuple[int,int]", dst:"tuple[int,int]"):
         pass
 
-    def on_load_map(self, map:Map):
+    def on_remake_grid(self):
         pass
 
     def on_change_phase(self, phase:int):

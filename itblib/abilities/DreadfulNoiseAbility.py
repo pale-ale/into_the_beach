@@ -6,8 +6,8 @@ from itblib.globals.Enums import PREVIEWS
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
-class PunchAbility(TargetAbilityBase):
-    """A simple damaging ability. Deals damage to a neighboring target."""
+class DreadfulNoiseAbility(TargetAbilityBase):
+    """A cone-targeted ability, weakening opponents and friendlies alike."""
 
     def __init__(self, unit:"UnitBase"):
         super().__init__(unit, 3, 5)
@@ -25,4 +25,4 @@ class PunchAbility(TargetAbilityBase):
     
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
         owner = self.get_owner()
-        return {x for x in owner.grid.get_neighbors(owner.pos)}
+        return owner.grid.get_neighbors(owner.pos, ordinal=True, cardinal=True)
