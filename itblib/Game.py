@@ -1,3 +1,4 @@
+from itblib.Log import log
 from itblib.net.Connector import Connector
 from itblib.Player import Player
 from itblib.Maps import MapGrasslands, MapIceAge, MapRockValley
@@ -44,7 +45,7 @@ class Session:
     
     def remove_player(self, playerid:int, use_net=True):
         """Remove all players with matching playerid from the session."""
-        print("Session: Removing player", playerid)
+        log(f"Session: Removing player {playerid}", 0)
         if self.connector and self.connector.authority and use_net:
             NetEvents.snd_netplayerleave(playerid)
             if len(self._players) -1 < 2:

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class PlayerVersusAnimation(MultiSprite):
     def __init__(self, player1:"Player", player2:"Player", width, height):
-        super().__init__([], global_transform=pygame.Rect(0,0,width,height))
+        super().__init__([])
         self.font = pygame.font.SysFont('latinmodernmono', 60)
         self.p1 = player1
         self.p2 = player2

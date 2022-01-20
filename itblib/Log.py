@@ -6,7 +6,7 @@ class Logger:
     Log levels are: 0:Debug, 1:Warning, 2:Error
     """
     _LOG_FILE_PATH = str(datetime.datetime.now()) + ".log"
-    _VERBOSITY = 0
+    _VERBOSITY = 1
     _SUFFIXES=["[DEBUG]", "[WARNING]", "[ERROR]"]
     # 01 for terminal, 10 for file, 11 for both, 00 for neither
     _OUTPUT_MODE = 0b10

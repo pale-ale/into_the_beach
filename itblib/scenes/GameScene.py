@@ -4,7 +4,7 @@ import pygame
 from pygame.constants import K_ESCAPE
 import pygame.surface
 import pygame.transform
-from itblib.globals.Enums import NORTH, SOUTH
+from itblib.globals.Enums import NORTH, SOUTH, RIGHT, LEFT
 from itblib.Grid import Grid
 from itblib.net.NetEvents import NetEvents
 from itblib.SceneManager import SceneManager
@@ -34,14 +34,28 @@ class GameScene(SceneBase):
             return True
         elif event.type == pygame.KEYDOWN:
             if event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_UP:
-                self.gridui.update_pan((self.gridui.pan[0], self.gridui.pan[1] + 2*22*self.hud.displayscale))
+                self.gridui.update_pan((self.gridui._pan[0], self.gridui._pan[1] + 2*22*self.hud.displayscale))
                 self.selector.move_cursor(SOUTH)
                 self.selector.move_cursor(SOUTH)
+                self.hud.update_cursor()
                 return True
             elif event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_DOWN:
-                self.gridui.update_pan((self.gridui.pan[0], self.gridui.pan[1] - 2*22*self.hud.displayscale))
+                self.gridui.update_pan((self.gridui._pan[0], self.gridui._pan[1] - 2*22*self.hud.displayscale))
                 self.selector.move_cursor(NORTH)
                 self.selector.move_cursor(NORTH)
+                self.hud.update_cursor()
+                return True
+            elif event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_LEFT:
+                self.gridui.update_pan((self.gridui._pan[0]+2*32*self.hud.displayscale, self.gridui._pan[1]))
+                self.selector.move_cursor(RIGHT)
+                self.selector.move_cursor(RIGHT)
+                self.hud.update_cursor()
+                return True
+            elif event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_RIGHT:
+                self.gridui.update_pan((self.gridui._pan[0]-2*32*self.hud.displayscale, self.gridui._pan[1]))
+                self.selector.move_cursor(LEFT)
+                self.selector.move_cursor(LEFT)
+                self.hud.update_cursor()
                 return True
             if event.key == K_ESCAPE:
                 self.scenemanager.load_scene("MainMenuScene")
@@ -53,11 +67,9 @@ class GameScene(SceneBase):
         self.grid.tick(delta_time)
         self.gridui.update(delta_time)
         self.hud.update(delta_time)
-    
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield from self.blits
         self.blits.clear()
         yield from self.gridui.get_blits()
         yield from self.hud.get_blits()
-

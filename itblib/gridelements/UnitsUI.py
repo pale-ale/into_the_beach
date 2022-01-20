@@ -17,11 +17,8 @@ if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
 class UnitBaseUI(GridElementUI, IDisplayable):
-    def __init__(self, unit:"UnitBase", relative_position:tuple[int,int]):
-        GridElementUI.__init__(self, parentelement=unit, global_transform=(0,0,*STANDARD_UNIT_SIZE), direction="SW", framespeed=.5)
-        self._tfc = self.get_component(TransformComponent)
-        if self._tfc:
-            self._tfc.relative_position = relative_position
+    def __init__(self, unit:"UnitBase"):
+        GridElementUI.__init__(self, parentelement=unit, direction="SW", framespeed=.5)
         self._parentelement:"UnitBase"
         self.fromscreenpos = None
         self.toscreenpos = None
@@ -53,8 +50,7 @@ class UnitBaseUI(GridElementUI, IDisplayable):
             diff = sub(self.toscreenpos, self.fromscreenpos)
             timepercent = min((self._parentelement.age - self.movementtime) / self.speed, 1)
             interp_screenpos = add(self.fromscreenpos, smult(timepercent, diff))
-            self.global_transform.topleft = interp_screenpos
-            self._tfc.relative_position = self.global_transform.center
+            self.tfc.relative_position = interp_screenpos
             if timepercent + 0e-4 >= 1:
                 self.fromscreenpos = None
                 self.toscreenpos = None
@@ -68,10 +64,9 @@ class UnitBaseUI(GridElementUI, IDisplayable):
         return "Another long description ------ weee------"
   
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
-        self.global_transform = pygame.Rect(self._tfc.get_position(), STANDARD_UNIT_SIZE)
         if self.owner_color_rhombus:
             yield from self.owner_color_rhombus.get_blits()
-        yield from super().get_blits()
+        yield from GridElementUI.get_blits(self)
         yield from self.healthbar.get_blits()
 
     def on_add_statuseffect(effect:StatusEffect):

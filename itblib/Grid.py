@@ -330,7 +330,7 @@ class Grid(Serializable):
     def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]") -> bool:
         """Move a unit from (x,y) to (tagretx,targety)."""
         if self.is_space_empty(False, from_pos):
-            print(f"Grid: Tried to move unit at {from_pos} which does not exist.")
+            log(f"Grid: Tried to move unit at {from_pos} which does not exist.", 2)
             return False
         if not self.is_space_empty(True, to_pos):
             unit = self.get_unit(from_pos)
@@ -342,7 +342,7 @@ class Grid(Serializable):
                 self.observer.on_move_unit(from_pos, to_pos)
             return True
         else:
-            print(f"Grid: Unit would have fallen from the grid at {to_pos}.")
+            log(f"Grid: Unit would have fallen from the grid at {to_pos}.", 0)
             return False
 
     def get_tile(self, pos:"tuple[int,int]") -> "TileBase|None":
@@ -381,13 +381,15 @@ class Grid(Serializable):
     def get_neighbors(self, pos:"tuple[int,int]", ordinal=True, cardinal=False) -> "list[tuple[int,int]]":
         """Returns the coordinates of neighboring tiles when inside bounds."""
         x,y = pos
-        tiles_to_check = set()
-        ordinals = {(x-1,y), (x,y+1), (x+1,y), (x,y-1)}
-        cardinals = {(x-1,y-1), (x-1,y+1), (x+1,y+1), (x+1,y-1)}
-        if ordinal:
-            tiles_to_check.update(ordinals)
+        tiles_to_check = list()
+        ordinals = [(x-1,y), (x,y+1), (x+1,y), (x,y-1)]
+        cardinals = [(x-1,y-1), (x-1,y+1), (x+1,y+1), (x+1,y-1)]
+        lists = []
         if cardinal:
-            tiles_to_check.update(cardinals)
+            lists.append(cardinals)
+        if ordinal:
+            lists.append(ordinals)
+        tiles_to_check = [elem for tup in zip(*lists) for elem in tup]
         return [n for n in tiles_to_check if self.is_coord_in_bounds(n)]
 
     def tick(self, dt:float) -> None:

@@ -1,7 +1,7 @@
 """Simple vector math methods"""
 
 from typing import Sequence, Union
-
+from math import sin, cos
 
 number = Union[float,int]
 
@@ -25,3 +25,8 @@ def add(*vals:tuple[number,number]) -> tuple[number,number]:
 def sub(a:tuple[number,number],b:tuple[number,number]) -> tuple[number,number]:
     """Subtract a-b component-wise, i.e (a0-b0, a1-b1)"""
     return (a[0]-b[0], a[1]-b[1])
+
+def deg_to_coord(x:float) -> tuple[int,int]:
+    """@return: The vector with angle x in radians from the x axis CCW, length=1"""
+    return cos(x), sin(x)
+    

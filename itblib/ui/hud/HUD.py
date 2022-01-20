@@ -138,8 +138,9 @@ class Hud(PerfSprite, InputAcceptor):
         if gu is not du:
             self.unitdisplay.set_displayunit(gu)
 
-    def update_cursor(self, position:"tuple[int,int]"):
+    def update_cursor(self, position:"tuple[int,int]|None"=None):
         """Forward the new cursor position to a unit's according hooks"""
+        position = position if position else self.cursorgridpos
         self.tiledisplay.set_displaytile_effects(
             self.gridui.get_tileui(position),
             self.gridui.get_tile_effectsui(position)

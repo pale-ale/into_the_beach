@@ -3,7 +3,13 @@ import pygame.sprite
 import pygame.font
 import pygame.surface
 
-class TextBox(pygame.sprite.Sprite):
+import pygame
+
+from itblib.components.ComponentAcceptor import ComponentAcceptor
+from itblib.components.TransformComponent import TransformComponent
+
+class TextBox(pygame.sprite.Sprite, ComponentAcceptor):
+    """Since alpha=0 in text renders is currently broken, use (0,0,0,0) as color to be removed."""
     def __init__(self, 
                 text:str = "AaBbCcDdEeFfGg;:_ÖÄ@ILil",
                 bgcolor:"tuple[int,int,int,int]" = (0,0,0,255), 
@@ -11,11 +17,11 @@ class TextBox(pygame.sprite.Sprite):
                 fontsize:int = 20,
                 pos:"tuple[int,int]" = (0,0),
                 *groups: pygame.sprite.AbstractGroup) -> None:
+        ComponentAcceptor.__init__(self)
         font = pygame.font.SysFont('firamono', fontsize)
-        textsurf = font.render(text, True, textcolor)
-        textsurf.set_alpha(textcolor[3])
-        self.image = pygame.surface.Surface(textsurf.get_size()).convert_alpha()
-        self.image.fill(bgcolor)
-        self.image.blit(textsurf, (0,0))
+        self.image = font.render(text, True, textcolor, bgcolor).copy().convert_alpha()
+        self.image.set_colorkey((0,0,0,0))
         self.rect = Rect(*pos, *self.image.get_size())
-        super().__init__(*groups)
+        tfc = TransformComponent()
+        tfc.attach_component(self)
+        pygame.sprite.Sprite.__init__(self, *groups)

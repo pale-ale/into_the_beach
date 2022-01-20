@@ -1,4 +1,6 @@
 import math
+
+from pygame.constants import BLEND_RGB_ADD, BLEND_RGB_MULT
 from itblib.abilities.AbilityBase import AbilityBase
 from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
@@ -6,13 +8,16 @@ import pygame
 from itblib.net.NetEvents import NetEvents
 from typing import Callable, Generator
 from itblib.Vec import add, smult, sub
+from itblib.ui.TextBox import TextBox
 
 class RangedAttackAbilityPreview(AbilityPreviewBase):
-    """Creates previews for a unit based on it's abilities and their targets."""
+    """Creates previews for attacks with an arcing projectile."""
 
     def __init__(self, ability:AbilityBase) -> None:
         super().__init__(ability)
         owner = ability.get_owner()
+        self.damagetextbox = TextBox(text='7', fontsize=15, bgcolor=(0,0,0,100))
+        self._bgbox = TextBox(text='  ', fontsize=15, textcolor=(0,100,0,100), bgcolor=(0,100,0,100))
         if owner and NetEvents.session:
             self._color:"tuple[int,int,int]" = NetEvents.session._players[owner.ownerid].color
             self._start = owner.pos
@@ -38,6 +43,8 @@ class RangedAttackAbilityPreview(AbilityPreviewBase):
                 pygame.draw.line(surf, self._color, (p_1[0], max([p_1[1], p_2[1]])), p_peak, 2)
             else:
                 _draw_parabola(surf, self._color, p_peak, p_1, p_2)
+            surf.blit(self._bgbox.image, sub(p_2, smult(.5,self._bgbox.rect.size)), special_flags=BLEND_RGB_MULT)
+            surf.blit(self.damagetextbox.image, sub(p_2, smult(.5,self.damagetextbox.rect.size)), special_flags=BLEND_RGB_ADD)
             yield surf, pygame.Rect( add(topleft,(0,-10)), (size[0],size[1]/2) ), surf.get_rect()
         else:
             yield from self._get_simple_preview_gen(transform_func)

@@ -1,26 +1,25 @@
 from typing import Generator
 
 import pygame
-from itblib.globals.Constants import STANDARD_TILE_SIZE, STANDARD_UNIT_SIZE
-from itblib.globals.GridElementUIFactory import GridElementUIFactory
-from itblib.gridelements.GridElementUI import GridElementUI
-from itblib.gridelements.units.UnitBase import UnitBase
-from itblib.ui.PerfSprite import PerfSprite
+from itblib.ui.IGridObserver import IGridObserver
 from itblib.components.ComponentAcceptor import ComponentAcceptor
 from itblib.components.TransformComponent import TransformComponent
+from itblib.globals.Constants import STANDARD_TILE_SIZE
+from itblib.globals.GridElementUIFactory import GridElementUIFactory
+from itblib.Grid import Grid
+from itblib.gridelements.Effects import EffectBase
+from itblib.gridelements.EffectsUI import EffectBaseUI
+from itblib.gridelements.GridElementUI import GridElementUI
+from itblib.gridelements.Tiles import TileBase
+from itblib.gridelements.TilesUI import TileBaseUI
+from itblib.gridelements.units.UnitBase import UnitBase
+from itblib.gridelements.UnitsUI import UnitBaseUI
+from itblib.Log import log
+from itblib.ui.PerfSprite import PerfSprite
 from itblib.Vec import add
 
-from ..Grid import Grid
-from ..gridelements.Effects import EffectBase
-from ..gridelements.EffectsUI import EffectBaseUI
-from ..gridelements.Tiles import TileBase
-from ..gridelements.TilesUI import TileBaseUI
-from ..gridelements.UnitsUI import UnitBaseUI
-from ..Maps import Map
-from . import IGridObserver
 
-
-class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
+class GridUI(PerfSprite, ComponentAcceptor, IGridObserver):
     """The Graphical representation of the grid."""
     def __init__(self, grid:Grid):  
         PerfSprite.__init__(self)
@@ -40,11 +39,9 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
         self.ui_units:"list[UnitBaseUI|None]" = [None]*grid.size[0]*grid.size[1]
         self.ui_unit_effects:"list[list[EffectBaseUI]]" = [[] for i in range(grid.size[0]*grid.size[1])]
         self.unit_draw_offset = (0,-10)
-        self.pan = (0,0)
+        self._pan = (0,0)
         self.phase_change_callback = None
         self.blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
-        # self.mid_blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
-        # self.post_blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
         self._dbgsurf = None
      
     def on_change_phase(self, phase: int):
@@ -57,46 +54,44 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
         """Add the UI version of the new tile added to the normal grid."""
         ui_tile_class = GridElementUIFactory.find_tile_class(type(tile).__name__ + "UI")
         if ui_tile_class:
-            ui_tile = ui_tile_class(tile,  pygame.Rect(*self.transform_grid_screen(tile.pos), 64, 96))
+            ui_tile = ui_tile_class(tile)
             self.ui_tiles[self.grid.c_to_i(tile.pos)] = ui_tile
             self.add_gridui_element(ui_tile)
     
     def update_pan(self, newpan:"tuple[int,int]"):
         self._add_get_clear_blit()
-        self.pan = newpan
+        self._pan = newpan
         self.tfc.relative_position = newpan
     
     def add_gridui_element(self, elem:GridElementUI):
-        elem_tfc:TransformComponent = elem.get_component(TransformComponent)
-        if elem_tfc:
-            elem_tfc.set_transform_target(self)
+        elem_tfc = elem.get_component(TransformComponent)
+        elem_tfc.relative_position = self.transform_grid_screen(elem._parentelement.pos, apply_pan=False)
+        elem_tfc.set_transform_target(self)
 
     def on_add_unit(self, unit:UnitBase):
         """Add the UI version of the new unit added to the normal grid."""
         ui_unit_class = GridElementUIFactory.find_unit_class(type(unit).__name__ + "UI")
         if ui_unit_class:   
-            ui_unit = ui_unit_class(
-                unit, 
-                add(self.unit_draw_offset, self.transform_grid_screen(unit.pos)), 
-            )
+            ui_unit:UnitBaseUI = ui_unit_class(unit)
             self.ui_units[self.grid.c_to_i(unit.pos)] = ui_unit
             self.add_gridui_element(ui_unit)
+            tfc = ui_unit.get_component(TransformComponent)
+            tfc.relative_position = add(tfc.relative_position, self.unit_draw_offset)
     
     def on_add_worldeffect(self, effect:EffectBase):
         """Add the UI version of the new effect added to the normal grid."""
         gridindex = self.grid.c_to_i(effect.pos)
         ui_worldeffect_class = GridElementUIFactory.find_effect_class(type(effect).__name__ + "UI")
         if ui_worldeffect_class:
-            ui_worldeffect = ui_worldeffect_class(effect, pygame.Rect(*self.transform_grid_screen(effect.pos), *STANDARD_UNIT_SIZE))
+            ui_worldeffect = ui_worldeffect_class(effect)
             self.ui_worldeffects[gridindex].append(ui_worldeffect)
             self.add_gridui_element(ui_worldeffect)
 
     def on_move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]"):
         """Move the UI version of the moved unit from the normal grid."""
-        print("GridUI: Moving unit from", from_pos, "to", to_pos)
         uiunit = self.ui_units[self.grid.c_to_i(from_pos)]
-        fsp = add(self.transform_grid_screen(from_pos), self.unit_draw_offset)
-        tsp = add(self.transform_grid_screen(to_pos), self.unit_draw_offset)
+        fsp = add(self.transform_grid_screen(from_pos, apply_pan=False), self.unit_draw_offset)
+        tsp = add(self.transform_grid_screen(to_pos, apply_pan=False), self.unit_draw_offset)
         uiunit.set_interp_movement(fsp, tsp, .5)
         self.ui_units[self.grid.c_to_i(from_pos)] = None
         self.ui_units[self.grid.c_to_i(to_pos)] = uiunit
@@ -112,27 +107,12 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
                 self.ui_worldeffects[self.grid.c_to_i(pos)].remove(uieffect)
                 return
        
-    def on_remove_unit_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
-        pass
-        # """Remove a UI-effect at the given position."""
-        # for uieffect in self.uiuniteffects[self.grid.c_to_i(pos)][:]:
-        #     if uieffect._parentelement == effect:
-        #         self.uieffects[self.grid.c_to_i(pos)].remove(uieffect)
-        #         return
-
     def update(self, delta_time:float):
         """Update the graphics and animations' frames."""
         [x.update(delta_time) for x in self.ui_tiles if x]
         [x.update(delta_time) for x in self.ui_units if x]
         [x.update(delta_time) for y in self.ui_worldeffects for x in y if x]
     
-    def on_remake_grid(self):
-        """Clear all the residual graphic objects, as they will be added during map load."""
-        c = self.grid.size[0]*self.grid.size[1]
-        self.ui_tiles:"list[TileBaseUI|None]" = [None]*c
-        self.ui_worldeffects:"list[list[EffectBaseUI]]" = [[] for i in range(c)]
-        self.ui_units:"list[UnitBaseUI|None]" = [None]*c
-        
     def get_unitui(self, pos:"tuple[int,int]"):
         """Return the UI-unit at given position."""
         return self.ui_units[self.grid.c_to_i(pos)]
@@ -157,15 +137,15 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
         )
 
     def transform_grid_screen(self, gridpos:"tuple[int,int]", apply_pan:bool=True):
-        """Return the screen position of a given grid coordinate (can apply camera and center pan)."""
+        """Return the screen position of a given grid coordinate (can apply camera and center _pan)."""
         gw = self.transform_grid_world(gridpos)
-        return add((int(gw[0] + (self.width-self.tile_size[0])/2), gw[1]+5), self.pan) if apply_pan \
-        else (int(gw[0] + (self.width-self.tile_size[0])/2), gw[1]+5)
+        screennopan = (int(gw[0] + (self.width-self.tile_size[0])/2), gw[1]+5)
+        return add(screennopan, self._pan) if apply_pan else screennopan
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
-        grid_element:"GridElementUI|None"
         yield from self.blits
         self.blits.clear()
+        grid_element:"GridElementUI|None"
         for grid_element in self.ui_tiles:
             if grid_element:
                 yield from grid_element.get_blits()
@@ -179,7 +159,7 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver.IGridObserver):
     def _add_get_clear_blit(self):
         s = pygame.Surface(self.board_size)
         s.fill((0))
-        self.blits.append((s, s.get_rect().move(self.pan),s.get_rect()))
+        self.blits.append((s, s.get_rect().move(self._pan),s.get_rect()))
     
     def get_debug_surface(self):
         if self._dbgsurf:

@@ -42,6 +42,8 @@ PREVIEWS = {
 
 NORTH = ( 1, 1)
 SOUTH = (-1,-1)
+LEFT  = (-1, 1)
+RIGHT = ( 1,-1)
 
 DIRECTIONS = {
     0:"NE",

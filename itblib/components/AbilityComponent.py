@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING, Type
-from itblib.Serializable import Serializable
+
 from itblib.components.ComponentBase import ComponentBase
+from itblib.Log import log
+from itblib.Serializable import Serializable
 
 if TYPE_CHECKING:
     from itblib.abilities.AbilityBase import AbilityBase
@@ -40,7 +42,7 @@ class AbilityComponent(ComponentBase, Serializable):
         """Remove an ability by class"""
         for ability in self._abilities[:]:
             if type(ability) == ability_class:
-                print("Removed ability:", ability)
+                log(f"Removed ability: {ability}", 0)
                 self._abilities.remove(ability)
 
     def get_ability(self, ability_class: "Type[AbilityBase]") -> "AbilityBase|None":

@@ -48,7 +48,7 @@ class Client:
         lobbyscene = LobbyScene(self.scenemanager, self.session)
         mainmenuscene = MainMenuScene(self.scenemanager)
         gamescene = GameScene(self.scenemanager)
-        gamescene.gridui.pan = ((self.scene_image.get_width() - gamescene.gridui.board_size[0])/2, 0)
+        gamescene.gridui.update_pan( ((self.scene_image.get_width()-gamescene.gridui.board_size[0])/2, 0) )
         rosterselectionscene = RosterSelectionScene(self.scenemanager)
         #mapselectionscene = MapSelectionScene(self.scenemanager)
 

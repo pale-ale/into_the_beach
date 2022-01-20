@@ -1,5 +1,6 @@
 import random
 import math
+from typing import Generator
 import pygame
 from itblib.globals.Enums import RIVER
 from itblib.gridelements.Effects import EffectBase
@@ -9,8 +10,8 @@ from itblib.Vec import smult
 
 
 class EffectBaseUI(GridElementUI, IDisplayable):
-    def __init__(self, effect:EffectBase, global_transform:pygame.Rect, framespeed:float=.5, autoplay=True):  
-        super().__init__(parentelement=effect, global_transform=global_transform, direction=None, framespeed=framespeed)
+    def __init__(self, effect:EffectBase, framespeed:float=.5, autoplay=True):  
+        super().__init__(parentelement=effect, direction=None, framespeed=framespeed)
         if autoplay:
             self.looping = True
             self.start()
@@ -43,14 +44,14 @@ class EffectRiverUI(EffectBaseUI):
         else:
             print("EffectRiverUI: Weird riverposs:", riverposs)
             return
-        self.set_frame(imageid)
+        self.framenumber = imageid
     
     def get_display_name(self) -> str:
         return "River"
 
 class EffectFireUI(EffectBaseUI):
-    def __init__(self, effect: EffectBase, global_transform: pygame.Rect, framespeed: float = 0.5):
-        super().__init__(effect, global_transform, framespeed=framespeed, autoplay=False)
+    def __init__(self, effect: EffectBase, framespeed: float = 0.5):
+        super().__init__(effect, framespeed=framespeed, autoplay=False)
         self.im = pygame.Surface((64,64)).convert_alpha()
         self.im.fill(0)
         self.desired_particles = 40
@@ -81,7 +82,7 @@ class EffectFireUI(EffectBaseUI):
                 (self.particle_xs[p], self.particle_ys[p], 3, 3))
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
-        yield (self.im, self.global_transform, self.im.get_rect())
+        yield (self.im, pygame.Rect(self.tfc.get_position(), self.im.get_size()), self.im.get_rect())
     
     @staticmethod
     def _get_color(lifetime_ratio:float) -> "tuple[int,int,int,int]":
