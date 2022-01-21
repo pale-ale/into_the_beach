@@ -1,8 +1,12 @@
 import socket
 from typing import Optional
+
+from itblib.Log import log
 from itblib.Player import Player
 
+
 class Connector():
+    """A wrapper around a single or multiple socket connections, with methods that allow simple server/client communication."""
     def __init__(self, authority:bool):
         self.authority = authority
         self.connection:Optional[socket.socket] = None
@@ -15,13 +19,15 @@ class Connector():
         self.TERMINAL_SIZE = len(self.TERMINAL)
 
     def server_init(self):
+        """Initialize socket, bind to port, listen for incoming connections. Server only."""
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connection.setblocking(False)
         self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.connection.bind(('127.0.0.1', 13579))
         self.connection.listen(5)
     
-    def get_incoming_connections(self):
+    def get_incoming_connections(self) -> list[socket.socket]:
+        """Accept and return any incoming connections. Server only."""
         acceptedsockets = []
         while True:
             try:
@@ -31,47 +37,51 @@ class Connector():
             except:
                 return acceptedsockets
 
-    def client_init(self):
+    def client_connect(self):
+        """Connect to an open socket as a client. Client only."""
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connection.connect(('127.0.0.1', 13579))
         self.connection.setblocking(False)
         self.acc_connection = self.connection
     
     def __del__(self):
-        print("Tearing down connections.")
+        log("Tearing down connections.", 0)
         try:
             if self.connection:
-                self.connection.shutdown(0)
                 self.connection.close()
             if self.acc_connection:
-                self.acc_connection.shutdown(0)
                 self.acc_connection.close()
         except:
             pass
     
-    def send(self, connection:socket.socket, prefix:str, content:str):
+    def _send(self, connection:socket.socket, prefix:str, content:str):
         prefixdata = (prefix + self.PREAMBLE).encode("utf8")
         contentdata = (content + self.TERMINAL).encode("utf8")
         if connection:
             if len(content) > 100:
-                print("Connector: SND:", prefix, content[:100] + "[...]")
+                log(f"Connector: SND: {prefix}, {content[:100]}[...]", 0)
             else:
-                print("Connector: SND:", prefix, content)
+                log(f"Connector: SND: {prefix}, {content}", 0)
             connection.send(prefixdata + contentdata)
         else:
-            print("Connector: Invalid connection.")
+            log("Connector: Invalid connection.", 2)
     
     def send_client(self, prefix:str, content:str):
-        self.send(self.acc_connection, prefix, content)
+        """Send data to the connected server. Client only."""
+        self._send(self.acc_connection, prefix, content)
     
     def send_server_single(self, connection:socket.socket, prefix:str, content:str):
-        self.send(connection, prefix, content)
+        """Send data to a connected client. Server only.
+        @connection: The connection we want to transfer data over"""
+        self._send(connection, prefix, content)
     
     def send_server_all(self, players:"dict[int, Player]", prefix:str, content:str):
+        """\"Broadcast\" to every player. Server only.
+        @players: The players we want to send to"""
         for player in players.values():
             self.send_server_single(player.playersocket, prefix, content)
 
-    def receive(self, connection:socket.socket):
+    def _receive(self, connection:socket.socket):
         if connection:
             prefix = ""
             content = ""
@@ -111,10 +121,13 @@ class Connector():
                 return None
             finally:
                 pass
-        print("Connector: Connection is invalid.")
+        log("Connector: Connection is invalid.", 2)
     
     def receive_server(self, playerconnection:socket.socket):
-        return self.receive(playerconnection)
+        """Receive data from a connected client. Server only.
+        @playerconneciton: The connection we want to receive from"""
+        return self._receive(playerconnection)
     
     def receive_client(self):
-        return self.receive(self.acc_connection)
+        """Receive data from the connected server. Client only."""
+        return self._receive(self.acc_connection)

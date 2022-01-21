@@ -23,7 +23,7 @@ class LobbyScene(SceneBase):
     def load(self):
         super().load()
         self.loaded_gamescene = False
-        NetEvents.connector.client_init()
+        NetEvents.connector.client_connect()
 
     def update_data(self):
         if self._session._state in ["running", "runningPregame"]:
