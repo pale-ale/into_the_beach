@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from itblib.Grid import Grid
     from itblib.abilities.AbilityBase import AbilityBase
     from itblib.net.Connector import Connector
-    from itblib.ui.HUD import Hud
+    from itblib.ui.hud.HUD import Hud
 
 class NetEvents():
     grid:"Grid" = None

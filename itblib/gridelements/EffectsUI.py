@@ -10,10 +10,10 @@ from itblib.Vec import smult
 
 
 class EffectBaseUI(GridElementUI, IDisplayable):
-    def __init__(self, effect:EffectBase, framespeed:float=.5, autoplay=True):  
+    def __init__(self, effect:EffectBase, framespeed:float=.2, autoplay=True):  
         super().__init__(parentelement=effect, direction=None, framespeed=framespeed)
         if autoplay:
-            self.looping = True
+            self.looping = False
             self.start()
     
     def get_display_description(self) -> str:
@@ -48,6 +48,7 @@ class EffectRiverUI(EffectBaseUI):
     
     def get_display_name(self) -> str:
         return "River"
+    
 
 class EffectFireUI(EffectBaseUI):
     def __init__(self, effect: EffectBase, framespeed: float = 0.5):

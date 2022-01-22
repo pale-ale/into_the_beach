@@ -91,7 +91,7 @@ def main():
             gtime = 0
         for g in MINIGRIDUIS:
             scene_image.blits(g.get_blits())
-            scene_image.blit(g.get_debug_surface(), g.pan)
+            scene_image.blit(g.get_debug_surface(), g._pan)
         [g.update(dt) for g in MINIGRIDUIS]
         for i,p in enumerate(PREVIEWS):
             scene_image.blits(p.get_blit_func(MINIGRIDUIS[i].transform_grid_screen))

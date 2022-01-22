@@ -133,3 +133,5 @@ dmypy.json
 .vscode/
 main.py
 playgrounds/itblib
+playerdata1.json
+playerdata2.json

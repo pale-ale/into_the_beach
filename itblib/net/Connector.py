@@ -1,4 +1,5 @@
 import socket
+from time import sleep
 from typing import Optional
 
 from itblib.Log import log
@@ -23,7 +24,14 @@ class Connector():
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connection.setblocking(False)
         self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.connection.bind(('127.0.0.1', 13579))
+        t = 0
+        while t < 2:
+            try:
+                self.connection.bind(('127.0.0.1', 13579))
+            except OSError:
+                sleep(.1)
+                t+=.1
+            break
         self.connection.listen(5)
     
     def get_incoming_connections(self) -> list[socket.socket]:
@@ -49,8 +57,10 @@ class Connector():
         try:
             if self.connection:
                 self.connection.close()
+                self.connection.detach()
             if self.acc_connection:
                 self.acc_connection.close()
+                self.acc_connection.detach()
         except:
             pass
     

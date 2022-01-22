@@ -19,3 +19,10 @@ class SerrateAbility(TargetAbilityBase):
             u = owner.grid.get_unit(target)
             if u:
                 u.add_statuseffect(EffectBleeding(u))
+
+    def _get_valid_targets(self) -> "set[tuple[int,int]]|None":
+        owner = self.get_owner()
+        if owner:
+            pos = owner.pos
+            return owner.grid.get_neighbors(pos)
+            

@@ -1,6 +1,7 @@
 import socket
 import json
 import os.path
+from itblib.Log import log
 
 class Player:
     """Represents a physical player at the "table"."""
@@ -39,7 +40,9 @@ class PlayerData():
                 datadict = json.loads(file.read())
             for p in PlayerData.properties:
                 setattr(PlayerData, p, datadict[p])
-            
+        else:
+            log(f"Couldn't open playerdata file '{path}'.")
+
     @staticmethod
     def save(path):
         datadict = dict()

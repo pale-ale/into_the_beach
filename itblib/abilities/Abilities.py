@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from itblib.abilities.AbilityBase import AbilityBase
+from itblib.abilities.TargetAbilityBase import TargetAbilityBase
 from itblib.components.AbilityComponent import AbilityComponent
 from itblib.globals.Enums import PREVIEWS
 from itblib.net.NetEvents import NetEvents
@@ -111,32 +112,20 @@ class ObjectiveAbility(AbilityBase):
         return set()
 
 
-class HealAbility(AbilityBase):
+class HealAbility(TargetAbilityBase):
     """Spawn a heal at selected neighboring tile, healing any unit by 1 and purging bleeding."""
     def __init__(self, unit:"UnitBase"):
         super().__init__(unit, 2, cooldown=3)
         self.remainingcooldown = 0
     
-    def on_select_ability(self):
-        super().on_select_ability()
-        pos = self._unit.pos
-        for neighbor in self._unit.grid.get_ordinal_neighbors(pos):
-            self.area_of_effect.append((neighbor, PREVIEWS[0]))
+    def apply_to_target(self, target: "tuple[int,int]"):
+        super().apply_to_target(target)
+        o = self.get_owner()
+        if o:
+            o.grid.add_worldeffect(self.selected_targets[0], 7)
 
-    def add_targets(self, targets:"list[tuple[int,int]]"):
-        super().add_targets(targets)
-        assert len(targets) == 1
-        target = targets[0]
-        positions = [x[0] for x in self.area_of_effect]
-        if target in positions or NetEvents.connector.authority:
-            self.selected_targets = [target]
-            self.area_of_effect.clear()
-            self.on_deselect_ability()
-            NetEvents.snd_netabilitytarget(self)
-            
-    def activate(self):
-        if len(self.selected_targets) > 0 and NetEvents.connector.authority:
-            super().activate()
-            self._unit.grid.add_worldeffect(self.selected_targets[0], 7, True)
-            self.area_of_effect.clear()
-            self.selected_targets.clear()
+    def _get_valid_targets(self) -> "set[tuple[int,int]]|None":
+        owner = self.get_owner()
+        if owner:
+            pos = owner.pos
+            return owner.grid.get_neighbors(pos)

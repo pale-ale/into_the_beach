@@ -46,8 +46,6 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor):
     def add_statuseffect(self, statuseffect:"StatusEffect"):
         """Add a status effect."""
         self.statuseffects.append(statuseffect)
-        if self.observer:
-            self.observer.on_add_statuseffect(statuseffect)
     
     def remove_statuseffect(self, statuseffect:"StatusEffect"):
         """Remove a status effect."""
@@ -55,8 +53,6 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor):
             if se == statuseffect:
                 se.on_purge()
                 self.statuseffects.remove(se)
-                if self.observer:
-                    self.observer.on_remove_statuseffect(statuseffect)
                 return
     
     def get_statuseffect(self, name:str) -> "StatusEffect|None":

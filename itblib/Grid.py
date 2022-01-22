@@ -287,13 +287,13 @@ class Grid(Serializable):
         units = rmflags & 0b010
         effects = rmflags & 0b001
         if not self.is_coord_in_bounds(pos):
-            log("Grid: Tried to remove element at", pos, "which is not on the grid.", 2)
+            log(f"Grid: Tried to remove element at {pos} which is not on the grid.", 2)
             return False
         if tiles and self.is_space_empty(True, pos):
-            log("Grid: Tried to remove tile at", pos, "which is empty.", 2)
+            log(f"Grid: Tried to remove tile at {pos} which is empty.", 2)
             return False
         if units and self.is_space_empty(False, pos):
-            log("Grid: Tried to remove unit at", pos, "which is empty.", 2)
+            log(f"Grid: Tried to remove unit at {pos} which is empty.", 2)
             return False
         index = self.c_to_i(pos)
         if effects:

@@ -4,6 +4,8 @@ import unittest
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/..")
 
+TEST_ALL = True
+
 # Game sections
 TEST_GRID                = False
 TEST_UNIT                = False
@@ -17,22 +19,23 @@ TEST_NETWORK             = True
 
 
 # Game sections
-if TEST_GRID:
+if TEST_ALL or TEST_GRID:
     from testGrid import TestGridMethods
-if TEST_UNIT:
+if TEST_ALL or TEST_UNIT:
     from testUnit import TestUnitBaseMethods
-if TEST_SESSION:
+if TEST_ALL or TEST_SESSION:
     from testSession import TestSessionMethods
 
 
 # Components
-if TEST_TRANSFORM_COMPONENT:
+if TEST_ALL or TEST_TRANSFORM_COMPONENT:
     from componentTests.testTransformComponent import TestTransformComponentMethods
 
 
 # Networking
-if TEST_NETWORK:
+if TEST_ALL or TEST_NETWORK:
     from networkTests.testNetwork import TestNetworkMethods
+    from networkTests.testJoinGame import TestJoinGameMethods
 
 
 

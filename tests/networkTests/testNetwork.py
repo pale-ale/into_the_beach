@@ -9,6 +9,10 @@ class TestNetworkMethods(unittest.TestCase):
         self.server_connector.server_init()
         self.client_connector.client_connect()
         self.client_connections = self.server_connector.get_incoming_connections()
+    
+    def tearDown(self) -> None:
+        del self.server_connector
+        del self.client_connector
 
     def test_send_client_to_server(self):
         sendtext = ("Test", "C_to_S")
