@@ -1,7 +1,7 @@
 import math
 
 from pygame.constants import BLEND_RGB_ADD, BLEND_RGB_MULT
-from itblib.abilities.AbilityBase import AbilityBase
+from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
 import pygame

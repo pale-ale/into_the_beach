@@ -1,12 +1,14 @@
-from itblib.abilities.SerrateAbility import SerrateAbility
-from itblib.abilities.MovementAbility import MovementAbility
-from itblib.gridelements.units.UnitBase import UnitBase
-from itblib.abilities.PunchAbility import PunchAbility
+from itblib.abilities.Abilities import (HealAbility, ObjectiveAbility,
+                                        PushAbility)
+from itblib.abilities.baseAbilities.RangedAttackAbilityBase import \
+    RangedAttackAbility
 from itblib.abilities.BurrowAbility import BurrowAbility
-from itblib.abilities.Abilities import RangedAttackAbility,\
-    PushAbility,\
-    HealAbility,\
-    ObjectiveAbility
+from itblib.abilities.DreadfulNoiseAbility import DreadfulNoiseAbility
+from itblib.abilities.MovementAbility import MovementAbility
+from itblib.abilities.PunchAbility import PunchAbility
+from itblib.abilities.SerrateAbility import SerrateAbility
+from itblib.gridelements.units.UnitBase import UnitBase
+
 
 class UnitSaucer(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="Saucer"):
@@ -49,4 +51,4 @@ class UnitBurrower(UnitBase):
 
 class UnitSirenHead(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="SirenHead"):
-        super().__init__(grid, pos, ownerid, name=name, abilities=[MovementAbility, PunchAbility])
+        super().__init__(grid, pos, ownerid, name=name, abilities=[MovementAbility, PunchAbility, DreadfulNoiseAbility])

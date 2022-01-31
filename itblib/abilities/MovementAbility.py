@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from itblib.abilities.AbilityBase import AbilityBase
+from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from itblib.globals.Constants import FLAGS
 from itblib.globals.Enums import PREVIEWS
 from itblib.net.NetEvents import NetEvents

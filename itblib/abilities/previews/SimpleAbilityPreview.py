@@ -1,8 +1,10 @@
-from itblib.abilities.Abilities import RangedAttackAbility
-from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
-import pygame
 from typing import Callable, Generator
-from itblib.ui.TextureManager import Textures
+
+import pygame
+from itblib.abilities.baseAbilities.RangedAttackAbilityBase import \
+    RangedAttackAbility
+from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
+
 
 class SimpleAbilityPreview(AbilityPreviewBase):
     """Creates previews for a unit based on it's abilities and their targets."""

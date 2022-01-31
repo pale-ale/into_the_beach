@@ -38,6 +38,9 @@ if TEST_ALL or TEST_NETWORK:
     from networkTests.testJoinGame import TestJoinGameMethods
 
 
+if TEST_ALL:
+    from testVec import TestVecMethods
+
 
 if __name__ == "__main__":
     unittest.main()

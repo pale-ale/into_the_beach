@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Generator
-from itblib.abilities.AbilityBase import AbilityBase
+from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from itblib.ui.TextureManager import Textures
 import pygame
 

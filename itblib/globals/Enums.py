@@ -40,10 +40,10 @@ PREVIEWS = {
     (1,0,0,1):"MovementPreviewBendW",
 }
 
-NORTH = ( 1, 1)
-SOUTH = (-1,-1)
-LEFT  = (-1, 1)
-RIGHT = ( 1,-1)
+SOUTH = ( 1, 1)
+NORTH = (-1,-1)
+EAST  = (-1, 1)
+WEST = ( 1,-1)
 
 DIRECTIONS = {
     0:"NE",

@@ -1,4 +1,4 @@
-from itblib.abilities.AbilityBase import AbilityBase
+from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

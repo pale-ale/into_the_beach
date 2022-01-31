@@ -1,25 +1,29 @@
-from itblib.DamageReceiver import DamageReceiver
-from itblib.Serializable import Serializable
 from typing import TYPE_CHECKING, Type
-from itblib.components.AbilityComponent import AbilityComponent
-from itblib.gridelements.GridElement import GridElement
-from itblib.gridelements.Effects import EffectBurrowed, EffectBleeding
-from itblib.components.ComponentAcceptor import ComponentAcceptor
+
+import pygame
 from itblib.abilities.MovementAbility import MovementAbility
+from itblib.components.AbilityComponent import AbilityComponent
+from itblib.components.ComponentAcceptor import ComponentAcceptor
+from itblib.DamageReceiver import DamageReceiver
+from itblib.gridelements.Effects import EffectBleeding, EffectBurrowed
+from itblib.gridelements.GridElement import GridElement
 from itblib.gridelements.UnitsUI import UnitBaseUI
+from itblib.input.Input import InputAcceptor
+from itblib.Serializable import Serializable
 
 if TYPE_CHECKING:
+    from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
     from itblib.Grid import Grid
-    from itblib.abilities.AbilityBase import AbilityBase
     from itblib.gridelements.Effects import StatusEffect
 
-class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor):
+class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, InputAcceptor):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
     name:str="Base", hitpoints:int=5, canswim:bool=False, abilities:"list[Type[AbilityBase]]"=[]):
         GridElement.__init__(self, grid, pos)
         DamageReceiver.__init__(self, hitpoints, hitpoints)
         Serializable.__init__(self, ["name", "_hitpoints", "ownerid", "statuseffects", "ability_component"])
         ComponentAcceptor.__init__(self)
+        InputAcceptor.__init__(self)
         self.ability_component = AbilityComponent(abilities=abilities)
         self.ability_component.attach_component(self)
         self.name = name
@@ -42,6 +46,18 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor):
                     self.add_statuseffect(effectclass(self))
         self.ability_component.insert_data(data["ability_component"])
         self.set_hp(data["_hitpoints"])
+    
+    def handle_key_event(self, event: any) -> bool:
+        if event.type == pygame.KEYDOWN:
+            if self.ability_component.targeting_ability:
+                selected_ability = self.ability_component.get_selected_ability()
+                if selected_ability and selected_ability.handle_key_event(event):
+                    return True
+                elif event.key == pygame.K_ESCAPE:
+                    self.ability_component.on_deselect()
+                    self.ability_component.on_select()
+                    return True
+        return False
 
     def add_statuseffect(self, statuseffect:"StatusEffect"):
         """Add a status effect."""

@@ -56,7 +56,9 @@ class Hud(PerfSprite, InputAcceptor):
             self.unitdisplay.set_displayunit(self.gridui.get_unitui(self.cursorgridpos))
     
     def handle_key_event(self, event) -> bool:
-        if event.type == pygame.KEYDOWN:
+        if self.selected_unitui and self.selected_unitui._parentelement.handle_key_event(event):
+            return True
+        elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
                 self.targetconfirm(self.cursorgridpos)
                 return True
@@ -65,11 +67,7 @@ class Hud(PerfSprite, InputAcceptor):
                 return True
             if event.key == pygame.K_ESCAPE:
                 if self.selected_unitui:
-                    if self.selected_unitui._parentelement.ability_component.targeting_ability:
-                        self.selected_unitui._parentelement.ability_component.on_deselect()
-                        self.selected_unitui._parentelement.ability_component.on_select()
-                    else:
-                        self.select_unit(None)
+                    self.select_unit(None)
                     return True
                 else:
                     NetEvents.snd_netplayerleave(self.playerid)

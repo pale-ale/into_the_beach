@@ -108,3 +108,8 @@ class EffectBurrowed(StatusEffect):
     def on_purge(self):
         self.target.on_receive_shove = self.original_shove
         self.target.get_movement_ability().moverange = self.original_moverange
+
+
+class EffectDreadfulNoise(StatusEffect):
+    def __init__(self, target: "UnitBase"):
+        super().__init__(target, name="DreadfulNoise")

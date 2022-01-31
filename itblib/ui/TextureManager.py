@@ -21,6 +21,7 @@ class Textures:
         4:"ObjectiveAbility",
         5:"HealAbility",
         6:"BurrowAbility",
+        7:"DreadfulNoiseAbility"
     }
     backgroundtexturemapping = {
         0:"ProperBackdropWhite",
@@ -30,19 +31,20 @@ class Textures:
         4:"ProperBackdropOrange",
     }
     texturekeys = [
-        ("Mountain", "Default", 1),
-        ("River", "Default", 6),
-        ("Town", "Default", 1),
-        ("Trees", "Default", 1),
-        ("Wheat", "Default", 1),
-        ("Heal", "Default", 10),
-        ("Bleeding", "Icon", 1),
-        ("Burrowed", "Icon", 1),
+        ("Mountain"     , "Default",  1),
+        ("River"        , "Default",  6),
+        ("Town"         , "Default",  1),
+        ("Trees"        , "Default",  1),
+        ("Wheat"        , "Default",  1),
+        ("Heal"         , "Default", 10),
+        ("Bleeding"     , "Icon"   ,  1),
+        ("Burrowed"     , "Icon"   ,  1),
+        ("DreadfulNoise", "Icon"   ,  1),
 
-        ("Dirt", "Default", 1),
+        ("Dirt" , "Default", 1),
         ("Water", "Default", 1),
-        ("Lava", "Default", 1),
-        ("Rock", "Default", 1),
+        ("Lava" , "Default", 1),
+        ("Rock" , "Default", 1),
     ]
     for p in PREVIEWS.keys():
         if p != -1:

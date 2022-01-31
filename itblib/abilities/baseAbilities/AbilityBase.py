@@ -70,6 +70,8 @@ class AbilityBase(Serializable, InputAcceptor, ABC):
     def on_select_ability(self):
         """Called when a player selects this ability. Use to e.g. show target outlines"""
         self.reset()
+        if self._owning_component:
+            self._owning_component.targeting_ability = True
         self.selected = True
         print("AbilityBase: Selected", type(self).__name__)
     

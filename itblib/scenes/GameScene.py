@@ -4,7 +4,7 @@ import pygame
 from pygame.constants import K_ESCAPE
 import pygame.surface
 import pygame.transform
-from itblib.globals.Enums import NORTH, SOUTH, RIGHT, LEFT
+from itblib.globals.Enums import NORTH, SOUTH, EAST, WEST
 from itblib.Grid import Grid
 from itblib.net.NetEvents import NetEvents
 from itblib.SceneManager import SceneManager
@@ -47,14 +47,14 @@ class GameScene(SceneBase):
                 return True
             elif event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_LEFT:
                 self.gridui.update_pan((self.gridui._pan[0]+2*32*self.hud.displayscale, self.gridui._pan[1]))
-                self.selector.move_cursor(RIGHT)
-                self.selector.move_cursor(RIGHT)
+                self.selector.move_cursor(EAST)
+                self.selector.move_cursor(EAST)
                 self.hud.update_cursor()
                 return True
             elif event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_RIGHT:
                 self.gridui.update_pan((self.gridui._pan[0]-2*32*self.hud.displayscale, self.gridui._pan[1]))
-                self.selector.move_cursor(LEFT)
-                self.selector.move_cursor(LEFT)
+                self.selector.move_cursor(WEST)
+                self.selector.move_cursor(WEST)
                 self.hud.update_cursor()
                 return True
             if event.key == K_ESCAPE:

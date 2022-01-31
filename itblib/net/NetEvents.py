@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from itblib.Game import Session
     from itblib.Grid import Grid
-    from itblib.abilities.AbilityBase import AbilityBase
+    from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
     from itblib.net.Connector import Connector
     from itblib.ui.hud.HUD import Hud
 

@@ -5,7 +5,7 @@ from itblib.Log import log
 from itblib.Serializable import Serializable
 
 if TYPE_CHECKING:
-    from itblib.abilities.AbilityBase import AbilityBase
+    from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 
 
 class AbilityComponent(ComponentBase, Serializable):
@@ -84,3 +84,9 @@ class AbilityComponent(ComponentBase, Serializable):
             if ability.selected:
                 ability.confirm_target(target)
                 return
+
+    def get_selected_ability(self):
+        """Return the ability that is currently selected."""
+        for ability in self._abilities:
+            if ability.selected:
+                return ability

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from itblib.gridelements.Effects import EffectBurrowed
-from itblib.abilities.ToggleAbilityBase import ToggleAbilityBase
+from itblib.abilities.baseAbilities.ToggleAbilityBase import ToggleAbilityBase
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase

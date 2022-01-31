@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
+
+from itblib.abilities.baseAbilities.TargetAbilityBase import TargetAbilityBase
 from itblib.gridelements.Effects import EffectBleeding
-from itblib.abilities.TargetAbilityBase import TargetAbilityBase
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase

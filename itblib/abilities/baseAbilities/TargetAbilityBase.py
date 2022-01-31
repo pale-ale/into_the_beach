@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from itblib.abilities.AbilityBase import AbilityBase
+from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from itblib.globals.Enums import PREVIEWS
 
 if TYPE_CHECKING:
@@ -11,9 +11,12 @@ class TargetAbilityBase(AbilityBase):
 
     def on_select_ability(self):
         super().on_select_ability()
+    
+    def _get_valid_targets(self) -> "set[tuple[int,int]]":
         owner = self.get_owner()
-        for neighbor in owner.grid.get_neighbors(owner.pos):
-            self.area_of_effect.add((neighbor, PREVIEWS[0]))
+        if owner:
+            return owner.grid.get_neighbors(owner.pos)
+        return set()
     
     def apply_to_target(self, target:"tuple[int,int]"):
         """Convenient override to act on each selected target."""
@@ -21,15 +24,9 @@ class TargetAbilityBase(AbilityBase):
 
     def on_trigger(self):
         super().on_trigger()
-        [self.apply_to_target(target) for target in self.selected_targets if self._is_valid_target(target)]
-            
+        [self.apply_to_target(target) for target in self.selected_targets]
 
     def set_targets(self, targets:"list[tuple[int,int]]"):
         super().set_targets(targets)
         self.area_of_effect.clear()
         self.on_deselect_ability()
-
-    def confirm_target(self, target:"tuple[int,int]"):
-        if self._is_valid_target(target):
-            self.set_targets([target])
-            super().confirm_target(target)
