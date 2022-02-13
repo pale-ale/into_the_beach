@@ -33,7 +33,7 @@ class EffectFire(EffectBase):
                 unit.change_hp(-1, "physical")
     
     def get_display_description(self) -> str:
-        return "A unit positioned on this tile will take one fire damage during each battle phase."
+        return "Units on top will take 1 fire damage each battle phase."
 
 
 class EffectMountain(EffectBase):

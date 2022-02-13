@@ -1,3 +1,4 @@
+from time import sleep
 import unittest
 
 from itblib.net.Connector import Connector
@@ -9,6 +10,9 @@ class TestNetworkMethods(unittest.TestCase):
         self.server_connector.server_init()
         self.client_connector.client_connect()
         self.client_connections = self.server_connector.get_incoming_connections()
+        while len(self.client_connections) < 1:
+            sleep(.1)
+            self.client_connections = self.server_connector.get_incoming_connections()
     
     def tearDown(self) -> None:
         del self.server_connector

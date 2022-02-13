@@ -9,10 +9,10 @@ class TextBox(pygame.sprite.Sprite, ComponentAcceptor):
                 text:str = "AaBbCcDdEeFfGg;:_ÖÄ@ILil",
                 bgcolor:"tuple[int,int,int,int]" = (0,0,0,255), 
                 textcolor:"tuple[int,int,int,int]" = (255,255,255,255),
-                fontsize:int = 20,
+                fontsize:int = 16,
                 pos:"tuple[int,int]" = (0,0),
                 linewidth:int = 150,
-                lineheight:int = 15,
+                lineheight:int = None,
                 *groups: pygame.sprite.AbstractGroup) -> None:
         ComponentAcceptor.__init__(self)
         tfc = TransformComponent()
@@ -21,9 +21,10 @@ class TextBox(pygame.sprite.Sprite, ComponentAcceptor):
         self.textcolor = textcolor
         self.bgcolor = bgcolor
         self.linewidth = linewidth
-        self.lineheight = lineheight
+        #letters are asymmetric and have to be shifted slightly by default
+        self.lineheight = lineheight if lineheight else fontsize - fontsize/6 
         self.image = pygame.Surface((100,100))
-        self.font = pygame.font.SysFont('firamono', fontsize)
+        self.font = pygame.font.Font("HighOne.ttf", fontsize)
         self.rect = pygame.Rect(*pos, *self.image.get_size())
         pygame.sprite.Sprite.__init__(self, *groups)
         self.update_textbox()
@@ -34,30 +35,31 @@ class TextBox(pygame.sprite.Sprite, ComponentAcceptor):
         self.image = pygame.Surface((self.linewidth, len(linebreak_text)*self.lineheight))
         self.image.fill(self.bgcolor)
         for i,line in enumerate(linebreak_text):
-            self.image.blit(self.font.render(line, True, self.textcolor, self.bgcolor).copy().convert_alpha(), (0, i*self.lineheight))
+            textsurf = self.font.render(line, False, self.textcolor, self.bgcolor).copy().convert_alpha()
+            self.image.blit(textsurf, (1, i*self.lineheight))
         self.image.set_colorkey((0,0,0,0))
         self.rect.size = self.image.get_size()
     
-    def _break_lines_font(self, text:str, font:pygame.font.Font, width:int) -> str:
-        """Will only work properly with monospaced fonts."""
-        letterwidth = font.render("x", False, (0), (0)).get_width()+1
-        return self._break_lines(text, max(width/letterwidth, 5))
-    
-    def _break_lines(self, text:str, letters_per_line:int) -> str:
+    def _break_lines_font(self, text:str, font:pygame.font.Font, textbox_width:int) -> str:
+        """Break a text at spaces and newlines, so that the line rendered with the specified font will not exceed the width."""
+        def get_str_font_len(text:str, font:pygame.font.Font):
+            """Calculate the length of a string based on the font it is rendered with."""
+            return font.render(text, False, (0)).get_width()
+        
         lines:list[str] = []
         split_text = text.split()
-        line = ""
-        current_line_letter_count = len(line)
+        space_width = get_str_font_len(" ", font)
+        current_line = ""
+        current_line_width = get_str_font_len(current_line, font)
         for word in split_text:
-            wordlen = len(word)
-            if current_line_letter_count + wordlen > letters_per_line:
-                lines.append(line.strip())
-                current_line_letter_count = 0
-                line = word
-            else: 
-                line += " " + word
-            line.strip()
-            current_line_letter_count += wordlen
-        lines.append(line.strip())
+            word_len = get_str_font_len(word, font)
+            if current_line_width + word_len + (space_width if current_line != "" else 0) > textbox_width:
+                lines.append(current_line.strip())
+                current_line = word
+            else:
+                current_line += " " + word
+            current_line.strip()
+            current_line_width = get_str_font_len(current_line, font)
+        lines.append(current_line.strip())
         return '\n'.join(lines)
 

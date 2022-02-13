@@ -1,11 +1,9 @@
-from turtle import color
 import unittest
-from itblib.Game import Session
-from itblib.Player import Player
 
-from itblib.net.Connector import Connector
+from itblib.Game import Session
 from itblib.Grid import Grid
-from itblib.net.NetEvents import NetEvents
+from itblib.net.Connector import Connector
+
 
 class TestJoinGameMethods(unittest.TestCase):
     def setUp(self) -> None:

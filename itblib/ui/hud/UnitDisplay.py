@@ -28,9 +28,9 @@ class UnitDisplay(PerfSprite):
         self.statuseffectpos =    (0, UnitDisplay.LABEL_SIZE[1]*3   + 4)
         self.defaultimagecolor =   (30,  0,  0, 255)
         self.defaulttextboxcolor = (50, 50, 50, 255)
-        self.font = pygame.font.SysFont('latinmodernmono', HUD.FONT_SIZE)
-        self.cooldown_font = pygame.font.SysFont('latinmodernmono', 10)
-        self.ability_number_font = pygame.font.SysFont('freemono', 10)
+        self.font =                pygame.font.Font('HighOne.ttf', HUD.TITLE_FONT_SIZE)
+        self.ability_number_font = pygame.font.Font('HighOne.ttf', HUD.DESC_FONT_SIZE )
+        self.cooldown_font =       pygame.font.Font('HighOne.ttf', HUD.SMALL_FONT_SIZE )
         self.image = pygame.Surface(UnitDisplay.SIZE).convert_alpha()
         self.rect = self.image.get_rect()
         self.image.fill((0))
@@ -89,21 +89,21 @@ class UnitDisplay(PerfSprite):
             )
             if self.displayunit and unit == self.displayunit._parentelement:
                 text = str(index+1)
-                numberimage = self.ability_number_font.render(text, True, (255,255,255,255), (50,50,50,255))
-                self.image.blit(numberimage, add(self.abilityphasepos, (17*(index+1)-numberimage.get_width()-2, 0)))
+                numberimage = self.ability_number_font.render(text, True, (255,255,255,255))#, (50,50,50,255))
+                self.image.blit(numberimage, add(self.abilityphasepos, (17*(index+1)-numberimage.get_width()-2, -1)))
             
             if ability.primed and ability.remainingcooldown == 0:
-                col = (50,100,50,255)
+                col = (100,150,100,255)
             elif ability.remainingcooldown == 0:
                 col = (150,150,150,255)
             else:
-                col = (100,50,50,255)
+                col = (150,100,100,255)
             self.image.fill(col, (*add(self.abilitycooldownpos, (17*index, 0)), 16, 8)
             )
             if self.displayunit and unit == self.displayunit._parentelement:
                 text = str(ability.remainingcooldown)
-                numberimage = self.cooldown_font.render(text, True, (255,255,255,255), (50,50,50,255))
-                self.image.blit(numberimage, add(self.abilitycooldownpos, (17*(index+1)-numberimage.get_width()-2, 0)))
+                numberimage = self.cooldown_font.render(text, True, (50,50,50,255))
+                self.image.blit(numberimage, add(self.abilitycooldownpos, (17*(index+1)-numberimage.get_width()-2, -1)))
 
             index += 1
 

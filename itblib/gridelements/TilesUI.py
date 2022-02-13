@@ -11,14 +11,9 @@ class TileBaseUI(GridElementUI, IDisplayable):
         return "Somename"
     
     def get_display_description(self) -> str:
-        return "I am an awesome and\n\
-                quite long description."
+        return "No special tile effects"
 
 
 class TileDirtUI(TileBaseUI):
     def get_display_name(self) -> str:
         return "Grass Tile"
-    
-    def get_display_description(self) -> str:
-        return "I am an awesome and\n\
-                quite long description."
