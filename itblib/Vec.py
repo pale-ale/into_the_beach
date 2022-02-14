@@ -49,9 +49,10 @@ def vector_between(a:Vector2,b:Vector2,x:Vector2,s:float=1e-1) -> bool:
     ax, ay = a
     bx, by = b
     xx, xy = x
-    det_ax = ax*xx + ay*xy
-    det_bx = bx*xx + by*xy
-    return det_ax >= -s and det_bx >= -s
+    cprod_ax = ax*xy - ay*xx
+    cprod_bx = bx*xy - by*xx
+    cprod_ab = ax*by - ay*bx
+    return cprod_ab * cprod_ax >= -s and cprod_ab * cprod_bx <= s
 
 def transform_vector(m:Matrix,v:Vector) -> Vector:
     """

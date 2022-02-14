@@ -76,7 +76,8 @@ def update_targets():
         a_targets = TARGETS[i]
         a.area_of_effect = {(a_targets[preview_pos_index % len(a_targets)], "Special")}
     CONE_ABILITY.cone_direction -= math.pi/4
-    CONE_ABILITY.cone_len_tiles = math.sin(gtime)*2
+    CONE_ABILITY.cone_spread_angle = math.pi/4
+    CONE_ABILITY.cone_len_tiles = 3
     CONE_ABILITY.on_select_ability()
 
 def main():

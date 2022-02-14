@@ -16,12 +16,16 @@ class TestVecMethods(unittest.TestCase):
         self.almostEqual2(Vec.deg_to_coord(pi/2), (0,1))
 
     def test_is_between(self):
-        r = ( 1, 0)
-        l = (-1, 0)
-        u = ( 0, 1)
-        d = ( 0,-1)
-        self.assertTrue(Vec.vector_between(u,r,(1,1)))
-        self.assertTrue(Vec.vector_between(r,u,(1,1)))
+        r = (10, 0)
+        l = (10, 1)
+        t_1 = (10, .5)
+        f_1 = (-10,-.5)
+        f_2 = (10,1.1)
+        f_3 = (1,10)
+        self.assertTrue(Vec.vector_between(r,l,t_1))
+        self.assertFalse(Vec.vector_between(l,r,f_1))
+        self.assertFalse(Vec.vector_between(l,r,f_2))
+        self.assertFalse(Vec.vector_between(l,r,f_3))
     
     def test_transform_vector(self):
         v_right    = (1,0)
