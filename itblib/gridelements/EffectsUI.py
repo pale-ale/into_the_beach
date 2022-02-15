@@ -1,12 +1,13 @@
-import random
 import math
+import random
 from typing import Generator
+
 import pygame
+from itblib.globals.Colors import TEXTURE_MISSING
 from itblib.globals.Enums import RIVER
 from itblib.gridelements.Effects import EffectBase
 from itblib.gridelements.GridElementUI import GridElementUI
 from itblib.ui.IDisplayable import IDisplayable
-from itblib.Vec import smult
 
 
 class EffectBaseUI(GridElementUI, IDisplayable):
@@ -17,10 +18,15 @@ class EffectBaseUI(GridElementUI, IDisplayable):
             self.start()
     
     def get_display_description(self) -> str:
-        return "Effect description"
+        return self._parentelement.get_display_description()
 
     def get_display_name(self) -> str:
-        return "Effect name"
+        return self._parentelement.get_display_name()
+    
+    def get_icon(self) -> pygame.Surface:
+        s = pygame.Surface((16,16))
+        s.fill(TEXTURE_MISSING)
+        return s
 
 class EffectRiverUI(EffectBaseUI):
     def update(self, delta_time:float):
@@ -45,9 +51,6 @@ class EffectRiverUI(EffectBaseUI):
             print("EffectRiverUI: Weird riverposs:", riverposs)
             return
         self.framenumber = imageid
-    
-    def get_display_name(self) -> str:
-        return "River"
     
 
 class EffectFireUI(EffectBaseUI):

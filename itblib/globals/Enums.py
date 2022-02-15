@@ -1,10 +1,10 @@
-PHASES = {
-    0:("Pregamephase", 20),
-    1:("Planningphase",10),
-    2:("Prephase",      0),
-    3:("Battlephase",   0),
-    4:("Postphase",     0)
-}
+class PHASES:
+    PREGAMEPHASE = 0
+    PLANNINGPHASE = 1
+    PREPHASE = 2
+    BATTLEPHASE = 3
+    POSTPHASE = 4
+
 
 PREVIEWS = {
     -1:"Special",

@@ -2,13 +2,13 @@ from typing import Generator
 
 import pygame
 from itblib.components.TransformComponent import TransformComponent
-from itblib.globals.Colors import BLACK, PHASECOLORS
+from itblib.globals.Colors import BLACK, GRAY_ACCENT_LIGHT, PHASECOLORS
 from itblib.globals.Constants import HUD, STANDARD_UNIT_SIZE
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.UnitsUI import UnitBaseUI
 from itblib.ui.PerfSprite import PerfSprite
 from itblib.ui.TextureManager import Textures
-from itblib.Vec import add, smult, sub
+from itblib.Vec import add, sub
 
 
 class UnitDisplay(PerfSprite):
@@ -113,7 +113,7 @@ class UnitDisplay(PerfSprite):
     def _draw_border(self):
         pygame.draw.rect(
             self.image, 
-            HUD.IMAGE_BORDER_COLOR, 
+            GRAY_ACCENT_LIGHT, 
             (
                 UnitDisplay.SIZE[0] - UnitDisplay.IMAGE_SIZE_BORDER[0],
                 0,
@@ -129,10 +129,10 @@ class UnitDisplay(PerfSprite):
         self.image.fill(self.defaulttextboxcolor, (*self.abilityphasepos, *UnitDisplay.LABEL_SIZE))
         self.image.fill(self.defaulttextboxcolor, (*self.statuseffectpos, *UnitDisplay.LABEL_SIZE))
         pygame.draw.line(
-            self.image, HUD.IMAGE_BORDER_COLOR, add(self.abilityimagepos,(0,-1)), 
+            self.image, GRAY_ACCENT_LIGHT, add(self.abilityimagepos,(0,-1)), 
             add(self.abilityimagepos,(UnitDisplay.LABEL_SIZE[0],-1)))
         pygame.draw.line(
-            self.image, HUD.IMAGE_BORDER_COLOR, add(self.abilityphasepos,(0,-1)), 
+            self.image, GRAY_ACCENT_LIGHT, add(self.abilityphasepos,(0,-1)), 
             add(self.abilityphasepos,(UnitDisplay.LABEL_SIZE[0],-1)))
         pygame.draw.line(
             self.image, BLACK, add(self.statuseffectpos, (0,-2)), 

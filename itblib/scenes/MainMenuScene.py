@@ -19,13 +19,13 @@ class MainMenuScene(SceneBase):
         self.spotchangetime = .1
         
         width, height = self.bg.get_size()
-        tb_fullscreen = TextBox(text="Toggle Fullscreen", textcolor=(50,255,255,255), fontsize=11, bgcolor=(255,100,255,150), pos=(350, 12))
-        tb_map        = TextBox(text="Map Selection",     textcolor=(50,255,255,255), fontsize=11, bgcolor=(255,100,255,150), pos=(375, 37))
-        tb_roster     = TextBox(text="Edit Roster",       textcolor=(50,255,255,255), fontsize=11, bgcolor=(255,100,255,150), pos=(400, 62))
-        tb_battle     = TextBox(text="Battle",            textcolor=(50,255,255,255), fontsize=11, bgcolor=(255,100,255,150), pos=(width/2 - 26-15, height*.805))
-        tb_settings   = TextBox(text="Game Settings",     textcolor=(50,255,255,255), fontsize=11, bgcolor=(255,100,255,150), pos=(width/2 + 26+29, height*.87))
-        tb_loadout    = TextBox(text="Loadout",           textcolor=(50,255,255,255), fontsize=11, bgcolor=(255,100,255,150), pos=(width/2 - 26-52, height*.87))
-        tb_exit       = TextBox(text="Exit",              textcolor=(50,255,255,255), fontsize=11, bgcolor=(255,100,255,150), pos=(width/2 + 25, height*.945))
+        tb_fullscreen = TextBox(text="Toggle Fullscreen", textcolor=(50,255,255,255), linewidth=100, fontsize=16, bgcolor=(255,100,255,150), pos=(350, 12))
+        tb_map        = TextBox(text="Map Selection",     textcolor=(50,255,255,255), linewidth=100, fontsize=16, bgcolor=(255,100,255,150), pos=(375, 37))
+        tb_roster     = TextBox(text="Edit Roster",       textcolor=(50,255,255,255), linewidth=100, fontsize=16, bgcolor=(255,100,255,150), pos=(400, 62))
+        tb_battle     = TextBox(text="Battle",            textcolor=(50,255,255,255), linewidth= 40, fontsize=16, bgcolor=(255,100,255,150), pos=(width/2 - 26-15, height*.805))
+        tb_settings   = TextBox(text="Game Settings",     textcolor=(50,255,255,255), linewidth= 75, fontsize=16, bgcolor=(255,100,255,150), pos=(width/2 + 26+29, height*.87))
+        tb_loadout    = TextBox(text="Loadout",           textcolor=(50,255,255,255), linewidth= 50, fontsize=16, bgcolor=(255,100,255,150), pos=(width/2 - 26-52, height*.87))
+        tb_exit       = TextBox(text="Exit",              textcolor=(50,255,255,255), linewidth= 40, fontsize=16, bgcolor=(255,100,255,150), pos=(width/2 + 25, height*.945))
         
         self.textsprites = [
             tb_fullscreen, tb_roster, tb_map,

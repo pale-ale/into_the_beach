@@ -71,7 +71,7 @@ class MapGrasslands(Map):
         river = [61, 62, 37, 38]
         for x in river:
             self.tileeffectids[x].append(4)  
-        self.tileeffectids[33].append(2)
+        self.tileeffectids[33].extend([3,2,5])
         self.tileeffectids[66].append(2)
         self.tileeffectids[36].append(2)
         self.tileeffectids[63].append(2)

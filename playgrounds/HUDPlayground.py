@@ -1,15 +1,14 @@
-import math
 import os
 
 import pygame
 import pygame.display
 import pygame.sprite
 import pygame.time
+
 from itblib.gridelements.Effects import EffectFire, EffectMountain
 from itblib.gridelements.EffectsUI import EffectBaseUI, EffectFireUI
 from itblib.gridelements.Tiles import TileDirt
 from itblib.gridelements.TilesUI import TileDirtUI
-
 from itblib.ui.hud.TileDisplay import TileDisplay
 from itblib.ui.TextureManager import Textures
 
@@ -48,8 +47,11 @@ def main():
     global RUNNING
     while RUNNING:
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                RUNNING = False
+            if event.type in (pygame.KEYDOWN, pygame.KEYUP):
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    RUNNING = False
+                else:
+                    tile_display.handle_key_event(event)
         dt = CLOCK.tick(FPS)/1000.0
         scene_image.blits(tile_display.get_blits())
         pygame.transform.scale(scene_image, screen.get_size(), screen)

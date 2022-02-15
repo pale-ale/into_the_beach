@@ -41,7 +41,7 @@ class EffectMountain(EffectBase):
         super().__init__(grid, pos, age, done, name)
     
     def get_display_description(self) -> str:
-        return "Mountains block movement and provide limited cover."
+        return "Blocks movement and provides limited cover."
 
 
 class EffectRiver(EffectBase):

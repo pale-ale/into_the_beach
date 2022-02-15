@@ -1,7 +1,6 @@
 from typing import Generator
 
 import pygame
-from itblib.ui.IGridObserver import IGridObserver
 from itblib.components.ComponentAcceptor import ComponentAcceptor
 from itblib.components.TransformComponent import TransformComponent
 from itblib.globals.Constants import STANDARD_TILE_SIZE
@@ -14,7 +13,7 @@ from itblib.gridelements.Tiles import TileBase
 from itblib.gridelements.TilesUI import TileBaseUI
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.UnitsUI import UnitBaseUI
-from itblib.Log import log
+from itblib.ui.IGridObserver import IGridObserver
 from itblib.ui.PerfSprite import PerfSprite
 from itblib.Vec import add
 
@@ -49,7 +48,7 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver):
             self._add_get_clear_blit()
         if self.phase_change_callback:
             self.phase_change_callback(phase)
-
+    
     def on_add_tile(self, tile:TileBase):
         """Add the UI version of the new tile added to the normal grid."""
         ui_tile_class = GridElementUIFactory.find_tile_class(type(tile).__name__ + "UI")

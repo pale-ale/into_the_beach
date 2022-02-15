@@ -10,7 +10,8 @@ class EffectInfoElement(PerfSprite):
     def __init__(self, effect: EffectBase, width: int) -> None:
         super().__init__()
         self.title_tb = TextBox(effect.get_display_name(),        fontsize=16, bgcolor=(50,50,50), linewidth=width)
-        self.desc_tb =  TextBox(effect.get_display_description(), fontsize=16, bgcolor=(50,50,50), linewidth=width-5, pos=(5,14))
+        desc_pos = (5, self.title_tb.rect.bottom+1)
+        self.desc_tb =  TextBox(effect.get_display_description(), fontsize=16, bgcolor=(50,50,50), linewidth=width-5, pos=desc_pos)
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield (self.title_tb.image, self.title_tb.rect, self.title_tb.image.get_rect())

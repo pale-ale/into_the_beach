@@ -1,10 +1,11 @@
 import sys
+from typing import Generator
 
 import pygame
 import pygame.draw
 import pygame.font
 import pygame.transform
-from itblib.globals.Colors import GRAY, GREEN, ORANGE, RED
+from itblib.globals.Colors import DARK_GRAY, GREEN, ORANGE, RED
 from itblib.globals.Enums import UNIT_IDS
 from itblib.Player import PlayerData
 from itblib.SceneManager import SceneManager
@@ -89,7 +90,7 @@ class RosterSelectionScene(SceneBase):
     def draw_tangle(self, c:"tuple[int,int]", count:int=0):
         tangle_size = 10
         verts = [add(x, self.c_to_s(c)) for x in ((self.tilewidth-tangle_size-1,0),(self.tilewidth-1,0),(self.tilewidth-1,tangle_size))]
-        pygame.draw.polygon(self.unitlist, [GRAY, RED, ORANGE, GREEN][count], verts)
+        pygame.draw.polygon(self.unitlist, [DARK_GRAY, RED, ORANGE, GREEN][count], verts)
         self.image.blit(self.unitlist, self.label_offset)
 
     def handle_key_event(self, keyevent):

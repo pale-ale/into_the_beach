@@ -7,19 +7,18 @@ import pygame.sprite
 import pygame.transform
 from itblib.Game import Session
 from itblib.globals.Colors import BLACK, PHASECOLORS
-from itblib.globals.Constants import HUD
-from itblib.globals.Enums import PHASES
+from itblib.globals.Constants import HUD, PHASE_DURATIONS
 from itblib.gridelements.UnitsUI import UnitBaseUI
 from itblib.input.Input import InputAcceptor
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.animations.PlayerVersus import PlayerVersusAnimation
 from itblib.ui.GridUI import GridUI
+from itblib.ui.hud.AbilityPreviewDisplay import AbilityPreviewDisplay
 from itblib.ui.hud.TileDisplay import TileDisplay
 from itblib.ui.hud.UnitDisplay import UnitDisplay
 from itblib.ui.PerfSprite import PerfSprite
 from itblib.ui.TextureManager import Textures
-from itblib.Vec import add
-from itblib.ui.hud.AbilityPreviewDisplay import AbilityPreviewDisplay
+
 
 class Hud(PerfSprite, InputAcceptor):
     """The HUD is used to display most information, like HP, abilities, etc."""
@@ -27,8 +26,6 @@ class Hud(PerfSprite, InputAcceptor):
     def __init__(self, size:"tuple[int,int]", gridui:GridUI, playerid:int, session:Session):
         PerfSprite.__init__(self)
         InputAcceptor.__init__(self)
-        self.defaultimagecolor = (30,0,0,255)
-        self.defaulttextboxcolor = (50,50,50,255)
         self.playerversusanimation:"PlayerVersusAnimation|None" = None
         self.rect = pygame.Rect(0,0,*size)
         self.selected_unitui:UnitBaseUI = None
@@ -40,6 +37,7 @@ class Hud(PerfSprite, InputAcceptor):
         self.displayscale = 2
         self.unitdisplay = UnitDisplay()
         self.tiledisplay = TileDisplay()
+        self.register_input_listeners(self.tiledisplay)
         self.ability_preview_display = AbilityPreviewDisplay(gridui)
         self.unitdisplay.rect.topleft = (self.rect.width - HUD.ELEM_WIDTH, 0) 
         self.tiledisplay.rect.topleft = (0, 0)
@@ -72,7 +70,7 @@ class Hud(PerfSprite, InputAcceptor):
                 else:
                     NetEvents.snd_netplayerleave(self.playerid)
                     return True
-        return False      
+        return super().handle_key_event(event)
     
     def select_unit(self, unitui:"UnitBaseUI|None"):
         """Mark a unit as selected, displaying it's stats in greater detail and allowing ability use."""
@@ -83,8 +81,6 @@ class Hud(PerfSprite, InputAcceptor):
             if unitui._parentelement.ownerid == self.playerid:
                 self.selected_unitui = unitui
                 unitui._parentelement.ability_component.on_select()
-            else:
-                print("not my unit")
         else:
             self.selected_unitui = None
     
@@ -114,7 +110,7 @@ class Hud(PerfSprite, InputAcceptor):
                 yield from self.ability_preview_display.get_blits()
     
     def get_phase_timer_blit(self):
-        maxphasetime = PHASES[self.gridui.grid.phase][1]
+        maxphasetime = PHASE_DURATIONS.DURATIONS[self.gridui.grid.phase]
         currentphasetime = self.gridui.grid.phasetime
         s = self.font.render(str(round(max(0.0,maxphasetime-currentphasetime), 1)).zfill(4), True, (255,255,255,255), (255,50,50,255)).convert()
         c = self.session._players[self.playerid].color if self.playerid in self.session._players else (50,50,50,255)

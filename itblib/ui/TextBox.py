@@ -18,14 +18,13 @@ class TextBox(pygame.sprite.Sprite, ComponentAcceptor):
         tfc = TransformComponent()
         tfc.attach_component(self)
         self.text = text
+        self.font = pygame.font.Font("HighOne.ttf", fontsize)
         self.textcolor = textcolor
         self.bgcolor = bgcolor
         self.linewidth = linewidth
-        #letters are asymmetric and have to be shifted slightly by default
-        self.lineheight = lineheight if lineheight else fontsize - fontsize/6 
-        self.image = pygame.Surface((100,100))
-        self.font = pygame.font.Font("HighOne.ttf", fontsize)
-        self.rect = pygame.Rect(*pos, *self.image.get_size())
+        self.lineheight = lineheight if lineheight else self.font.get_height() - 2*(fontsize/8)
+        self.image:pygame.Surface = None
+        self.rect:pygame.Rect = pygame.Rect(pos, (0,0))
         pygame.sprite.Sprite.__init__(self, *groups)
         self.update_textbox()
 
@@ -35,10 +34,12 @@ class TextBox(pygame.sprite.Sprite, ComponentAcceptor):
         self.image = pygame.Surface((self.linewidth, len(linebreak_text)*self.lineheight))
         self.image.fill(self.bgcolor)
         for i,line in enumerate(linebreak_text):
-            textsurf = self.font.render(line, False, self.textcolor, self.bgcolor).copy().convert_alpha()
-            self.image.blit(textsurf, (1, i*self.lineheight))
+            textsurf = self.font.render(line, False, self.textcolor, self.bgcolor)
+            border = (textsurf.get_height()-self.lineheight)*.5
+            subsurf = textsurf.subsurface((0,border, textsurf.get_width(), textsurf.get_height()-border)).convert_alpha()
+            self.image.blit(subsurf, (1, i*self.lineheight))
         self.image.set_colorkey((0,0,0,0))
-        self.rect.size = self.image.get_size()
+        self.rect = pygame.Rect(self.get_component(TransformComponent).get_position(), self.image.get_size())
     
     def _break_lines_font(self, text:str, font:pygame.font.Font, textbox_width:int) -> str:
         """Break a text at spaces and newlines, so that the line rendered with the specified font will not exceed the width."""
