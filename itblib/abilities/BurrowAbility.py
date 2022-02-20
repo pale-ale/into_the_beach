@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from itblib.gridelements.Effects import EffectBurrowed
+from itblib.gridelements.StatusEffects import StatusEffectBurrowed
 from itblib.abilities.baseAbilities.ToggleAbilityBase import ToggleAbilityBase
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ class BurrowAbility(ToggleAbilityBase):
             if effect:
                 owner.remove_statuseffect(effect)
             else:
-                burroweffect = EffectBurrowed(owner)
-                owner.add_statuseffect(burroweffect)
+                burroweffect = StatusEffectBurrowed(owner)
+                owner.add_status_effect(burroweffect)
                 print("BurrowAbility: Burrowed unit:", owner.name)
             owner.done = True

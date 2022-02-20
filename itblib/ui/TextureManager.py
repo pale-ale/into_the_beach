@@ -67,7 +67,8 @@ class Textures:
         (ETEXTURETYPE.EFFECT_ICON, "Burrowed"       , ""   ,  None),
         (ETEXTURETYPE.EFFECT_ICON, "DreadfulNoise"  , ""   ,  None),
         (ETEXTURETYPE.EFFECT_ICON, "Ablaze"         , ""   ,  None),
-        (ETEXTURETYPE.EFFECT_ICON, "Mountain"         , ""   ,  None),
+        (ETEXTURETYPE.EFFECT_ICON, "Mountain"       , ""   ,  None),
+        (ETEXTURETYPE.EFFECT_ICON, "Wheat"          , ""   ,  None),
 
         (ETEXTURETYPE.OTHER, "Cursor"       , "", 1)
     ]

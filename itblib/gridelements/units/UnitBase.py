@@ -5,16 +5,16 @@ from itblib.abilities.MovementAbility import MovementAbility
 from itblib.components.AbilityComponent import AbilityComponent
 from itblib.components.ComponentAcceptor import ComponentAcceptor
 from itblib.DamageReceiver import DamageReceiver
-from itblib.gridelements.Effects import EffectBleeding, EffectBurrowed
 from itblib.gridelements.GridElement import GridElement
 from itblib.gridelements.UnitsUI import UnitBaseUI
 from itblib.input.Input import InputAcceptor
 from itblib.Serializable import Serializable
+from itblib.globals.StatusEffectFactory import StatusEffectFactory
 
 if TYPE_CHECKING:
     from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
     from itblib.Grid import Grid
-    from itblib.gridelements.Effects import StatusEffect
+    from itblib.gridelements.StatusEffects import StatusEffect
 
 class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, InputAcceptor):
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
@@ -41,9 +41,9 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, Inp
     def insert_data(self, data):
         Serializable.insert_data(self, data, exclude=["statuseffects", "ability_component", "_hitpoints"])
         for effectdata in data["statuseffects"]:
-            for effectclass in [EffectBurrowed, EffectBleeding]:
-                if effectclass.__name__ == "Effect" + effectdata["name"] and self.get_statuseffect(effectdata["name"]) is None:
-                    self.add_statuseffect(effectclass(self))
+            status_effect_class = StatusEffectFactory.find_status_effect_class(effectdata["name"])
+            if status_effect_class and self.get_statuseffect(effectdata["name"]) is None:
+                self.add_status_effect(status_effect_class(self))
         self.ability_component.insert_data(data["ability_component"])
         self.set_hp(data["_hitpoints"])
     
@@ -59,7 +59,7 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, Inp
                     return True
         return False
 
-    def add_statuseffect(self, statuseffect:"StatusEffect"):
+    def add_status_effect(self, statuseffect:"StatusEffect"):
         """Add a status effect."""
         self.statuseffects.append(statuseffect)
     

@@ -1,6 +1,6 @@
 from itblib.abilities.baseAbilities.ConeAttackAbilityBase import \
     ConeAttackAbilityBase
-from itblib.gridelements.Effects import EffectDreadfulNoise
+from itblib.gridelements.StatusEffects import StatusEffectDreadfulNoise
 
 
 class DreadfulNoiseAbility(ConeAttackAbilityBase):
@@ -10,5 +10,5 @@ class DreadfulNoiseAbility(ConeAttackAbilityBase):
         owner = self.get_owner()
         targetunit = owner.grid.get_unit(target)
         if targetunit and targetunit != owner:
-            dreadfulnoiseeffect = EffectDreadfulNoise(targetunit)
-            targetunit.add_statuseffect(dreadfulnoiseeffect)
+            dreadfulnoiseeffect = StatusEffectDreadfulNoise(targetunit)
+            targetunit.add_status_effect(dreadfulnoiseeffect)

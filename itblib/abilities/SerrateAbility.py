@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from itblib.abilities.baseAbilities.TargetAbilityBase import TargetAbilityBase
-from itblib.gridelements.Effects import EffectBleeding
+from itblib.gridelements.StatusEffects import StatusEffectBleeding
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
@@ -19,7 +19,7 @@ class SerrateAbility(TargetAbilityBase):
             owner.attack(target, 1, "physical")
             u = owner.grid.get_unit(target)
             if u:
-                u.add_statuseffect(EffectBleeding(u))
+                u.add_status_effect(StatusEffectBleeding(u))
 
     def _get_valid_targets(self) -> "set[tuple[int,int]]|None":
         owner = self.get_owner()

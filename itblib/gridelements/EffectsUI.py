@@ -111,3 +111,7 @@ class EffectFireUI(EffectBaseUI):
 class EffectMountainUI(EffectBaseUI):
     def get_icon(self) -> pygame.Surface:
         return Textures.get_spritesheet("Mountain")[0]
+
+class EffectWheatUI(EffectBaseUI):
+    def get_icon(self) -> pygame.Surface:
+        return Textures.get_spritesheet("Wheat")[0]

@@ -36,7 +36,7 @@ class TestUnitBaseMethods(unittest.TestCase):
         self.assertTrue(self.unit)
         statuseffect = EffectBleeding(self.unit)
         self.assertIsNone(self.unit.get_statuseffect(statuseffect))
-        self.unit.add_statuseffect(statuseffect)
+        self.unit.add_status_effect(statuseffect)
         self.assertTrue(statuseffect in self.unit.statuseffects)
         self.unit.remove_statuseffect("EffectBurrowed")
         self.assertIsNone(self.unit.get_statuseffect(statuseffect))

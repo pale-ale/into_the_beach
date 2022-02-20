@@ -1,10 +1,11 @@
 import pygame
-from itblib.input.Input import InputAcceptor
 
-from itblib.ui.hud.HUD import Hud 
 from itblib.Grid import Grid
-from itblib.Vec import add
+from itblib.input.Input import InputAcceptor
 from itblib.Log import log
+from itblib.ui.hud.HUD import Hud
+from itblib.Vec import add
+
 
 class Selector(InputAcceptor):
     """A controller used to handle the player's input."""
@@ -40,7 +41,6 @@ class Selector(InputAcceptor):
     def handle_key_event(self, event: any) -> bool:
         if super().handle_key_event(event):
             return True
-      
         if event.type == pygame.KEYDOWN:
             # active abilities
             if event.unicode and event.unicode in "1234":
@@ -57,6 +57,7 @@ class Selector(InputAcceptor):
                     delta = (1,0)
                 elif event.key == pygame.K_LEFT:
                     delta = (0,-1)
-                self.move_cursor(delta)
+                if delta != (0,0):
+                    self.move_cursor(delta)
                 return delta != (0,0)
         return False
