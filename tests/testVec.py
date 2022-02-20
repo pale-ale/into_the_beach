@@ -2,7 +2,7 @@ from math import pi
 import unittest
 
 import itblib.Vec as Vec
-from itblib.globals.Enums import NORTH, EAST
+from itblib.globals.Constants import DIRECTIONS
 
 class TestVecMethods(unittest.TestCase):
     def almostEqual2(self, a,b):
@@ -30,6 +30,6 @@ class TestVecMethods(unittest.TestCase):
     def test_transform_vector(self):
         v_right    = (1,0)
         v_right_up = (1,1)
-        m = (EAST, NORTH)
+        m = (DIRECTIONS.EAST, DIRECTIONS.NORTH)
         self.assertEqual(Vec.transform_vector(m,v_right   ), (-1,1))
         self.assertEqual(Vec.transform_vector(m,v_right_up), (-2,0))

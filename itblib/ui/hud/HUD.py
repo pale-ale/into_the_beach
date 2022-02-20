@@ -18,6 +18,7 @@ from itblib.ui.hud.TileDisplay import TileDisplay
 from itblib.ui.hud.UnitDisplay import UnitDisplay
 from itblib.ui.PerfSprite import PerfSprite
 from itblib.ui.TextureManager import Textures
+from itblib.globals.Constants import PREVIEWS
 
 
 class Hud(PerfSprite, InputAcceptor):
@@ -144,7 +145,7 @@ class Hud(PerfSprite, InputAcceptor):
         self.cursorscreenpos = self.gridui.transform_grid_screen(position)
         if self.cursor_blit:
             self.blits.remove(self.cursor_blit)
-        self.cursor_blit = (Textures.textures["SelectionPreview"][0], pygame.Rect(*self.cursorscreenpos,64,64), pygame.Rect(0,0,64,64))
+        self.cursor_blit = (Textures.get_spritesheet(PREVIEWS[0])[0], pygame.Rect(*self.cursorscreenpos,64,64), pygame.Rect(0,0,64,64))
         self.blits.append(self.cursor_blit)
         if self.selected_unitui and self.selected_unitui._parentelement:
             self.selected_unitui._parentelement.ability_component.on_update_cursor(position)

@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING
 
 from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
-from itblib.globals.Constants import FLAGS
-from itblib.globals.Enums import PREVIEWS
+from itblib.globals.Constants import DIRECTIONS, FLAGS, PREVIEWS
 from itblib.net.NetEvents import NetEvents
 
 if TYPE_CHECKING:
@@ -87,7 +86,7 @@ class MovementAbility(AbilityBase):
                 next = pathwithself[i+1]
                 prevdelta = (curr[0] - prev[0], curr[1] - prev[1])
                 nextdelta = (next[0] - curr[0], next[1] - curr[1])
-                currentwithpreview = (curr, PREVIEWS[(*nextdelta, *prevdelta)])
+                currentwithpreview = (curr, PREVIEWS[(nextdelta, prevdelta)])
                 self.area_of_effect.add(currentwithpreview)
             self.area_of_effect.add(first)
             self.area_of_effect.add(last)
@@ -110,7 +109,8 @@ class MovementAbility(AbilityBase):
     def on_deselect_ability(self):
         self.selected = False
         if self.primed:
-            valid_preview_lambda = lambda p: False if p[1] in {PREVIEWS[i] for i in range(3,7)} else True
+            cardinals = {DIRECTIONS.NORTHEAST, DIRECTIONS.SOUTHEAST, DIRECTIONS.NORTHWEST, DIRECTIONS.SOUTHWEST}
+            valid_preview_lambda = lambda p: False if p[1] in {PREVIEWS[c] for c in cardinals} else True
             self.area_of_effect = {x for x in filter(valid_preview_lambda, self.area_of_effect)}
         else:
             self.reset()

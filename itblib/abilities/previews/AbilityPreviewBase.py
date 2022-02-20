@@ -19,9 +19,9 @@ class AbilityPreviewBase(ABC):
         """@transform_func: turns grid coordinates into screen coordinates"""
         aoe = self._ability.area_of_effect
         for pos, preview_name in aoe:
-            if not preview_name.startswith("Special"):
+            if ':' in preview_name:
                 yield (
-                    Textures.textures[preview_name][0], 
+                    Textures.get_spritesheet(preview_name.replace(':',''))[0], 
                     pygame.Rect(transform_func(pos), (64,64)), 
                     pygame.Rect(0,0,64,64)
                 )

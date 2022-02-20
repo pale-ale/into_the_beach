@@ -65,7 +65,7 @@ class UnitDisplay(PerfSprite):
     def display_statuseffects(self, unit:UnitBase):
         self.image.fill((0), (0,100,200,16))
         for i in range(len(unit.statuseffects)):
-            texkey = unit.statuseffects[i].name+"Icon"
+            texkey = unit.statuseffects[i].name
             spritesheet = Textures.get_spritesheet(texkey)
             if spritesheet:
                 self.image.blit(spritesheet[0], (1+i*16, self.statuseffectpos[1]+1))

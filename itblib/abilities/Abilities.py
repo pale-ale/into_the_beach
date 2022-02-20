@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from itblib.abilities.baseAbilities.TargetAbilityBase import TargetAbilityBase
-from itblib.globals.Enums import PREVIEWS
+from itblib.globals.Constants import PREVIEWS
 from itblib.net.NetEvents import NetEvents
 
 if TYPE_CHECKING:

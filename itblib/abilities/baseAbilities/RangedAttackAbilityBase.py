@@ -1,6 +1,6 @@
 from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from itblib.components.AbilityComponent import AbilityComponent
-from itblib.globals.Enums import PREVIEWS
+from itblib.globals.Constants import PREVIEWS
 
 
 class RangedAttackAbility(AbilityBase):

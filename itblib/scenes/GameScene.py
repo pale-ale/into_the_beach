@@ -4,7 +4,7 @@ import pygame
 from pygame.constants import K_ESCAPE
 import pygame.surface
 import pygame.transform
-from itblib.globals.Enums import NORTH, SOUTH, EAST, WEST
+from itblib.globals.Constants import DIRECTIONS
 from itblib.Grid import Grid
 from itblib.net.NetEvents import NetEvents
 from itblib.SceneManager import SceneManager
@@ -35,26 +35,26 @@ class GameScene(SceneBase):
         elif event.type == pygame.KEYDOWN:
             if event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_UP:
                 self.gridui.update_pan((self.gridui._pan[0], self.gridui._pan[1] + 2*22*self.hud.displayscale))
-                self.selector.move_cursor(NORTH)
-                self.selector.move_cursor(NORTH)
+                self.selector.move_cursor(DIRECTIONS.NORTH)
+                self.selector.move_cursor(DIRECTIONS.NORTH)
                 self.hud.update_cursor()
                 return True
             elif event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_DOWN:
                 self.gridui.update_pan((self.gridui._pan[0], self.gridui._pan[1] - 2*22*self.hud.displayscale))
-                self.selector.move_cursor(SOUTH)
-                self.selector.move_cursor(SOUTH)
+                self.selector.move_cursor(DIRECTIONS.SOUTH)
+                self.selector.move_cursor(DIRECTIONS.SOUTH)
                 self.hud.update_cursor()
                 return True
             elif event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_LEFT:
                 self.gridui.update_pan((self.gridui._pan[0]+2*32*self.hud.displayscale, self.gridui._pan[1]))
-                self.selector.move_cursor(WEST)
-                self.selector.move_cursor(WEST)
+                self.selector.move_cursor(DIRECTIONS.WEST)
+                self.selector.move_cursor(DIRECTIONS.WEST)
                 self.hud.update_cursor()
                 return True
             elif event.mod & pygame.KMOD_SHIFT and event.key == pygame.K_RIGHT:
                 self.gridui.update_pan((self.gridui._pan[0]-2*32*self.hud.displayscale, self.gridui._pan[1]))
-                self.selector.move_cursor(EAST)
-                self.selector.move_cursor(EAST)
+                self.selector.move_cursor(DIRECTIONS.EAST)
+                self.selector.move_cursor(DIRECTIONS.EAST)
                 self.hud.update_cursor()
                 return True
             if event.key == K_ESCAPE:

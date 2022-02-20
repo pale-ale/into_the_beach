@@ -8,6 +8,7 @@ from itblib.globals.Enums import RIVER
 from itblib.gridelements.Effects import EffectBase
 from itblib.gridelements.GridElementUI import GridElementUI
 from itblib.ui.IDisplayable import IDisplayable
+from itblib.ui.TextureManager import Textures
 
 
 class EffectBaseUI(GridElementUI, IDisplayable):
@@ -88,6 +89,9 @@ class EffectFireUI(EffectBaseUI):
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield (self.im, pygame.Rect(self.tfc.get_position(), self.im.get_size()), self.im.get_rect())
     
+    def get_icon(self) -> pygame.Surface:
+        return Textures.get_spritesheet("Ablaze")[0]
+    
     @staticmethod
     def _get_color(lifetime_ratio:float) -> "tuple[int,int,int,int]":
         assert lifetime_ratio >= 0 and lifetime_ratio < 1
@@ -102,3 +106,8 @@ class EffectFireUI(EffectBaseUI):
         t_s = (lifetime_ratio - t_l)*2
         interp = tuple([int(g1[x]*(1.0-t_s) + g2[x]*t_s) for x in range(gradient_dim)])
         return (interp)
+
+
+class EffectMountainUI(EffectBaseUI):
+    def get_icon(self) -> pygame.Surface:
+        return Textures.get_spritesheet("Mountain")[0]

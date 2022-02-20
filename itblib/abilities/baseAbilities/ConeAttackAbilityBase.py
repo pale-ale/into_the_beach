@@ -6,7 +6,7 @@ import pygame
 from itblib import Vec
 from itblib.abilities.baseAbilities.TargetAbilityBase import TargetAbilityBase
 from itblib.components.AbilityComponent import AbilityComponent
-from itblib.globals.Enums import EAST, NORTH, PREVIEWS
+from itblib.globals.Constants import DIRECTIONS, PREVIEWS
 from itblib.Vec import deg_to_coord, sub, vector_between
 
 
@@ -46,7 +46,7 @@ class ConeAttackAbilityBase(TargetAbilityBase):
         super().confirm_target(target)
 
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
-        m = (EAST, NORTH)
+        m = (DIRECTIONS.EAST, DIRECTIONS.NORTH)
         owner = self.get_owner()
         #use (2,2) for debugging in playground
         pos = owner.pos if owner else (2,2)

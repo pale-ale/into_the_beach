@@ -218,7 +218,7 @@ class Grid(Serializable):
 
     def advance_phase(self) -> None:
         """Advance phase cycle by one, starting from the planning phase once the end is reached."""
-        maxphase = len(PHASES)-1
+        maxphase = PHASES._MAX-1
         nextphase = (self.phase)%maxphase+1
         self.change_phase(nextphase)
 

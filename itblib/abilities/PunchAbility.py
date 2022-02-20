@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from itblib.abilities.baseAbilities.TargetAbilityBase import TargetAbilityBase
-from itblib.globals.Enums import PREVIEWS
+from itblib.globals.Constants import PREVIEWS
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase

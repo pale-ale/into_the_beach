@@ -1,10 +1,5 @@
-from typing import TYPE_CHECKING
-
 from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
-from itblib.globals.Enums import PREVIEWS
 
-if TYPE_CHECKING:
-    from itblib.gridelements.units.UnitBase import UnitBase
 
 class TargetAbilityBase(AbilityBase):
     """Base class for any simple targeted ability, allowing for easy creation of such abilities."""

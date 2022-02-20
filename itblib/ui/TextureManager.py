@@ -4,14 +4,33 @@ import pygame
 import pygame.image
 import pygame.surface
 import pygame.transform
-from itblib.globals.Enums import PREVIEWS
+from itblib.globals.Constants import PREVIEWS
+
+TEXTURE_PATHS = [
+    "units",
+    "tiles",
+    "tile_effects",
+    "ability_previews",
+    "effect_icons",
+    "ability_icons",
+    ""
+]
+
+class ETEXTURETYPE:
+    UNIT = 0
+    TILE = 1
+    TILE_EFFECT = 2
+    ABILITY_PREVIEW = 3
+    EFFECT_ICON = 4
+    ABILITY_ICON = 5
+    OTHER = 6
 
 
 class Textures:
     """Provides easy access to the textures used in this game."""
 
     texturepath = "./sprites/"
-    textures:"dict[str,list]" = {}
+    _textures:"dict[str,list]" = {}
 
     abilitytexturemapping = {
         0:"MovementAbility",
@@ -23,75 +42,72 @@ class Textures:
         6:"BurrowAbility",
         7:"DreadfulNoiseAbility"
     }
-    backgroundtexturemapping = {
-        0:"ProperBackdropWhite",
-        1:"ProperBackdropBlue",
-        2:"ProperBackdropRed",
-        3:"ProperBackdropGreen",
-        4:"ProperBackdropOrange",
-    }
-    texturekeys = [
-        ("Mountain"     , "Default",  1),
-        ("River"        , "Default",  6),
-        ("Town"         , "Default",  1),
-        ("Trees"        , "Default",  1),
-        ("Wheat"        , "Default",  1),
-        ("Heal"         , "Default", 10),
-        ("Bleeding"     , "Icon"   ,  1),
-        ("Burrowed"     , "Icon"   ,  1),
-        ("DreadfulNoise", "Icon"   ,  1),
+    
+    texturekeys:list[tuple[int,str,str, Optional[int]]] = [
+        (ETEXTURETYPE.TILE_EFFECT,  "Mountain"     , "Default",  1),
+        (ETEXTURETYPE.TILE_EFFECT,  "River"        , "Default",  6),
+        (ETEXTURETYPE.TILE_EFFECT,  "Town"         , "Default",  1),
+        (ETEXTURETYPE.TILE_EFFECT,  "Wheat"        , "Default",  1),
+        (ETEXTURETYPE.TILE_EFFECT,  "Heal"         , "Default", 10),
 
-        ("Dirt" , "Default", 1),
-        ("Water", "Default", 1),
-        ("Lava" , "Default", 1),
-        ("Rock" , "Default", 1),
+        (ETEXTURETYPE.TILE, "Dirt" , "Default", 1),
+        (ETEXTURETYPE.TILE, "Water", "Default", 1),
+        (ETEXTURETYPE.TILE, "Lava" , "Default", 1),
+        (ETEXTURETYPE.TILE, "Rock" , "Default", 1),
+
+        (ETEXTURETYPE.UNIT, "Saucer"        , "SWIdle"    ,  1),
+        (ETEXTURETYPE.UNIT, "BloodWraith"   , "SWIdle"    ,  1),
+        (ETEXTURETYPE.UNIT, "Homebase"      , "SWIdle"    ,  4),
+        (ETEXTURETYPE.UNIT, "Knight"        , "SWIdle"    ,  5),
+        (ETEXTURETYPE.UNIT, "Burrower"      , "SWIdle"    ,  1),
+        (ETEXTURETYPE.UNIT, "Burrower"      , "SWBurrowed", 10),
+        (ETEXTURETYPE.UNIT, "SirenHead"     , "SWIdle"    ,  1),
+
+        (ETEXTURETYPE.EFFECT_ICON, "Bleeding"       , ""   ,  None),
+        (ETEXTURETYPE.EFFECT_ICON, "Burrowed"       , ""   ,  None),
+        (ETEXTURETYPE.EFFECT_ICON, "DreadfulNoise"  , ""   ,  None),
+        (ETEXTURETYPE.EFFECT_ICON, "Ablaze"         , ""   ,  None),
+        (ETEXTURETYPE.EFFECT_ICON, "Mountain"         , ""   ,  None),
+
+        (ETEXTURETYPE.OTHER, "Cursor"       , "", 1)
     ]
-    for p in PREVIEWS.keys():
-        if p != -1:
-            texturekeys.append((PREVIEWS[p], 1))
-    for p in abilitytexturemapping.values():
-        texturekeys.append((p,))
-    for p in backgroundtexturemapping.values():
-        texturekeys.append((p,))
+    """[(<ETEXTURETYPE>, <effect_name>, <anim_name>, <frame_count>), ...]"""
+
+    for ability_name in abilitytexturemapping.values():
+        texturekeys.append((ETEXTURETYPE.ABILITY_ICON, ability_name, "", None))
+      
+    ability_preview_names = {tuple(prevval.split(':')) for prevval in PREVIEWS.values() if ':' in prevval}
+    for ability_name, preview_name in ability_preview_names:
+        texturekeys.append((ETEXTURETYPE.ABILITY_PREVIEW, ability_name, preview_name, 1))
+
     for o in ["NE","SE","SW","NW"]:
-        texturekeys.append(("Base", o, "Idle", 1))
-    for o in ["SW"]:
-        texturekeys.append(("Saucer", o, "Idle", 2))
-    for o in ["SW"]:
-        texturekeys.append(("BloodWraith", o, "Idle", 1))
-    for o in ["SW"]:
-        texturekeys.append(("Homebase", o, "Idle", 4))
-    for o in ["SW"]:
-        texturekeys.append(("Knight", o, "Idle", 5))
-    for o in ["SW"]:
-        texturekeys.append(("Burrower", o, "Burrowed", 10))
-    for o in ["SW"]:
-        texturekeys.append(("Burrower", o, "Idle", 1))
-    for o in ["SW"]:
-        texturekeys.append(("SirenHead", o, "Idle", 1))
+        texturekeys.append((ETEXTURETYPE.UNIT, "Base", o + "Idle", 1))
 
     @classmethod
     def get_spritesheet(cls, key:str) -> "list[pygame.Surface]|None":
         """Returns the according spritesheet as a list of images or None if it it doesn't exist"""
-        if key in cls.textures:
-            return cls.textures[key]
+        if key in cls._textures:
+            return cls._textures[key]
         print(f"Texturemanager: Key '{key}' not found.")
         return None
     
     @staticmethod
-    def load_textures(scale:"tuple[float,float]"=(1.0,1.0), custom_path:"str|None"=None):
+    def load_textures(scale:"tuple[float,float]"=(1.0,1.0)):
         """Load the textures from the disk via helpers. Expensive, only use once during startup."""
-        if custom_path:
-            Textures.texturepath = custom_path
-        for data in Textures.texturekeys:
-            if len(data) > 1:
-                key = "".join(data[:-1])
-                LoaderMethods.prepare_texture_space(key)
-                LoaderMethods.load_textures(scale, key, data[-1])
-            else:
-                key = str(data[0])
-                LoaderMethods.prepare_texture_space(key)
-                LoaderMethods.load_textures(scale, key, None)
+        for effect_info in Textures.texturekeys:
+            key = "".join(effect_info[1:-1])
+            LoaderMethods.prepare_texture_space(key)
+            LoaderMethods.load_textures(scale, key, *effect_info)
+
+        # for data in Textures.texturekeys:
+        #     if len(data) > 1:
+        #         key = "".join(data[:-1])
+        #         LoaderMethods.prepare_texture_space(key)
+        #         LoaderMethods.load_textures(scale, key, data[-1])
+        #     else:
+        #         key = str(data[0])
+        #         LoaderMethods.prepare_texture_space(key)
+        #         LoaderMethods.load_textures(scale, key, None)
 
        
         # Filenames are built the following way:
@@ -116,28 +132,27 @@ class LoaderMethods():
     @staticmethod
     def prepare_texture_space(key:str):
         """Create the needed keys if they are not already present."""
-        texs = Textures.textures
+        texs = Textures._textures
         if key not in texs.keys():
             texs[key] = []
 
     @staticmethod
-    def load_textures(scale:"tuple[float,float]", key:str, framecount:"Optional[int]"):
+    def load_textures(scale:"tuple[float,float]", key:str, texturetype:int, name:str, animname:str, framecount:Optional[int]):
         """Load the textures of an animation from the disk."""
         if framecount is not None:
-            for i in range(framecount):
-                path = Textures.texturepath + key + str(i+1) + ".png"
+            for i in range(1,framecount+1):
+                path = f"{Textures.texturepath}/{TEXTURE_PATHS[texturetype]}/{name}/{animname}{str(i)}.png"
                 img = LoaderMethods.load_image(path)
                 if img:
                     scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
-                    Textures.textures[key].append(pygame.transform.scale(img, scaledsize).convert_alpha())
+                    Textures._textures[key].append(pygame.transform.scale(img, scaledsize).convert_alpha())
         else:
-            path = Textures.texturepath + key + ".png"
+            path = f"{Textures.texturepath}/{TEXTURE_PATHS[texturetype]}/{name}.png"
             img = LoaderMethods.load_image(path)
             if img:
                 scaledsize = (int(img.get_size()[0]*scale[0]), int(img.get_size()[1]*scale[1]))
-                Textures.textures[key].append(pygame.transform.scale(img, scaledsize).convert_alpha())
+                Textures._textures[key].append(pygame.transform.scale(img, scaledsize).convert_alpha())
 
-   
     @staticmethod
     def load_image(path):
         try:

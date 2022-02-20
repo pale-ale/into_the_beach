@@ -109,6 +109,7 @@ class StatusEffect(Serializable, IDisplayable):
     def get_display_name(self) -> str:
         return self.name
 
+
 class EffectBleeding(StatusEffect):
     def __init__(self, target: "UnitBase"):
         super().__init__(target, name="Bleeding")
