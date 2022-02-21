@@ -328,7 +328,7 @@ class Grid(Serializable):
         return self.remove_gridelement(pos, effect=effect, rmflags=0b001)
 
     def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]") -> bool:
-        """Move a unit from (x,y) to (tagretx,targety)."""
+        """Move a unit at from_pos to to_pos."""
         if self.is_space_empty(False, from_pos):
             log(f"Grid: Tried to move unit at {from_pos} which does not exist.", 2)
             return False

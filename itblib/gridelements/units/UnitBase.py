@@ -5,11 +5,11 @@ from itblib.abilities.MovementAbility import MovementAbility
 from itblib.components.AbilityComponent import AbilityComponent
 from itblib.components.ComponentAcceptor import ComponentAcceptor
 from itblib.DamageReceiver import DamageReceiver
+from itblib.globals.StatusEffectFactory import StatusEffectFactory
 from itblib.gridelements.GridElement import GridElement
-from itblib.gridelements.UnitsUI import UnitBaseUI
+from itblib.gridelements.units.IUnitObserver import IUnitObserver
 from itblib.input.Input import InputAcceptor
 from itblib.Serializable import Serializable
-from itblib.globals.StatusEffectFactory import StatusEffectFactory
 
 if TYPE_CHECKING:
     from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
@@ -32,7 +32,7 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, Inp
         self.canswim = canswim
         self.ownerid = ownerid
         self.orientation = "sw"
-        self.observer:UnitBaseUI = None
+        self.observer:IUnitObserver = None
     
     def extract_data(self, custom_fields: "dict[str,any]" = ...) -> dict:
         customstatuseffects = [x.extract_data() for x in self.statuseffects]
@@ -62,11 +62,14 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, Inp
     def add_status_effect(self, statuseffect:"StatusEffect"):
         """Add a status effect."""
         self.statuseffects.append(statuseffect)
+        if self.observer:
+            self.observer.on_add_status_effect(statuseffect)
     
     def remove_statuseffect(self, statuseffect:"StatusEffect"):
         """Remove a status effect."""
         for se in self.statuseffects:
             if se == statuseffect:
+                self.observer.on_remove_status_effect(statuseffect)
                 se.on_purge()
                 self.statuseffects.remove(se)
                 return
@@ -80,7 +83,6 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, Inp
     
     def drown(self):
         """Called when a unit drowns."""
-        print("I drowned :(")
         self.grid.remove_unit(self.pos)
 
     def attack(self, target:"tuple[int,int]", damage:int, damagetype:str):

@@ -2,6 +2,9 @@ from typing import TYPE_CHECKING, Generator
 
 import pygame
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
+from itblib.gridelements.StatusEffects import (StatusEffect,
+                                               StatusEffectBurrowed)
+from itblib.gridelements.units.IUnitObserver import IUnitObserver
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.HealthBar import HealthBar
 from itblib.ui.hud.OwnerColorRhombus import OwnerColorRhombus
@@ -12,11 +15,9 @@ from itblib.Vec import add, smult, sub
 from .GridElementUI import GridElementUI
 
 if TYPE_CHECKING:
-    from itblib.gridelements.StatusEffects import (StatusEffect,
-                                                   StatusEffectBurrowed)
     from itblib.gridelements.units.UnitBase import UnitBase
 
-class UnitBaseUI(GridElementUI, IDisplayable):
+class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
     def __init__(self, unit:"UnitBase"):
         GridElementUI.__init__(self, parentelement=unit, direction="SW", framespeed=.5)
         self._parentelement:"UnitBase"
@@ -68,11 +69,14 @@ class UnitBaseUI(GridElementUI, IDisplayable):
             yield from self.owner_color_rhombus.get_blits()
         yield from GridElementUI.get_blits(self)
         yield from self.healthbar.get_blits()
-
-    def on_add_statuseffect(effect:"StatusEffect"):
-        pass
     
-    def on_remove_statuseffect(effect:"StatusEffect"):
+    def on_add_status_effect(self, added_effect: "StatusEffect"):
+        pass
+
+    def on_remove_status_effect(self, removed_effect: "StatusEffect"):
+        pass
+
+    def on_update_position(self, new_pos: tuple[int, int]):
         pass
 
 
@@ -85,13 +89,12 @@ class UnitBurrowerUI(UnitBaseUI):
     def get_display_name(self) -> str:
         return "Burrower"
     
-    def on_add_statuseffect(self, effect: "StatusEffect"):
-        if isinstance(effect, StatusEffectBurrowed):
+    def on_add_status_effect(self, added_effect: "StatusEffect"):
+        if isinstance(added_effect, StatusEffectBurrowed):
             self.set_textures(Textures.get_spritesheet("BurrowerSWBurrowed"))
             self.frametime = .15
    
-    def on_remove_statuseffect(self, effect: "StatusEffect"):
-        print("oyy")
-        if isinstance(effect, StatusEffectBurrowed):
+    def on_remove_status_effect(self, removed_effect: "StatusEffect"):
+        if isinstance(removed_effect, StatusEffectBurrowed):
             self.set_textures(Textures.get_spritesheet("BurrowerSWIdle"))
             self.frametime = .5
