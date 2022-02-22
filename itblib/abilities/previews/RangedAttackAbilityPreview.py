@@ -1,14 +1,15 @@
 import math
+from typing import Callable, Generator
 
-from pygame.constants import BLEND_RGB_ADD, BLEND_RGB_MULT
+import pygame
 from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
-import pygame
 from itblib.net.NetEvents import NetEvents
-from typing import Callable, Generator
-from itblib.Vec import add, smult, sub
 from itblib.ui.TextBox import TextBox
+from itblib.Vec import add, smult, sub
+from pygame.constants import BLEND_RGB_ADD, BLEND_RGB_MULT
+
 
 class RangedAttackAbilityPreview(AbilityPreviewBase):
     """Creates previews for attacks with an arcing projectile."""
@@ -18,12 +19,8 @@ class RangedAttackAbilityPreview(AbilityPreviewBase):
         owner = ability.get_owner()
         self.damagetextbox = TextBox(text='7', fontsize=15, bgcolor=(0,0,0,100))
         self._bgbox = TextBox(text='  ', fontsize=15, textcolor=(0,100,0,100), bgcolor=(0,100,0,100))
-        if owner and NetEvents.session:
-            self._color:"tuple[int,int,int]" = NetEvents.session._players[owner.ownerid].color
-            self._start = owner.pos
-        else:
-            self._color = (100,100,100)
-            self._start = None
+        self._start = owner.pos
+        self._color:"tuple[int,int,int]" = NetEvents.session._players[owner.ownerid].color if NetEvents.session else [255,0,255]
 
     def get_blit_func(self, transform_func: Callable[["tuple[int,int]"], "tuple[int,int]"]) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         aoe = list(self._ability.area_of_effect)

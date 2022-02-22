@@ -1,5 +1,6 @@
 import math
 import os
+from typing import Type
 
 import pygame
 import pygame.display
@@ -10,10 +11,13 @@ from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from itblib.abilities.baseAbilities.RangedAttackAbilityBase import \
     RangedAttackAbility
 from itblib.abilities.DreadfulNoiseAbility import DreadfulNoiseAbility
+from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
 from itblib.abilities.previews.ConeAbilityPreview import \
     ConeAttackAbilityPreview
 from itblib.abilities.previews.RangedAttackAbilityPreview import \
     RangedAttackAbilityPreview
+from itblib.abilities.previews.SimpleAbilityPreview import SimpleAbilityPreview
+from itblib.abilities.PunchAbility import PunchAbility
 from itblib.Grid import Grid
 from itblib.ui.GridUI import GridUI
 from itblib.ui.TextureManager import Textures
@@ -24,6 +28,7 @@ PIXELSIZE = 2
 RUNNING = True
 FPS = 30
 CLOCK = pygame.time.Clock()
+UNIT_POS = (1,1)
 
 pygame.display.init()
 pygame.font.init()
@@ -36,49 +41,43 @@ Textures.load_textures()
 scene_image = pygame.Surface(scene_size).convert_alpha()
 preview_pos_index = 0
 
-grid_count = 2
-MINIGRIDS = [Grid(None, width=5, height=5) for x in range(grid_count)]
+grid_count = 3
+MINIGRIDS = [Grid(None, width=3, height=3) for x in range(grid_count)]
 MINIGRIDUIS = [GridUI(MINIGRIDS[x]) for x in range(grid_count)]
-xpos = 0
+ABILITY_CLASSES:"list[Type(AbilityBase)]" = [RangedAttackAbility, DreadfulNoiseAbility, PunchAbility]
+ABILITIES:list[AbilityBase] = []
+ABILITY_PREVIEW_CLASSES:"list[Type(AbilityPreviewBase)]" = [RangedAttackAbilityPreview, ConeAttackAbilityPreview, SimpleAbilityPreview]
+PREVIEWS:list[AbilityPreviewBase] = []
 gtime = 0.0
 for i,mg in enumerate(MINIGRIDS):
     mgui = MINIGRIDUIS[i]
     mg.update_observer(mgui)
-    mg.add_unit((2,2), 2, 0)
-    mgui.update_pan((xpos, 0))
-    xpos += mgui.width
+    unit = mg.add_unit(UNIT_POS, 2, 0)
+    ability = unit.ability_component.add_ability(ABILITY_CLASSES[i])
+    ability.primed = True
+    ABILITIES.append(ability)
+    PREVIEWS.append(ABILITY_PREVIEW_CLASSES[i](ability))
+    mgui.update_pan((mgui.width*i, 0))
 
-RANGED_ABILITY = RangedAttackAbility(None)
-RANGED_ABILITY.primed = True
-
-CONE_ABILITY = DreadfulNoiseAbility(None)
-CONE_ABILITY.primed = True
-
-RANGED_PREVIEW = RangedAttackAbilityPreview(RANGED_ABILITY)
-RANGED_PREVIEW._start = (2,2)
-RANGED_PREVIEW._color = (50,255,100)
-
-CONE_PREVIEW = ConeAttackAbilityPreview(CONE_ABILITY)
-CONE_PREVIEW._start = (2,2)
-CONE_PREVIEW._color = (50,150,255)
-
-PREVIEWS = [RANGED_PREVIEW, CONE_PREVIEW]
-ABILITIES:list[AbilityBase] = [RANGED_ABILITY, CONE_ABILITY]
 TARGETS = [
-    MINIGRIDS[0].get_neighbors((2,2), ordinal=True, cardinal=True),
-    MINIGRIDS[1].get_neighbors((2,2), ordinal=True, cardinal=True),
+    MINIGRIDS[0].get_neighbors(UNIT_POS, ordinal=True, cardinal=True),
+    MINIGRIDS[1].get_neighbors(UNIT_POS, ordinal=True, cardinal=True),
+    MINIGRIDS[2].get_neighbors(UNIT_POS, ordinal=True)
 ]
 
 def update_targets():
     global gtime
     scene_image.fill(0)
-    for i,a in enumerate(ABILITIES):
-        a_targets = TARGETS[i]
-        a.area_of_effect = {(a_targets[preview_pos_index % len(a_targets)], "Special")}
-    CONE_ABILITY.cone_direction -= math.pi/4
-    CONE_ABILITY.cone_spread_angle = math.pi/4
-    CONE_ABILITY.cone_len_tiles = 3
-    CONE_ABILITY.on_select_ability()
+    for i,grid in enumerate(MINIGRIDS):
+        unit = grid.get_unit(UNIT_POS)
+        ability = ABILITIES[i]
+        ability_targets = TARGETS[i]
+        ability.area_of_effect = {(ability_targets[preview_pos_index % len(ability_targets)], "Special")}
+    ABILITIES[1].cone_direction -= math.pi/4
+    ABILITIES[1].cone_spread_angle = math.pi/4
+    ABILITIES[1].cone_len_tiles = 1
+    ABILITIES[1].on_select_ability()
+    ABILITIES[2].on_select_ability()
 
 def main():
     global RUNNING

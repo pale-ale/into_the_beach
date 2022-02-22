@@ -23,6 +23,11 @@ class PunchAbility(TargetAbilityBase):
         damage = [owner.baseattack["physical"], "physical"]
         owner.attack(self.selected_targets[0], *damage)
     
+    def confirm_target(self, target: "tuple[int,int]", primed=True):
+        if target in self._get_valid_targets():
+            self.set_targets([target])
+        return super().confirm_target(target, primed)
+    
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
         owner = self.get_owner()
         return {x for x in owner.grid.get_neighbors(owner.pos)}

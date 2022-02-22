@@ -1,12 +1,11 @@
-from typing import TYPE_CHECKING, Type
+from typing import Type, TypeVar
 
+from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from itblib.components.ComponentBase import ComponentBase
 from itblib.Log import log
 from itblib.Serializable import Serializable
 
-if TYPE_CHECKING:
-    from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
-
+T = TypeVar('T', bound=AbilityBase)
 
 class AbilityComponent(ComponentBase, Serializable):
     """
@@ -30,13 +29,15 @@ class AbilityComponent(ComponentBase, Serializable):
                     abilitydata["selected_targets"] = [(x,y) for x,y in abilitydata["selected_targets"]]
                     ability.insert_data(abilitydata, exclude=["name"])
 
-    def add_ability(self, ability_class: "AbilityBase") -> None:
+    def add_ability(self, ability_class: "Type[T]") -> "T|None":
         """Add an ability to this unit. Will spawn and initialize the required class."""
         for ability in self._abilities:
             if ability is ability_class:
                 print(ability_class.__name__, "-class already exists")
                 exit(1)
-        self._abilities.append(ability_class(self))
+        ability = ability_class(self)
+        self._abilities.append(ability)
+        return ability
 
     def remove_ability(self, ability_class: "Type[AbilityBase]") -> None:
         """Remove an ability by class"""

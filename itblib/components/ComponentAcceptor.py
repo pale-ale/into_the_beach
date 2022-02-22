@@ -1,8 +1,7 @@
 import abc
-from typing import TypeVar, Type
+from typing import Type, TypeVar
 
 from itblib.components.ComponentBase import ComponentBase
-from itblib.Log import log
 
 T = TypeVar('T', bound=ComponentBase)
 

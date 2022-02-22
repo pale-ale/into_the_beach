@@ -1,4 +1,3 @@
-from math import atan2, degrees
 from typing import Callable, Generator
 
 import pygame
@@ -21,17 +20,14 @@ class ConeAttackAbilityPreview(AbilityPreviewBase):
         self._bgbox = TextBox(text='  ', fontsize=15, textcolor=(0,100,0,100), bgcolor=(0,100,150,100))
         owner = ability.get_owner()
         self.yscale = 44/STANDARD_TILE_SIZE[0]
-        if NetEvents.session:
-            self._color:"tuple[int,int,int]" = NetEvents.session._players[owner.ownerid].color
+        self._color:"tuple[int,int,int]" = NetEvents.session._players[owner.ownerid].color if NetEvents.session else [255,0,255]
 
     def get_blit_func(self, transform_func: Callable[["tuple[int,int]"], "tuple[int,int]"]) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         cone_length = self._ability.cone_len_tiles * STANDARD_TILE_SIZE[0]
         if self._ability.selected or self._ability.primed:
             owner = self._ability.get_owner()
-            if owner: #use _start when ddebugging, otherwise owner position
+            if owner:
                 p_1 = add(transform_func(self._ability.get_owner().pos), smult(.5, STANDARD_UNIT_SIZE), (0,7))
-            else:
-                p_1 = add(transform_func(self._start), smult(.5, STANDARD_UNIT_SIZE), (0,7))
             size = (2*cone_length, 2*cone_length*self.yscale)
             topleft = sub(p_1, smult(.5, size))
             surf = pygame.Surface(size).convert_alpha()
@@ -48,9 +44,3 @@ def _draw_cone(surface:pygame.Surface, color, cone_angle, cone_center_angle, con
     pygame.draw.line(surface, color, arc_left, center)
     pygame.draw.line(surface, color, arc_right, center)
     pygame.draw.arc(surface, color, arc_rect2, rangle, langle)
-
-def _get_angle(p1, p2):
-    """@return: angle between p1 and p2 and screen x-axis"""
-    dx = (p2[0]-p1[0])
-    dy = (p2[1]-p1[1])
-    return dx, dy, degrees( atan2( dy , dx ))

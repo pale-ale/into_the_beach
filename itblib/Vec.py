@@ -1,8 +1,7 @@
 """Simple vector math methods"""
 
-from math import cos, sin
-from typing import Union, Iterable, Tuple
-
+from math import atan2, cos, degrees, sin
+from typing import Tuple, Union
 
 Number = Union[float,int]
 Vector = Tuple[Number, ...]
@@ -55,9 +54,7 @@ def vector_between(a:Vector2,b:Vector2,x:Vector2,s:float=1e-1) -> bool:
     return cprod_ab * cprod_ax >= -s and cprod_ab * cprod_bx <= s
 
 def transform_vector(m:Matrix,v:Vector) -> Vector:
-    """
-    Transform a vector v by a matrix m.
-    """
+    """Transform a vector v through a matrix m."""
     l = len(v)
     assert len(m) == l, "Matrix x-size must be equal to len(v)"
     for h in m:

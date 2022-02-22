@@ -6,7 +6,7 @@ import pygame.sprite
 import pygame.time
 
 from itblib.gridelements.Effects import EffectFire, EffectMountain
-from itblib.gridelements.EffectsUI import EffectBaseUI, EffectFireUI
+from itblib.gridelements.EffectsUI import EffectFireUI, EffectMountainUI
 from itblib.gridelements.Tiles import TileDirt
 from itblib.gridelements.TilesUI import TileDirtUI
 from itblib.ui.hud.TileDisplay import TileDisplay
@@ -32,7 +32,7 @@ tile_display = TileDisplay()
 test_tile_ui  = TileDirtUI(TileDirt(None, (0,0)))
 
 test_effect_1 = EffectFireUI(EffectFire(None, (0,0)))
-test_effect_2 = EffectBaseUI(EffectMountain(None, (0,0)))
+test_effect_2 = EffectMountainUI(EffectMountain(None, (0,0)))
 
 tile_display.set_displaytile_effects(test_tile_ui, [test_effect_1, test_effect_2])
 

@@ -48,8 +48,7 @@ class ConeAttackAbilityBase(TargetAbilityBase):
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
         m = (DIRECTIONS.EAST, DIRECTIONS.NORTH)
         owner = self.get_owner()
-        #use (2,2) for debugging in playground
-        pos = owner.pos if owner else (2,2)
+        pos = owner.pos
         possible_target_poss = ConeAttackAbilityBase._get_circle(pos, self.cone_len_tiles + .5)
         dega = self.cone_direction + self.cone_spread_angle/2
         degb = self.cone_direction - self.cone_spread_angle/2

@@ -2,7 +2,10 @@ from typing import Generator
 
 import pygame
 from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
-from itblib.abilities.DreadfulNoiseAbility import DreadfulNoiseAbility
+from itblib.abilities.baseAbilities.ConeAttackAbilityBase import \
+    ConeAttackAbilityBase
+from itblib.abilities.baseAbilities.RangedAttackAbilityBase import \
+    RangedAttackAbility
 from itblib.abilities.previews.ConeAbilityPreview import \
     ConeAttackAbilityPreview
 from itblib.abilities.previews.RangedAttackAbilityPreview import \
@@ -32,10 +35,8 @@ class AbilityPreviewDisplay(PerfSprite):
         pass
 
     def _get_preview_class(self, ability:AbilityBase):
-        ability_name = type(ability).__name__
-        for abiliy_preview_class in self._ability_preview_classes:
-            if type(ability) == DreadfulNoiseAbility:
-                return ConeAttackAbilityPreview
-            if abiliy_preview_class.__name__ == ability_name + "Preview":
-                return abiliy_preview_class
+        if isinstance(ability, ConeAttackAbilityBase):
+            return ConeAttackAbilityPreview
+        if isinstance(ability, RangedAttackAbility):
+            return ConeAttackAbilityPreview
         return SimpleAbilityPreview
