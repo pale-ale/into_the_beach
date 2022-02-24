@@ -1,4 +1,4 @@
-from itblib.abilities.Abilities import (HealAbility, ObjectiveAbility,
+from itblib.abilities.Abilities import (ObjectiveAbility,
                                         PushAbility)
 from itblib.abilities.baseAbilities.RangedAttackAbilityBase import \
     RangedAttackAbility
@@ -7,6 +7,7 @@ from itblib.abilities.DreadfulNoiseAbility import DreadfulNoiseAbility
 from itblib.abilities.MovementAbility import MovementAbility
 from itblib.abilities.PunchAbility import PunchAbility
 from itblib.abilities.SerrateAbility import SerrateAbility
+from itblib.abilities.HealAbility import HealAbility
 from itblib.gridelements.units.UnitBase import UnitBase
 
 
@@ -52,3 +53,8 @@ class UnitBurrower(UnitBase):
 class UnitSirenHead(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="SirenHead"):
         super().__init__(grid, pos, ownerid, name=name, abilities=[MovementAbility, PunchAbility, DreadfulNoiseAbility])
+
+
+class UnitChipmonk(UnitBase):
+    def __init__(self, grid, pos, ownerid, name:str="Chipmonk"):
+        super().__init__(grid, pos, ownerid, name=name, abilities=[MovementAbility, HealAbility])

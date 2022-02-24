@@ -99,12 +99,19 @@ class GridUI(PerfSprite, ComponentAcceptor, IGridObserver):
         """Remove a UI-unit at the given position."""
         self.ui_units[self.grid.c_to_i(pos)] = None
 
-    def on_remove_tile_effect(self, effect:"EffectBase", pos:"tuple[int,int]"):
+    def on_remove_worldeffect(self, effect:"EffectBase", pos:"tuple[int,int]"):
         """Remove a UI-effect at the given position."""
         for uieffect in self.ui_worldeffects[self.grid.c_to_i(pos)][:]:
             if uieffect._parentelement == effect:
                 self.ui_worldeffects[self.grid.c_to_i(pos)].remove(uieffect)
                 return
+    
+    def on_remove_tile(self, pos: "tuple[int,int]"):
+        """Remove a UI-Tile at given position."""
+        self.ui_tiles[self.grid.c_to_i(pos)] = None
+    
+    def on_remake_grid(self):
+        pass
        
     def update(self, delta_time:float):
         """Update the graphics and animations' frames."""

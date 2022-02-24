@@ -23,7 +23,6 @@ class AbilityPreviewDisplay(PerfSprite):
         super().__init__()
         self.unit:"UnitBase|None" = None
         self._gridui = gridui
-        self._ability_preview_classes = [SimpleAbilityPreview, RangedAttackAbilityPreview, ConeAttackAbilityPreview]
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         for ability in self.unit.ability_component._abilities:
@@ -38,5 +37,5 @@ class AbilityPreviewDisplay(PerfSprite):
         if isinstance(ability, ConeAttackAbilityBase):
             return ConeAttackAbilityPreview
         if isinstance(ability, RangedAttackAbility):
-            return ConeAttackAbilityPreview
+            return RangedAttackAbilityPreview
         return SimpleAbilityPreview

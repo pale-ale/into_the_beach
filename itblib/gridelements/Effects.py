@@ -79,7 +79,7 @@ class EffectHeal(EffectBase):
 
     def tick(self, dt:float):
         super().tick(dt)
-        if self.age >= 1:
+        if self.age >= 2:
             self.done = True
             self.grid.remove_worldeffect(self, self.pos)
     

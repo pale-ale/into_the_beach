@@ -29,6 +29,7 @@ class EffectBaseUI(GridElementUI, IDisplayable):
         s.fill(TEXTURE_MISSING)
         return s
 
+
 class EffectRiverUI(EffectBaseUI):
     def update(self, delta_time:float):
         grid = self._parentelement.grid
@@ -112,6 +113,15 @@ class EffectMountainUI(EffectBaseUI):
     def get_icon(self) -> pygame.Surface:
         return Textures.get_spritesheet("Mountain")[0]
 
+
 class EffectWheatUI(EffectBaseUI):
     def get_icon(self) -> pygame.Surface:
         return Textures.get_spritesheet("Wheat")[0]
+
+class EffectHealUI(EffectBaseUI):
+    def __init__(self, effect: EffectBase, framespeed: float = 0.1, autoplay=True):
+        super().__init__(effect, framespeed, autoplay)
+    
+    def update(self, delta_time: float):
+        super().update(delta_time)
+        

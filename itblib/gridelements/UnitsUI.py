@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
 class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
-    def __init__(self, unit:"UnitBase"):
-        GridElementUI.__init__(self, parentelement=unit, direction="SW", framespeed=.5)
+    def __init__(self, unit:"UnitBase", direction="SW", framespeed=.5):
+        GridElementUI.__init__(self, parentelement=unit, direction=direction, framespeed=framespeed)
         self._parentelement:"UnitBase"
         self.fromscreenpos = None
         self.toscreenpos = None
@@ -81,6 +81,9 @@ class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
 
 
 class UnitKnightUI(UnitBaseUI):
+    def __init__(self, unit: "UnitBase"):
+        super().__init__(unit, framespeed=.1)
+
     def get_display_name(self) -> str:
         return "Knight"
 
@@ -98,3 +101,8 @@ class UnitBurrowerUI(UnitBaseUI):
         if isinstance(removed_effect, StatusEffectBurrowed):
             self.set_textures(Textures.get_spritesheet("BurrowerSWIdle"))
             self.frametime = .5
+
+
+class UnitChipmonkUI(UnitBaseUI):
+    def get_display_name(self) -> str:
+        return "Chipmonk"

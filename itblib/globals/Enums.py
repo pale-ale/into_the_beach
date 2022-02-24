@@ -43,12 +43,13 @@ EFFECT_IDS = [
 ]
 
 UNIT_IDS = [
-    None,
+    None,           #0
     "Base",
     "Saucer", 
     "BloodWraith", 
     "Homebase", 
-    "Knight", 
+    "Knight",       #5 
     "Burrower",
-    "SirenHead"
+    "SirenHead",
+    "Chipmonk"      #8
 ]

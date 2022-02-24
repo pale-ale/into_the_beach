@@ -12,22 +12,8 @@ class PunchAbility(TargetAbilityBase):
     def __init__(self, unit:"UnitBase"):
         super().__init__(unit, 3, 5)
 
-    def on_select_ability(self):
-        super().on_select_ability()
-        for neighbor in self._get_valid_targets():
-            self.area_of_effect.add((neighbor, PREVIEWS[0]))
-
     def apply_to_target(self, target: "tuple[int,int]"):
         super().apply_to_target(target)
         owner = self.get_owner()
         damage = [owner.baseattack["physical"], "physical"]
         owner.attack(self.selected_targets[0], *damage)
-    
-    def confirm_target(self, target: "tuple[int,int]", primed=True):
-        if target in self._get_valid_targets():
-            self.set_targets([target])
-        return super().confirm_target(target, primed)
-    
-    def _get_valid_targets(self) -> "set[tuple[int,int]]":
-        owner = self.get_owner()
-        return {x for x in owner.grid.get_neighbors(owner.pos)}

@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
-from itblib.abilities.baseAbilities.TargetAbilityBase import TargetAbilityBase
 from itblib.globals.Constants import PREVIEWS
 from itblib.net.NetEvents import NetEvents
 
@@ -57,22 +56,3 @@ class ObjectiveAbility(AbilityBase):
     
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
         return set()
-
-
-class HealAbility(TargetAbilityBase):
-    """Spawn a heal at selected neighboring tile, healing any unit by 1 and purging bleeding."""
-    def __init__(self, unit:"UnitBase"):
-        super().__init__(unit, 2, cooldown=3)
-        self.remainingcooldown = 0
-    
-    def apply_to_target(self, target: "tuple[int,int]"):
-        super().apply_to_target(target)
-        o = self.get_owner()
-        if o:
-            o.grid.add_worldeffect(self.selected_targets[0], 7)
-
-    def _get_valid_targets(self) -> "set[tuple[int,int]]|None":
-        owner = self.get_owner()
-        if owner:
-            pos = owner.pos
-            return owner.grid.get_neighbors(pos)

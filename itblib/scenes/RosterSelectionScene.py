@@ -30,7 +30,7 @@ class RosterSelectionScene(SceneBase):
         width = self.image.get_width()
         self.image.blit(t, (width*.5 - t.get_width()*.5, 20))
         self.image.blit(esctext, (width*.5 - esctext.get_width()*.5, 55))
-        self.unitids = [1, 2, 3, 5, 6, 7]
+        self.unitids = [1, 2, 3, 5, 6, 7, 8]
         self.unitlist = Surface((width, 400)).convert_alpha()
         self.tilewidth = 128
         self.tilemarginx = 3

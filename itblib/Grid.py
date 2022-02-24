@@ -378,7 +378,7 @@ class Grid(Serializable):
         return self.is_coord_in_bounds(pos) and \
             not (self.tiles if tiles else self.units)[self.c_to_i(pos)]
 
-    def get_neighbors(self, pos:"tuple[int,int]", ordinal=True, cardinal=False) -> "list[tuple[int,int]]":
+    def get_neighbors(self, pos:"tuple[int,int]", ordinal=True, cardinal=False) -> "set[tuple[int,int]]":
         """Returns the coordinates of neighboring tiles when inside bounds."""
         x,y = pos
         tiles_to_check = list()
@@ -390,7 +390,7 @@ class Grid(Serializable):
         if ordinal:
             lists.append(ordinals)
         tiles_to_check = [elem for tup in zip(*lists) for elem in tup]
-        return [n for n in tiles_to_check if self.is_coord_in_bounds(n)]
+        return {n for n in tiles_to_check if self.is_coord_in_bounds(n)}
 
     def tick(self, dt:float) -> None:
         """Ticks the game, updating phases, movement and other things."""
