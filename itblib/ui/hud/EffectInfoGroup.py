@@ -1,47 +1,43 @@
 from typing import Generator
 
 import pygame
-from itblib.components.ComponentAcceptor import ComponentAcceptor
 from itblib.components.TransformComponent import TransformComponent
 from itblib.globals.Colors import WHITE
 from itblib.gridelements.EffectsUI import EffectBaseUI
 from itblib.input.Input import InputAcceptor
 from itblib.ui.widgets.HorizontalLayout import HorizontalLayout
-from itblib.ui.IGraphics import IGraphics
 from itblib.ui.widgets.TextBox import TextBox
+from itblib.ui.widgets.Widget import Widget
 
 
-class EffectInfoGroup(ComponentAcceptor, InputAcceptor, IGraphics):
+class EffectInfoGroup(Widget, InputAcceptor):
     def __init__(self, width: int) -> None:
-        ComponentAcceptor.__init__(self)
+        Widget.__init__(self)
         InputAcceptor.__init__(self)
-        IGraphics.__init__(self)        
-        self.tfc =TransformComponent()
-        self.tfc.attach_component(self)
         
         self.effects:list[EffectBaseUI] = []
         self.effect_icons = HorizontalLayout()
-        self.effect_icons.tfc.set_transform_target(self)
+        self.effect_icons.parent = self
 
         self._marker_size = (16,16)
         self.selection_marker = pygame.Surface(self._marker_size).convert_alpha()
         self.selection_marker.fill((0))
         pygame.draw.rect(self.selection_marker, WHITE, (0,0,*self._marker_size), 1)
+        
         self.selection_index = 0
         
         self.title_tb = TextBox("", fontsize=16, bgcolor=(50,50,50), linewidth=width)
-        title_tfc = self.title_tb.get_component(TransformComponent)
-        title_tfc.relative_position = (0,18)
-        title_tfc.set_transform_target(self)
-        self.title_tb.update_textbox()
+        self.title_tb.position = (0,18)
+        self.title_tb.parent = self
+
         self.desc_tb = TextBox("", fontsize=16, bgcolor=(50,50,50), linewidth=width)
-        self.desc_tb.get_component(TransformComponent).set_transform_target(self.title_tb)
+        self.desc_tb.parent = self.title_tb
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield from self.effect_icons.get_blits()
         if self.selection_index in range(len(self.effect_icons.children)):
             yield (self.selection_marker, 
-                pygame.Rect(self.effect_icons.get_child_pos(self.selection_index), self._marker_size),
+                pygame.Rect(self.effect_icons.get_screen_child_pos(self.selection_index), self._marker_size),
                 pygame.Rect((0,0), self._marker_size),
             )
         yield from self.title_tb.get_blits()
@@ -85,6 +81,3 @@ class EffectInfoGroup(ComponentAcceptor, InputAcceptor, IGraphics):
     def _move_selection_right(self):
         self.selection_index = min(len(self.effect_icons.children)-1, self.selection_index+1)
         self._update_title_desc()
-    
-    def update(self, delta_time: float) -> None:
-        pass

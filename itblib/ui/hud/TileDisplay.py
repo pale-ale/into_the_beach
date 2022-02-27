@@ -40,7 +40,7 @@ class TileDisplay(Widget, InputAcceptor):
             lineheight=10
         )
         self._effectdisplay = EffectInfoGroup(TileDisplay.LABEL_SIZE[0])
-        self._effectdisplay.tfc.set_transform_target(self)
+        self._effectdisplay.parent = self
         self.register_input_listeners(self._effectdisplay)
 
         self._sub_blits:list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]] = []
@@ -75,7 +75,7 @@ class TileDisplay(Widget, InputAcceptor):
     def effects(self, new_effects:"list[EffectBaseUI]"):
         """Set the new effects to display."""
         self._effects = new_effects
-        self._effectdisplay.tfc.relative_position = add(self._tiledescpos, (0, self._tiledesctextbox.image.get_height()+3))
+        self._effectdisplay.position = add(self._tiledescpos, (0, self._tiledesctextbox.image.get_height()+3))
         self._effectdisplay.set_effects(new_effects)
         self.update(0)
     
@@ -106,6 +106,6 @@ class TileDisplay(Widget, InputAcceptor):
             )
 
     def _draw_effect_separator(self):
-        start = add(self._effectdisplay.tfc.get_position(), (0,-2))
+        start = add(self._effectdisplay.position, (0,-2))
         end = add(start, (TileDisplay.LABEL_SIZE[0]-1,0))
         pygame.draw.line(self.image, WHITE, start, end)

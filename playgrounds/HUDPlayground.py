@@ -51,7 +51,9 @@ keyIcon = KeyIcon('R')
 keyIcon.position = (100,100)
 keyIcon2 = KeyIcon('R', pressed=True)
 keyIcon2.position = (130,100)
-textbox = TextBox(text = str(keyIcon.get_size()), pos = (100,130))
+textbox = TextBox(text = str(keyIcon.get_size()))
+textbox.parent = keyIcon
+textbox.position = (0,30)
 
 blittables:list[IGraphics] = [tile_display, keyIcon, keyIcon2, textbox]
 
