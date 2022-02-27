@@ -3,11 +3,10 @@ from cmath import pi
 from typing import Generator
 
 import pygame
-from itblib import Vec
 from itblib.abilities.baseAbilities.TargetAbilityBase import TargetAbilityBase
 from itblib.components.AbilityComponent import AbilityComponent
 from itblib.globals.Constants import DIRECTIONS, PREVIEWS
-from itblib.Vec import deg_to_coord, sub, vector_between
+from itblib.Vec import deg_to_coord, sub, vector_between, transform_vector
 
 
 class ConeAttackAbilityBase(TargetAbilityBase):
@@ -52,8 +51,8 @@ class ConeAttackAbilityBase(TargetAbilityBase):
         possible_target_poss = ConeAttackAbilityBase._get_circle(pos, self.cone_len_tiles + .5)
         dega = self.cone_direction + self.cone_spread_angle/2
         degb = self.cone_direction - self.cone_spread_angle/2
-        a = Vec.transform_vector(m, deg_to_coord(dega))
-        b = Vec.transform_vector(m, deg_to_coord(degb))
+        a = transform_vector(m, deg_to_coord(dega))
+        b = transform_vector(m, deg_to_coord(degb))
         angle_target_pos = {p for p in possible_target_poss if vector_between(a,b, sub(p, pos))}
         return angle_target_pos
     

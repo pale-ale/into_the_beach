@@ -6,7 +6,7 @@ from itblib.gridelements.StatusEffects import (StatusEffect,
                                                StatusEffectBurrowed)
 from itblib.gridelements.units.IUnitObserver import IUnitObserver
 from itblib.net.NetEvents import NetEvents
-from itblib.ui.HealthBar import HealthBar
+from itblib.ui.widgets.HealthBar import HealthBar
 from itblib.ui.hud.OwnerColorRhombus import OwnerColorRhombus
 from itblib.ui.IDisplayable import IDisplayable
 from itblib.ui.TextureManager import Textures
@@ -30,7 +30,9 @@ class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
         self.old_frame = self.framenumber
         self.healthbar = HealthBar(self._parentelement)
         self.healthbar.tfc.set_transform_target(self)
-        self.healthbar.tfc.relative_position = (STANDARD_UNIT_SIZE[0]/2,STANDARD_UNIT_SIZE[1]*.8)
+        barwidth = self.healthbar.get_size()[0]
+        offset = ((STANDARD_UNIT_SIZE[0]-barwidth)/2,STANDARD_UNIT_SIZE[1]*.7)
+        self.healthbar.tfc.relative_position = offset
         self.owner_color_rhombus = None
         if NetEvents.session:
             self.owner_color_rhombus = OwnerColorRhombus(NetEvents.session._players[self._parentelement.ownerid].color)

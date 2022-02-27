@@ -6,7 +6,7 @@ from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
 from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
 from itblib.net.NetEvents import NetEvents
-from itblib.ui.TextBox import TextBox
+from itblib.ui.widgets.TextBox import TextBox
 from itblib.Vec import add, smult, sub
 from pygame.constants import BLEND_RGB_ADD, BLEND_RGB_MULT
 

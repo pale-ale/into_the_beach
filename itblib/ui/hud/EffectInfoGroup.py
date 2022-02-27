@@ -6,16 +6,16 @@ from itblib.components.TransformComponent import TransformComponent
 from itblib.globals.Colors import WHITE
 from itblib.gridelements.EffectsUI import EffectBaseUI
 from itblib.input.Input import InputAcceptor
-from itblib.ui.HorizontalLayout import HorizontalLayout
-from itblib.ui.PerfSprite import PerfSprite
-from itblib.ui.TextBox import TextBox
+from itblib.ui.widgets.HorizontalLayout import HorizontalLayout
+from itblib.ui.IGraphics import IGraphics
+from itblib.ui.widgets.TextBox import TextBox
 
 
-class EffectInfoGroup(PerfSprite, ComponentAcceptor, InputAcceptor):
+class EffectInfoGroup(ComponentAcceptor, InputAcceptor, IGraphics):
     def __init__(self, width: int) -> None:
         ComponentAcceptor.__init__(self)
         InputAcceptor.__init__(self)
-        PerfSprite.__init__(self)        
+        IGraphics.__init__(self)        
         self.tfc =TransformComponent()
         self.tfc.attach_component(self)
         
@@ -41,11 +41,11 @@ class EffectInfoGroup(PerfSprite, ComponentAcceptor, InputAcceptor):
         yield from self.effect_icons.get_blits()
         if self.selection_index in range(len(self.effect_icons.children)):
             yield (self.selection_marker, 
-                pygame.Rect(self.effect_icons.get_pos(self.selection_index), self._marker_size),
+                pygame.Rect(self.effect_icons.get_child_pos(self.selection_index), self._marker_size),
                 pygame.Rect((0,0), self._marker_size),
             )
-        yield (self.title_tb.image, self.title_tb.rect, self.title_tb.image.get_rect())
-        yield (self.desc_tb.image , self.desc_tb.rect , self.desc_tb.image.get_rect())
+        yield from self.title_tb.get_blits()
+        yield from self.desc_tb.get_blits()
     
     def handle_key_event(self, event: any) -> bool:
         if event.type == pygame.KEYDOWN and event.mod & pygame.KMOD_CTRL:
@@ -86,3 +86,5 @@ class EffectInfoGroup(PerfSprite, ComponentAcceptor, InputAcceptor):
         self.selection_index = min(len(self.effect_icons.children)-1, self.selection_index+1)
         self._update_title_desc()
     
+    def update(self, delta_time: float) -> None:
+        pass

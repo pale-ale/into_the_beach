@@ -1,8 +1,6 @@
 from typing import Generator
 
 import pygame
-from itblib.components.ComponentAcceptor import ComponentAcceptor
-from itblib.components.TransformComponent import TransformComponent
 from itblib.globals.Colors import (GRAY_ACCENT_DARK, GRAY_ACCENT_LIGHT,
                                    IMAGE_BACKGROUND, WHITE)
 from itblib.globals.Constants import HUD, STANDARD_TILE_SIZE
@@ -10,54 +8,92 @@ from itblib.gridelements.EffectsUI import EffectBaseUI
 from itblib.gridelements.TilesUI import TileBaseUI
 from itblib.input.Input import InputAcceptor
 from itblib.ui.hud.EffectInfoGroup import EffectInfoGroup
-from itblib.ui.PerfSprite import PerfSprite
-from itblib.ui.TextBox import TextBox
+from itblib.ui.widgets.TextBox import TextBox
+from itblib.ui.widgets.Widget import Widget
 from itblib.Vec import add
 
 
-class TileDisplay(ComponentAcceptor, InputAcceptor, PerfSprite):
-    IMAGE_SIZE = STANDARD_TILE_SIZE
-    IMAGE_SIZE_BORDER = (2*HUD.IMAGE_BORDER_WIDTH + IMAGE_SIZE[0], 2*HUD.IMAGE_BORDER_WIDTH + IMAGE_SIZE[1])
+class TileDisplay(Widget, InputAcceptor):
+    IMAGE_SIZE_BORDER = (2*HUD.IMAGE_BORDER_WIDTH + HUD.TILEDISPLAY.IMAGE_SIZE[0], 2*HUD.IMAGE_BORDER_WIDTH + HUD.TILEDISPLAY.IMAGE_SIZE[1])
     SIZE = (200,IMAGE_SIZE_BORDER[1])
     LABEL_SIZE = (SIZE[0] - IMAGE_SIZE_BORDER[0] - 2, HUD.LABEL_HEIGHT)
    
     def __init__(self):
-        ComponentAcceptor.__init__(self)
+        Widget.__init__(self)
         InputAcceptor.__init__(self)
-        PerfSprite.__init__(self)
-        self.tfc = TransformComponent()
-        self.tfc.attach_component(self)
 
-        self.imagepos = (HUD.IMAGE_BORDER_WIDTH, HUD.IMAGE_BORDER_WIDTH)
-        self.tilenamepos = (TileDisplay.IMAGE_SIZE_BORDER[0],HUD.IMAGE_BORDER_WIDTH)
-        self.tiledescpos = None
-        self.tileseffectpos = None
+        self._imagepos = (HUD.IMAGE_BORDER_WIDTH, HUD.IMAGE_BORDER_WIDTH)
+        self._tilenamepos = (TileDisplay.IMAGE_SIZE_BORDER[0],HUD.IMAGE_BORDER_WIDTH)
+        self._tiledescpos = None
+        self._tileseffectpos = None
 
-        self.tilenametextbox = TextBox(
+        self._tilenametextbox = TextBox(
             fontsize=32,
             bgcolor=GRAY_ACCENT_DARK, 
             linewidth=TileDisplay.LABEL_SIZE[0],
             lineheight=20
         )
-        self.tiledesctextbox = TextBox(
+        self._tiledesctextbox = TextBox(
             fontsize=15,
             bgcolor=GRAY_ACCENT_DARK, 
             linewidth=TileDisplay.LABEL_SIZE[0],
             lineheight=10
         )
-        self.effectdisplay = EffectInfoGroup(TileDisplay.LABEL_SIZE[0])
-        self.effectdisplay.tfc.set_transform_target(self)
-        self.register_input_listeners(self.effectdisplay)
+        self._effectdisplay = EffectInfoGroup(TileDisplay.LABEL_SIZE[0])
+        self._effectdisplay.tfc.set_transform_target(self)
+        self.register_input_listeners(self._effectdisplay)
 
-        self.sub_blits:list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]] = []
+        self._sub_blits:list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]] = []
         self.image = pygame.Surface((200,100)).convert_alpha()
-        self.rect = self.image.get_rect()
+        self._rect = self.image.get_rect()
         self.image.fill((0))
-        self.displaytile:TileBaseUI = None
-        self.set_displaytile_effects(None, [])
-        self.draw_border()
+        self.tile:TileBaseUI = None
+        self.effects:"list[EffectBaseUI]" = []
+        self._draw_border()
+    
+    @property
+    def tile(self):
+        return self._tile
 
-    def draw_border(self):
+    @property
+    def effects(self):
+        return self._effects
+    
+    @tile.setter
+    def tile(self, new_tile:TileBaseUI):
+        """Set the new tile to display."""
+        self.image.fill(GRAY_ACCENT_LIGHT)
+        self._tile = new_tile
+        self._tilenametextbox.text = new_tile.get_display_name() if new_tile else ""
+        self._tilenametextbox.update_textbox()
+        self._tiledesctextbox.text = new_tile.get_display_description() if new_tile else ""
+        self._tiledesctextbox.update_textbox()
+        self._tiledescpos = add(self._tilenamepos, (0, self._tilenametextbox.image.get_height()+1))
+        self.update(0)
+    
+    @effects.setter
+    def effects(self, new_effects:"list[EffectBaseUI]"):
+        """Set the new effects to display."""
+        self._effects = new_effects
+        self._effectdisplay.tfc.relative_position = add(self._tiledescpos, (0, self._tiledesctextbox.image.get_height()+3))
+        self._effectdisplay.set_effects(new_effects)
+        self.update(0)
+    
+    def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+        yield from Widget.get_blits(self)
+        yield from self._sub_blits
+        yield from self._effectdisplay.get_blits()
+
+    def update(self, dt):
+        self.image.blit(self._tilenametextbox.image, self._tilenamepos)
+        self.image.blit(self._tiledesctextbox.image, self._tiledescpos)
+        self.image.fill(IMAGE_BACKGROUND, (*self._imagepos,*STANDARD_TILE_SIZE))
+        self._sub_blits.clear()
+        if self._tile:
+            self.image.blits([(blit[0], pygame.Rect(*self._imagepos, *STANDARD_TILE_SIZE) , blit[2]) for blit in self._tile.get_blits()])
+        self._draw_effect_separator()
+
+    def _draw_border(self):
         pygame.draw.rect(
             self.image, 
             GRAY_ACCENT_DARK, 
@@ -68,35 +104,8 @@ class TileDisplay(ComponentAcceptor, InputAcceptor, PerfSprite):
             ), 
             HUD.IMAGE_BORDER_WIDTH
             )
-    
-    def draw_effect_separator(self):
-        start = add(self.effectdisplay.tfc.get_position(), (0,-2))
-        end = add(start, (TileDisplay.LABEL_SIZE[0],0))
+
+    def _draw_effect_separator(self):
+        start = add(self._effectdisplay.tfc.get_position(), (0,-2))
+        end = add(start, (TileDisplay.LABEL_SIZE[0]-1,0))
         pygame.draw.line(self.image, WHITE, start, end)
-
-    def set_displaytile_effects(self, tile:TileBaseUI, effects:"list[EffectBaseUI]"):
-        """Set the new tile and effects to display."""
-        self.image.fill(GRAY_ACCENT_LIGHT)
-        self.displaytile = tile
-        self.tilenametextbox.text = tile.get_display_name() if tile else ""
-        self.tilenametextbox.update_textbox()
-        self.tiledesctextbox.text = tile.get_display_description() if tile else ""
-        self.tiledesctextbox.update_textbox()
-        self.tiledescpos = add(self.tilenamepos, (0, self.tilenametextbox.image.get_height()+1))
-        self.effectdisplay.tfc.relative_position = add(self.tiledescpos, (0, self.tiledesctextbox.image.get_height()+3))
-        self.effectdisplay.set_effects(effects)
-        self.update(0)
-    
-    def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
-        yield (self.image, self.rect, self.image.get_rect())
-        yield from self.sub_blits
-        yield from self.effectdisplay.get_blits()
-
-    def update(self, dt):
-        self.image.blit(self.tilenametextbox.image, self.tilenamepos)
-        self.image.blit(self.tiledesctextbox.image, self.tiledescpos)
-        self.image.fill(IMAGE_BACKGROUND, (*self.imagepos,*STANDARD_TILE_SIZE))
-        self.sub_blits.clear()
-        if self.displaytile:
-            self.image.blits([(blit[0], pygame.Rect(*self.imagepos, *STANDARD_TILE_SIZE) , blit[2]) for blit in self.displaytile.get_blits()])
-        self.draw_effect_separator()

@@ -1,7 +1,7 @@
 import unittest
 
 from itblib.Grid import Grid
-from itblib.gridelements.Effects import EffectBleeding
+from itblib.gridelements.StatusEffects import StatusEffectBleeding
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.abilities.BurrowAbility import BurrowAbility
 
@@ -34,7 +34,7 @@ class TestUnitBaseMethods(unittest.TestCase):
     
     def test_add_remove_statuseffect(self):
         self.assertTrue(self.unit)
-        statuseffect = EffectBleeding(self.unit)
+        statuseffect = StatusEffectBleeding(self.unit)
         self.assertIsNone(self.unit.get_statuseffect(statuseffect))
         self.unit.add_status_effect(statuseffect)
         self.assertTrue(statuseffect in self.unit.statuseffects)

@@ -6,12 +6,12 @@ from itblib.globals.Colors import BLACK, GRAY_ACCENT_LIGHT, PHASECOLORS
 from itblib.globals.Constants import HUD, STANDARD_UNIT_SIZE
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.UnitsUI import UnitBaseUI
-from itblib.ui.PerfSprite import PerfSprite
+from itblib.ui.IGraphics import IGraphics
 from itblib.ui.TextureManager import Textures
 from itblib.Vec import add, sub
 
 
-class UnitDisplay(PerfSprite):
+class UnitDisplay(IGraphics):
     """Allows for easier display of a unit on the HUD."""
     IMAGE_SIZE = STANDARD_UNIT_SIZE
     IMAGE_SIZE_BORDER = (2*HUD.IMAGE_BORDER_WIDTH + IMAGE_SIZE[0], 2*HUD.IMAGE_BORDER_WIDTH + IMAGE_SIZE[1])

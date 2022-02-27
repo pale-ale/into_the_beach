@@ -7,7 +7,7 @@ import pygame.sprite
 import pygame.transform
 from itblib.Game import Session
 from itblib.globals.Colors import BLACK, PHASECOLORS
-from itblib.globals.Constants import HUD, PHASE_DURATIONS
+from itblib.globals.Constants import HUD, PHASE_DURATIONS, PREVIEWS
 from itblib.gridelements.UnitsUI import UnitBaseUI
 from itblib.input.Input import InputAcceptor
 from itblib.net.NetEvents import NetEvents
@@ -16,16 +16,15 @@ from itblib.ui.GridUI import GridUI
 from itblib.ui.hud.AbilityPreviewDisplay import AbilityPreviewDisplay
 from itblib.ui.hud.TileDisplay import TileDisplay
 from itblib.ui.hud.UnitDisplay import UnitDisplay
-from itblib.ui.PerfSprite import PerfSprite
+from itblib.ui.IGraphics import IGraphics
 from itblib.ui.TextureManager import Textures
-from itblib.globals.Constants import PREVIEWS
 
 
-class Hud(PerfSprite, InputAcceptor):
+class Hud(IGraphics, InputAcceptor):
     """The HUD is used to display most information, like HP, abilities, etc."""
 
     def __init__(self, size:"tuple[int,int]", gridui:GridUI, playerid:int, session:Session):
-        PerfSprite.__init__(self)
+        IGraphics.__init__(self)
         InputAcceptor.__init__(self)
         self.playerversusanimation:"PlayerVersusAnimation|None" = None
         self.rect = pygame.Rect(0,0,*size)
@@ -41,7 +40,7 @@ class Hud(PerfSprite, InputAcceptor):
         self.register_input_listeners(self.tiledisplay)
         self.ability_preview_display = AbilityPreviewDisplay(gridui)
         self.unitdisplay.rect.topleft = (self.rect.width - HUD.ELEM_WIDTH, 0) 
-        self.tiledisplay.rect.topleft = (0, 0)
+        #self.tiledisplay.position = (0, 0)
         # other info
         self.playerid = playerid
         self.session = session
@@ -136,10 +135,8 @@ class Hud(PerfSprite, InputAcceptor):
     def update_cursor(self, position:"tuple[int,int]|None"=None):
         """Forward the new cursor position to a unit's according hooks"""
         position = position if position else self.cursorgridpos
-        self.tiledisplay.set_displaytile_effects(
-            self.gridui.get_tileui(position),
-            self.gridui.get_tile_effectsui(position)
-        )
+        self.tiledisplay.tile = self.gridui.get_tileui(position)
+        self.tiledisplay.effects = self.gridui.get_tile_effectsui(position)
         self.unitdisplay.set_displayunit(self.gridui.get_unitui(position))
         self.cursorgridpos = position
         self.cursorscreenpos = self.gridui.transform_grid_screen(position)

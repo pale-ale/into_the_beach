@@ -3,10 +3,10 @@ from typing import Generator
 import pygame
 from itblib.components.ComponentAcceptor import ComponentAcceptor
 from itblib.components.TransformComponent import TransformComponent
-from itblib.ui.PerfSprite import PerfSprite
+from itblib.ui.IGraphics import IGraphics
 
 
-class MultiSprite(ComponentAcceptor, PerfSprite):
+class MultiSprite(ComponentAcceptor, IGraphics):
     """This class can be used to create "animated" sprites, using either a given set of textures
     that will be flipped through or by overriding the update and start methods to create variable animations"""
     def __init__(self, textures:"list[pygame.Surface]", frametime:float=.5, playing=False, looping=True):

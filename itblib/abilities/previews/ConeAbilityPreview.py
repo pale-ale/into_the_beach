@@ -6,7 +6,7 @@ from itblib.abilities.baseAbilities.ConeAttackAbilityBase import \
 from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_TILE_SIZE, STANDARD_UNIT_SIZE
 from itblib.net.NetEvents import NetEvents
-from itblib.ui.TextBox import TextBox
+from itblib.ui.widgets.TextBox import TextBox
 from itblib.Vec import add, deg_to_coord, mult2, smult, sub
 
 

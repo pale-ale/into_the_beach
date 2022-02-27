@@ -1,9 +1,8 @@
 import pygame
-from itblib.components.ComponentAcceptor import ComponentAcceptor
-from itblib.components.TransformComponent import TransformComponent
+from itblib.ui.widgets.Widget import Widget
 
 
-class TextBox(pygame.sprite.Sprite, ComponentAcceptor):
+class TextBox(Widget):
     """Since alpha=0 in text renders is currently broken, use (0,0,0,0) as color to be removed."""
     def __init__(self, 
                 text:str = "AaBbCcDdEeFfGg;:_ÖÄ@ILil",
@@ -12,11 +11,8 @@ class TextBox(pygame.sprite.Sprite, ComponentAcceptor):
                 fontsize:int = 16,
                 pos:"tuple[int,int]" = (0,0),
                 linewidth:int = 150,
-                lineheight:int = None,
-                *groups: pygame.sprite.AbstractGroup) -> None:
-        ComponentAcceptor.__init__(self)
-        tfc = TransformComponent()
-        tfc.attach_component(self)
+                lineheight:int = None) -> None:
+        super().__init__()
         self.text = text
         self.font = pygame.font.Font("HighOne.ttf", fontsize)
         self.textcolor = textcolor
@@ -24,8 +20,7 @@ class TextBox(pygame.sprite.Sprite, ComponentAcceptor):
         self.linewidth = linewidth
         self.lineheight = lineheight if lineheight else self.font.get_height() - 2*(fontsize/8)
         self.image:pygame.Surface = None
-        self.rect:pygame.Rect = pygame.Rect(pos, (0,0))
-        pygame.sprite.Sprite.__init__(self, *groups)
+        self.position = pos
         self.update_textbox()
 
     def update_textbox(self):
@@ -39,7 +34,6 @@ class TextBox(pygame.sprite.Sprite, ComponentAcceptor):
             subsurf = textsurf.subsurface((0,border, textsurf.get_width(), textsurf.get_height()-border)).convert_alpha()
             self.image.blit(subsurf, (1, i*self.lineheight))
         self.image.set_colorkey((0,0,0,0))
-        self.rect = pygame.Rect(self.get_component(TransformComponent).get_position(), self.image.get_size())
     
     def _break_lines_font(self, text:str, font:pygame.font.Font, textbox_width:int) -> str:
         """Break a text at spaces and newlines, so that the line rendered with the specified font will not exceed the width."""

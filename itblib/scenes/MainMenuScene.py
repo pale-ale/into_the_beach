@@ -1,7 +1,7 @@
 from itblib.scenes.SceneBase import SceneBase
 from itblib.SceneManager import SceneManager
-from itblib.ui.KeyIcon import KeyIcon
-from itblib.ui.TextBox import TextBox
+from itblib.ui.widgets.KeyIcon import KeyIcon
+from itblib.ui.widgets.TextBox import TextBox
 
 import pygame
 import pygame.font

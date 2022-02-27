@@ -14,14 +14,14 @@ from itblib.gridelements.TilesUI import TileBaseUI
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.UnitsUI import UnitBaseUI
 from itblib.ui.IGridObserver import IGridObserver
-from itblib.ui.PerfSprite import PerfSprite
+from itblib.ui.IGraphics import IGraphics
 from itblib.Vec import add
 
 
-class GridUI(PerfSprite, ComponentAcceptor, IGridObserver):
+class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
     """The Graphical representation of the grid."""
     def __init__(self, grid:Grid):  
-        PerfSprite.__init__(self)
+        IGraphics.__init__(self)
         ComponentAcceptor.__init__(self)
         self.tfc = TransformComponent()
         self.tfc.attach_component(self)

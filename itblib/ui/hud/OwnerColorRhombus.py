@@ -1,18 +1,16 @@
 from typing import TYPE_CHECKING, Generator
 
 import pygame
-from itblib.components.ComponentAcceptor import ComponentAcceptor
 from itblib.components.TransformComponent import TransformComponent
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
-from itblib.ui.PerfSprite import PerfSprite
+from playgrounds.itblib.ui.widgets.Widget import Widget
 
 if TYPE_CHECKING:
     from itblib.gridelements.UnitsUI import UnitBaseUI
 
-class OwnerColorRhombus(ComponentAcceptor, PerfSprite):
+class OwnerColorRhombus(Widget):
     def __init__(self, playercolor:tuple[int,int,int,int]) -> None:
-        ComponentAcceptor.__init__(self)
-        PerfSprite.__init__(self)
+        super().__init__()
         self._tc = TransformComponent()
         self._tc.attach_component(self)
         self._unit = None

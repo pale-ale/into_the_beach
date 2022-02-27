@@ -4,12 +4,12 @@ import pygame
 from itblib.globals.Colors import BLACK
 from itblib.input.Input import InputAcceptor
 from itblib.net.NetEvents import NetEvents
-from itblib.ui.PerfSprite import PerfSprite
+from itblib.ui.IGraphics import IGraphics
 
 if TYPE_CHECKING:
     from itblib.SceneManager import SceneManager
 
-class SceneBase(PerfSprite, InputAcceptor):
+class SceneBase(IGraphics, InputAcceptor):
     """
     Scenes are a way to organize several Display-Objects as well as their functioniality,
     essentially allowing for easy grouping.
@@ -19,7 +19,7 @@ class SceneBase(PerfSprite, InputAcceptor):
     """
 
     def __init__(self, scenemanager:"SceneManager") -> None:
-        PerfSprite.__init__(self)
+        IGraphics.__init__(self)
         InputAcceptor.__init__(self)
         self.scenemanager = scenemanager
         self.blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []

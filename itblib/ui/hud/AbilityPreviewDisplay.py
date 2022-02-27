@@ -13,10 +13,10 @@ from itblib.abilities.previews.RangedAttackAbilityPreview import \
 from itblib.abilities.previews.SimpleAbilityPreview import SimpleAbilityPreview
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.ui.GridUI import GridUI
-from itblib.ui.PerfSprite import PerfSprite
+from itblib.ui.IGraphics import IGraphics
 
 
-class AbilityPreviewDisplay(PerfSprite):
+class AbilityPreviewDisplay(IGraphics):
     """Creates previews for a unit based on it's abilities and their targets."""
 
     def __init__(self, gridui:GridUI) -> None:
