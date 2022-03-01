@@ -69,13 +69,13 @@ class TileDisplay(Widget, InputAcceptor):
         self._tiledesctextbox.text = new_tile.get_display_description() if new_tile else ""
         self._tiledesctextbox.update_textbox()
         self._tiledescpos = add(self._tilenamepos, (0, self._tilenametextbox.image.get_height()+1))
+        self._effectdisplay.position = add(self._tiledescpos, (0, self._tiledesctextbox.image.get_height()+3))
         self.update(0)
     
     @effects.setter
     def effects(self, new_effects:"list[EffectBaseUI]"):
         """Set the new effects to display."""
         self._effects = new_effects
-        self._effectdisplay.position = add(self._tiledescpos, (0, self._tiledesctextbox.image.get_height()+3))
         self._effectdisplay.set_effects(new_effects)
         self.update(0)
     

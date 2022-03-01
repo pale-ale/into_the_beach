@@ -15,7 +15,7 @@ class MultiSprite(ComponentAcceptor, IGraphics):
         self._textures = textures
         self.frametime = frametime
         self.framenumber = -1
-        self.animtime = -1
+        self.animtime = 0
         self.playing = playing
         self.looping = looping
         self.blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []

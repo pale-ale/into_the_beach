@@ -52,7 +52,7 @@ class Textures:
 
         (ETEXTURETYPE.TILE, "Dirt" , "Default", 1),
         (ETEXTURETYPE.TILE, "Water", "Default", 1),
-        (ETEXTURETYPE.TILE, "Lava" , "Default", 1),
+        (ETEXTURETYPE.TILE, "Lava" , "Default", 2),
         (ETEXTURETYPE.TILE, "Rock" , "Default", 1),
 
         (ETEXTURETYPE.UNIT, "Saucer"        , "SWIdle"    ,  1),

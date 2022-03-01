@@ -7,7 +7,7 @@ from itblib.gridelements.StatusEffects import (StatusEffect,
 from itblib.gridelements.units.IUnitObserver import IUnitObserver
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.widgets.HealthBar import HealthBar
-from itblib.ui.hud.OwnerColorRhombus import OwnerColorRhombus
+from itblib.ui.widgets.OwnerColorRhombus import OwnerColorRhombus
 from itblib.ui.IDisplayable import IDisplayable
 from itblib.ui.TextureManager import Textures
 from itblib.Vec import add, smult, sub
@@ -25,14 +25,12 @@ class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
         self.toscreenpos = None
         self.movementtime = 0.0
         self.speed = 0.0
-        self.looping = True
-        self.start()
         self.old_frame = self.framenumber
         self.healthbar = HealthBar(self._parentelement)
-        self.healthbar.tfc.set_transform_target(self)
+        self.healthbar.parent = self
         barwidth = self.healthbar.get_size()[0]
         offset = ((STANDARD_UNIT_SIZE[0]-barwidth)/2,STANDARD_UNIT_SIZE[1]*.7)
-        self.healthbar.tfc.relative_position = offset
+        self.healthbar.position = offset
         self.owner_color_rhombus = None
         if NetEvents.session:
             self.owner_color_rhombus = OwnerColorRhombus(NetEvents.session._players[self._parentelement.ownerid].color)
@@ -47,8 +45,6 @@ class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
 
     def update(self, delta_time:float):
         super().update(delta_time)
-        if self.old_frame != self.framenumber:
-            self.old_frame = self.framenumber
         if self.fromscreenpos and self.toscreenpos:
             diff = sub(self.toscreenpos, self.fromscreenpos)
             timepercent = min((self._parentelement.age - self.movementtime) / self.speed, 1)

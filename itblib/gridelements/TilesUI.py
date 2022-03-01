@@ -11,9 +11,31 @@ class TileBaseUI(GridElementUI, IDisplayable):
         return "Somename"
     
     def get_display_description(self) -> str:
-        return "No special tile effects"
+        return ""
 
 
 class TileDirtUI(TileBaseUI):
     def get_display_name(self) -> str:
-        return "Grass Tile"
+        return "Grass"
+
+
+class TileRockUI(TileBaseUI):
+    def get_display_name(self) -> str:
+        return "Wasteland"
+
+
+class TileWaterUI(TileBaseUI):
+    def get_display_name(self) -> str:
+        return "Water"
+
+    def get_display_description(self) -> str:
+        return "Drowns units that cannot swim"
+
+
+class TileLavaUI(TileBaseUI):
+    def get_display_name(self) -> str:
+        return "Lava"
+        
+    def get_display_description(self) -> str:
+        return "Drowns units that cannot swim and sets them on fire"
+

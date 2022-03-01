@@ -7,8 +7,8 @@ import pygame.time
 
 from itblib.gridelements.Effects import EffectFire, EffectMountain
 from itblib.gridelements.EffectsUI import EffectFireUI, EffectMountainUI
-from itblib.gridelements.Tiles import TileDirt
-from itblib.gridelements.TilesUI import TileDirtUI
+from itblib.gridelements.Tiles import TileDirt, TileLava
+from itblib.gridelements.TilesUI import TileDirtUI, TileLavaUI
 from itblib.ui.hud.TileDisplay import TileDisplay
 from itblib.ui.IGraphics import IGraphics
 from itblib.ui.TextureManager import Textures
@@ -32,7 +32,9 @@ Textures.load_textures()
 
 tile_display = TileDisplay()
 
-test_tile_ui  = TileDirtUI(TileDirt(None, (0,0)))
+# test_tile_ui  = TileDirtUI(TileDirt(None, (0,0)))
+test_tile_ui  = TileLavaUI(TileLava(None, (0,0)))
+test_tile_ui.frametime = 0.15
 
 test_effect_1 = EffectFireUI(EffectFire(None, (0,0)))
 test_effect_2 = EffectMountainUI(EffectMountain(None, (0,0)))
@@ -68,6 +70,7 @@ def main():
                     tile_display.handle_key_event(event)
         dt = CLOCK.tick(FPS)/1000.0
         gtime += dt
+        test_tile_ui.update(dt)
         for b in blittables:
             scene_image.blits(b.get_blits())
         pygame.transform.scale(scene_image, screen.get_size(), screen)
