@@ -66,6 +66,10 @@ class AbilityBase(Serializable, InputAcceptor, ABC):
         self.area_of_effect.clear()
         self.primed = False
         self.selected = False
+    
+    def reset_to_targets(self):
+        """Remove the ability's previews, keeping the selected targets"""
+        self.area_of_effect = {x for x in filter(lambda e: e[0] in self.selected_targets, self.area_of_effect)}
 
     def on_select_ability(self):
         """Called when a player selects this ability. Use to e.g. show target outlines"""
@@ -78,7 +82,7 @@ class AbilityBase(Serializable, InputAcceptor, ABC):
     def on_deselect_ability(self):
         """Called when the ability is not selected any longer, e.g. by selecting a different one."""
         self.selected = False
-        self.area_of_effect.clear()
+        self.reset_to_targets()
         print("AbilityBase: Deselected", type(self).__name__)
     
     def on_parentunit_select(self):

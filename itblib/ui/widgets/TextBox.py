@@ -13,7 +13,6 @@ class TextBox(Widget):
                 linewidth:int = 150,
                 lineheight:int = None) -> None:
         super().__init__()
-        self.text = text
         self.font = pygame.font.Font("HighOne.ttf", fontsize)
         self.textcolor = textcolor
         self.bgcolor = bgcolor
@@ -21,6 +20,15 @@ class TextBox(Widget):
         self.lineheight = lineheight if lineheight else self.font.get_height() - 2*(fontsize/8)
         self.image:pygame.Surface = None
         self.position = pos
+        self.text = text
+    
+    @property
+    def text(self):
+        return self._text
+    
+    @text.setter
+    def text(self, new_text:str):
+        self._text = new_text
         self.update_textbox()
 
     def update_textbox(self):

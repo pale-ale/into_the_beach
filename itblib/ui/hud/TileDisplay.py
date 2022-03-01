@@ -65,12 +65,11 @@ class TileDisplay(Widget, InputAcceptor):
         self.image.fill(GRAY_ACCENT_LIGHT)
         self._tile = new_tile
         self._tilenametextbox.text = new_tile.get_display_name() if new_tile else ""
-        self._tilenametextbox.update_textbox()
         self._tiledesctextbox.text = new_tile.get_display_description() if new_tile else ""
-        self._tiledesctextbox.update_textbox()
         self._tiledescpos = add(self._tilenamepos, (0, self._tilenametextbox.image.get_height()+1))
         self._effectdisplay.position = add(self._tiledescpos, (0, self._tiledesctextbox.image.get_height()+3))
         self.update(0)
+        self._draw_effect_separator()
     
     @effects.setter
     def effects(self, new_effects:"list[EffectBaseUI]"):
@@ -78,6 +77,7 @@ class TileDisplay(Widget, InputAcceptor):
         self._effects = new_effects
         self._effectdisplay.set_effects(new_effects)
         self.update(0)
+        self._draw_effect_separator()
     
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield from Widget.get_blits(self)
@@ -90,8 +90,10 @@ class TileDisplay(Widget, InputAcceptor):
         self.image.fill(IMAGE_BACKGROUND, (*self._imagepos,*STANDARD_TILE_SIZE))
         self._sub_blits.clear()
         if self._tile:
-            self.image.blits([(blit[0], pygame.Rect(*self._imagepos, *STANDARD_TILE_SIZE) , blit[2]) for blit in self._tile.get_blits()])
-        self._draw_effect_separator()
+            tile_rect = pygame.Rect(self._imagepos, STANDARD_TILE_SIZE) 
+            self.image.blits([(blit[0], tile_rect , blit[2]) for blit in self._tile.get_blits()])
+            for e in self._effects:
+                self.image.blits([(blit[0], tile_rect, blit[2]) for blit in e.get_blits()])
 
     def _draw_border(self):
         pygame.draw.rect(

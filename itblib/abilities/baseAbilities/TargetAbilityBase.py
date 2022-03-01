@@ -24,7 +24,6 @@ class TargetAbilityBase(AbilityBase):
 
     def set_targets(self, targets:"list[tuple[int,int]]"):
         super().set_targets(targets)
-        self.area_of_effect.clear()
         self.on_deselect_ability()
 
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
