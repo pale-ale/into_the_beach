@@ -1,9 +1,9 @@
 from typing import Generator
 
 import pygame
-from pygame.constants import K_ESCAPE
 import pygame.surface
 import pygame.transform
+from itblib.Game import Session
 from itblib.globals.Constants import DIRECTIONS
 from itblib.Grid import Grid
 from itblib.net.NetEvents import NetEvents
@@ -12,16 +12,17 @@ from itblib.scenes.SceneBase import SceneBase
 from itblib.Selector import Selector
 from itblib.ui.GridUI import GridUI
 from itblib.ui.hud.HUD import Hud
+from pygame.constants import K_ESCAPE
 
 
 class GameScene(SceneBase):
     """Contains the main game (grid, hud, etc.)"""
-    def __init__(self, scenemanager:SceneManager) -> None:
+    def __init__(self, scenemanager:SceneManager, session:Session) -> None:
         super().__init__(scenemanager)
         self.grid = Grid(NetEvents.connector)
         self.gridui = GridUI(self.grid)
         self.grid.update_observer(self.gridui) 
-        self.hud = Hud(scenemanager.scene_size, self.gridui, 0, NetEvents.session)
+        self.hud = Hud(scenemanager.scene_size, self.gridui, 0, session)
         self.selector = Selector(self.grid, self.hud)
         self.register_input_listeners(self.selector, self.hud)
     

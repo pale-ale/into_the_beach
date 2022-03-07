@@ -17,10 +17,10 @@ from pygame.surface import Surface
 
 class RosterSelectionScene(SceneBase):
     """The user can select his lineup here."""
-    def __init__(self, scenemanager:"SceneManager") -> None:
+    def __init__(self, scenemanager:"SceneManager", playerfilepath:"str") -> None:
         super().__init__(scenemanager)
         self.image = pygame.Surface(self.scenemanager.scene_size)
-        self.playerfilepath = sys.argv[1]
+        self.playerfilepath = playerfilepath
         self.titlefont = pygame.font.SysFont('latinmodernmono', 50)
         self.subfont = pygame.font.SysFont('latinmodernmono', 20)
         t = self.titlefont.render("Select your lineup here.", True, (50,200,150,255))
@@ -57,10 +57,12 @@ class RosterSelectionScene(SceneBase):
             y = int(unitindex/self.tilecountline)
             tex = Surface((64,64)).convert_alpha()
             tex.fill((0))
-            t = Textures.get_spritesheet(
+            spritesheet = Textures.get_spritesheet(
                 UNIT_IDS[self.unitids[unitindex]]+"SWIdle"
-            )[0]
-            tex.blit(t, (0,0,64,64))
+            )
+            if spritesheet:
+                t = spritesheet[0]
+                tex.blit(t, (0,0,64,64))
             s = Surface((self.tilewidth, self.tileheight)).convert_alpha()
             pygame.transform.scale(tex, s.get_size(), s)
             self.unitlist.blit(s, self.c_to_s((x,y)))

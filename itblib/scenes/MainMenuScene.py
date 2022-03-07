@@ -1,14 +1,17 @@
-from itblib.scenes.SceneBase import SceneBase
-from itblib.SceneManager import SceneManager
-from itblib.ui.widgets.KeyIcon import KeyIcon
-from itblib.ui.widgets.TextBox import TextBox
+import random
+from typing import Generator
 
 import pygame
 import pygame.font
 import pygame.image
-import pygame.transform
 import pygame.sprite
-import random
+import pygame.transform
+from itblib.SceneManager import SceneManager
+from itblib.scenes.SceneBase import SceneBase
+from itblib.ui.widgets.KeyIcon import KeyIcon
+from itblib.ui.widgets.TextBox import TextBox
+from itblib.ui.widgets.Widget import Widget
+
 
 class MainMenuScene(SceneBase):
     """Main menu placeholder."""
@@ -48,11 +51,6 @@ class MainMenuScene(SceneBase):
     def load(self):
         super().load()
         self.blits.append((self.bg, self.bg.get_rect(), self.bg.get_rect()))
-        for k in self.keysprites:
-            self.blits.append((k.image, k.rect, pygame.Rect(0,0,*k.rect.size)))
-        for tb in self.textsprites:
-            self.blits.append((tb.image, tb.rect, pygame.Rect(0,0,*tb.rect.size)))
-
         self.lightspots:"list[tuple[int,int]]" = self._get_lightspots()
         for i in range(len(self.lightspots)):
             self._set_light(i)
@@ -112,5 +110,8 @@ class MainMenuScene(SceneBase):
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield from self.blits
+        child:Widget
+        for child in self.keysprites + self.textsprites:
+            yield from child.get_blits()
         self.blits.clear()
     

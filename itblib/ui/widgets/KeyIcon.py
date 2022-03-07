@@ -10,10 +10,10 @@ class KeyIcon(Widget):
     """The KeyIcon Widget can be used to display a single char with a keyboard-key style."""
     BUTTON_LIGHT_GRAY = (150,150,150,255)
 
-    def __init__(self, char:str, pos=(0,0), size:"tuple[int,int]"=(30,30), pressed:bool = False) -> None:
+    def __init__(self, char:str, pos=(0,0), size:"tuple[int,int]"=(32,32), pressed:bool = False) -> None:
         super().__init__()
         self.image = pygame.Surface(size).convert_alpha()
-        self.font = pygame.font.SysFont('HighOne', 32)
+        self.font = pygame.font.Font('HighOne.ttf', 32)
         self._outer_border = (3,3)
         self._inner_border = (2,2)
         self._pressed = pressed

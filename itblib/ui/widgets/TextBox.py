@@ -1,7 +1,6 @@
 import pygame
 from itblib.ui.widgets.Widget import Widget
 
-
 class TextBox(Widget):
     """Since alpha=0 in text renders is currently broken, use (0,0,0,0) as color to be removed."""
     def __init__(self, 

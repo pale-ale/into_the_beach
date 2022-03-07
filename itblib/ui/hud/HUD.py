@@ -142,7 +142,9 @@ class Hud(IGraphics, InputAcceptor):
         self.cursorscreenpos = self.gridui.transform_grid_screen(position)
         if self.cursor_blit:
             self.blits.remove(self.cursor_blit)
-        self.cursor_blit = (Textures.get_spritesheet(PREVIEWS[0])[0], pygame.Rect(*self.cursorscreenpos,64,64), pygame.Rect(0,0,64,64))
+        cursor_spritesheet = Textures.get_spritesheet(PREVIEWS[0])
+        if cursor_spritesheet:
+            self.cursor_blit = (cursor_spritesheet[0], pygame.Rect(*self.cursorscreenpos,64,64), pygame.Rect(0,0,64,64))
         self.blits.append(self.cursor_blit)
         if self.selected_unitui and self.selected_unitui._parentelement:
             self.selected_unitui._parentelement.ability_component.on_update_cursor(position)

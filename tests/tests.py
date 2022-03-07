@@ -17,6 +17,9 @@ TEST_TRANSFORM_COMPONENT = False
 # Networking
 TEST_NETWORK             = True
 
+# Scenes
+TEST_SCENES              = True
+
 
 # Game sections
 if TEST_ALL or TEST_GRID:
@@ -37,6 +40,9 @@ if TEST_ALL or TEST_NETWORK:
     from networkTests.testNetwork import TestNetworkMethods
     from networkTests.testJoinGame import TestJoinGameMethods
 
+# Scenes
+if TEST_ALL or TEST_SCENES:
+    from testScenes import TestScenes
 
 if TEST_ALL:
     from testVec import TestVecMethods
