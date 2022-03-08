@@ -127,7 +127,7 @@ class Grid(Serializable):
                 self.add_worldeffect(
                     pos, 
                     EFFECT_IDS.index(single_effect_data["name"])
-                )
+                ).insert_data(single_effect_data, [])
         
     def update_observer(self, observer:"IGridObserver|None") -> None:
         """
@@ -200,7 +200,7 @@ class Grid(Serializable):
                 elif len(units) == 1:
                     self.move_unit(units[0].pos, position)
 
-    def change_phase(self, phase) -> None:
+    def change_phase(self, phase:int) -> None:
         """Set the phase to a certain number."""
         self.phase = phase
         self.phasetime = 0
@@ -262,7 +262,7 @@ class Grid(Serializable):
         newtile:TileBase = tiletype(self, pos)
         return self.add_gridelement(pos, newtile)
 
-    def add_worldeffect(self, pos:"tuple[int,int]", worldeffectid:int) -> "TileBase|None":
+    def add_worldeffect(self, pos:"tuple[int,int]", worldeffectid:int) -> "EffectBase|None":
         """Add a world effect to the grid at given position."""
         effecttype:EffectBase = GridElementFactory.find_effect_class(EFFECT_IDS[worldeffectid])     
         neweffect:EffectBase = effecttype(self, pos)

@@ -39,7 +39,8 @@ EFFECT_IDS = [
     "River",
     "Wheat",
     "Town",
-    "Heal"
+    "Heal",
+    "StartingArea",
 ]
 
 UNIT_IDS = [

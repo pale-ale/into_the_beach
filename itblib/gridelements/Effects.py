@@ -85,3 +85,18 @@ class EffectHeal(EffectBase):
     
     def get_display_description(self) -> str:
         return ""
+
+
+class EffectStartingArea(EffectBase):
+    def __init__(self, grid, pos: "tuple[int,int]", age=0, done=True, name="StartingArea"):
+        super().__init__(grid, pos, age, done, name)
+        self.serializable_fields.append("ownerid")
+        self.ownerid:int
+    
+    def get_display_description(self) -> str:
+        return "Units can be deployed here."
+    
+    def on_update_phase(self, new_phase: int):
+        super().on_update_phase(new_phase)
+        if new_phase > 0:
+            self.grid.remove_worldeffect(self, self.pos)

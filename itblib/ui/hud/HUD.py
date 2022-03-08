@@ -8,6 +8,7 @@ import pygame.transform
 from itblib.Game import Session
 from itblib.globals.Colors import BLACK, PHASECOLORS
 from itblib.globals.Constants import HUD, PHASE_DURATIONS, PREVIEWS
+from itblib.gridelements.Effects import EffectStartingArea
 from itblib.gridelements.UnitsUI import UnitBaseUI
 from itblib.input.Input import InputAcceptor
 from itblib.net.NetEvents import NetEvents
@@ -89,8 +90,10 @@ class Hud(IGraphics, InputAcceptor):
         if self.gridui.grid.phase == 0 and \
         len(self.session._players[self.playerid]._initialunitids) > 0 and\
         self.gridui.grid.is_space_empty(False, position):
-            id = self.session._players[self.playerid]._initialunitids.pop(0)
-            self.gridui.grid.request_add_unit(position, id, self.playerid)
+            for effect in self.gridui.grid.get_worldeffects(position):
+                if isinstance(effect, EffectStartingArea) and effect.ownerid == self.playerid:
+                    id = self.session._players[self.playerid]._initialunitids.pop(0)
+                    self.gridui.grid.request_add_unit(position, id, self.playerid)
         elif self.selected_unitui:
             self.selected_unitui._parentelement.ability_component.on_confirm_target(position)
             self.unitdisplay.set_displayunit(self.selected_unitui)

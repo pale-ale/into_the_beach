@@ -1,13 +1,14 @@
-from itblib.abilities.Abilities import (ObjectiveAbility,
-                                        PushAbility)
+from itblib.abilities.Abilities import ObjectiveAbility, PushAbility
 from itblib.abilities.baseAbilities.RangedAttackAbilityBase import \
     RangedAttackAbility
 from itblib.abilities.BurrowAbility import BurrowAbility
 from itblib.abilities.DreadfulNoiseAbility import DreadfulNoiseAbility
+from itblib.abilities.HealAbility import HealAbility
 from itblib.abilities.MovementAbility import MovementAbility
 from itblib.abilities.PunchAbility import PunchAbility
 from itblib.abilities.SerrateAbility import SerrateAbility
-from itblib.abilities.HealAbility import HealAbility
+from itblib.globals.Enums import EFFECT_IDS, PHASES
+from itblib.gridelements.Effects import EffectStartingArea
 from itblib.gridelements.units.UnitBase import UnitBase
 
 
@@ -38,6 +39,14 @@ class UnitBloodWraith(UnitBase):
 class UnitHomebase(UnitBase):
     def __init__(self, grid, pos, ownerid, name:str="Homebase"):
         super().__init__(grid, pos, ownerid, name=name, abilities=[ObjectiveAbility])
+    
+    def on_update_phase(self, new_phase: int):
+        super().on_update_phase(new_phase)
+        if new_phase == PHASES.PREGAMEPHASE:
+            for neighbor in self.grid.get_neighbors(self.pos, ordinal=True, cardinal=True):
+                effect:EffectStartingArea = self.grid.add_worldeffect(neighbor, EFFECT_IDS.index("StartingArea"))
+                if effect:
+                    effect.ownerid = self.ownerid
 
 
 class UnitKnight(UnitBase):

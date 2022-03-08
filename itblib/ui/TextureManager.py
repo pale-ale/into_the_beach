@@ -49,6 +49,7 @@ class Textures:
         (ETEXTURETYPE.TILE_EFFECT,  "Town"         , "Default",  1),
         (ETEXTURETYPE.TILE_EFFECT,  "Wheat"        , "Default",  1),
         (ETEXTURETYPE.TILE_EFFECT,  "Heal"         , "Default", 10),
+        (ETEXTURETYPE.TILE_EFFECT,  "StartingArea" , "Default",  1),
 
         (ETEXTURETYPE.TILE, "Dirt" , "Default", 1),
         (ETEXTURETYPE.TILE, "Water", "Default", 1),

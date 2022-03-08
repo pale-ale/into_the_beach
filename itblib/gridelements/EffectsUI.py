@@ -125,3 +125,9 @@ class EffectHealUI(EffectBaseUI):
     def update(self, delta_time: float):
         super().update(delta_time)
         
+class EffectStartingAreaUI(EffectBaseUI):
+    def __init__(self, effect: EffectBase, framespeed: float = 0.2, autoplay=False):
+        super().__init__(effect, framespeed, autoplay)
+    
+    def get_display_name(self) -> str:
+        return "Drop Zone"

@@ -1,11 +1,13 @@
-from itblib.Player import Player
 import json
-
 from typing import TYPE_CHECKING
+
+from itblib.gridelements.Effects import EffectStartingArea
+from itblib.Player import Player
+
 if TYPE_CHECKING:
+    from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
     from itblib.Game import Session
     from itblib.Grid import Grid
-    from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
     from itblib.net.Connector import Connector
     from itblib.ui.hud.HUD import Hud
 
@@ -38,8 +40,13 @@ class NetEvents():
         if NetEvents.connector.authority:
             #check whether this request is fulfillable, if not: return
             if NetEvents.grid.is_space_empty(False, pos):
-                NetEvents.snd_netunitspawn(unitid, pos, ownerid)
-                NetEvents.grid.add_unit(pos, unitid, ownerid)
+                effects = NetEvents.grid.get_worldeffects(pos)
+                for e in effects:
+                    #check if our spawn area reches here
+                    if isinstance(e, EffectStartingArea) and e.ownerid == ownerid:
+                        NetEvents.snd_netunitspawn(unitid, pos, ownerid)
+                        NetEvents.grid.add_unit(pos, unitid, ownerid)
+                        return
         else:
             NetEvents.grid.add_unit(pos, unitid, ownerid)
     

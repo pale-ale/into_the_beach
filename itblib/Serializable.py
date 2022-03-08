@@ -10,7 +10,7 @@ class Serializable:
     def __init__(self, serializable_fields:"list[str]") -> None:
         self.serializable_fields = serializable_fields[:]
     
-    def insert_data(self, data:dict, exclude:"list[str]"=[]):
+    def insert_data(self, data:dict, exclude:"list[str]"):
         """Insert data from the dict into an object, configuring it."""
         for p in self.serializable_fields:
             if p in data.keys() and not p in exclude:
