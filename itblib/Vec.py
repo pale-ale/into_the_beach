@@ -64,3 +64,13 @@ def transform_vector(m:Matrix,v:Vector) -> Vector:
         for j, m_scalar in enumerate(m[i]):
             transformed[j] += m_scalar*v_scalar
     return tuple(transformed)
+
+def get_translation_for_center(a_pos:Vector2, a_size:Vector2, b_pos:Vector2, b_size:Vector2, horizontal=True, vertical=True) -> Vector2:
+    """Returns the amount a has to move by to be centered in relation to b."""
+    ax, ay = a_pos
+    adx, ady = a_size
+    bx, by = b_pos
+    bdx, bdy = b_size
+    x = bx - ax + (bdx - adx)/2 if horizontal else 0
+    y = by - ay + (bdy - ady)/2 if vertical else 0
+    return (int(x),int(y))

@@ -17,8 +17,8 @@ class RangedAttackAbilityPreview(AbilityPreviewBase):
     def __init__(self, ability:AbilityBase) -> None:
         super().__init__(ability)
         owner = ability.get_owner()
-        self.damagetextbox = TextBox(text='7', fontsize=15, bgcolor=(0,0,0,100))
-        self._bgbox = TextBox(text='  ', fontsize=15, textcolor=(0,100,0,100), bgcolor=(0,100,0,100))
+        self.damagetextbox = TextBox(text='70', fontsize=16, bgcolor=(0,0,0,100), linewidth=16)
+        self._bgbox = TextBox(text='  ', fontsize=16, textcolor=(0,100,0,100), bgcolor=(100,100,100,100), linewidth=18)
         self._start = owner.pos
         self._color:"tuple[int,int,int]" = NetEvents.session._players[owner.ownerid].color if NetEvents.session else [255,0,255]
 
@@ -40,8 +40,9 @@ class RangedAttackAbilityPreview(AbilityPreviewBase):
                 pygame.draw.line(surf, self._color, (p_1[0], max([p_1[1], p_2[1]])), p_peak, 2)
             else:
                 _draw_parabola(surf, self._color, p_peak, p_1, p_2)
-            surf.blit(self._bgbox.image, sub(p_2, smult(.5,self._bgbox.rect.size)), special_flags=BLEND_RGB_MULT)
-            surf.blit(self.damagetextbox.image, sub(p_2, smult(.5,self.damagetextbox.rect.size)), special_flags=BLEND_RGB_ADD)
+            surf.blit(self._bgbox.image, sub(p_2, smult(.5,self._bgbox.get_size())), special_flags=BLEND_RGB_MULT)
+            #print(self.damagetextbox.get_size())
+            surf.blit(self.damagetextbox.image, sub(p_2, smult(.5,self.damagetextbox.get_size())), special_flags=BLEND_RGB_ADD)
             yield surf, pygame.Rect( add(topleft,(0,-10)), (size[0],size[1]/2) ), surf.get_rect()
         else:
             yield from self._get_simple_preview_gen(transform_func)

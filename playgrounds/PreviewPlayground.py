@@ -1,5 +1,6 @@
 import math
 import os
+import random
 from typing import Type
 
 import pygame
@@ -60,9 +61,9 @@ for i,mg in enumerate(MINIGRIDS):
     mgui.update_pan((mgui.width*i, 0))
 
 TARGETS = [
-    MINIGRIDS[0].get_neighbors(UNIT_POS, ordinal=True, cardinal=True),
-    MINIGRIDS[1].get_neighbors(UNIT_POS, ordinal=True, cardinal=True),
-    MINIGRIDS[2].get_neighbors(UNIT_POS, ordinal=True)
+    list(MINIGRIDS[0].get_neighbors(UNIT_POS, ordinal=True, cardinal=True)),
+    list(MINIGRIDS[1].get_neighbors(UNIT_POS, ordinal=True, cardinal=True)),
+    list(MINIGRIDS[2].get_neighbors(UNIT_POS, ordinal=True))
 ]
 
 def update_targets():
@@ -72,7 +73,7 @@ def update_targets():
         unit = grid.get_unit(UNIT_POS)
         ability = ABILITIES[i]
         ability_targets = TARGETS[i]
-        ability.area_of_effect = {(ability_targets[preview_pos_index % len(ability_targets)], "Special")}
+        ability.area_of_effect = {(random.choice(ability_targets), "Special")}
     ABILITIES[1].cone_direction -= math.pi/4
     ABILITIES[1].cone_spread_angle = math.pi/4
     ABILITIES[1].cone_len_tiles = 1
@@ -90,7 +91,7 @@ def main():
                 RUNNING = False
         dt = CLOCK.tick(FPS)/1000.0
         gtime += dt
-        if gtime >= .3:
+        if gtime >= 1:
             preview_pos_index += 1
             update_targets()
             gtime = 0.0

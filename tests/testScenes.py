@@ -7,8 +7,8 @@ from itblib.SceneManager import SceneManager
 from itblib.scenes.GameScene import GameScene
 from itblib.scenes.LobbyScene import LobbyScene
 from itblib.scenes.MainMenuScene import MainMenuScene
-from itblib.scenes.MapSelectionScene import MapSelectionScene
 from itblib.scenes.RosterSelectionScene import RosterSelectionScene
+from itblib.ui.TextureManager import Textures
 
 
 class TestScenes(unittest.TestCase):
@@ -31,6 +31,7 @@ class TestScenes(unittest.TestCase):
         self.scenemanager.load_scene("LobbyScene")
 
     def test_roster_selection_scene(self):
+        Textures.load_textures()
         rosterselectionscene = RosterSelectionScene(self.scenemanager, "playerdata1.json")
         self.scenemanager.add_scene("RosterSelectionScene", rosterselectionscene)
         self.scenemanager.load_scene("RosterSelectionScene")

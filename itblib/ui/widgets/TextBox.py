@@ -20,6 +20,7 @@ class TextBox(Widget):
         self.image:pygame.Surface = None
         self.position = pos
         self.text = text
+        self.update_textbox()
     
     @property
     def text(self):
@@ -33,7 +34,7 @@ class TextBox(Widget):
     def update_textbox(self):
         """After changing the values, generate a new image for the textbox."""
         linebreak_text = self._break_lines_font(self.text, self.font, self.linewidth).splitlines()
-        self.image = pygame.Surface((self.linewidth, len(linebreak_text)*self.lineheight))
+        self.image = pygame.Surface((self.linewidth, max(self.lineheight, len(linebreak_text)*self.lineheight)))
         self.image.fill(self.bgcolor)
         for i,line in enumerate(linebreak_text):
             textsurf = self.font.render(line, False, self.textcolor, self.bgcolor)

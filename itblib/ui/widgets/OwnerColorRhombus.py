@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Generator
 import pygame
 from itblib.components.TransformComponent import TransformComponent
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
-from playgrounds.itblib.ui.widgets.Widget import Widget
+from itblib.ui.widgets.Widget import Widget
 
 if TYPE_CHECKING:
     from itblib.gridelements.UnitsUI import UnitBaseUI

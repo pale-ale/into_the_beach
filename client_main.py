@@ -68,9 +68,9 @@ class Client:
         self.scenemanager.add_scene("MainMenuScene", mainmenuscene)
         self.scenemanager.add_scene("RosterSelectionScene", rosterselectionscene)
         #self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)
-        self.scenemanager.load_scene("LobbyScene")
+        #self.scenemanager.load_scene("LobbyScene")
         #self.scenemanager.load_scene("MainMenuScene")
-        #self.scenemanager.load_scene("RosterSelectionScene")
+        self.scenemanager.load_scene("RosterSelectionScene")
 
     def update_fullscreen(self, fullscreen:bool = False):
         return 
