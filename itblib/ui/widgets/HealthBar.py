@@ -1,5 +1,5 @@
 import pygame
-from itblib.DamageReceiver import DamageReceiver
+from itblib.damage_receiver import DamageReceiver
 from itblib.globals.Colors import HP_ABSENT, HP_BORDER, HP_PADDING, HP_PRESENT
 from itblib.ui.widgets.Widget import Widget
 from itblib.Vec import add

@@ -4,7 +4,7 @@ import pygame
 from itblib.abilities.MovementAbility import MovementAbility
 from itblib.components.AbilityComponent import AbilityComponent
 from itblib.components.ComponentAcceptor import ComponentAcceptor
-from itblib.DamageReceiver import DamageReceiver
+from itblib.damage_receiver import DamageReceiver
 from itblib.globals.StatusEffectFactory import StatusEffectFactory
 from itblib.gridelements.GridElement import GridElement
 from itblib.gridelements.units.IUnitObserver import IUnitObserver
