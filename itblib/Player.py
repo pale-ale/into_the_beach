@@ -9,7 +9,9 @@ class Player:
     def __init__(self, id:int, playersocket:socket.socket, color=(0,150,50)):
         self.name = "Player_" + str(id)
         self.color = color
-        self._initialunitids = PlayerData.roster
+        self._initialunitids:list[int] = []
+        for unitidstr, unitcount in PlayerData.roster.items():
+            self._initialunitids.extend([int(unitidstr)]*unitcount)
         self._controlledunits = []
         self.playerid = id
         self.level = 0
@@ -29,7 +31,7 @@ class Player:
 
 
 class PlayerData():
-    roster = [1,1,1]
+    roster = {"2":3}
     sensitivity = 10.5
     properties = ["roster", "sensitivity"]
 
@@ -41,7 +43,7 @@ class PlayerData():
             for p in PlayerData.properties:
                 setattr(PlayerData, p, datadict[p])
         else:
-            log(f"Couldn't open playerdata file '{path}'.")
+            log(f"Couldn't open playerdata file '{path}'.", 2)
 
     @staticmethod
     def save(path):

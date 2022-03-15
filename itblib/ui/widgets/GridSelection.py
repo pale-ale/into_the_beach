@@ -25,7 +25,7 @@ class GridSelection(InputAcceptor, Widget):
         self._lines = 0
         self._cursor_frame_thickness = 2
         self._element_background = (150,50,150)
-        self._selections:list[int] = []
+        self._selections:dict[int:int] = {}
         self._elem_count = 0
         self.image = pygame.Surface(self._size)
         self.selection_update_callback:"Callable[[list[int]],None]|None" = None
@@ -38,7 +38,7 @@ class GridSelection(InputAcceptor, Widget):
         """Set the mapping funciton used to obtain a Surface from an index."""
         self._data_source = new_data_source
         self._elem_count = elem_count
-        self._selections = [0]*elem_count
+        self._selections.clear()
         self._redraw()
 
     def setProperties(self, 
@@ -79,18 +79,14 @@ class GridSelection(InputAcceptor, Widget):
             return True
         elif event.key == pygame.K_RETURN:
             i = self._cursorpos[1]*self._x_max_elements + self._cursorpos[0]
-            if self._selections[i] < self._duplicate_count:
-                self._selections[i] += 1
-                if self.selection_update_callback:
-                    self.selection_update_callback(self._selections)
+            if self._get_elem_copy_count(i) < self._duplicate_count:
+                self._incr_elem_copy_count(i)
                 self._update_cursor_pos((0,0))
             return True
         elif event.key == pygame.K_BACKSPACE:
             i = self._cursorpos[1]*self._x_max_elements + self._cursorpos[0]
-            if self._selections[i] > 0:
-                self._selections[i] -= 1
-                if self.selection_update_callback:
-                    self.selection_update_callback(self._selections)
+            if i in self._selections.keys():
+                self._decr_elem_copy_count(i)
                 self._update_cursor_pos((0,0))
             return True
         return super().handle_key_event(event)
@@ -119,7 +115,10 @@ class GridSelection(InputAcceptor, Widget):
             size = data_elem.get_size()
             self.image.fill((0), (spos, size))
             self.image.blit(data_elem, (spos,size), ((0,0),size))
-            selection_count = TextBox("I"*self._selections[i], pos = spos, fontsize=10)
+            selection_count = TextBox(
+                "I"*self._get_elem_copy_count(i), 
+                pos=spos, 
+                fontsize=10)
             self.image.blit(selection_count.image, (spos,size), ((0,0),size))
 
         padding = (self._x_padding, self._y_padding)
@@ -127,4 +126,21 @@ class GridSelection(InputAcceptor, Widget):
         cursor_size = add(self._elem_size, smult(2, padding))
         rect = pygame.Rect(cursor_pos, cursor_size)
         pygame.draw.rect(self.image, self._cursor_colour, rect, 2, 5)
-        
+    
+    def _get_elem_copy_count(self, elementindex:int) -> int:
+        return self._selections.get(elementindex, 0)
+    
+    def _incr_elem_copy_count(self, elementindex:int):
+        if elementindex in self._selections.keys():
+            self._selections[elementindex] += 1
+        else:
+            self._selections[elementindex] = 1
+        if self.selection_update_callback:
+            self.selection_update_callback(self._selections)
+    
+    def _decr_elem_copy_count(self, elementindex:int):
+        self._selections[elementindex] -= 1
+        if self._selections[elementindex] <= 0:
+            self._selections.pop(elementindex)
+        if self.selection_update_callback:
+            self.selection_update_callback(self._selections)

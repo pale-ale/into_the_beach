@@ -51,8 +51,10 @@ gtime = 0.0
 
 keyIcon = KeyIcon('R')
 keyIcon.position = (100,120)
-keyIcon2 = KeyIcon('R', pressed=True)
+keyIcon2 = KeyIcon('ESC', fontsize=16)
 keyIcon2.position = (130,120)
+keyIcon3 = KeyIcon('\u2423', fontsize=32)
+keyIcon3.position = (160,120)
 textbox = TextBox(text = str(keyIcon.get_size()))
 textbox.parent = keyIcon
 textbox.position = (0,35)
@@ -61,7 +63,7 @@ textbox2 = TextBox(text = str(textbox.get_size()))
 textbox2.parent = textbox
 textbox2.position = (0, 12)
 
-blittables:list[IGraphics] = [tile_display, keyIcon, keyIcon2, textbox, textbox2]
+blittables:list[IGraphics] = [tile_display, keyIcon, keyIcon2, keyIcon3, textbox, textbox2]
 
 def main():
     global RUNNING, gtime

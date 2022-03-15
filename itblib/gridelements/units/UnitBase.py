@@ -69,7 +69,8 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, Inp
         """Remove a status effect."""
         for se in self.statuseffects:
             if se == statuseffect:
-                self.observer.on_remove_status_effect(statuseffect)
+                if self.observer:
+                    self.observer.on_remove_status_effect(statuseffect)
                 se.on_purge()
                 self.statuseffects.remove(se)
                 return

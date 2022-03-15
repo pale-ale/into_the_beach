@@ -10,12 +10,14 @@ class TextBox(Widget):
                 fontsize:int = 16,
                 pos:"tuple[int,int]" = (0,0),
                 linewidth:int = 150,
-                lineheight:int = None) -> None:
+                lineheight:int = None,
+                oneline:bool = False) -> None:
         super().__init__()
         self.font = pygame.font.Font("HighOne.ttf", fontsize)
         self.textcolor = textcolor
         self.bgcolor = bgcolor
         self.linewidth = linewidth
+        self.oneline = oneline
         self.lineheight = lineheight if lineheight else self.font.get_height() - 2*(fontsize/8)
         self.image:pygame.Surface = None
         self.position = pos
@@ -33,15 +35,27 @@ class TextBox(Widget):
 
     def update_textbox(self):
         """After changing the values, generate a new image for the textbox."""
-        linebreak_text = self._break_lines_font(self.text, self.font, self.linewidth).splitlines()
-        self.image = pygame.Surface((self.linewidth, max(self.lineheight, len(linebreak_text)*self.lineheight)))
-        self.image.fill(self.bgcolor)
-        for i,line in enumerate(linebreak_text):
-            textsurf = self.font.render(line, False, self.textcolor, self.bgcolor)
+        if self.oneline:
+            text = self.text 
+            textsurf = self.font.render(text, False, self.textcolor, self.bgcolor)
+            size = (textsurf.get_width(), self.lineheight)
+            self.image = pygame.Surface(size)
+            self.image.fill(self.bgcolor)
             border = (textsurf.get_height()-self.lineheight)*.5
             subsurf = textsurf.subsurface((0,border, textsurf.get_width(), textsurf.get_height()-border)).convert_alpha()
-            self.image.blit(subsurf, (1, i*self.lineheight))
+            self.image.blit(subsurf, (1, 0))
+        else:
+            linebreak_text = self._break_lines_font(self.text, self.font, self.linewidth).splitlines()
+            size = (self.linewidth, max(self.lineheight, len(linebreak_text)*self.lineheight))
+            self.image = pygame.Surface(size)
+            self.image.fill(self.bgcolor)
+            for i,line in enumerate(linebreak_text):
+                textsurf = self.font.render(line, False, self.textcolor, self.bgcolor)
+                border = (textsurf.get_height()-self.lineheight)*.5
+                subsurf = textsurf.subsurface((0,border, textsurf.get_width(), textsurf.get_height()-border)).convert_alpha()
+                self.image.blit(subsurf, (1, i*self.lineheight))
         self.image.set_colorkey((0,0,0,0))
+
     
     def _break_lines_font(self, text:str, font:pygame.font.Font, textbox_width:int) -> str:
         """Break a text at spaces and newlines, so that the line rendered with the specified font will not exceed the width."""
