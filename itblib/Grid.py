@@ -392,6 +392,17 @@ class Grid(Serializable):
         tiles_to_check = [elem for tup in zip(*lists) for elem in tup]
         return {n for n in tiles_to_check if self.is_coord_in_bounds(n)}
 
+    def get_ordinals(self, origin:"tuple[int,int]", dimensions:"tuple[int,int]"):
+        """Return the coordinates aling the ordinal lines of origin, up to dimensions in length."""
+        max_x, max_y = origin
+        ordinals:"set[tuple[int,int]]" = set()
+        for i in range (dimensions[0]):
+            ordinals.add((i,max_y))
+        for i in range (dimensions[1]):
+            ordinals.add((max_x,i))
+        ordinals.remove((max_x,max_y))
+        return ordinals
+
     def tick(self, dt:float) -> None:
         """Ticks the game, updating phases, movement and other things."""
         self.gametime += dt

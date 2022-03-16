@@ -1,8 +1,8 @@
 from typing import Callable, Generator
 
 import pygame
-from itblib.abilities.baseAbilities.ConeAttackAbilityBase import \
-    ConeAttackAbilityBase
+from itblib.abilities.baseAbilities.cone_ability_base import \
+    ConeAbilityBase
 from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_TILE_SIZE, STANDARD_UNIT_SIZE
 from itblib.net.NetEvents import NetEvents
@@ -13,9 +13,9 @@ from itblib.Vec import add, deg_to_coord, mult2, smult, sub
 class ConeAttackAbilityPreview(AbilityPreviewBase):
     """Creates previews for attacks with a conical shape."""
 
-    def __init__(self, ability:ConeAttackAbilityBase) -> None:
+    def __init__(self, ability:ConeAbilityBase) -> None:
         super().__init__(ability)
-        self._ability:ConeAttackAbilityBase
+        self._ability:ConeAbilityBase
         self.damagetextbox = TextBox(text='7', fontsize=15, bgcolor=(0,0,0,100))
         self._bgbox = TextBox(text='  ', fontsize=15, textcolor=(0,100,0,100), bgcolor=(0,100,150,100))
         owner = ability.get_owner()

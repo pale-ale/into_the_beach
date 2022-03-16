@@ -1,5 +1,8 @@
-from itblib.abilities.baseAbilities.TargetAbilityBase import TargetAbilityBase
-from itblib.gridelements.units.UnitBase import UnitBase
+from typing import TYPE_CHECKING
+from itblib.abilities.baseAbilities.target_ability_base import TargetAbilityBase
+
+if TYPE_CHECKING:
+    from itblib.gridelements.units.UnitBase import UnitBase
 
 
 class HealAbility(TargetAbilityBase):
@@ -7,7 +10,7 @@ class HealAbility(TargetAbilityBase):
     def __init__(self, unit:"UnitBase"):
         super().__init__(unit, 2, cooldown=3)
         self.remainingcooldown = 0
-    
+
     def apply_to_target(self, target: "tuple[int,int]"):
         super().apply_to_target(target)
         o = self.get_owner()

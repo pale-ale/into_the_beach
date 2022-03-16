@@ -1,4 +1,6 @@
-from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
+"""Contains the TargetAbilityBase class"""
+
+from itblib.abilities.baseAbilities.ability_base import AbilityBase
 from itblib.globals.Constants import PREVIEWS
 
 class TargetAbilityBase(AbilityBase):
@@ -6,7 +8,6 @@ class TargetAbilityBase(AbilityBase):
 
     def apply_to_target(self, target:"tuple[int,int]"):
         """Convenient override to act on each selected target."""
-        pass
 
     def confirm_target(self, target: "tuple[int,int]", primed=True):
         if target in self._get_valid_targets():
@@ -20,7 +21,8 @@ class TargetAbilityBase(AbilityBase):
 
     def on_trigger(self):
         super().on_trigger()
-        [self.apply_to_target(target) for target in self.selected_targets]
+        for target in self.selected_targets:
+            self.apply_to_target(target)
 
     def set_targets(self, targets:"list[tuple[int,int]]"):
         super().set_targets(targets)

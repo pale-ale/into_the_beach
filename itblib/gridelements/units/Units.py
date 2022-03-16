@@ -1,6 +1,6 @@
 from itblib.abilities.Abilities import ObjectiveAbility, PushAbility
-from itblib.abilities.baseAbilities.RangedAttackAbilityBase import \
-    RangedAttackAbility
+from itblib.abilities.baseAbilities.ranged_abliity_base import \
+    RangedAbilityBase
 from itblib.abilities.BurrowAbility import BurrowAbility
 from itblib.abilities.DreadfulNoiseAbility import DreadfulNoiseAbility
 from itblib.abilities.HealAbility import HealAbility
@@ -17,7 +17,7 @@ class UnitSaucer(UnitBase):
         super().__init__(grid, pos, ownerid, name=name, 
             abilities=[
                 MovementAbility,
-                RangedAttackAbility,
+                RangedAbilityBase,
                 PushAbility
             ]
         )

@@ -1,11 +1,11 @@
 from typing import Generator
 
 import pygame
-from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
-from itblib.abilities.baseAbilities.ConeAttackAbilityBase import \
-    ConeAttackAbilityBase
-from itblib.abilities.baseAbilities.RangedAttackAbilityBase import \
-    RangedAttackAbility
+from itblib.abilities.baseAbilities.ability_base import AbilityBase
+from itblib.abilities.baseAbilities.cone_ability_base import \
+    ConeAbilityBase
+from itblib.abilities.baseAbilities.ranged_abliity_base import \
+    RangedAbilityBase
 from itblib.abilities.previews.ConeAbilityPreview import \
     ConeAttackAbilityPreview
 from itblib.abilities.previews.RangedAttackAbilityPreview import \
@@ -34,8 +34,8 @@ class AbilityPreviewDisplay(IGraphics):
         pass
 
     def _get_preview_class(self, ability:AbilityBase):
-        if isinstance(ability, ConeAttackAbilityBase):
+        if isinstance(ability, ConeAbilityBase):
             return ConeAttackAbilityPreview
-        if isinstance(ability, RangedAttackAbility):
+        if isinstance(ability, RangedAbilityBase):
             return RangedAttackAbilityPreview
         return SimpleAbilityPreview

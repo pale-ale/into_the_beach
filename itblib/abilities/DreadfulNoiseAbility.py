@@ -1,9 +1,9 @@
-from itblib.abilities.baseAbilities.ConeAttackAbilityBase import \
-    ConeAttackAbilityBase
+from itblib.abilities.baseAbilities.cone_ability_base import \
+    ConeAbilityBase
 from itblib.gridelements.StatusEffects import StatusEffectDreadfulNoise
 
 
-class DreadfulNoiseAbility(ConeAttackAbilityBase):
+class DreadfulNoiseAbility(ConeAbilityBase):
     """A cone-targeted ability, weakening opponents and friendlies alike."""
 
     def apply_to_target(self, target: "tuple[int,int]"):

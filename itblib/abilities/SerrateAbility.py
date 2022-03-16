@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from itblib.abilities.baseAbilities.TargetAbilityBase import TargetAbilityBase
+from itblib.abilities.baseAbilities.target_ability_base import TargetAbilityBase
 from itblib.gridelements.StatusEffects import StatusEffectBleeding
 
 if TYPE_CHECKING:

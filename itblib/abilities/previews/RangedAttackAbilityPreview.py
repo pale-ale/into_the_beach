@@ -2,7 +2,7 @@ import math
 from typing import Callable, Generator
 
 import pygame
-from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
+from itblib.abilities.baseAbilities.ability_base import AbilityBase
 from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
 from itblib.net.NetEvents import NetEvents
