@@ -1,5 +1,5 @@
 from itblib.abilities.Abilities import ObjectiveAbility, PushAbility
-from itblib.abilities.baseAbilities.ranged_abliity_base import \
+from itblib.abilities.base_abilities.ranged_abliity_base import \
     RangedAbilityBase
 from itblib.abilities.BurrowAbility import BurrowAbility
 from itblib.abilities.DreadfulNoiseAbility import DreadfulNoiseAbility

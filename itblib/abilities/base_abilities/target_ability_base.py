@@ -1,6 +1,6 @@
 """Contains the TargetAbilityBase class"""
 
-from itblib.abilities.baseAbilities.ability_base import AbilityBase
+from itblib.abilities.base_abilities.ability_base import AbilityBase
 from itblib.globals.Constants import PREVIEWS
 
 class TargetAbilityBase(AbilityBase):

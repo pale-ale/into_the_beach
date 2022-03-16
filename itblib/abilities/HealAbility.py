@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from itblib.abilities.baseAbilities.target_ability_base import TargetAbilityBase
+from itblib.abilities.base_abilities.target_ability_base import TargetAbilityBase
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase

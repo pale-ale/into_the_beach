@@ -14,7 +14,7 @@ from itblib.input.Input import InputAcceptor
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.animations.PlayerVersus import PlayerVersusAnimation
 from itblib.ui.GridUI import GridUI
-from itblib.ui.hud.AbilityPreviewDisplay import AbilityPreviewDisplay
+from itblib.ui.hud.ability_preview_display import AbilityPreviewDisplay
 from itblib.ui.hud.TileDisplay import TileDisplay
 from itblib.ui.hud.UnitDisplay import UnitDisplay
 from itblib.ui.IGraphics import IGraphics

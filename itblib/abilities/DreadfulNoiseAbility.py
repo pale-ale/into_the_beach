@@ -1,4 +1,4 @@
-from itblib.abilities.baseAbilities.cone_ability_base import \
+from itblib.abilities.base_abilities.cone_ability_base import \
     ConeAbilityBase
 from itblib.gridelements.StatusEffects import StatusEffectDreadfulNoise
 

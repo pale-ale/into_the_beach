@@ -1,27 +1,30 @@
 import math
 import os
 import random
-from typing import Type
+from typing import TYPE_CHECKING
 
 import pygame
 import pygame.display
 import pygame.sprite
 import pygame.time
 
-from itblib.abilities.baseAbilities.ability_base import AbilityBase
-from itblib.abilities.baseAbilities.ranged_abliity_base import \
+from itblib.abilities.base_abilities.ability_base import AbilityBase
+from itblib.abilities.base_abilities.ranged_abliity_base import \
     RangedAbilityBase
 from itblib.abilities.DreadfulNoiseAbility import DreadfulNoiseAbility
-from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
-from itblib.abilities.previews.ConeAbilityPreview import \
+from itblib.abilities.previews.abilitiy_preview_base import AbilityPreviewBase
+from itblib.abilities.previews.cone_ability_preview import \
     ConeAttackAbilityPreview
-from itblib.abilities.previews.RangedAttackAbilityPreview import \
+from itblib.abilities.previews.ranged_ability_preview import \
     RangedAttackAbilityPreview
-from itblib.abilities.previews.SimpleAbilityPreview import SimpleAbilityPreview
+from itblib.abilities.previews.simple_ability_preview import SimpleAbilityPreview
 from itblib.abilities.PunchAbility import PunchAbility
 from itblib.Grid import Grid
 from itblib.ui.GridUI import GridUI
 from itblib.ui.TextureManager import Textures
+
+if TYPE_CHECKING:
+    from typing import Type
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = "0,0"
 

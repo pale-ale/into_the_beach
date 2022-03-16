@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING
 
-from itblib.abilities.baseAbilities.ability_base import AbilityBase
+from itblib.abilities.base_abilities.ability_base import AbilityBase
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase

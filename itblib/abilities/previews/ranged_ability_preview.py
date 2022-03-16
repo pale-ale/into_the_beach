@@ -1,15 +1,20 @@
+"""Contains the RangedAttackAbilityPreview class."""
+
 import math
-from typing import Callable, Generator
+from typing import TYPE_CHECKING
 
 import pygame
-from itblib.abilities.baseAbilities.ability_base import AbilityBase
-from itblib.abilities.previews.AbilityPreviewBase import AbilityPreviewBase
+from pygame.constants import BLEND_RGB_ADD, BLEND_RGB_MULT
+
+from itblib.abilities.base_abilities.ability_base import AbilityBase
+from itblib.abilities.previews.abilitiy_preview_base import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.widgets.TextBox import TextBox
 from itblib.Vec import add, smult, sub
-from pygame.constants import BLEND_RGB_ADD, BLEND_RGB_MULT
 
+if TYPE_CHECKING:
+    from typing import Callable, Generator
 
 class RangedAttackAbilityPreview(AbilityPreviewBase):
     """Creates previews for attacks with an arcing projectile."""
@@ -22,7 +27,8 @@ class RangedAttackAbilityPreview(AbilityPreviewBase):
         self._start = owner.pos
         self._color:"tuple[int,int,int]" = NetEvents.session._players[owner.ownerid].color if NetEvents.session else [255,0,255]
 
-    def get_blit_func(self, transform_func: Callable[["tuple[int,int]"], "tuple[int,int]"]) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+    #pylint: disable=missing-function-docstring
+    def get_blit_func(self, transform_func: "Callable[[tuple[int,int]], tuple[int,int]]") -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         aoe = list(self._ability.area_of_effect)
         if self._ability.primed and len(aoe) == 1:
             end = transform_func(aoe[0][0])
@@ -41,7 +47,6 @@ class RangedAttackAbilityPreview(AbilityPreviewBase):
             else:
                 _draw_parabola(surf, self._color, p_peak, p_1, p_2)
             surf.blit(self._bgbox.image, sub(p_2, smult(.5,self._bgbox.get_size())), special_flags=BLEND_RGB_MULT)
-            #print(self.damagetextbox.get_size())
             surf.blit(self.damagetextbox.image, sub(p_2, smult(.5,self.damagetextbox.get_size())), special_flags=BLEND_RGB_ADD)
             yield surf, pygame.Rect( add(topleft,(0,-10)), (size[0],size[1]/2) ), surf.get_rect()
         else:

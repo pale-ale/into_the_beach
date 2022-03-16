@@ -1,6 +1,6 @@
 from typing import Type, TypeVar
 
-from itblib.abilities.baseAbilities.ability_base import AbilityBase
+from itblib.abilities.base_abilities.ability_base import AbilityBase
 from itblib.components.ComponentBase import ComponentBase
 from itblib.Log import log
 from itblib.Serializable import Serializable

@@ -12,7 +12,7 @@ from itblib.input.Input import InputAcceptor
 from itblib.Serializable import Serializable
 
 if TYPE_CHECKING:
-    from itblib.abilities.baseAbilities.AbilityBase import AbilityBase
+    from itblib.abilities.base_abilities.AbilityBase import AbilityBase
     from itblib.Grid import Grid
     from itblib.gridelements.StatusEffects import StatusEffect
 

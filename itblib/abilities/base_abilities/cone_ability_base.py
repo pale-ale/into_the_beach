@@ -5,7 +5,7 @@ from cmath import pi
 from typing import TYPE_CHECKING
 
 import pygame
-from itblib.abilities.baseAbilities.target_ability_base import \
+from itblib.abilities.base_abilities.target_ability_base import \
     TargetAbilityBase
 from itblib.globals.Constants import DIRECTIONS, PREVIEWS
 from itblib.Vec import deg_to_coord, sub, transform_vector, vector_between
