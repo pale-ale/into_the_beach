@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
-from itblib.abilities.base_abilities.target_ability_base import TargetAbilityBase
+from itblib.abilities.base_abilities.target_ability_base import \
+    TargetAbilityBase
 from itblib.gridelements.StatusEffects import StatusEffectBleeding
 
 if TYPE_CHECKING:
@@ -11,7 +12,8 @@ class SerrateAbility(TargetAbilityBase):
 
     def __init__(self, unit: "UnitBase"):
         super().__init__(unit, 3, 1)
-   
+
+    #pylint: disable=missing-function-docstring
     def apply_to_target(self, target: "tuple[int,int]"):
         super().apply_to_target(target)
         owner = self.get_owner()
@@ -26,4 +28,4 @@ class SerrateAbility(TargetAbilityBase):
         if owner:
             pos = owner.pos
             return owner.grid.get_neighbors(pos)
-            
+        return None

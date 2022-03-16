@@ -1,18 +1,20 @@
-from itblib.abilities.Abilities import ObjectiveAbility, PushAbility
 from itblib.abilities.base_abilities.ranged_abliity_base import \
     RangedAbilityBase
-from itblib.abilities.BurrowAbility import BurrowAbility
-from itblib.abilities.DreadfulNoiseAbility import DreadfulNoiseAbility
-from itblib.abilities.HealAbility import HealAbility
-from itblib.abilities.MovementAbility import MovementAbility
-from itblib.abilities.PunchAbility import PunchAbility
-from itblib.abilities.SerrateAbility import SerrateAbility
+from itblib.abilities.burrow_ability import BurrowAbility
+from itblib.abilities.dreadful_noise_ability import DreadfulNoiseAbility
+from itblib.abilities.heal_ability import HealAbility
+from itblib.abilities.movement_ability import MovementAbility
+from itblib.abilities.objective_ability import ObjectiveAbility
+from itblib.abilities.punch_ability import PunchAbility
+from itblib.abilities.push_ability import PushAbility
+from itblib.abilities.serrate_ability import SerrateAbility
 from itblib.globals.Enums import EFFECT_IDS, PHASES
 from itblib.gridelements.Effects import EffectStartingArea
 from itblib.gridelements.units.UnitBase import UnitBase
 
 
 class UnitSaucer(UnitBase):
+    """A ranged unit with high movement and mobility."""
     def __init__(self, grid, pos, ownerid, name:str="Saucer"):
         super().__init__(grid, pos, ownerid, name=name, 
             abilities=[
@@ -24,9 +26,13 @@ class UnitSaucer(UnitBase):
 
 
 class UnitBloodWraith(UnitBase):
+    """Can apply bleeding, heals when it kills others."""
     def __init__(self, grid, pos, ownerid, name:str="BloodWraith"):
-        super().__init__(grid, pos, ownerid, name=name, abilities=[HealAbility, MovementAbility, SerrateAbility])
-        
+        super().__init__(grid, pos, ownerid, name=name,
+            abilities=[HealAbility, MovementAbility, SerrateAbility]
+        )
+
+    #pylint: disable=missing-function-docstring
     def attack(self, target:"tuple[int,int]" , damage:int, damagetype:str):
         unit = self.grid.get_unit(target)
         if unit:
@@ -37,33 +43,49 @@ class UnitBloodWraith(UnitBase):
 
 
 class UnitHomebase(UnitBase):
+    """The objective of the standard game mode. If it dies, the player loses."""
     def __init__(self, grid, pos, ownerid, name:str="Homebase"):
         super().__init__(grid, pos, ownerid, name=name, abilities=[ObjectiveAbility])
-    
+
+    #pylint: disable=missing-function-docstring
     def on_update_phase(self, new_phase: int):
         super().on_update_phase(new_phase)
         if new_phase == PHASES.PREGAMEPHASE:
             for neighbor in self.grid.get_neighbors(self.pos, ordinal=True, cardinal=True):
-                effect:EffectStartingArea = self.grid.add_worldeffect(neighbor, EFFECT_IDS.index("StartingArea"))
+                effect:EffectStartingArea = self.grid.add_worldeffect(
+                    neighbor, EFFECT_IDS.index("StartingArea")
+                )
                 if effect:
                     effect.ownerid = self.ownerid
 
 
 class UnitKnight(UnitBase):
+    """A simple brawler."""
     def __init__(self, grid, pos, ownerid, name:str="Knight"):
-        super().__init__(grid, pos, ownerid, name=name, abilities=[MovementAbility, PunchAbility])
+        super().__init__(grid, pos, ownerid, name=name,
+            abilities=[MovementAbility, PunchAbility]
+        )
 
 
 class UnitBurrower(UnitBase):
+    """A defensive unit which can resist pushes while burrowed."""
     def __init__(self, grid, pos, ownerid, name:str="Burrower"):
-        super().__init__(grid, pos, ownerid, name=name, abilities=[BurrowAbility, MovementAbility, PunchAbility])
+        super().__init__(grid, pos, ownerid, name=name,
+            abilities=[BurrowAbility, MovementAbility, PunchAbility]
+        )
 
 
 class UnitSirenHead(UnitBase):
+    """A ranged unit that can weaken opponents in its AOE."""
     def __init__(self, grid, pos, ownerid, name:str="SirenHead"):
-        super().__init__(grid, pos, ownerid, name=name, abilities=[MovementAbility, PunchAbility, DreadfulNoiseAbility])
+        super().__init__(grid, pos, ownerid, name=name,
+            abilities=[MovementAbility, PunchAbility, DreadfulNoiseAbility]
+        )
 
 
 class UnitChipmonk(UnitBase):
+    """A simple, fragile healer"""
     def __init__(self, grid, pos, ownerid, name:str="Chipmonk"):
-        super().__init__(grid, pos, ownerid, name=name, abilities=[MovementAbility, HealAbility])
+        super().__init__(grid, pos, ownerid, name=name, hitpoints=3,
+            abilities=[MovementAbility, HealAbility]
+        )

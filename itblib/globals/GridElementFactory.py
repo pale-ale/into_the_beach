@@ -1,4 +1,4 @@
-import itblib.gridelements.units.Units as units
+import itblib.gridelements.units.units as units
 import itblib.gridelements.Tiles as tiles
 import itblib.gridelements.Effects as effects
 

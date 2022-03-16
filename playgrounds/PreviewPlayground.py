@@ -11,14 +11,14 @@ import pygame.time
 from itblib.abilities.base_abilities.ability_base import AbilityBase
 from itblib.abilities.base_abilities.ranged_abliity_base import \
     RangedAbilityBase
-from itblib.abilities.DreadfulNoiseAbility import DreadfulNoiseAbility
+from itblib.abilities.dreadful_noise_ability import DreadfulNoiseAbility
 from itblib.abilities.previews.abilitiy_preview_base import AbilityPreviewBase
 from itblib.abilities.previews.cone_ability_preview import \
     ConeAttackAbilityPreview
 from itblib.abilities.previews.ranged_ability_preview import \
     RangedAttackAbilityPreview
 from itblib.abilities.previews.simple_ability_preview import SimpleAbilityPreview
-from itblib.abilities.PunchAbility import PunchAbility
+from itblib.abilities.punch_ability import PunchAbility
 from itblib.Grid import Grid
 from itblib.ui.GridUI import GridUI
 from itblib.ui.TextureManager import Textures

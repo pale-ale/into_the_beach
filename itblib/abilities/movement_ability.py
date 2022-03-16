@@ -9,9 +9,10 @@ if TYPE_CHECKING:
 
 class MovementAbility(AbilityBase):
     """
-    Allows units to move around on the map. 
-    
-    Comes with a movement range and other mechanics, like being able to fly to pass over certain terrain,
+    Allows units to move around on the map.
+
+    Comes with a movement range and other mechanics,
+    like being able to fly to pass over certain terrain,
     phase through walls and enemies etc.
     """
 
@@ -23,17 +24,17 @@ class MovementAbility(AbilityBase):
         self.can_move = True
         self.can_be_moved = True
         self.movement_flags = FLAGS.MOVEMENT_DEFAULT
-    
+
     def on_select_ability(self):
         super().on_select_ability()
         if self.selected:
             self._collect_movement_info()
-    
+
     def set_targets(self, targets:"list[tuple[int,int]]"):
         super().set_targets(targets)
         if not NetEvents.connector.authority:
             self._collect_movement_info()
-    
+
     def on_update_cursor(self, newcursorpos:"tuple[int,int]"):
         """Add the new cursor position to the path if the unit can move there."""
         super().on_update_cursor(newcursorpos)
@@ -43,16 +44,16 @@ class MovementAbility(AbilityBase):
             else:
                 self.area_of_effect.clear()
                 self.on_deselect_ability()
-    
+
     def on_trigger(self):
         """Trigger effects based on the movement of this unit, and set the timing for animation."""
         super().on_trigger()
         self.get_owner().done = False
-    
+
     def _can_move_at(self, pos:"tuple[int,int]") -> bool:
         tile = self.get_owner().grid.get_tile(pos)
         return tile and (tile.get_movement_requirements() & self.movement_flags)
-  
+
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
         owner = self.get_owner()
         valid_targets = set()
@@ -81,12 +82,12 @@ class MovementAbility(AbilityBase):
             first = (pathwithself[0], PREVIEWS[1])
             last = (pathwithself[-1], PREVIEWS[1])
             for i in range(1, len(pathwithself)-1):
-                prev = pathwithself[i-1]
-                curr = pathwithself[i]
-                next = pathwithself[i+1]
-                prevdelta = (curr[0] - prev[0], curr[1] - prev[1])
-                nextdelta = (next[0] - curr[0], next[1] - curr[1])
-                currentwithpreview = (curr, PREVIEWS[(nextdelta, prevdelta)])
+                prev_pos = pathwithself[i-1]
+                curr_pos = pathwithself[i]
+                next_pos = pathwithself[i+1]
+                prevdelta = (curr_pos[0] - prev_pos[0], curr_pos[1] - prev_pos[1])
+                nextdelta = (next_pos[0] - curr_pos[0], next_pos[1] - curr_pos[1])
+                currentwithpreview = (curr_pos, PREVIEWS[(nextdelta, prevdelta)])
                 self.area_of_effect.add(currentwithpreview)
             self.area_of_effect.add(first)
             self.area_of_effect.add(last)
@@ -106,13 +107,13 @@ class MovementAbility(AbilityBase):
         super().confirm_target(target, primed=primed)
         self.on_deselect_ability()
 
+    #pylint: disable=missing-function-docstring,attribute-defined-outside-init
     def on_deselect_ability(self):
         self.selected = False
         if self.primed:
-            cardinals = {DIRECTIONS.NORTHEAST, DIRECTIONS.SOUTHEAST, DIRECTIONS.NORTHWEST, DIRECTIONS.SOUTHWEST}
-            valid_preview_lambda = lambda p: False if p[1] in {PREVIEWS[c] for c in cardinals} else True
-            self.area_of_effect = {x for x in filter(valid_preview_lambda, self.area_of_effect)}
+            cardinals = {DIRECTIONS.NORTHEAST, DIRECTIONS.SOUTHEAST, 
+                         DIRECTIONS.NORTHWEST, DIRECTIONS.SOUTHWEST}
+            valid_preview_lambda = lambda p: not p[1] in {PREVIEWS[c] for c in cardinals}
+            self.area_of_effect = {filter(valid_preview_lambda, self.area_of_effect)}
         else:
             self.reset()
-    
-

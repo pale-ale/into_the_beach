@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 import pygame
-from itblib.abilities.MovementAbility import MovementAbility
+from itblib.abilities.movement_ability import MovementAbility
 from itblib.components.AbilityComponent import AbilityComponent
 from itblib.components.ComponentAcceptor import ComponentAcceptor
 from itblib.damage_receiver import DamageReceiver
@@ -12,11 +12,16 @@ from itblib.input.Input import InputAcceptor
 from itblib.Serializable import Serializable
 
 if TYPE_CHECKING:
-    from itblib.abilities.base_abilities.AbilityBase import AbilityBase
+    from itblib.abilities.base_abilities.ability_base import AbilityBase
     from itblib.Grid import Grid
     from itblib.gridelements.StatusEffects import StatusEffect
+    from typing import Type
 
 class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, InputAcceptor):
+    """
+    The pawns controlled by each player.
+    A unit can move about the grid, use abilities, be summoned, killed, etc..
+    """
     def __init__(self, grid:"Grid", pos:"tuple[int,int]", ownerid:int, 
     name:str="Base", hitpoints:int=5, canswim:bool=False, abilities:"list[Type[AbilityBase]]"=[]):
         GridElement.__init__(self, grid, pos)
