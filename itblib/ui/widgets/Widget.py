@@ -12,21 +12,14 @@ class Widget(IGraphics, ComponentAcceptor):
         ComponentAcceptor.__init__(self)
         tfc = TransformComponent()
         tfc.attach_component(self)
-        self._children:set[Widget] = set()
-    
+
     def get_size(self) -> tuple[int,int]:
         return self.image.get_size()
-        
+
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         pos = self.get_component(TransformComponent).get_position()
         size = self.image.get_size()
         yield (self.image, pygame.Rect(pos, self.image.get_size()), ((0,0),size))
-
-    def add_widget(self, widget:"Widget"):
-        self._children.add(widget)
-    
-    def remove_widget(self, widget:"Widget"):
-        self._children.remove(widget)
 
     @property 
     def parent(self) -> "ComponentAcceptor|None":

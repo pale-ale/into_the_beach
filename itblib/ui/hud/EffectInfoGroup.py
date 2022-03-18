@@ -5,7 +5,7 @@ from itblib.components.TransformComponent import TransformComponent
 from itblib.globals.Colors import WHITE
 from itblib.gridelements.EffectsUI import EffectBaseUI
 from itblib.input.Input import InputAcceptor
-from itblib.ui.widgets.HorizontalLayout import HorizontalLayout
+from itblib.ui.widgets.horizontal_layout import HorizontalLayoutSurface
 from itblib.ui.widgets.TextBox import TextBox
 from itblib.ui.widgets.Widget import Widget
 
@@ -16,7 +16,7 @@ class EffectInfoGroup(Widget, InputAcceptor):
         InputAcceptor.__init__(self)
         
         self.effects:list[EffectBaseUI] = []
-        self.effect_icons = HorizontalLayout()
+        self.effect_icons = HorizontalLayoutSurface()
         self.effect_icons.parent = self
 
         self._marker_size = (16,16)

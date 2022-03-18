@@ -1,28 +1,32 @@
-from itblib.net.Connector import Connector
-from itblib.Game import Session
-from itblib.scenes.GameScene import GameScene
-from itblib.scenes.MainMenuScene import MainMenuScene
-from itblib.scenes.MapSelectionScene import MapSelectionScene
-from itblib.scenes.LobbyScene import LobbyScene
-from itblib.net.NetEvents import NetEvents
-from itblib.Player import PlayerData
-from itblib.scenes.RosterSelectionScene import RosterSelectionScene
-from itblib.SceneManager import SceneManager
-from itblib.Selector import Selector
-from itblib.ui.TextureManager import Textures
-from itblib.Log import log
+import os
+import sys
 
 import pygame
 import pygame.display
-import pygame.time
-import os
-import sys
 import pygame.sprite
-os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0,0)
+import pygame.time
+
+from itblib.Game import Session
+from itblib.Log import log
+from itblib.net.Connector import Connector
+from itblib.net.NetEvents import NetEvents
+from itblib.Player import PlayerData
+from itblib.SceneManager import SceneManager
+from itblib.scenes.GameScene import GameScene
+from itblib.scenes.LobbyScene import LobbyScene
+from itblib.scenes.MainMenuScene import MainMenuScene
+from itblib.scenes.RosterSelectionScene import RosterSelectionScene
+from itblib.Selector import Selector
+from itblib.ui.TextureManager import Textures
+
+os.environ['SDL_VIDEO_WINDOW_POS'] = "0,0"
 
 PIXELSIZE = 2
 class Client:
-    """The Client manages everything needed for a player on his machine, including graphics, the screen, etc."""
+    """
+    The Client manages everything needed for a player on his machine,
+    including graphics, the screen, etc.
+    """
     def __init__(self) -> None:
         self.fps_cap = 30
         self.running = True
@@ -36,21 +40,21 @@ class Client:
         self.scene_image = pygame.Surface(self.scene_size).convert_alpha()
         Textures.load_textures()
         pygame.font.init()
-        
+
         self.scenemanager = SceneManager(scene_size=self.scene_size)
-        
+
         self.connector = Connector(False)
         self.session = Session(NetEvents.connector)
-      
+
         NetEvents.connector = self.connector
         NetEvents.session = self.session
-        
+
         lobbyscene = LobbyScene(self.scenemanager, self.session)
         mainmenuscene = MainMenuScene(self.scenemanager)
         gamescene = GameScene(self.scenemanager, self.session)
         gamescene.gridui.update_pan( ((self.scene_image.get_width()-gamescene.gridui.board_size[0])/2, 0) )
         rosterselectionscene = RosterSelectionScene(self.scenemanager, self.playerfilepath)
-        #mapselectionscene = MapSelectionScene(self.scenemanager)
+        # mapselectionscene = MapSelectionScene(self.scenemanager)
 
         self.session._observer = lobbyscene
 
@@ -67,20 +71,17 @@ class Client:
         self.scenemanager.add_scene("LobbyScene", lobbyscene)
         self.scenemanager.add_scene("MainMenuScene", mainmenuscene)
         self.scenemanager.add_scene("RosterSelectionScene", rosterselectionscene)
-        #self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)
+       # self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)
+        #self.scenemanager.load_scene("MapSelectionScene")
         #self.scenemanager.load_scene("LobbyScene")
         #self.scenemanager.load_scene("MainMenuScene")
         self.scenemanager.load_scene("RosterSelectionScene")
 
-    def update_fullscreen(self, fullscreen:bool = False):
-        return 
-
-def main():
+if __name__ == '__main__':
     log("Starting client...", 0)
     client = Client()
     log("Started client.", 0)
     while client.running:
-        pass
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 client.running = False
@@ -96,6 +97,3 @@ def main():
         pygame.transform.scale(client.scene_image, client.screen.get_size(), client.screen)
         pygame.display.update()
     pygame.quit()
-
-if __name__ == '__main__':
-    main()

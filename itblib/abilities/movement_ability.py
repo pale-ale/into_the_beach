@@ -114,6 +114,6 @@ class MovementAbility(AbilityBase):
             cardinals = {DIRECTIONS.NORTHEAST, DIRECTIONS.SOUTHEAST, 
                          DIRECTIONS.NORTHWEST, DIRECTIONS.SOUTHWEST}
             valid_preview_lambda = lambda p: not p[1] in {PREVIEWS[c] for c in cardinals}
-            self.area_of_effect = {filter(valid_preview_lambda, self.area_of_effect)}
+            self.area_of_effect = set(filter(valid_preview_lambda, self.area_of_effect))
         else:
             self.reset()
