@@ -4,6 +4,7 @@ from itblib.Player import Player
 from itblib.Maps import MapGrasslands, MapIceAge, MapRockValley
 from itblib.Grid import Grid
 from itblib.net.NetEvents import NetEvents 
+import random
 
 class Session:
     """
@@ -17,6 +18,7 @@ class Session:
         self._grid = Grid(connector) if connector and connector.authority else NetEvents.grid
         self._state = "needsPlayers"
         self._observer = observer
+        self._map_options = [MapGrasslands, MapIceAge, MapRockValley]
     
     def set_state(self, new_state:str) -> None:
         """Update the state to a new one."""
@@ -59,9 +61,9 @@ class Session:
 
     def start_game(self):
         """Begin the Unit Placement Phase, after which the normal turn cycle ensues."""
-        self._grid.load_map(MapGrasslands(), from_authority=True)
-        #self._grid.load_map(MapIceAge(), from_authority=True)
-        #self._grid.load_map(MapRockValley(), from_authority=True)
+        #TODO: get the overlap of maps selected by both players
+        map_intersection = {MapGrasslands}
+        self._grid.load_map(random.choice(list(map_intersection))())
         p1, p2 = self._players.values()
         self._grid.add_unit((2,1), 4, p1.playerid)
         self._grid.add_unit((2,2), 5, p1.playerid)

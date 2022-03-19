@@ -15,6 +15,7 @@ from itblib.SceneManager import SceneManager
 from itblib.scenes.GameScene import GameScene
 from itblib.scenes.LobbyScene import LobbyScene
 from itblib.scenes.MainMenuScene import MainMenuScene
+from itblib.scenes.map_selection_scene import MapSelectionScene
 from itblib.scenes.RosterSelectionScene import RosterSelectionScene
 from itblib.Selector import Selector
 from itblib.ui.TextureManager import Textures
@@ -54,7 +55,7 @@ class Client:
         gamescene = GameScene(self.scenemanager, self.session)
         gamescene.gridui.update_pan( ((self.scene_image.get_width()-gamescene.gridui.board_size[0])/2, 0) )
         rosterselectionscene = RosterSelectionScene(self.scenemanager, self.playerfilepath)
-        # mapselectionscene = MapSelectionScene(self.scenemanager)
+        mapselectionscene = MapSelectionScene(self.scenemanager, self.playerfilepath)
 
         self.session._observer = lobbyscene
 
@@ -71,11 +72,11 @@ class Client:
         self.scenemanager.add_scene("LobbyScene", lobbyscene)
         self.scenemanager.add_scene("MainMenuScene", mainmenuscene)
         self.scenemanager.add_scene("RosterSelectionScene", rosterselectionscene)
-       # self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)
-        #self.scenemanager.load_scene("MapSelectionScene")
+        self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)
+        self.scenemanager.load_scene("MapSelectionScene")
         #self.scenemanager.load_scene("LobbyScene")
         #self.scenemanager.load_scene("MainMenuScene")
-        self.scenemanager.load_scene("RosterSelectionScene")
+        #self.scenemanager.load_scene("RosterSelectionScene")
 
 if __name__ == '__main__':
     log("Starting client...", 0)

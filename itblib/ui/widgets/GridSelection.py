@@ -100,8 +100,8 @@ class GridSelection(InputAcceptor, Widget):
     
     def _c_to_s(self, c:"tuple[int,int]"):
         x,y = c
-        sx = x * (self._elem_size[0]+self._x_padding) + self._x_padding
-        sy = y * (self._elem_size[1]+self._y_padding) + self._y_padding
+        sx = x * (self._elem_size[0]+self._x_padding) + self._x_padding + self._cursor_frame_thickness
+        sy = y * (self._elem_size[1]+self._y_padding) + self._y_padding + self._cursor_frame_thickness
         return (sx, sy)
     
     def _redraw(self):
@@ -121,11 +121,11 @@ class GridSelection(InputAcceptor, Widget):
                 fontsize=10)
             self.image.blit(selection_count.image, (spos,size), ((0,0),size))
 
-        padding = (self._x_padding, self._y_padding)
-        cursor_pos = sub(self._c_to_s(self._cursorpos), padding)
-        cursor_size = add(self._elem_size, smult(2, padding))
+        thickness_offset = (self._cursor_frame_thickness, self._cursor_frame_thickness)
+        cursor_pos = sub(self._c_to_s(self._cursorpos), thickness_offset)
+        cursor_size = add(self._elem_size, smult(2, thickness_offset), (1,1))
         rect = pygame.Rect(cursor_pos, cursor_size)
-        pygame.draw.rect(self.image, self._cursor_colour, rect, 2, 5)
+        pygame.draw.rect(self.image, self._cursor_colour, rect, self._cursor_frame_thickness, 5)
     
     def _get_elem_copy_count(self, elementindex:int) -> int:
         return self._selections.get(elementindex, 0)

@@ -222,10 +222,10 @@ class Grid(Serializable):
         nextphase = (self.phase)%maxphase+1
         self.change_phase(nextphase)
 
-    def load_map(self, map:Map, from_authority:bool) -> None:
+    def load_map(self, new_map:Map) -> None:
         """Load a map, spawning all the required units, tiles, etc.."""
-        self.remake_grid(map.width, map.height)
-        for pos, tileid, tileeffectids, unitid in map.iterate_tiles():
+        self.remake_grid(new_map.width, new_map.height)
+        for pos, tileid, tileeffectids, unitid in new_map.iterate_tiles():
             if tileid:
                 self.add_tile(pos, tileid)
             if tileeffectids:
@@ -416,7 +416,7 @@ class Grid(Serializable):
             for e in wes:
                 e.tick(dt)
         self.phasetime += dt
-        if self.connector.authority:
+        if self.connector and self.connector.authority:
             if self.phase == 0:
                 if self.phasetime >= self.pregametime:
                     self.advance_phase()

@@ -32,16 +32,22 @@ class Player:
 
 class PlayerData():
     roster = {"2":3}
+    desired_maps = ["MapGrasslands", "MapRockValley"]
     sensitivity = 10.5
-    properties = ["roster", "sensitivity"]
+    properties = ["roster", "desired_maps", "sensitivity"]
 
     @staticmethod
     def load(path):
         if os.path.isfile(path):
+            datadict = {}
             with open(path, 'r') as file:
-                datadict = json.loads(file.read())
+                try:
+                    datadict = json.loads(file.read())
+                except json.JSONDecodeError:
+                    log(f"Couldn't parse playerdata file '{path}'.", 2)
             for p in PlayerData.properties:
-                setattr(PlayerData, p, datadict[p])
+                if p in datadict.keys():
+                    setattr(PlayerData, p, datadict[p])
         else:
             log(f"Couldn't open playerdata file '{path}'.", 2)
 
