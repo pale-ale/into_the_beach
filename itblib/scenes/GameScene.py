@@ -11,7 +11,7 @@ from itblib.SceneManager import SceneManager
 from itblib.scenes.SceneBase import SceneBase
 from itblib.Selector import Selector
 from itblib.ui.GridUI import GridUI
-from itblib.ui.hud.HUD import Hud
+from itblib.ui.hud.hud import Hud
 from pygame.constants import K_ESCAPE
 
 

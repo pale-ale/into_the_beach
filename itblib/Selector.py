@@ -3,7 +3,7 @@ import pygame
 from itblib.Grid import Grid
 from itblib.input.Input import InputAcceptor
 from itblib.Log import log
-from itblib.ui.hud.HUD import Hud
+from itblib.ui.hud.hud import Hud
 from itblib.Vec import add
 
 

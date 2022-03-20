@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from itblib.Game import Session
     from itblib.Grid import Grid
     from itblib.net.Connector import Connector
-    from itblib.ui.hud.HUD import Hud
+    from itblib.ui.hud.hud import Hud
 
 class NetEvents():
     grid:"Grid" = None

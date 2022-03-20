@@ -9,9 +9,9 @@ class Player:
     def __init__(self, id:int, playersocket:socket.socket, color=(0,150,50)):
         self.name = "Player_" + str(id)
         self.color = color
-        self._initialunitids:list[int] = []
+        self.initialunitids:list[int] = []
         for unitidstr, unitcount in PlayerData.roster.items():
-            self._initialunitids.extend([int(unitidstr)]*unitcount)
+            self.initialunitids.extend([int(unitidstr)]*unitcount)
         self._controlledunits = []
         self.playerid = id
         self.level = 0

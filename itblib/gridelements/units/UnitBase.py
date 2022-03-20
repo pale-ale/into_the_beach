@@ -13,7 +13,7 @@ from itblib.Serializable import Serializable
 if TYPE_CHECKING:
     from itblib.abilities.base_abilities.ability_base import AbilityBase
     from itblib.Grid import Grid
-    from itblib.gridelements.StatusEffects import StatusEffect
+    from itblib.gridelements.status_effect import StatusEffectBase
     from typing import Type
 
 class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, InputAcceptor):
@@ -32,7 +32,7 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, Inp
         self.ability_component.attach_component(self)
         self.name = name
         self.baseattack = {"physical": 1, "magical": 0}
-        self.statuseffects:"list[StatusEffect]" = []
+        self.statuseffects:"list[StatusEffectBase]" = []
         self.canswim = canswim
         self.ownerid = ownerid
         self.orientation = "sw"

@@ -64,6 +64,7 @@ class Textures:
         (ETEXTURETYPE.UNIT, "Burrower"      , "SWBurrowed", 10),
         (ETEXTURETYPE.UNIT, "SirenHead"     , "SWIdle"    ,  1),
         (ETEXTURETYPE.UNIT, "Chipmonk"      , "SWIdle"    ,  1),
+        (ETEXTURETYPE.UNIT, "Chipmonk"      , "SEMove"    ,  6),
 
         (ETEXTURETYPE.EFFECT_ICON, "Bleeding"       , ""   ,  None),
         (ETEXTURETYPE.EFFECT_ICON, "Burrowed"       , ""   ,  None),

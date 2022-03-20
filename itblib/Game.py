@@ -80,6 +80,9 @@ class Session:
         if NetEvents.connector.authority:
             NetEvents.snd_netplayerwon(opponent)
             NetEvents.session.set_state("gameOver")
+    
+    def get_player(self, playerid:int):
+        return self._players.get(playerid, None)
 
 
 class Game:

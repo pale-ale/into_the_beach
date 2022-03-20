@@ -50,10 +50,8 @@ class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
             interp_screenpos = add(self.fromscreenpos, smult(timepercent, diff))
             self.tfc.relative_position = interp_screenpos
             if timepercent + 0e-4 >= 1:
-                self.fromscreenpos = None
-                self.toscreenpos = None
+                self.set_interp_movement(None, None, 0.0)
                 self.movementtime = 0.0
-                self.speed = 0.0
     
     def get_display_name(self) -> str:
         return "UnitBaseUI"
@@ -88,12 +86,12 @@ class UnitKnightUI(UnitBaseUI):
 class UnitBurrowerUI(UnitBaseUI):
     def get_display_name(self) -> str:
         return "Burrower"
-    
+
     def on_add_status_effect(self, added_effect: "StatusEffectBase"):
         if isinstance(added_effect, StatusEffectBurrowed):
             self.set_textures(Textures.get_spritesheet("BurrowerSWBurrowed"))
             self.frametime = .15
-   
+
     def on_remove_status_effect(self, removed_effect: "StatusEffectBase"):
         if isinstance(removed_effect, StatusEffectBurrowed):
             self.set_textures(Textures.get_spritesheet("BurrowerSWIdle"))
@@ -101,5 +99,19 @@ class UnitBurrowerUI(UnitBaseUI):
 
 
 class UnitChipmonkUI(UnitBaseUI):
+    def __init__(self, unit: "UnitBase", direction="SW", framespeed=0.5):
+        super().__init__(unit, direction, framespeed)
+        self.moving = False
+
     def get_display_name(self) -> str:
         return "Chipmonk"
+
+    def set_interp_movement(self, fromscreenpos: "tuple[int,int]", toscreenpos: "tuple[int,int]", speed: float):
+        super().set_interp_movement(fromscreenpos, toscreenpos, speed)
+        new_moving = bool(fromscreenpos) and bool(toscreenpos)
+        print(new_moving)
+        if not self.moving and new_moving:
+            self.set_textures(Textures.get_spritesheet("ChipmonkSEMove"))
+        elif self.moving and not new_moving:
+            self.set_textures(Textures.get_spritesheet("ChipmonkSWIdle"))
+        self.moving = new_moving

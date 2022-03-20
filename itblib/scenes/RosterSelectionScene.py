@@ -101,7 +101,7 @@ class RosterSelectionScene(SceneBase):
     def _on_update_unit_selection(self, unit_selection:dict[int,int]):
         selection_valid = self._is_selection_valid(unit_selection)
         cursor_colour = GREEN if selection_valid else RED
-        self._UNITLIST.setProperties(cursor_colour=cursor_colour)
+        self._UNITLIST.set_properties(cursor_colour=cursor_colour)
         self._set_save_enabled(selection_valid)
 
     def _units_selected(self, unit_selection:dict[int,int]):

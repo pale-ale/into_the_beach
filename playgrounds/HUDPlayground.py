@@ -9,7 +9,7 @@ from itblib.gridelements.world_effects import EffectFire, EffectMountain
 from itblib.gridelements.ui_effect import EffectFireUI, EffectMountainUI
 from itblib.gridelements.Tiles import TileDirt, TileLava
 from itblib.gridelements.TilesUI import TileDirtUI, TileLavaUI
-from itblib.ui.hud.TileDisplay import TileDisplay
+from itblib.ui.hud.hud import TileDisplay
 from itblib.ui.IGraphics import IGraphics
 from itblib.ui.TextureManager import Textures
 from itblib.ui.widgets.ui_widget import KeyIcon, TextBox
