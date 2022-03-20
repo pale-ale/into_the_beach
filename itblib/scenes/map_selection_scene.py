@@ -12,11 +12,8 @@ from itblib.Maps import Map, MapGrasslands, MapIceAge, MapRockValley
 from itblib.Player import PlayerData
 from itblib.scenes.SceneBase import SceneBase
 from itblib.ui.GridUI import GridUI
-from itblib.ui.widgets.GridSelection import GridSelection
-from itblib.ui.widgets.horizontal_layout import HorizontalLayoutWidget
-from itblib.ui.widgets.KeyIcon import KeyIcon
-from itblib.ui.widgets.TextBox import TextBox
-from itblib.ui.widgets.Widget import Widget
+from itblib.ui.widgets.ui_widget import GridSelection, KeyIcon, TextBox, Widget
+from itblib.ui.widgets.layout import HorizontalLayoutWidget
 from itblib.Vec import smult
 
 if TYPE_CHECKING:
@@ -58,7 +55,7 @@ class MapSelectionScene(SceneBase):
         self._map_images:"list[pygame.Surface]" = []
         self._save_enabled = False
 
-        self._MAPLIST.setProperties(
+        self._MAPLIST.set_properties(
             size=self.scenemanager.scene_size,
             cursor_colour=(GREEN) if self._is_selection_valid(self._MAPLIST._selections) else RED,
             elem_size=self._ELEMDIM, 

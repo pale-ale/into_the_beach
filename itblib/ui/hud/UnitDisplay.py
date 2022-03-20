@@ -1,7 +1,7 @@
 from typing import Generator
 
 import pygame
-from itblib.components.TransformComponent import TransformComponent
+from itblib.components import TransformComponent
 from itblib.globals.Colors import BLACK, GRAY_ACCENT_LIGHT, PHASECOLORS
 from itblib.globals.Constants import HUD, STANDARD_UNIT_SIZE
 from itblib.gridelements.units.UnitBase import UnitBase

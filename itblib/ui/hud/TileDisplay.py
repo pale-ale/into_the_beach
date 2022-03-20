@@ -8,8 +8,7 @@ from itblib.gridelements.EffectsUI import EffectBaseUI
 from itblib.gridelements.TilesUI import TileBaseUI
 from itblib.input.Input import InputAcceptor
 from itblib.ui.hud.EffectInfoGroup import EffectInfoGroup
-from itblib.ui.widgets.TextBox import TextBox
-from itblib.ui.widgets.Widget import Widget
+from itblib.ui.widgets.ui_widget import TextBox, Widget
 from itblib.Vec import add
 
 

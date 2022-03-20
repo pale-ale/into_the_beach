@@ -1,8 +1,7 @@
 from typing import Generator
 
 import pygame
-from itblib.components.ComponentAcceptor import ComponentAcceptor
-from itblib.components.TransformComponent import TransformComponent
+from itblib.components import ComponentAcceptor, TransformComponent
 from itblib.ui.IGraphics import IGraphics
 
 

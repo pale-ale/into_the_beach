@@ -6,8 +6,7 @@ from itblib.gridelements.StatusEffects import (StatusEffect,
                                                StatusEffectBurrowed)
 from itblib.gridelements.units.IUnitObserver import IUnitObserver
 from itblib.net.NetEvents import NetEvents
-from itblib.ui.widgets.HealthBar import HealthBar
-from itblib.ui.widgets.OwnerColorRhombus import OwnerColorRhombus
+from itblib.ui.widgets.game_widget import HealthBar, OwnerColorRhombus
 from itblib.ui.IDisplayable import IDisplayable
 from itblib.ui.TextureManager import Textures
 from itblib.Vec import add, smult, sub

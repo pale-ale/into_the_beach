@@ -1,13 +1,12 @@
 from typing import Generator
 
 import pygame
-from itblib.components.TransformComponent import TransformComponent
+from itblib.components import TransformComponent
 from itblib.globals.Colors import WHITE
 from itblib.gridelements.EffectsUI import EffectBaseUI
 from itblib.input.Input import InputAcceptor
-from itblib.ui.widgets.horizontal_layout import HorizontalLayoutSurface
-from itblib.ui.widgets.TextBox import TextBox
-from itblib.ui.widgets.Widget import Widget
+from itblib.ui.widgets.layout import HorizontalLayoutSurface
+from itblib.ui.widgets.ui_widget import TextBox, Widget
 
 
 class EffectInfoGroup(Widget, InputAcceptor):

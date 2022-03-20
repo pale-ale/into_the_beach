@@ -12,11 +12,8 @@ from itblib.globals.Enums import UNIT_IDS
 from itblib.Player import PlayerData
 from itblib.scenes.SceneBase import SceneBase
 from itblib.ui.TextureManager import Textures
-from itblib.ui.widgets.GridSelection import GridSelection
-from itblib.ui.widgets.horizontal_layout import HorizontalLayoutWidget
-from itblib.ui.widgets.KeyIcon import KeyIcon
-from itblib.ui.widgets.TextBox import TextBox
-from itblib.ui.widgets.Widget import Widget
+from itblib.ui.widgets.ui_widget import GridSelection, KeyIcon, TextBox, Widget
+from itblib.ui.widgets.layout import HorizontalLayoutWidget
 
 if TYPE_CHECKING:
     from typing import Generator
@@ -61,7 +58,7 @@ class RosterSelectionScene(SceneBase):
         self._unit_images:list[pygame.Surface] = []
         self._save_enabled = False
 
-        self._UNITLIST.setProperties(
+        self._UNITLIST.set_properties(
             size=self.scenemanager.scene_size,
             cursor_colour=(GREEN) if self._is_selection_valid(self._UNITLIST._selections) else RED)
         self._UNITLIST.position = (0, 50)

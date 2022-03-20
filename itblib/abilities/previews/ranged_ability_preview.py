@@ -10,7 +10,7 @@ from itblib.abilities.base_abilities.ability_base import AbilityBase
 from itblib.abilities.previews.abilitiy_preview_base import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
 from itblib.net.NetEvents import NetEvents
-from itblib.ui.widgets.TextBox import TextBox
+from itblib.ui.widgets.ui_widget import TextBox
 from itblib.Vec import add, smult, sub
 
 if TYPE_CHECKING:

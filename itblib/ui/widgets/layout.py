@@ -3,8 +3,8 @@
 from typing import TYPE_CHECKING, Callable
 
 import pygame
-from itblib.components.TransformComponent import TransformComponent
-from itblib.ui.widgets.Widget import Widget
+from itblib.components import TransformComponent
+from itblib.ui.widgets.ui_widget import Widget
 from itblib.Vec import add
 
 if TYPE_CHECKING:

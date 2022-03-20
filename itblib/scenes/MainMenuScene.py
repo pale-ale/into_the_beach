@@ -8,9 +8,7 @@ import pygame.sprite
 import pygame.transform
 from itblib.SceneManager import SceneManager
 from itblib.scenes.SceneBase import SceneBase
-from itblib.ui.widgets.KeyIcon import KeyIcon
-from itblib.ui.widgets.TextBox import TextBox
-from itblib.ui.widgets.Widget import Widget
+from itblib.ui.widgets.ui_widget import KeyIcon, TextBox, Widget
 
 
 class MainMenuScene(SceneBase):

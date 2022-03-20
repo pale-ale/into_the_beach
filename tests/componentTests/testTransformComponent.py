@@ -1,7 +1,6 @@
 import unittest
 
-from itblib.components.ComponentAcceptor import ComponentAcceptor
-from itblib.components.TransformComponent import TransformComponent
+from itblib.components import ComponentAcceptor, TransformComponent
 
 
 class TestTransformComponentMethods(unittest.TestCase):

@@ -2,8 +2,7 @@ from typing import TYPE_CHECKING
 
 import pygame
 from itblib.abilities.movement_ability import MovementAbility
-from itblib.components.AbilityComponent import AbilityComponent
-from itblib.components.ComponentAcceptor import ComponentAcceptor
+from itblib.components import ComponentAcceptor, AbilityComponent
 from itblib.damage_receiver import DamageReceiver
 from itblib.globals.StatusEffectFactory import StatusEffectFactory
 from itblib.gridelements.GridElement import GridElement

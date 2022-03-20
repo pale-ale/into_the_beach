@@ -12,8 +12,7 @@ from itblib.gridelements.TilesUI import TileDirtUI, TileLavaUI
 from itblib.ui.hud.TileDisplay import TileDisplay
 from itblib.ui.IGraphics import IGraphics
 from itblib.ui.TextureManager import Textures
-from itblib.ui.widgets.KeyIcon import KeyIcon
-from itblib.ui.widgets.TextBox import TextBox
+from itblib.ui.widgets.ui_widget import KeyIcon, TextBox
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = "0,0"
 
