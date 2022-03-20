@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from itblib.abilities.base_abilities.target_ability_base import \
     TargetAbilityBase
-from itblib.gridelements.StatusEffects import StatusEffectBleeding
+from itblib.gridelements.status_effect import StatusEffectBleeding
 
 if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase

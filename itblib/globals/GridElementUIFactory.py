@@ -1,6 +1,6 @@
 import itblib.gridelements.UnitsUI as units
 import itblib.gridelements.TilesUI as tiles
-import itblib.gridelements.EffectsUI as effects
+import itblib.gridelements.ui_effect as effects
 
 class GridElementUIFactory:
     """

@@ -8,7 +8,7 @@ import pygame.transform
 from itblib.Game import Session
 from itblib.globals.Colors import BLACK, PHASECOLORS
 from itblib.globals.Constants import HUD, PHASE_DURATIONS, PREVIEWS
-from itblib.gridelements.Effects import EffectStartingArea
+from itblib.gridelements.world_effects import EffectStartingArea
 from itblib.gridelements.UnitsUI import UnitBaseUI
 from itblib.input.Input import InputAcceptor
 from itblib.net.NetEvents import NetEvents

@@ -9,7 +9,7 @@ from itblib.abilities.punch_ability import PunchAbility
 from itblib.abilities.push_ability import PushAbility
 from itblib.abilities.serrate_ability import SerrateAbility
 from itblib.globals.Enums import EFFECT_IDS, PHASES
-from itblib.gridelements.Effects import EffectStartingArea
+from itblib.gridelements.world_effects import EffectStartingArea
 from itblib.gridelements.units.UnitBase import UnitBase
 
 

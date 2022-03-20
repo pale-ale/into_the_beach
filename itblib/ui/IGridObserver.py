@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from itblib.gridelements.units.UnitBase import UnitBase
-from itblib.gridelements.Effects import EffectBase
+from itblib.gridelements.world_effects import WorldEffectBase
 from itblib.gridelements.Tiles import TileBase
 from itblib.Maps import Map
 
@@ -15,7 +15,7 @@ class IGridObserver(ABC):
         pass
 
     @abstractmethod
-    def on_add_worldeffect(self, effect:EffectBase):
+    def on_add_worldeffect(self, effect:WorldEffectBase):
         pass
 
     @abstractmethod
@@ -27,7 +27,7 @@ class IGridObserver(ABC):
         pass
     
     @abstractmethod
-    def on_remove_worldeffect(self, effect:EffectBase, pos:"tuple[int,int]"):
+    def on_remove_worldeffect(self, effect:WorldEffectBase, pos:"tuple[int,int]"):
         pass
 
     @abstractmethod

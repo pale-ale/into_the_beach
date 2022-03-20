@@ -5,8 +5,8 @@ from itblib.components import ComponentAcceptor, TransformComponent
 from itblib.globals.Constants import STANDARD_TILE_SIZE
 from itblib.globals.GridElementUIFactory import GridElementUIFactory
 from itblib.Grid import Grid
-from itblib.gridelements.Effects import EffectBase
-from itblib.gridelements.EffectsUI import EffectBaseUI
+from itblib.gridelements.world_effects import WorldEffectBase
+from itblib.gridelements.ui_effect import EffectBaseUI
 from itblib.gridelements.GridElementUI import GridElementUI
 from itblib.gridelements.Tiles import TileBase
 from itblib.gridelements.TilesUI import TileBaseUI
@@ -76,7 +76,7 @@ class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
             tfc = ui_unit.get_component(TransformComponent)
             tfc.relative_position = add(tfc.relative_position, self.unit_draw_offset)
     
-    def on_add_worldeffect(self, effect:EffectBase):
+    def on_add_worldeffect(self, effect:WorldEffectBase):
         """Add the UI version of the new effect added to the normal grid."""
         gridindex = self.grid.c_to_i(effect.pos)
         ui_worldeffect_class = GridElementUIFactory.find_effect_class(type(effect).__name__ + "UI")
@@ -98,7 +98,7 @@ class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
         """Remove a UI-unit at the given position."""
         self.ui_units[self.grid.c_to_i(pos)] = None
 
-    def on_remove_worldeffect(self, effect:"EffectBase", pos:"tuple[int,int]"):
+    def on_remove_worldeffect(self, effect:"WorldEffectBase", pos:"tuple[int,int]"):
         """Remove a UI-effect at the given position."""
         for uieffect in self.ui_worldeffects[self.grid.c_to_i(pos)][:]:
             if uieffect._parentelement == effect:

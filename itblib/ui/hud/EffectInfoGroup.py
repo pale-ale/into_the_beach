@@ -3,7 +3,7 @@ from typing import Generator
 import pygame
 from itblib.components import TransformComponent
 from itblib.globals.Colors import WHITE
-from itblib.gridelements.EffectsUI import EffectBaseUI
+from itblib.gridelements.ui_effect import EffectBaseUI
 from itblib.input.Input import InputAcceptor
 from itblib.ui.widgets.layout import HorizontalLayoutSurface
 from itblib.ui.widgets.ui_widget import TextBox, Widget

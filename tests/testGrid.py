@@ -2,7 +2,7 @@ import unittest
 from itblib.Grid import Grid
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.Tiles import TileBase
-from itblib.gridelements.Effects import EffectBase
+from itblib.gridelements.world_effects import WorldEffectBase
 
 
 class TestGridMethods(unittest.TestCase):
@@ -65,8 +65,8 @@ class TestGridMethods(unittest.TestCase):
             pos=pos, worldeffectid=effectids[0])
         self.grid.add_worldeffect(
             pos=pos, worldeffectid=effectids[1])
-        self.assertIsInstance(self.grid.get_worldeffects(pos=pos)[0], EffectBase)
-        self.assertIsInstance(self.grid.get_worldeffects(pos=pos)[1], EffectBase)
+        self.assertIsInstance(self.grid.get_worldeffects(pos=pos)[0], WorldEffectBase)
+        self.assertIsInstance(self.grid.get_worldeffects(pos=pos)[1], WorldEffectBase)
     
     def test_remove_worldeffect(self):
         pos = (2,3)

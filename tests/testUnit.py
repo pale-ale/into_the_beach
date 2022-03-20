@@ -1,7 +1,7 @@
 import unittest
 
 from itblib.Grid import Grid
-from itblib.gridelements.StatusEffects import StatusEffectBleeding
+from itblib.gridelements.status_effect import StatusEffectBleeding
 from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.abilities.burrow_ability import BurrowAbility
 

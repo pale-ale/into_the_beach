@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from itblib.abilities.base_abilities.toggle_ability_base import \
     ToggleAbilityBase
-from itblib.gridelements.StatusEffects import StatusEffectBurrowed
+from itblib.gridelements.status_effect import StatusEffectBurrowed
 from itblib.Log import log
 
 if TYPE_CHECKING:

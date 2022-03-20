@@ -1,6 +1,6 @@
 from itblib.abilities.base_abilities.cone_ability_base import \
     ConeAbilityBase
-from itblib.gridelements.StatusEffects import StatusEffectDreadfulNoise
+from itblib.gridelements.status_effect import StatusEffectDreadfulNoise
 
 
 class DreadfulNoiseAbility(ConeAbilityBase):

@@ -1,6 +1,6 @@
 from itblib.globals.Enums import EFFECT_IDS, PHASES, TILE_IDS, UNIT_IDS
 from itblib.globals.GridElementFactory import GridElementFactory
-from itblib.gridelements.Effects import EffectBase
+from itblib.gridelements.world_effects import WorldEffectBase
 from itblib.gridelements.GridElement import GridElement
 from itblib.gridelements.Tiles import TileBase
 from itblib.gridelements.units.UnitBase import UnitBase
@@ -25,7 +25,7 @@ class Grid(Serializable):
         self.observer = observer
         self.phase = 0
         self.remake_grid(width, height)
-        self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(width*height)]
+        self.worldeffects:"list[list[WorldEffectBase]]" = [[] for i in range(width*height)]
     
     def remake_grid(self, width, height) -> None:
         """Empty the grid lists and create new ones with the given dimensions."""
@@ -35,7 +35,7 @@ class Grid(Serializable):
         self.units:"list[UnitBase|None]" = [None]*c
         if self.observer:
             self.observer.on_remake_grid()
-        #self.worldeffects:"list[list[EffectBase]]" = [[] for i in range(c)]
+        #self.worldeffects:"list[list[WorldEffectBase]]" = [[] for i in range(c)]
     
     def extract_data(self) -> dict:
         customtiles = [t.extract_data() if t else None for t in self.tiles]
@@ -108,7 +108,7 @@ class Grid(Serializable):
         self._insert_effect_data(data)
 
     def _insert_effect_data(self, effect_data):
-        new_effects:"list[list[EffectBase]]" = [[] for c in range(self.size[0]*self.size[1])]
+        new_effects:"list[list[WorldEffectBase]]" = [[] for c in range(self.size[0]*self.size[1])]
         old_effects = self.worldeffects
         self.worldeffects = new_effects
 
@@ -183,7 +183,7 @@ class Grid(Serializable):
                     movingunits.remove(unit)
                     unit.done = True
                     obstacles.append(unit.pos)
-                if nextpos in nextpositions.keys():
+                if nextpos in nextpositions:
                     nextpositions[nextpos].append(unit)
                 else:
                     nextpositions[nextpos] = [unit]
@@ -234,7 +234,7 @@ class Grid(Serializable):
             if unitid:
                 self.add_unit(pos, unitid, -1)
 
-    def add_gridelement(self, pos:"tuple[int,int]", gridelement:GridElement) -> "TileBase|UnitBase|EffectBase|None":
+    def add_gridelement(self, pos:"tuple[int,int]", gridelement:GridElement) -> "TileBase|UnitBase|WorldEffectBase|None":
         """Helper to add an object at pos to the grid."""
         if not self.is_coord_in_bounds(pos):
             log("Grid: Tried to add element at", pos, "which is not on the grid.", 2)
@@ -244,7 +244,7 @@ class Grid(Serializable):
             self.tiles[index] = gridelement
             if self.observer:
                 self.observer.on_add_tile(gridelement)
-        elif isinstance(gridelement, EffectBase):
+        elif isinstance(gridelement, WorldEffectBase):
             self.worldeffects[index].append(gridelement)
             if self.observer:
                 self.observer.on_add_worldeffect(gridelement)
@@ -262,10 +262,10 @@ class Grid(Serializable):
         newtile:TileBase = tiletype(self, pos)
         return self.add_gridelement(pos, newtile)
 
-    def add_worldeffect(self, pos:"tuple[int,int]", worldeffectid:int) -> "EffectBase|None":
+    def add_worldeffect(self, pos:"tuple[int,int]", worldeffectid:int) -> "WorldEffectBase|None":
         """Add a world effect to the grid at given position."""
-        effecttype:EffectBase = GridElementFactory.find_effect_class(EFFECT_IDS[worldeffectid])     
-        neweffect:EffectBase = effecttype(self, pos)
+        effecttype:WorldEffectBase = GridElementFactory.find_effect_class(EFFECT_IDS[worldeffectid])     
+        neweffect:WorldEffectBase = effecttype(self, pos)
         neweffect.on_spawn()
         return self.add_gridelement(pos, neweffect)
 
@@ -279,7 +279,7 @@ class Grid(Serializable):
         """Request a unit with unitid to be spawned at (x,y), owned by a playerid."""
         NetEvents.snd_netunitspawn(unitid, pos, playerid)
     
-    def remove_gridelement(self, pos:"tuple[int,int]", effect:"EffectBase|None"=None, rmflags=0b100) -> bool:
+    def remove_gridelement(self, pos:"tuple[int,int]", effect:"WorldEffectBase|None"=None, rmflags=0b100) -> bool:
         """Remove a gridelement at given position. 
         Use the flags to specify Tiles, Units, and Effects respectively.
         When removing effects, effect shouldn't be None."""
@@ -323,7 +323,7 @@ class Grid(Serializable):
         """Remove a unit at given position."""
         return self.remove_gridelement(pos, rmflags=0b010)
     
-    def remove_worldeffect(self, effect:"EffectBase", pos:"tuple[int,int]") -> bool:
+    def remove_worldeffect(self, effect:"WorldEffectBase", pos:"tuple[int,int]") -> bool:
         """Remove an effect at given position."""
         return self.remove_gridelement(pos, effect=effect, rmflags=0b001)
 
@@ -349,7 +349,7 @@ class Grid(Serializable):
         """Return the tile at (x,y)."""
         return self.tiles[self.c_to_i(pos)]
    
-    def get_worldeffects(self, pos:"tuple[int,int]") -> "list[EffectBase]":
+    def get_worldeffects(self, pos:"tuple[int,int]") -> "list[WorldEffectBase]":
         """Return the world effects at (x,y)."""
         return self.worldeffects[self.c_to_i(pos)]
    

@@ -12,8 +12,8 @@ class GridElement:
         self.done = done
         self.name = name
     
-    def tick(self, dt:float):
-        self.age += dt
+    def tick(self, delta_time:float):
+        self.age += delta_time
 
     def on_update_phase(self, new_phase:int):
         """Called when a phase change occured."""

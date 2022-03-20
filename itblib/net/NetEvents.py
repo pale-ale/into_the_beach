@@ -1,11 +1,11 @@
 import json
 from typing import TYPE_CHECKING
 
-from itblib.gridelements.Effects import EffectStartingArea
+from itblib.gridelements.world_effects import EffectStartingArea
 from itblib.Player import Player
 
 if TYPE_CHECKING:
-    from itblib.abilities.base_abilities.AbilityBase import AbilityBase
+    from itblib.abilities.base_abilities.ability_base import AbilityBase
     from itblib.Game import Session
     from itblib.Grid import Grid
     from itblib.net.Connector import Connector

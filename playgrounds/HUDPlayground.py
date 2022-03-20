@@ -5,8 +5,8 @@ import pygame.display
 import pygame.sprite
 import pygame.time
 
-from itblib.gridelements.Effects import EffectFire, EffectMountain
-from itblib.gridelements.EffectsUI import EffectFireUI, EffectMountainUI
+from itblib.gridelements.world_effects import EffectFire, EffectMountain
+from itblib.gridelements.ui_effect import EffectFireUI, EffectMountainUI
 from itblib.gridelements.Tiles import TileDirt, TileLava
 from itblib.gridelements.TilesUI import TileDirtUI, TileLavaUI
 from itblib.ui.hud.TileDisplay import TileDisplay

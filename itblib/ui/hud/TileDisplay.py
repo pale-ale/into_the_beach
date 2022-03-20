@@ -4,7 +4,7 @@ import pygame
 from itblib.globals.Colors import (GRAY_ACCENT_DARK, GRAY_ACCENT_LIGHT,
                                    IMAGE_BACKGROUND, WHITE)
 from itblib.globals.Constants import HUD, STANDARD_TILE_SIZE
-from itblib.gridelements.EffectsUI import EffectBaseUI
+from itblib.gridelements.ui_effect import EffectBaseUI
 from itblib.gridelements.TilesUI import TileBaseUI
 from itblib.input.Input import InputAcceptor
 from itblib.ui.hud.EffectInfoGroup import EffectInfoGroup

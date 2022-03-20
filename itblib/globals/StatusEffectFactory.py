@@ -1,4 +1,4 @@
-import itblib.gridelements.StatusEffects as status_effects
+from itblib.gridelements import status_effect
 
 class StatusEffectFactory:
     """
@@ -15,6 +15,6 @@ class StatusEffectFactory:
         return None
 
     @staticmethod
-    def find_status_effect_class(name:str) -> "status_effects.StatusEffect|None":
+    def find_status_effect_class(name:str) -> "status_effect.StatusEffect|None":
         """Return a class named 'name' in 'itblib.gridelements.StatusEffects' or None if not found"""
-        return StatusEffectFactory._find_class("StatusEffect" + name, status_effects)
+        return StatusEffectFactory._find_class("StatusEffect" + name, status_effect)

@@ -9,7 +9,7 @@ from itblib.net.NetEvents import NetEvents
 from itblib.Serializable import Serializable
 
 if TYPE_CHECKING:
-    from itblib.components.AbilityComponent import AbilityComponent
+    from itblib.components import AbilityComponent
     from itblib.gridelements.units.UnitBase import UnitBase
 
 
