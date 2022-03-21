@@ -12,8 +12,10 @@ class InputAcceptor:
 
     def handle_key_event(self, event:any) -> bool:
         """
+        Passes on key events to children. If they did not handle the event, attempt to handle it.
         @event: pygame's keyevent
-        @return: whether the event was handled or not. If it was handled, it will be discarded immediately."""
+        @return: whether the event was handled or not. If it was handled, it will be discarded immediately.
+        """
         for listener in reversed(self._child_input_listeners):
             if listener.handle_key_event(event): #if the listener handles the event, we discard it right away
                 return True

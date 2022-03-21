@@ -50,7 +50,7 @@ class Hud(IGraphics, InputAcceptor):
         self.selected_unit:UnitBase = None
         self.gridui = gridui
         self.gridui.phase_change_callback = self.update_phase
-        self.font = pygame.font.SysFont('firamono', 22)
+        self.font = pygame.font.Font('HighOneMono.ttf', 32)
         self._cursorgridpos = (0,0)
         self._cursorscreenpos = (0,0)
         self.displayscale = 2
@@ -147,7 +147,7 @@ class Hud(IGraphics, InputAcceptor):
         pygame.draw.line(timer_surface,        BLACK, (0, t_y-3), (t_x, t_y-3), 2)
         pygame.draw.line(timer_surface,  phase_color, (0, t_y-1), (t_x, t_y-1), 1)
         timer_pos = ((self.rect.width - t_x)/2, 10)
-        yield (timer_surface, pygame.Rect(*timer_pos, t_x, t_y), pygame.Rect(0,0,t_x,t_y))
+        yield (timer_surface, pygame.Rect(*timer_pos, t_x, t_y), pygame.Rect(0,0,t_x-2,t_y))
 
     # def player_won(self, playerid:int):
     #     if self.playerid == playerid:

@@ -3,11 +3,9 @@ import unittest
 import pygame
 from itblib.Game import Session
 from itblib.Player import Player
-from itblib.SceneManager import SceneManager
-from itblib.scenes.GameScene import GameScene
-from itblib.scenes.LobbyScene import LobbyScene
-from itblib.scenes.MainMenuScene import MainMenuScene
-from itblib.scenes.RosterSelectionScene import RosterSelectionScene
+from itblib.scenes import (GameScene, LobbyScene, MainMenuScene,
+                           MapSelectionScene, RosterSelectionScene,
+                           SceneManager)
 from itblib.ui.TextureManager import Textures
 
 
@@ -44,5 +42,8 @@ class TestScenes(unittest.TestCase):
         self.scenemanager.add_scene("GameScene", gamescene)
         self.scenemanager.load_scene("GameScene")
 
-    #def test_map_selection_scene(self):
-        #self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)
+    def test_map_selection_scene(self):
+        Textures.load_textures()
+        mapselectionscene = MapSelectionScene(self.scenemanager, "playerdata1.json")
+        self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)
+        self.scenemanager.load_scene("MapSelectionScene")

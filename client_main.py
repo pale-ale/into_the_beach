@@ -11,12 +11,9 @@ from itblib.Log import log
 from itblib.net.Connector import Connector
 from itblib.net.NetEvents import NetEvents
 from itblib.Player import PlayerData
-from itblib.SceneManager import SceneManager
-from itblib.scenes.GameScene import GameScene
-from itblib.scenes.LobbyScene import LobbyScene
-from itblib.scenes.MainMenuScene import MainMenuScene
-from itblib.scenes.map_selection_scene import MapSelectionScene
-from itblib.scenes.RosterSelectionScene import RosterSelectionScene
+from itblib.scenes import (GameScene, LobbyScene, MainMenuScene,
+                           MapSelectionScene, RosterSelectionScene,
+                           SceneManager)
 from itblib.Selector import Selector
 from itblib.ui.TextureManager import Textures
 
