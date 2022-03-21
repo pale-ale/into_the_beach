@@ -15,7 +15,6 @@ from itblib.globals.Colors import (BLACK, DARK_GRAY, GRAY_ACCENT_DARK,
 from itblib.globals.Constants import (HUD, PHASE_DURATIONS, PREVIEWS,
                                       STANDARD_TILE_SIZE, STANDARD_UNIT_SIZE)
 from itblib.gridelements.TilesUI import TileBaseUI
-from itblib.gridelements.units.UnitBase import UnitBase
 from itblib.gridelements.world_effects import EffectStartingArea
 from itblib.input.Input import InputAcceptor
 from itblib.Log import log
@@ -33,6 +32,7 @@ if TYPE_CHECKING:
     from typing import Generator
 
     from itblib.gridelements.ui_effect import EffectBaseUI
+    from itblib.gridelements.units.UnitBase import UnitBase
     from itblib.gridelements.UnitsUI import UnitBaseUI
 
 
@@ -47,7 +47,8 @@ class Hud(IGraphics, InputAcceptor):
         InputAcceptor.__init__(self)
         self._playerversusanimation:"PlayerVersusAnimation|None" = None
         self.rect = pygame.Rect(0,0,*size)
-        self.selected_unit:UnitBase = None
+        self.selected_unit:"UnitBase|None" = None
+        self.selected_unitui:"UnitBaseUI|None" = None
         self.gridui = gridui
         self.gridui.phase_change_callback = self.update_phase
         self.font = pygame.font.Font('HighOneMono.ttf', 32)
@@ -68,7 +69,7 @@ class Hud(IGraphics, InputAcceptor):
     def update_phase(self, newphase:int):
         if newphase == 1:
             self.selected_unit = None
-            self._unitdisplay.set_displayunit(self.gridui.get_unitui(self._cursorgridpos))
+            self._unitdisplay.set_displayunit(self.selected_unitui)
 
     #pylint: disable=missing-function-docstring
     def handle_key_event(self, event) -> bool:
@@ -79,7 +80,7 @@ class Hud(IGraphics, InputAcceptor):
                 self.targetconfirm(self._cursorgridpos)
                 return True
             if event.key == pygame.K_SPACE:
-                self.select_unit(self.gridui.get_unitui(self._cursorgridpos))
+                self.select_unit(self.gridui.grid.get_unit(self._cursorgridpos))
                 return True
             if event.key == pygame.K_ESCAPE:
                 if self.selected_unit:
@@ -100,6 +101,7 @@ class Hud(IGraphics, InputAcceptor):
         if unit:
             if unit.ownerid == self.playerid:
                 self.selected_unit = unit
+                self.selected_unitui = self.gridui.get_unitui(self._cursorgridpos)
                 unit.ability_component.on_select()
         else:
             self.selected_unit = None
@@ -117,14 +119,14 @@ class Hud(IGraphics, InputAcceptor):
                     self.gridui.grid.request_add_unit(position, unit_id, self.playerid)
         elif self.selected_unit:
             self.selected_unit.ability_component.on_confirm_target(position)
-            self._unitdisplay.set_displayunit(self.selected_unit)
+            self._unitdisplay.set_displayunit(self.selected_unitui)
 
     def activate_ability(self, slot:int):
         """Activate the ability with the according number, and deselect all others."""
         if self.selected_unit and self.gridui.grid.phase == 1:
             self.selected_unit.ability_component.on_deselect()
             self.selected_unit.ability_component.on_activate_ability(slot-1)
-            self._unitdisplay.set_displayunit(self.selected_unit)
+            self._unitdisplay.set_displayunit(self.selected_unitui)
 
     def get_unit_ability_preview_blits(self):
         """Retrieve ability previews blits of a unit, e.g. movement and targeting info."""
@@ -149,11 +151,11 @@ class Hud(IGraphics, InputAcceptor):
         timer_pos = ((self.rect.width - t_x)/2, 10)
         yield (timer_surface, pygame.Rect(*timer_pos, t_x, t_y), pygame.Rect(0,0,t_x-2,t_y))
 
-    # def player_won(self, playerid:int):
-    #     if self.playerid == playerid:
-    #         print("\nI Won!\n")
-    #     else:
-    #         print("\nI Lost!\n")
+    def player_won(self, playerid:int):
+        if self.playerid == playerid:
+            log("\nI Won!\n", 2)
+        else:
+            log("\nI Lost!\n", 2)
 
     def _update_display_unit_if_necessary(self):
         grid_unit = self.gridui.get_unitui(self._cursorgridpos)
@@ -400,7 +402,7 @@ class UnitDisplay(IGraphics):
                 abilityimage = Textures.get_spritesheet(type(ability).__name__)[0]
                 self.image.blit(abilityimage, add(self.abilityimagepos, (17*index, 2)), (0,0,16,16))
             else:
-                print(f"HUD: Texture {type(ability).__name__} not found.")
+                log(f"HUD: Texture {type(ability).__name__} not found.", 2)
 
             self.image.fill(PHASECOLORS[ability.phase],
                 (*add(self.abilityphasepos, (17*index, 0)), 16, 12)

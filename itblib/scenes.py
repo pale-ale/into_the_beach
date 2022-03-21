@@ -505,7 +505,7 @@ class MapSelectionScene(SceneBase):
     def _on_update_unit_selection(self, unit_selection:dict[int,int]):
         selection_valid = self._is_selection_valid(unit_selection)
         cursor_colour = GREEN if selection_valid else RED
-        self._MAPLIST.setProperties(cursor_colour=cursor_colour)
+        self._MAPLIST.set_properties(cursor_colour=cursor_colour)
         self._set_save_enabled(selection_valid)
 
     def _maps_selected(self, map_selection:dict[int,int]):

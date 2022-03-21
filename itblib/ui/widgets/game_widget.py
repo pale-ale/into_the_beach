@@ -30,7 +30,7 @@ class HealthBar(Widget):
         self._inner_height = self._hp_height + 2*self._inner_padding
         self.height = self._inner_height + 2*self._outer_padding
         self.image = pygame.Surface((self.width, self.height))
-        self._target.set_hp_update_callback(self.on_update_hp)
+        self._target.hp_update_callback = self.on_update_hp
 
     def _draw_bg(self):
         self.image.fill(HP_PADDING)

@@ -36,9 +36,9 @@ class UnitBloodWraith(UnitBase):
     def attack(self, target:"tuple[int,int]" , damage:int, damagetype:str):
         unit = self.grid.get_unit(target)
         if unit:
-            killingblow = unit._hitpoints > 0
+            killingblow = unit.hitpoints > 0
             super().attack(target, damage, damagetype)
-            if unit._hitpoints <= 0 and killingblow:
+            if unit.hitpoints <= 0 and killingblow:
                 self.change_hp(1,"physical")
 
 

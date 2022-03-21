@@ -49,7 +49,7 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, Inp
             if status_effect_class and self.get_statuseffect(effectdata["name"]) is None:
                 self.add_status_effect(status_effect_class(self))
         self.ability_component.insert_data(data["ability_component"])
-        self.set_hp(data["_hitpoints"])
+        self.hitpoints = data["_hitpoints"]
     
     def handle_key_event(self, event: any) -> bool:
         if event.type == pygame.KEYDOWN:
