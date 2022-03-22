@@ -7,11 +7,13 @@ import random
 from typing import TYPE_CHECKING
 
 import pygame
+from itblib.components import TransformComponent
 from itblib.globals.Colors import TEXTURE_MISSING
 from itblib.globals.Enums import RIVER
 from itblib.gridelements.GridElementUI import GridElementUI
 from itblib.gridelements.world_effects import WorldEffectBase
 from itblib.ui.IDisplayable import IDisplayable
+from itblib.ui.particles import FireParticleSpawner
 from itblib.ui.TextureManager import Textures
 
 if TYPE_CHECKING:
@@ -69,61 +71,18 @@ class EffectFireUI(EffectBaseUI):
     """Displays fire."""
     def __init__(self, effect: WorldEffectBase, framespeed: float = 0.5):
         super().__init__(effect, framespeed=framespeed, autoplay=False)
-        self.particle_space = pygame.Surface((64,64)).convert_alpha()
-        self.particle_space.fill(0)
-        self.desired_particles = 40
-        self.fire_left = 16
-        self.fire_right = 48
-        self.max_particle_lifetime = 5
-        self.particle_xs        = [None] * self.desired_particles
-        self.particle_ys        = [None] * self.desired_particles
-        self.particle_colors    = [None] * self.desired_particles
-        self.particle_lifetimes = [self.max_particle_lifetime+1] * self.desired_particles
-
+        self._fire_particles = FireParticleSpawner()
+        self._fire_particles.get_component(TransformComponent).set_transform_target(self)
+     
     def update(self, delta_time: float):
         """Update the fire particles."""
-        self.particle_space.fill(0)
-        for particle_index in range(self.desired_particles):
-            self.particle_lifetimes[particle_index] += delta_time
-            if self.particle_lifetimes[particle_index] > self.max_particle_lifetime:
-                self.particle_lifetimes[particle_index] = random.random()*4
-                x_pos = random.randint(self.fire_left,self.fire_right)
-                ydiv = 16 - abs((self.fire_left + self.fire_right)/2 - x_pos)
-                self.particle_xs[particle_index] = x_pos
-                self.particle_ys[particle_index] = 28 - random.randint(-ydiv, ydiv)
-                continue
-            if random.random() < delta_time*3:
-                self.particle_xs[particle_index] += (random.randint(-1,1)+random.randint(0,2))
-            self.particle_ys[particle_index] -= 1 if random.random() < delta_time*4 else 0
-        for particle_index in range(self.desired_particles):
-            self.particle_space.fill(
-                EffectFireUI._get_color(
-                    self.particle_lifetimes[particle_index]/self.max_particle_lifetime
-                ),
-                (self.particle_xs[particle_index], self.particle_ys[particle_index], 3, 3)
-            )
+        self._fire_particles.update(delta_time)
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
-        particle_rect = pygame.Rect(self.tfc.get_position(), self.particle_space.get_size())
-        yield (self.particle_space, particle_rect, self.particle_space.get_rect())
+        yield from self._fire_particles.get_blits()
 
     def get_icon(self) -> pygame.Surface:
         return Textures.get_spritesheet("Ablaze")[0]
-
-    @staticmethod
-    def _get_color(lifetime_ratio:float) -> "tuple[int,int,int,int]":
-        assert lifetime_ratio >= 0 and lifetime_ratio < 1
-        gradients = [(255,255,000,255), (255,000,000,255), (100,0,0,255), (0,0,0,0)]
-        gradient_dim = 4
-        index_float = lifetime_ratio*(len(gradients)-1)
-        start = int(index_float)
-        end = math.ceil(index_float)
-        g_1 = gradients[start]
-        g_2 = gradients[end]
-        t_l = start/(len(gradients)-1)
-        t_s = (lifetime_ratio - t_l)*2
-        interp = tuple([int(g_1[x]*(1.0-t_s) + g_2[x]*t_s) for x in range(gradient_dim)])
-        return interp
 
 
 class EffectMountainUI(EffectBaseUI):

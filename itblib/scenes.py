@@ -476,7 +476,7 @@ class MapSelectionScene(SceneBase):
 
     def load(self):
         super().load()
-        self._setup_unit_images()
+        self._setup_map_images()
         self._MAPLIST.set_data_source(lambda i: self._map_images[i], len(self._VALID_MAPS))
 
     #pylint: disable=missing-function-docstring
@@ -529,7 +529,7 @@ class MapSelectionScene(SceneBase):
         self._TEXTBOX_SPACE.textcolor = save_colour
         self._TEXTBOX_SPACE.update_textbox()
 
-    def _setup_unit_images(self):
+    def _setup_map_images(self):
         grid = Grid(None)
         gridui = GridUI(grid)
         grid.update_observer(gridui)
