@@ -33,6 +33,7 @@ from itblib.ui.TextureManager import Textures
 from itblib.ui.widgets.layout import HorizontalLayoutWidget
 from itblib.ui.widgets.ui_widget import GridSelection, KeyIcon, TextBox, Widget
 from itblib.Vec import smult
+from itblib.audio import AudioManager, AUDIO_KEYS
 
 if TYPE_CHECKING:
     from typing import Generator
@@ -125,9 +126,9 @@ class MainMenuScene(SceneBase):
         ]
 
         ki_up    = KeyIcon('↑', size=(26,26), pos=(width/2   , height*.8))
-        ki_left  = KeyIcon('←', size=(26,26), pos=(width/2-30, height*.85))
-        ki_right = KeyIcon('→', size=(26,26), pos=(width/2+30, height*.85))
-        ki_down  = KeyIcon('↓', size=(26,26), pos=(width/2   , height*.9))
+        ki_left  = KeyIcon('←', size=(26,26), pos=(width/2-30, height*.85), enabled=False, pressed=True)
+        ki_right = KeyIcon('→', size=(26,26), pos=(width/2+30, height*.85), enabled=False, pressed=True)
+        ki_down  = KeyIcon('↓', size=(26,26), pos=(width/2   , height*.9 ), enabled=False, pressed=True)
         ki_f     = KeyIcon('F', size=(26,26), pos=(325,   5))
         ki_m     = KeyIcon('M', size=(26,26), pos=(350,  30))
         ki_r     = KeyIcon('R', size=(26,26), pos=(375,  55))
@@ -152,12 +153,15 @@ class MainMenuScene(SceneBase):
             if event.key == pygame.K_ESCAPE:
                 exit(0)
             if event.key == pygame.K_UP:
+                AudioManager.play_audio(AUDIO_KEYS.BUTTON)
                 self.scenemanager.load_scene("LobbyScene")
                 return True
             if event.key == pygame.K_r:
+                AudioManager.play_audio(AUDIO_KEYS.BUTTON)
                 self.scenemanager.load_scene("RosterSelectionScene")
                 return True
             if event.key == pygame.K_m:
+                AudioManager.play_audio(AUDIO_KEYS.BUTTON)
                 self.scenemanager.load_scene("MapSelectionScene")
                 return True
         return False
@@ -241,7 +245,7 @@ class LobbyScene(SceneBase):
     def handle_key_event(self, keyevent):
         if keyevent.type == pygame.KEYDOWN:
             if keyevent.key == pygame.K_ESCAPE:
-                NetEvents.snd_netplayerleave([p for p in self._session._players.values() if p.localcontrol][0])
+                NetEvents.snd_netplayerleave([p for p in self._session._players.values() if p.localcontrol][0].playerid)
                 self.scenemanager.load_scene("MainMenuScene")
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":

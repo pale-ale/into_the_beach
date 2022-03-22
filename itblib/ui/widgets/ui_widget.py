@@ -7,7 +7,7 @@ from itblib.components import ComponentAcceptor, TransformComponent
 from itblib.input.Input import InputAcceptor
 from itblib.ui.IGraphics import IGraphics
 from itblib.Vec import add, smult, sub
-from itblib.globals.Colors import DARK_GRAY, LIGHT_GRAY
+from itblib.globals.Colors import DARK_GRAY, GRAY_ACCENT_LIGHT, LIGHT_GRAY
 
 
 if TYPE_CHECKING:
@@ -133,7 +133,7 @@ class KeyIcon(Widget):
     """The KeyIcon Widget can be used to display a single char with a keyboard-key style."""
     BUTTON_LIGHT_GRAY = (150,150,150,255)
 
-    def __init__(self, text:str, pos=(0,0), size:"tuple[int,int]"=(32,32), pressed:bool = False, fontsize=32) -> None:
+    def __init__(self, text:str, pos=(0,0), size:"tuple[int,int]"=(32,32), pressed:bool = False, enabled=True, fontsize=32) -> None:
         super().__init__()
         self._text = TextBox(text, bgcolor=DARK_GRAY, fontsize=32)
         self.image = pygame.Surface(size).convert_alpha()
@@ -141,6 +141,7 @@ class KeyIcon(Widget):
         self._outer_border = (3,3)
         self._inner_border = (2,2)
         self._pressed = pressed
+        self._enabled = enabled
         self.char = text
         self.position = pos
 
@@ -151,6 +152,10 @@ class KeyIcon(Widget):
     @property
     def pressed(self):
         return self._pressed
+    
+    @property
+    def enabled(self):
+        return self._enabled
 
     @char.setter
     def char(self, new_char:str):
@@ -160,6 +165,11 @@ class KeyIcon(Widget):
     @pressed.setter
     def pressed(self, new_presed:bool):
         self._pressed = new_presed
+        self._redraw()
+    
+    @enabled.setter
+    def enabled(self, new_enabled:bool):
+        self._enabled = new_enabled
         self._redraw()
 
     def _redraw(self):
@@ -177,7 +187,7 @@ class KeyIcon(Widget):
             inner_rect = (inner, sub(size, smult(2, inner)))
             lower_rect = (add(self._outer_border, (0,self._outer_border[1]-1)), sub(size, smult(2, self._outer_border)))
             pygame.draw.rect(self.image, LIGHT_GRAY, lower_rect, 2, 4)
-        self.image.fill(DARK_GRAY, inner_rect)
+        self.image.fill(DARK_GRAY if self._enabled else (GRAY_ACCENT_LIGHT), inner_rect)
         pygame.draw.rect(self.image, KeyIcon.BUTTON_LIGHT_GRAY, outer_rect, 2, 4)
         self.image.blit(char_surface, (
             (self.image.get_width() - char_size[0])/2+1, 

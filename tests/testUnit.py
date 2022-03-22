@@ -42,10 +42,10 @@ class TestUnitBaseMethods(unittest.TestCase):
         self.assertIsNone(self.unit.get_statuseffect(statuseffect))
     
     def test_on_change_hp(self):
-        hp = self.unit._hitpoints
+        hp = self.unit.hitpoints
         change = 1
         self.unit.change_hp(change, "physical")
-        self.assertEqual(hp+1, self.unit._hitpoints)
+        self.assertEqual(hp+1, self.unit.hitpoints)
     
     def test_on_death(self):
         unitid = 2

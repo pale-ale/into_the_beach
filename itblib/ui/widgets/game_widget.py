@@ -42,7 +42,7 @@ class HealthBar(Widget):
         for i in range(self._target._max_hitpoints):
             hp_pos = (self._inner_padding + i*(self._width_per_hp), self._inner_padding)
             self.image.fill(
-                HP_PRESENT if i < self._target._hitpoints else HP_ABSENT,
+                HP_PRESENT if i < self._target.hitpoints else HP_ABSENT,
                 (
                     add(hp_pos, (self._outer_padding, self._outer_padding)),
                     hp_size
