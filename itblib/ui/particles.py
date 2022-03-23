@@ -24,7 +24,7 @@ def get_color_from_gradients(lifetime:float, gradients:list[tuple[int,int,int,in
     end = int(index_float+1)
     g_1 = gradients[start]
     g_2 = gradients[end]
-    timestep = lifetime/(len(gradients)-1)
+    timestep = 1/(len(gradients)-1)
     timestep_progress = (lifetime % timestep)
     timestep_progress_scaled = timestep_progress / timestep #scaled from 0-1
     #mix color a and b by weights from 0 to 1
@@ -89,7 +89,7 @@ class TrailParticleSpawner(ParticleSpawner):
     """Creates tiny sparks in close proximity. Use as a trail for projectiles."""
     def __init__(self):
         super().__init__()
-        self.image = pygame.Surface((300,300)).convert_alpha()
+        self.image = pygame.Surface((50,50)).convert_alpha()
         self.image.fill(0)
         self.desired_particles = 20
         self.max_particle_lifetime = 3
@@ -104,8 +104,8 @@ class TrailParticleSpawner(ParticleSpawner):
             self.particle_lifetimes[particle_index] += delta_time
             if self.particle_lifetimes[particle_index] > self.max_particle_lifetime:
                 self.particle_lifetimes[particle_index] = random.random()*self.max_particle_lifetime
-                self.particle_xs[particle_index] = 32
-                self.particle_ys[particle_index] = 16
+                self.particle_xs[particle_index] = self.image.get_width()/2
+                self.particle_ys[particle_index] = self.image.get_height()/2
                 continue
             if random.random() < delta_time*3:
                 self.particle_xs[particle_index] += random.randint(-1,1)

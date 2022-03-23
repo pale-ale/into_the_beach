@@ -5,7 +5,7 @@ from itblib.abilities.base_abilities.ability_base import AbilityBase
 from itblib.globals.Constants import PREVIEWS
 
 if TYPE_CHECKING:
-    from itblib.components.AbilityComponent import AbilityComponent
+    from itblib.components import AbilityComponent
 
 # TODO: Inherit from TargetAbilityBase
 
