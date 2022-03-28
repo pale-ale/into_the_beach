@@ -1,13 +1,13 @@
 from abc import ABC
 from typing import TYPE_CHECKING, TypeVar
 
-from itblib.abilities.base_abilities.ability_base import AbilityBase
 from itblib.Log import log
 from itblib.Serializable import Serializable
 from itblib.Vec import add
 
 if TYPE_CHECKING:
     from typing import Type
+    from itblib.abilities.base_abilities.ability_base import AbilityBase
 
 class ComponentBase(ABC):
     """Components allow for simple and reusable grouping of bahaviours.
@@ -45,7 +45,7 @@ class ComponentBase(ABC):
     def on_destroy_component(self):
         """Teardown method for convenience"""
 
-C = TypeVar('C', bound=ComponentBase)
+C = TypeVar('C', bound="ComponentBase")
 
 class ComponentAcceptor(ABC):
     """Allows adding Components to an Object to change its behaviour."""
@@ -59,7 +59,7 @@ class ComponentAcceptor(ABC):
                 return component
         return None
 
-A = TypeVar('A', bound=AbilityBase)
+A = TypeVar('A', bound="AbilityBase")
 
 class AbilityComponent(ComponentBase, Serializable):
     """
@@ -73,11 +73,11 @@ class AbilityComponent(ComponentBase, Serializable):
             ability(self) for ability in abilities]
         self.targeting_ability = False
 
-    def extract_data(self, custom_fields: "dict[str,any]" = ...) -> dict:
+    #pylint: disable=missing-function-docstring
+    def extract_data(self, custom_fields: "dict[str,any]"=None) -> dict:
         customabilities = [x.extract_data() for x in self._abilities]
         return Serializable.extract_data(self, custom_fields={"_abilities":customabilities})
 
-    #pylint: disable=missing-function-docstring
     def insert_data(self, data):
         Serializable.insert_data(self, data, exclude=["_abilities"])
         for abilitydata in data["_abilities"]:
@@ -86,7 +86,7 @@ class AbilityComponent(ComponentBase, Serializable):
                     abilitydata["selected_targets"] = [(x,y) for x,y in abilitydata["selected_targets"]]
                     ability.insert_data(abilitydata, exclude=["name"])
 
-    def add_ability(self, ability_class: "Type[T]") -> "T|None":
+    def add_ability(self, ability_class: "Type[A]") -> "A|None":
         """Add an ability to this unit. Will spawn and initialize the required class."""
         for ability in self._abilities:
             if ability is ability_class:
@@ -108,12 +108,13 @@ class AbilityComponent(ComponentBase, Serializable):
         for ability in self._abilities:
             if isinstance(ability, ability_class):
                 return ability
+        return None
 
     def on_activate_ability(self, slot:int):
         """
         Called when the user wishes to use an ability by pressing one of the assigned slot numbers.
         """
-        if slot >= 0 and slot < len(self._abilities):
+        if 0 <= slot < len(self._abilities):
             ability = self._abilities[slot]
             if ability.remainingcooldown == 0:
                 ability.on_select_ability()
@@ -152,6 +153,7 @@ class AbilityComponent(ComponentBase, Serializable):
         for ability in self._abilities:
             if ability.selected:
                 return ability
+        return None
 
 
 class TransformComponent(ComponentBase):

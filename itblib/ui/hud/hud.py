@@ -19,7 +19,8 @@ from itblib.gridelements.world_effects import EffectStartingArea
 from itblib.input.Input import InputAcceptor
 from itblib.Log import log
 from itblib.net.NetEvents import NetEvents
-from itblib.ui.animations.PlayerVersus import PlayerVersusAnimation
+from itblib.ui.animations import Animation
+from itblib.ui.animations import PlayerVersusAnimation
 from itblib.ui.GridUI import GridUI
 from itblib.ui.hud.ability_preview_display import AbilityPreviewDisplay
 from itblib.ui.IGraphics import IGraphics
@@ -34,6 +35,7 @@ if TYPE_CHECKING:
     from itblib.gridelements.ui_effect import EffectBaseUI
     from itblib.gridelements.units.UnitBase import UnitBase
     from itblib.gridelements.UnitsUI import UnitBaseUI
+    from itblib.abilities.ui_abilities import AbilityBaseUI
 
 
 class Hud(IGraphics, InputAcceptor):
@@ -45,7 +47,6 @@ class Hud(IGraphics, InputAcceptor):
     def __init__(self, size:"tuple[int,int]", gridui:GridUI, playerid:int, session:Session):
         IGraphics.__init__(self)
         InputAcceptor.__init__(self)
-        self._playerversusanimation:"PlayerVersusAnimation|None" = None
         self.rect = pygame.Rect(0,0,*size)
         self.selected_unit:"UnitBase|None" = None
         self.selected_unitui:"UnitBaseUI|None" = None
@@ -57,6 +58,7 @@ class Hud(IGraphics, InputAcceptor):
         self.displayscale = 2
         self._unitdisplay = UnitDisplay()
         self._tiledisplay = TileDisplay()
+        self.abilitydisplay = AbilityDisplay()
         self.register_input_listeners(self._tiledisplay)
         self._ability_preview_display = AbilityPreviewDisplay(gridui)
         self._unitdisplay.rect.topleft = (self.rect.width - HUD.ELEM_WIDTH, 0)
@@ -186,28 +188,21 @@ class Hud(IGraphics, InputAcceptor):
 
     def on_start_game(self):
         p_1, p_2 = self.session._players.values()
-        self._playerversusanimation = PlayerVersusAnimation(p_1, p_2, *self.rect.size)
-        self._playerversusanimation.start()
+        self.abilitydisplay.play_simple_anim(PlayerVersusAnimation(p_1, p_2, *self.rect.size))
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield from self.blits
-        if self._playerversusanimation.playing:
-            yield from self._playerversusanimation.get_blits()
-        else:
-            yield from self._get_phase_timer_blit()
-            yield from self._tiledisplay.get_blits()
-            yield from self._unitdisplay.get_blits()
+        yield from self._get_phase_timer_blit()
+        yield from self._tiledisplay.get_blits()
+        yield from self._unitdisplay.get_blits()
         yield from self.get_unit_ability_preview_blits()
+        yield from self.abilitydisplay.get_blits()
 
     def update(self, delta_time: float) -> None:
-        if self._playerversusanimation:
-            if self._playerversusanimation.animtime <= 3:
-                self._playerversusanimation.update(delta_time)
-            else:
-                self._playerversusanimation.stop()
         self._update_display_unit_if_necessary()
         self._tiledisplay.update(delta_time)
         self._unitdisplay.update(delta_time)
+        self.abilitydisplay.update(delta_time)
 
 
 class TileDisplay(Widget, InputAcceptor):
@@ -541,3 +536,32 @@ class EffectInfoGroup(Widget, InputAcceptor):
     def _move_selection_right(self):
         self.selection_index = min(len(self.effect_icons.children)-1, self.selection_index+1)
         self._update_title_desc()
+
+
+class AbilityDisplay(IGraphics):
+    def __init__(self) -> None:
+        super().__init__()
+        self._abilityuis: "list[AbilityBaseUI]" = []
+        self._anims: "list[Animation]" = []
+        
+    def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+        for animation in self._abilityuis:
+            yield from animation.get_blits()
+        for animation in self._anims:
+            yield from animation.get_blits()
+
+    def update(self, delta_time:float):
+        for animation in self._abilityuis:
+            animation.tick(delta_time)
+            if not animation.playing:
+                self._abilityuis.remove(animation)
+        for animation in self._anims:
+            animation.tick(delta_time)
+            if not animation._running:
+                self._anims.remove(animation)
+
+    def play_simple_anim(self, animation:"AbilityBaseUI"):
+        self._anims.append(animation)
+
+    def play_ability_anim(self, animation:"AbilityBaseUI"):
+        self._abilityuis.append(animation)

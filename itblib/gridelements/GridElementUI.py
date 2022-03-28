@@ -1,11 +1,11 @@
 from itblib.gridelements.GridElement import GridElement
-from itblib.ui.animations.MultiSprite import MultiSprite
+from itblib.ui.animations import FlipbookAnimation
 from itblib.ui.TextureManager import Textures
 
 
-class GridElementUI(MultiSprite):
+class GridElementUI(FlipbookAnimation):
     """Graphical representation of a GridElement."""
-    
+
     def __init__(self, parentelement:GridElement, direction:"str|None", framespeed:float=.5):
         texturekey = parentelement.name
         if direction:
@@ -13,7 +13,7 @@ class GridElementUI(MultiSprite):
         else:
             texturekey += "Default"
         spritesheet = Textures.get_spritesheet(texturekey)
-        MultiSprite.__init__(self, spritesheet, frametime=framespeed, playing=True, looping=True)
+        FlipbookAnimation.__init__(self, spritesheet, frametime=framespeed, running=True, looping=True)
         self._parentelement = parentelement
         self.direction = direction
     

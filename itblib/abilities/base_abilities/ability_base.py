@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
+from itblib.abilities.ui_abilities import AbilityBaseUI
 
 from itblib.input.Input import InputAcceptor
 from itblib.Log import log
@@ -25,6 +26,7 @@ class AbilityBase(Serializable, InputAcceptor, ABC):
         Serializable.__init__(self, ["name", "selected_targets", "primed", "remainingcooldown"])
         InputAcceptor.__init__(self)
         self._owning_component = owning_component
+        self.observer:"AbilityBaseUI|None" = None
         self.phase = phase
         self.cooldown = cooldown
         self.primed = False
@@ -49,6 +51,8 @@ class AbilityBase(Serializable, InputAcceptor, ABC):
             self.remainingcooldown = self.cooldown
             self.primed = False
         log(f"AbilityBase: Triggered {type(self.get_owner()).__name__}'s {type(self).__name__}", 0)
+        if self.observer: 
+            self.observer.on_trigger()
 
     def set_targets(self, targets:"list[tuple[int,int]]"):
         """Set selected_targets to the specified coordinates."""

@@ -1,4 +1,4 @@
-
+from itblib.Log import log
 
 class Serializable:
     """The core concept of obtaining and applying a game state.
@@ -12,24 +12,25 @@ class Serializable:
     
     def insert_data(self, data:dict, exclude:"list[str]"):
         """Insert data from the dict into an object, configuring it."""
-        for p in self.serializable_fields:
-            if p in data.keys() and not p in exclude:
-                setattr(self, p, data[p])
+        for serializable_property in self.serializable_fields:
+            if serializable_property in data.keys() and not serializable_property in exclude:
+                setattr(self, serializable_property, data[serializable_property])
 
-    def extract_data(self, custom_fields:"dict[str,any]"={}) -> dict:
+    def extract_data(self, custom_fields:"dict[str,any]"=None) -> dict:
         """Extract data of given fields into a smiple dict for easy data transfer."""
         data = {}
-        for p in self.serializable_fields:
-            if p in custom_fields.keys():
-                data[p] = custom_fields[p]
-            elif p in self.__dict__.keys():
-                o = self.__dict__[p]
-                if isinstance(o, Serializable):
-                    data[p] = o.extract_data()
-                elif isinstance(o, (bool, int, float, str)):
-                    data[p] = o
+        for serializable_property in self.serializable_fields:
+            if custom_fields and serializable_property in custom_fields.keys():
+                data[serializable_property] = custom_fields[serializable_property]
+            elif serializable_property in self.__dict__:
+                serializable_object = self.__dict__[serializable_property]
+                if isinstance(serializable_object, Serializable):
+                    data[serializable_property] = serializable_object.extract_data()
+                elif isinstance(serializable_object, (bool, int, float, str)):
+                    data[serializable_property] = serializable_object
                 else:
-                    print(f"Serializable: Property '{p}' has to be extracted by yourself. Just override this method.")
+                    log(f"Serializable: Property '{serializable_property}' has to be extracted by yourself.\
+                        Just override this method.", 2)
             else:
-                print(f"Serializable: Property '{p}' not found.")
+                log(f"Serializable: Property '{serializable_property}' not found.", 2)
         return data

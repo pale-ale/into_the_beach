@@ -42,7 +42,7 @@ class EffectBaseUI(GridElementUI, IDisplayable):
 
 class EffectRiverUI(EffectBaseUI):
     """Displays a river. Uses proximity texturing to connect to neighbours."""
-    def update(self, delta_time:float):
+    def _update(self, delta_time:float):
         """Updates neighbors every tick."""
         grid = self._parentelement.grid
         pos = self._parentelement.pos
@@ -73,10 +73,6 @@ class EffectFireUI(EffectBaseUI):
         super().__init__(effect, framespeed=framespeed, autoplay=False)
         self._fire_particles = FireParticleSpawner()
         self._fire_particles.get_component(TransformComponent).set_transform_target(self)
-     
-    def update(self, delta_time: float):
-        """Update the fire particles."""
-        self._fire_particles.update(delta_time)
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         yield from self._fire_particles.get_blits()
@@ -84,6 +80,9 @@ class EffectFireUI(EffectBaseUI):
     def get_icon(self) -> pygame.Surface:
         return Textures.get_spritesheet("Ablaze")[0]
 
+    def _update(self, delta_time: float):
+        """Update the fire particles."""
+        self._fire_particles.update(delta_time)
 
 class EffectMountainUI(EffectBaseUI):
     """Displays a mountain."""

@@ -1,13 +1,19 @@
 import math
 import os
 import random
+import sys
+
+sys.path.append(os.path.expanduser('~/into_the_beach'))
 from typing import TYPE_CHECKING
+
+from itblib.abilities.ui_abilities import AbilityProjectileUI, AbilityUIBuilder
+
+
 
 import pygame
 import pygame.display
 import pygame.sprite
 import pygame.time
-
 from itblib.abilities.base_abilities.ability_base import AbilityBase
 from itblib.abilities.base_abilities.ranged_abliity_base import \
     RangedAbilityBase
@@ -17,7 +23,8 @@ from itblib.abilities.previews.cone_ability_preview import \
     ConeAttackAbilityPreview
 from itblib.abilities.previews.ranged_ability_preview import \
     RangedAttackAbilityPreview
-from itblib.abilities.previews.simple_ability_preview import SimpleAbilityPreview
+from itblib.abilities.previews.simple_ability_preview import \
+    SimpleAbilityPreview
 from itblib.abilities.punch_ability import PunchAbility
 from itblib.Grid import Grid
 from itblib.ui.GridUI import GridUI
@@ -97,22 +104,41 @@ def main():
     global global_time
     setup_minigrids()
     update_targets()
+    AbilityUIBuilder.gridui = MINIGRIDUIS[0]
+    ability = AbilityUIBuilder.construct_ability_ui(
+        MINIGRIDS[0].get_unit(UNIT_POS).ability_component.get_ability(RangedAbilityBase),
+        AbilityProjectileUI, 
+        UNIT_POS,
+        list(ABILITIES[0].area_of_effect)[0][0],
+        .5)
+    ability.on_trigger()
+
     while RUNNING:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 RUNNING = False
         dt = CLOCK.tick(FPS)/1000.0
         global_time += dt
-        if global_time >= 1:
+        if global_time >= 2:
             preview_pos_index += 1
             update_targets()
             global_time = 0.0
+            ability = AbilityUIBuilder.construct_ability_ui(
+                MINIGRIDS[0].get_unit(UNIT_POS).ability_component.get_ability(RangedAbilityBase),
+                AbilityProjectileUI, 
+                UNIT_POS,
+                list(ABILITIES[0].area_of_effect)[0][0],
+                .5
+            )
+            ability.on_trigger()
         for g in MINIGRIDUIS:
             scene_image.blits(g.get_blits())
             scene_image.blit(g.get_debug_surface(), g._pan)
         [g.update(dt) for g in MINIGRIDUIS]
+        ability.tick(dt)
         for i,p in enumerate(PREVIEWS):
             scene_image.blits(p.get_blit_func(MINIGRIDUIS[i].transform_grid_screen))
+        scene_image.blits(ability.get_blits())
         pygame.transform.scale(scene_image, screen.get_size(), screen)
         pygame.display.update()
     pygame.quit()

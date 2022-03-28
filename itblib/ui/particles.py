@@ -89,32 +89,30 @@ class TrailParticleSpawner(ParticleSpawner):
     """Creates tiny sparks in close proximity. Use as a trail for projectiles."""
     def __init__(self):
         super().__init__()
-        self.image = pygame.Surface((50,50)).convert_alpha()
-        self.image.fill(0)
         self.desired_particles = 20
-        self.max_particle_lifetime = 3
+        self.max_particle_lifetime = .7
+        self.particle_size = (1,1)
         self.particle_xs        = [None] * self.desired_particles
         self.particle_ys        = [None] * self.desired_particles
         self.particle_lifetimes = [self.max_particle_lifetime+1] * self.desired_particles
+        self.particles:list[pygame.Surface] = [pygame.Surface(self.particle_size)] * self.desired_particles
+        self.update(0)
 
     def update(self, delta_time:float):
         """Update the particles."""
-        self.image.fill(0)
         for particle_index in range(self.desired_particles):
             self.particle_lifetimes[particle_index] += delta_time
             if self.particle_lifetimes[particle_index] > self.max_particle_lifetime:
                 self.particle_lifetimes[particle_index] = random.random()*self.max_particle_lifetime
-                self.particle_xs[particle_index] = self.image.get_width()/2
-                self.particle_ys[particle_index] = self.image.get_height()/2
+                self.particle_xs[particle_index] = self.position[0]
+                self.particle_ys[particle_index] = self.position[1]
+                self.particles[particle_index].fill((155,255,255))
                 continue
             if random.random() < delta_time*3:
                 self.particle_xs[particle_index] += random.randint(-1,1)
-                self.particle_ys[particle_index] += random.randint(-1,1)
-        for particle_index in range(self.desired_particles):
-            self.image.fill(
-                get_color_from_gradients(
-                    self.particle_lifetimes[particle_index]/self.max_particle_lifetime,
-                    [(155,255,255,255), (000,100,100,255)]
-                ),
-                (self.particle_xs[particle_index], self.particle_ys[particle_index], 1, 1)
-            )
+                self.particle_ys[particle_index] += random.randint(-2,2)
+
+    def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+        for i, p_surf in enumerate(self.particles):
+            x,y = self.particle_xs[i], self.particle_ys[i]
+            yield (p_surf, pygame.Rect(x,y,*self.particle_size), pygame.Rect(0,0,*self.particle_size))

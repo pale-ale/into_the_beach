@@ -114,9 +114,9 @@ class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
        
     def update(self, delta_time:float):
         """Update the graphics and animations' frames."""
-        [x.update(delta_time) for x in self.ui_tiles if x]
+        [x.tick(delta_time) for x in self.ui_tiles if x]
         [x.update(delta_time) for x in self.ui_units if x]
-        [x.update(delta_time) for y in self.ui_worldeffects for x in y if x]
+        [x.tick(delta_time) for y in self.ui_worldeffects for x in y if x]
     
     def get_unitui(self, pos:"tuple[int,int]"):
         """Return the UI-unit at given position."""

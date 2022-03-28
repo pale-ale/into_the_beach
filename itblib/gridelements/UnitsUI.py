@@ -24,7 +24,7 @@ class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
         self.toscreenpos = None
         self.movementtime = 0.0
         self.speed = 0.0
-        self.old_frame = self.framenumber
+        self.old_frame = self._framenumber
         self.healthbar = HealthBar(self._parentelement)
         self.healthbar.parent = self
         barwidth = self.healthbar.get_size()[0]
@@ -43,7 +43,7 @@ class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
         self.movementtime = self._parentelement.age
 
     def update(self, delta_time:float):
-        super().update(delta_time)
+        super().tick(delta_time)
         if self.fromscreenpos and self.toscreenpos:
             diff = sub(self.toscreenpos, self.fromscreenpos)
             timepercent = min((self._parentelement.age - self.movementtime) / self.speed, 1)

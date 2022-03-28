@@ -8,6 +8,7 @@ import pygame.time
 
 from itblib.Game import Session
 from itblib.Log import log
+from itblib.abilities.ui_abilities import AbilityUIBuilder
 from itblib.net.Connector import Connector
 from itblib.net.NetEvents import NetEvents
 from itblib.Player import PlayerData
@@ -64,14 +65,16 @@ class Client:
         NetEvents.grid = gamescene.grid
         NetEvents.hud = gamescene.hud
         NetEvents.scenemanager = self.scenemanager
+        AbilityUIBuilder.hud = gamescene.hud
+        AbilityUIBuilder.gridui = gamescene.gridui
         self.selector = Selector(gamescene.grid, gamescene.hud)
         self.scenemanager.add_scene("GameScene", gamescene)
         self.scenemanager.add_scene("LobbyScene", lobbyscene)
         self.scenemanager.add_scene("MainMenuScene", mainmenuscene)
         self.scenemanager.add_scene("RosterSelectionScene", rosterselectionscene)
         self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)
-        self.scenemanager.load_scene("MapSelectionScene")
-        #self.scenemanager.load_scene("LobbyScene")
+        #self.scenemanager.load_scene("MapSelectionScene")
+        self.scenemanager.load_scene("LobbyScene")
         #self.scenemanager.load_scene("MainMenuScene")
         #self.scenemanager.load_scene("RosterSelectionScene")
 

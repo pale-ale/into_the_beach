@@ -2,6 +2,7 @@
 
 from typing import TYPE_CHECKING
 from itblib.abilities.base_abilities.ability_base import AbilityBase
+from itblib.abilities.ui_abilities import AbilityProjectileUI, AbilityUIBuilder
 from itblib.globals.Constants import PREVIEWS
 
 if TYPE_CHECKING:
@@ -36,6 +37,18 @@ class RangedAbilityBase(AbilityBase):
         if owner and len(self.selected_targets) > 0:
             damage = [owner.baseattack["physical"], "physical"]
             self.get_owner().attack(self.selected_targets[0], *damage)
+            if AbilityUIBuilder.hud:
+                owner.done = False
+                projectile_speed = .5
+                ui_ability = AbilityUIBuilder.construct_ability_ui(
+                    self,
+                    AbilityProjectileUI,
+                    self.get_owner().pos,
+                    self.selected_targets[0],
+                    projectile_speed
+                )
+                if ui_ability:
+                    ui_ability.on_trigger()
 
     def confirm_target(self, target: "tuple[int,int]", primed=True):
         if self._is_valid_target(target):
