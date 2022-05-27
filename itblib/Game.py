@@ -1,4 +1,5 @@
 from itblib.Log import log
+from itblib.Vec import IVector2
 from itblib.net.Connector import Connector
 from itblib.Player import Player
 from itblib.Maps import MapGrasslands, MapIceAge, MapRockValley
@@ -52,9 +53,6 @@ class Session:
             NetEvents.snd_netplayerleave(playerid)
             if len(self._players) -1 < 2:
                 self.set_state("gameOver")
-            # for playerid in self._players.keys():
-            #     NetEvents.snd_netplayerjoin(player.playersocket, self._players[playerid], False)
-            # NetEvents.snd_netplayerjoin(player.playersocket, player, True)
         self._players.pop(playerid)
         if self._observer:
             self._observer.update_data()
@@ -65,10 +63,10 @@ class Session:
         map_intersection = {MapGrasslands}
         self._grid.load_map(random.choice(list(map_intersection))())
         p1, p2 = self._players.values()
-        self._grid.add_unit((2,1), 4, p1.playerid)
-        self._grid.add_unit((2,2), 5, p1.playerid)
-        self._grid.add_unit((7,8), 4, p2.playerid)
-        self._grid.add_unit((7,7), 6, p2.playerid)
+        self._grid.add_unit(IVector2(2,1), 4, p1.playerid)
+        self._grid.add_unit(IVector2(2,2), 5, p1.playerid)
+        self._grid.add_unit(IVector2(7,8), 4, p2.playerid)
+        self._grid.add_unit(IVector2(7,7), 6, p2.playerid)
         NetEvents.snd_netsessionstatechange("runningPregame")
         self._grid.change_phase(0)
         NetEvents.snd_netphasechange(0)
@@ -85,18 +83,18 @@ class Session:
         return self._players.get(playerid, None)
 
 
-class Game:
-    """
-    Currently unused
-    """
+# class Game:
+#     """
+#     Currently unused
+#     """
     
-    def __init__(self):
-        self._sessions = []
+#     def __init__(self):
+#         self._sessions = []
     
-    def get_sessions(self):
-        return self._sessions
+#     def get_sessions(self):
+#         return self._sessions
     
-    def create_session(self):
-        newsession = Session(None)
-        self._sessions.append(newsession)
-        return newsession
+#     def create_session(self):
+#         newsession = Session(None)
+#         self._sessions.append(newsession)
+#         return newsession

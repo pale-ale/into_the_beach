@@ -16,6 +16,8 @@ import pygame.sprite
 import pygame.surface
 import pygame.transform
 
+from itblib.Vec import IVector2
+
 from itblib.globals.Colors import BLACK, GREEN, RED
 from itblib.globals.Constants import DIRECTIONS
 from itblib.globals.Enums import UNIT_IDS
@@ -32,7 +34,6 @@ from itblib.ui.IGraphics import IGraphics
 from itblib.ui.TextureManager import Textures
 from itblib.ui.widgets.layout import HorizontalLayoutWidget
 from itblib.ui.widgets.ui_widget import GridSelection, KeyIcon, TextBox, Widget
-from itblib.Vec import smult
 from itblib.audio import AudioManager, AUDIO_KEYS
 
 if TYPE_CHECKING:
@@ -43,10 +44,10 @@ if TYPE_CHECKING:
 
 class SceneManager:
     """Manages the Scenes."""
-    def __init__(self, scene_size:"tuple[int,int]") -> None:
+    def __init__(self, scene_size:IVector2) -> None:
         self.scenes:"dict[str, SceneBase]" = {}
         self._activescene:"SceneBase" = None
-        self.scene_size:"tuple[int,int]" = scene_size
+        self.scene_size = scene_size
 
     def load_scene(self, key:str):
         """Load a scene with the specified key."""
@@ -90,7 +91,7 @@ class SceneBase(IGraphics, InputAcceptor):
 
     def clear(self):
         """Fill the scene with solid black."""
-        surf = pygame.Surface(self.scenemanager.scene_size)
+        surf = pygame.Surface(self.scenemanager.scene_size.c)
         surf.fill(BLACK)
         self.blits.append((surf, surf.get_rect(), surf.get_rect()))
 
@@ -112,26 +113,26 @@ class MainMenuScene(SceneBase):
         self.lightspots:"list[tuple[int,int]]" = []
 
         width, height = self.background.get_size()
-        tb_fullscreen = TextBox(text="Toggle Fullscreen", textcolor=(50,255,255,255), linewidth=100, fontsize=16, bgcolor=(255,100,255,150), pos=(350, 12))
-        tb_map        = TextBox(text="Map Selection"    , textcolor=(50,255,255,255), linewidth=100, fontsize=16, bgcolor=(255,100,255,150), pos=(375, 37))
-        tb_roster     = TextBox(text="Edit Roster"      , textcolor=(50,255,255,255), linewidth=100, fontsize=16, bgcolor=(255,100,255,150), pos=(400, 62))
-        tb_battle     = TextBox(text="Battle"           , textcolor=(50,255,255,255), linewidth= 40, fontsize=16, bgcolor=(255,100,255,150), pos=(width/2 - 26-15, height*.805))
-        tb_settings   = TextBox(text="Game Settings"    , textcolor=(50,255,255,255), linewidth= 75, fontsize=16, bgcolor=(255,100,255,150), pos=(width/2 + 26+29, height*.87 ))
-        tb_loadout    = TextBox(text="Loadout"          , textcolor=(50,255,255,255), linewidth= 50, fontsize=16, bgcolor=(255,100,255,150), pos=(width/2 - 26-52, height*.87 ))
-        tb_exit       = TextBox(text="Exit"             , textcolor=(50,255,255,255), linewidth= 40, fontsize=16, bgcolor=(255,100,255,150), pos=(width/2 + 25   , height*.945))
+        tb_fullscreen = TextBox(text="Toggle Fullscreen", textcolor=(50,255,255,255), linewidth=100, fontsize=16, bgcolor=(255,100,255,150), pos=IVector2(350, 12))
+        tb_map        = TextBox(text="Map Selection"    , textcolor=(50,255,255,255), linewidth=100, fontsize=16, bgcolor=(255,100,255,150), pos=IVector2(375, 37))
+        tb_roster     = TextBox(text="Edit Roster"      , textcolor=(50,255,255,255), linewidth=100, fontsize=16, bgcolor=(255,100,255,150), pos=IVector2(400, 62))
+        tb_battle     = TextBox(text="Battle"           , textcolor=(50,255,255,255), linewidth= 40, fontsize=16, bgcolor=(255,100,255,150), pos=IVector2(int(width/2 - 26-15), int(height*.805)))
+        tb_settings   = TextBox(text="Game Settings"    , textcolor=(50,255,255,255), linewidth= 75, fontsize=16, bgcolor=(255,100,255,150), pos=IVector2(int(width/2 + 26+29), int(height*.87 )))
+        tb_loadout    = TextBox(text="Loadout"          , textcolor=(50,255,255,255), linewidth= 50, fontsize=16, bgcolor=(255,100,255,150), pos=IVector2(int(width/2 - 26-52), int(height*.87 )))
+        tb_exit       = TextBox(text="Exit"             , textcolor=(50,255,255,255), linewidth= 40, fontsize=16, bgcolor=(255,100,255,150), pos=IVector2(int(width/2 + 25   ), int(height*.945)))
 
         self.textsprites = [
             tb_fullscreen, tb_roster, tb_map,
             tb_battle, tb_settings, tb_loadout, tb_exit
         ]
 
-        ki_up    = KeyIcon('↑', size=(26,26), pos=(width/2   , height*.8))
-        ki_left  = KeyIcon('←', size=(26,26), pos=(width/2-30, height*.85), enabled=False, pressed=True)
-        ki_right = KeyIcon('→', size=(26,26), pos=(width/2+30, height*.85), enabled=False, pressed=True)
-        ki_down  = KeyIcon('↓', size=(26,26), pos=(width/2   , height*.9 ), enabled=False, pressed=True)
-        ki_f     = KeyIcon('F', size=(26,26), pos=(325,   5))
-        ki_m     = KeyIcon('M', size=(26,26), pos=(350,  30))
-        ki_r     = KeyIcon('R', size=(26,26), pos=(375,  55))
+        ki_up    = KeyIcon('↑', size=IVector2(26,26), pos=IVector2(int(width/2   ), int(height*.8)))
+        ki_left  = KeyIcon('←', size=IVector2(26,26), pos=IVector2(int(width/2-30), int(height*.85)), enabled=False, pressed=True)
+        ki_right = KeyIcon('→', size=IVector2(26,26), pos=IVector2(int(width/2+30), int(height*.85)), enabled=False, pressed=True)
+        ki_down  = KeyIcon('↓', size=IVector2(26,26), pos=IVector2(int(width/2   ), int(height*.9) ), enabled=False, pressed=True)
+        ki_f     = KeyIcon('F', size=IVector2(26,26), pos=IVector2(325,   5))
+        ki_m     = KeyIcon('M', size=IVector2(26,26), pos=IVector2(350,  30))
+        ki_r     = KeyIcon('R', size=IVector2(26,26), pos=IVector2(375,  55))
 
         self.keysprites = [
             ki_up, ki_left, ki_right, ki_down,
@@ -209,7 +210,7 @@ class LobbyScene(SceneBase):
         self._session = session
         self.font = pygame.font.Font("HighOne.ttf", 16)
         self.loaded_gamescene = False
-        self.image = pygame.Surface(scenemanager.scene_size)
+        self.image = pygame.Surface(scenemanager.scene_size.c)
         self.image.fill(BLACK)
         self.blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
 
@@ -327,14 +328,14 @@ class RosterSelectionScene(SceneBase):
         self._MAX_UNIT_COPIES = 3
         self._PLAYERFILEPATH = playerfilepath
         self._UNITLIST = GridSelection()
-        self._TITLE_LAYOUT = HorizontalLayoutWidget(size=(self.scenemanager.scene_size[0],25))
+        self._TITLE_LAYOUT = HorizontalLayoutWidget(size=IVector2(self.scenemanager.scene_size.x, 25))
         self._TITLE_LAYOUT.children = [TextBox(text="Select your lineup here.", textcolor=self._TEXTCOLOR, fontsize=32, oneline=True)]
-        self._DESC_LAYOUT = HorizontalLayoutWidget(size=(self.scenemanager.scene_size[0],25))
-        self._DESC_LAYOUT.position = (0, 25)
+        self._DESC_LAYOUT = HorizontalLayoutWidget(size=IVector2(self.scenemanager.scene_size.x, 25))
+        self._DESC_LAYOUT.position = IVector2(0, 25)
 
-        self._KEYICON_ESC =     KeyIcon("ESC",    size=(23,23), fontsize=10)
-        self._KEYICON_RETURN =  KeyIcon("\u23CE", size=(23,23), fontsize=16)
-        self._KEYICON_SPACE =   KeyIcon("\u2423", size=(23,23), fontsize=16)
+        self._KEYICON_ESC =     KeyIcon("ESC",    size=IVector2(23,23), fontsize=10)
+        self._KEYICON_RETURN =  KeyIcon("\u23CE", size=IVector2(23,23), fontsize=16)
+        self._KEYICON_SPACE =   KeyIcon("\u2423", size=IVector2(23,23), fontsize=16)
 
         self._TEXTBOX_ESC =     TextBox("Quit",             textcolor=self._TEXTCOLOR,      lineheight=15, oneline=True)
         self._TEXTBOX_RETURN =  TextBox("Select a Unit",    textcolor=self._TEXTCOLOR,      lineheight=15, oneline=True)
@@ -347,15 +348,15 @@ class RosterSelectionScene(SceneBase):
         ]
         self._DESC_LAYOUT.children = self._DESC_ELEMENTS
 
-        self.image = pygame.Surface(self.scenemanager.scene_size)
+        self.image = pygame.Surface(self.scenemanager.scene_size.c)
         self.image.fill(0)
         self._unit_images:list[pygame.Surface] = []
         self._save_enabled = False
 
         self._UNITLIST.set_properties(
-            size=self.scenemanager.scene_size,
+            size=IVector2(*self.scenemanager.scene_size),
             cursor_colour=(GREEN) if self._is_selection_valid(self._UNITLIST._selections) else RED)
-        self._UNITLIST.position = (0, 50)
+        self._UNITLIST.position = IVector2(0, 50)
         self._UNITLIST.selection_update_callback = self._on_update_unit_selection
 
         self.register_input_listeners(self._UNITLIST)
@@ -436,17 +437,17 @@ class MapSelectionScene(SceneBase):
         self._VALID_MAPS:list[Map] = [MapGrasslands(), MapIceAge(), MapRockValley()]
         self._TEXTCOLOR = (50,200,150,255)
         self._TEXTCOLOR_GRAY = (100,120,120,255)
-        self._ELEMDIM = (164*1.3, 164)
+        self._ELEMDIM = IVector2(int(164*1.3), 164)
         self._MAP_SELECTION_COUNT = int(len(self._VALID_MAPS)/2)+1
         self._PLAYERFILEPATH = playerfilepath
         self._MAPLIST = GridSelection()
-        self._TITLE_LAYOUT = HorizontalLayoutWidget(size=(self.scenemanager.scene_size[0],25))
+        self._TITLE_LAYOUT = HorizontalLayoutWidget(size=IVector2(self.scenemanager.scene_size.x,25))
         self._TITLE_LAYOUT.children = [TextBox(text="Select the maps you want to queue for here.", textcolor=self._TEXTCOLOR, fontsize=32, oneline=True)]
-        self._DESC_LAYOUT = HorizontalLayoutWidget(size=(self.scenemanager.scene_size[0],25))
-        self._DESC_LAYOUT.position = (0, 25)
-        self._KEYICON_ESC =     KeyIcon("ESC",    size=(23,23), fontsize=10)
-        self._KEYICON_RETURN =  KeyIcon("\u23CE", size=(23,23), fontsize=16)
-        self._KEYICON_SPACE =   KeyIcon("\u2423", size=(23,23), fontsize=16)
+        self._DESC_LAYOUT = HorizontalLayoutWidget(size=IVector2(self.scenemanager.scene_size.x,25))
+        self._DESC_LAYOUT.position = IVector2(0, 25)
+        self._KEYICON_ESC =     KeyIcon("ESC",    size=IVector2(23,23), fontsize=10)
+        self._KEYICON_RETURN =  KeyIcon("\u23CE", size=IVector2(23,23), fontsize=16)
+        self._KEYICON_SPACE =   KeyIcon("\u2423", size=IVector2(23,23), fontsize=16)
 
         self._TEXTBOX_ESC =     TextBox("Quit",             textcolor=self._TEXTCOLOR,      lineheight=15, oneline=True)
         self._TEXTBOX_RETURN =  TextBox("Select a map",     textcolor=self._TEXTCOLOR,      lineheight=15, oneline=True)
@@ -459,17 +460,17 @@ class MapSelectionScene(SceneBase):
         ]
         self._DESC_LAYOUT.children = self._DESC_ELEMENTS
 
-        self.image = pygame.Surface(self.scenemanager.scene_size)
+        self.image = pygame.Surface(self.scenemanager.scene_size.c)
         self.image.fill(0)
         self._map_images:"list[pygame.Surface]" = []
         self._save_enabled = False
 
         self._MAPLIST.set_properties(
-            size=self.scenemanager.scene_size,
+            size=IVector2(*self.scenemanager.scene_size),
             cursor_colour=(GREEN) if self._is_selection_valid(self._MAPLIST._selections) else RED,
-            elem_size=self._ELEMDIM,
-            paddings=(3,1))
-        self._MAPLIST.position = (0, 50)
+            elem_size=IVector2(*self._ELEMDIM),
+            paddings=IVector2(3,1))
+        self._MAPLIST.position = IVector2(0, 50)
         self._MAPLIST.selection_update_callback = self._on_update_unit_selection
 
         self.register_input_listeners(self._MAPLIST)
@@ -536,9 +537,9 @@ class MapSelectionScene(SceneBase):
         for _map in self._VALID_MAPS:
             grid.load_map(_map)
             gridui.update(0.1)
-            griduisize = (gridui.width, gridui.height)
-            tex = pygame.Surface(griduisize).convert_alpha()
+            griduisize = IVector2(gridui.width, gridui.height)
+            tex = pygame.Surface(griduisize.c).convert_alpha()
             tex.fill((0))
             tex.blits(gridui.get_blits())
-            scale = min(self._ELEMDIM[0]/griduisize[0], self._ELEMDIM[1]/griduisize[1])
-            self._map_images.append(pygame.transform.scale(tex, smult(scale, griduisize)))
+            scale = min(self._ELEMDIM.x/griduisize.x, self._ELEMDIM.y/griduisize.y)
+            self._map_images.append(pygame.transform.scale(tex, (scale * griduisize).c))

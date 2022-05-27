@@ -1,13 +1,14 @@
 """A collection of Widgets displayed in the world."""
 
 from typing import TYPE_CHECKING
-import pygame
 from itblib.damage_receiver import DamageReceiver
 from itblib.globals.Colors import HP_ABSENT, HP_BORDER, HP_PADDING, HP_PRESENT
 from itblib.ui.widgets.ui_widget import Widget
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
 
-from itblib.Vec import add
+from pygame import Surface, Rect
+from itblib.Vec import IVector2
+from pygame.draw import lines as draw_lines
 
 if TYPE_CHECKING:
     from typing import Generator
@@ -29,7 +30,7 @@ class HealthBar(Widget):
         self.width = self._inner_width + 2*self._outer_padding
         self._inner_height = self._hp_height + 2*self._inner_padding
         self.height = self._inner_height + 2*self._outer_padding
-        self.image = pygame.Surface((self.width, self.height))
+        self.image = Surface((self.width, self.height))
         self._target.hp_update_callback = self.on_update_hp
 
     def _draw_bg(self):
@@ -40,13 +41,11 @@ class HealthBar(Widget):
     def _draw_bars(self):
         hp_size = (self._hp_width, self._hp_height)
         for i in range(self._target._max_hitpoints):
-            hp_pos = (self._inner_padding + i*(self._width_per_hp), self._inner_padding)
+            hp_pos = IVector2(self._inner_padding + i*(self._width_per_hp), self._inner_padding)
+            inner_hp_pos = hp_pos + IVector2(self._outer_padding, self._outer_padding)
             self.image.fill(
                 HP_PRESENT if i < self._target.hitpoints else HP_ABSENT,
-                (
-                    add(hp_pos, (self._outer_padding, self._outer_padding)),
-                    hp_size
-                )
+                Rect(inner_hp_pos.c, hp_size)
             )
 
     def on_update_hp(self, new_hp:int):
@@ -56,7 +55,7 @@ class HealthBar(Widget):
 
 class OwnerColorRhombus(Widget):
     """A Widget used to display a rhombus around a unit, using the owner's coloring."""
-    def __init__(self, playercolor:tuple[int,int,int,int]) -> None:
+    def __init__(self, playercolor: tuple[int,int,int,int]) -> None:
         super().__init__()
         self._unit = None
         self._player_color = playercolor
@@ -73,17 +72,19 @@ class OwnerColorRhombus(Widget):
             (          2,int(y/2-.5)+1),
             (int(x/2-.5),            2)
         ]
-        self.image = pygame.Surface(self._unit_owner_square_size).convert_alpha()
+        self.image = Surface(self._unit_owner_square_size).convert_alpha()
         self.image.fill(0)
         self._draw_lines()
-        self.position = ((STANDARD_UNIT_SIZE[0]-x)/2,(STANDARD_UNIT_SIZE[1]-y)-8)
+        xpos = (STANDARD_UNIT_SIZE[0]-x)/2
+        ypos = (STANDARD_UNIT_SIZE[1]-y)-8
+        self.position = IVector2(int(xpos), int(ypos))
 
-    def attach_to_unit(self, unit:"UnitBaseUI"):
+    def attach_to_unit(self, unit: "UnitBaseUI"):
         self._unit = unit
         self.parent = unit
 
     def _draw_lines(self):
-        pygame.draw.lines(
+        draw_lines(
             self.image,
             self._player_color,
             True,

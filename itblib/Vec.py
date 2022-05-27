@@ -1,40 +1,75 @@
 """Simple vector math methods"""
 
-from math import atan2, cos, degrees, sin
-from typing import Tuple, Union
+from math import cos, sin
 
-Number = Union[float,int]
-Vector = Tuple[Number, ...]
-Vector2 = Tuple[Number, Number]
-Matrix = Tuple[Vector, ...]
+from pygame.math import Vector2 as FVector2
 
-def mult2(a:Vector,b:Vector):
-    """Multiply a*b component-wise, i.e (a0*b0, a1*b1)"""
-    return a[0]*b[0], a[1]*b[1]
+from dataclasses import dataclass
 
-def smult(scalar:Number, vals:Vector) -> Vector:
-    """Multiply a*b component-wise, i.e (a*b0, a*b1)"""
-    return tuple([scalar*b for b in vals])
+@dataclass
+class IVector2():
+    _x: int
+    _y: int
 
-def add(*vectors:Vector2) -> Vector2:
-    """Add a+b+... component-wise, i.e (a0+b0, a1+b1)"""
-    assert len(vectors) >= 1, "Cannot add less than 1 vectors"
-    x:Number = 0
-    y:Number = 0
-    for vector in vectors:
-        x += vector[0]
-        y += vector[1]
-    return x,y
+    def __init__(self, x: int = 0, y: int = 0):
+        assert isinstance(x, int), x
+        assert isinstance(y, int)
+        self._x, self._y = x, y
 
-def sub(a:Vector2,b:Vector2) -> Vector2:
-    """Subtract a-b component-wise, i.e (a0-b0, a1-b1)"""
-    return a[0]-b[0], a[1]-b[1]
+    def __add__(self, vector: "FVector2|IVector2"):
+        x: "float|int" = vector.x
+        y: "float|int" = vector.y
+        assert isinstance(x, int) or x.is_integer()
+        assert isinstance(y, int) or y.is_integer()
+        return IVector2(self.x + int(x), self.y + int(y))
 
-def deg_to_coord(x:float) -> tuple[int,int]:
+    def __iter__(self):
+        yield self._x
+        yield self._y
+
+    def __mul__(self, scalar):
+        return IVector2(int(self.x * scalar), int(self.y * scalar))
+
+    def __rmul__(self, scalar):
+        return self * scalar
+
+    def __sub__(self, vector: "FVector2|IVector2"):
+        x: "float|int" = vector.x
+        y: "float|int" = vector.y
+        assert isinstance(x, int) or x.is_integer()
+        assert isinstance(y, int) or y.is_integer()
+        return IVector2(self.x - int(x), self.y - int(y))
+
+    @property
+    def x(self):
+        return self._x
+
+    @property
+    def y(self):
+        return self._y
+   
+    @property
+    def c(self):
+        """Return this IVector2 as tuple."""
+        return self._x, self._y
+
+    @x.setter
+    def x(self, x: int):
+        assert isinstance(x, int)
+        self._x = x
+
+    @y.setter
+    def y(self, y: int):
+        assert isinstance(y, int)
+        self._y = y
+
+
+def deg_to_coord(x: float) -> tuple[int, int]:
     """@return: The vector with angle x in radians from the x axis CCW, length=1"""
     return cos(x), sin(x)
 
-def vector_between(a:Vector2,b:Vector2,x:Vector2,s:float=1e-1) -> bool:
+
+def vector_between(a, b, x, s: float = 1e-1) -> bool:
     """
     Calculate whether a vector is between two other vectors.
     The "between" portion is chosen such that the angle between a and b is minimal.
@@ -53,19 +88,21 @@ def vector_between(a:Vector2,b:Vector2,x:Vector2,s:float=1e-1) -> bool:
     cprod_ab = ax*by - ay*bx
     return cprod_ab * cprod_ax >= -s and cprod_ab * cprod_bx <= s
 
-def transform_vector(m:Matrix,v:Vector) -> Vector:
+
+def transform_vector(m, v):
     """Transform a vector v through a matrix m."""
     l = len(v)
     assert len(m) == l, "Matrix x-size must be equal to len(v)"
     for h in m:
         assert len(h) == l, "Every col-vector in m must be equal to len(v)"
-    transformed:list[Number] = [0]*l
+    transformed: list = [0]*l
     for i, v_scalar in enumerate(v):
         for j, m_scalar in enumerate(m[i]):
             transformed[j] += m_scalar*v_scalar
     return tuple(transformed)
 
-def get_translation_for_center(a_pos:Vector2, a_size:Vector2, b_pos:Vector2, b_size:Vector2, horizontal=True, vertical=True) -> Vector2:
+
+def get_translation_for_center(a_pos, a_size, b_pos, b_size, horizontal=True, vertical=True):
     """Returns the amount a has to move by to be centered in relation to b."""
     ax, ay = a_pos
     adx, ady = a_size

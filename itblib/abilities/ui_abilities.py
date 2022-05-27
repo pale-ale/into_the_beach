@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, TypeVar
 
 import pygame
+from pygame import Rect, Surface
 from itblib.Log import log
-from itblib.Vec import add, smult
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
 from itblib.globals.math_helpers import get_parabola_time
 from itblib.ui.animations import ProjectileAnimation
@@ -16,13 +16,13 @@ if TYPE_CHECKING:
 
 
 class AbilityBaseUI(IGraphics):
-    def __init__(self, hud:"Hud", ability:"AbilityBase") -> None:
+    def __init__(self, hud: "Hud", ability: "AbilityBase") -> None:
         super().__init__()
         self._hud = hud
-        self._ability:"AbilityBase" = ability
+        self._ability: "AbilityBase" = ability
         self.playing = True
 
-    def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+    def get_blits(self) -> "Generator[tuple[Surface, Rect, Rect]]":
         return super().get_blits()
 
     def on_update_targets(self):
@@ -34,15 +34,17 @@ class AbilityBaseUI(IGraphics):
     def on_trigger(self):
         """Called when an ability triggers."""
 
-    def tick(self, delta_time:float):
+    def tick(self, delta_time: float):
         """Tick the animations etc."""
+
 
 class AbilityProjectileUI(AbilityBaseUI):
     def __init__(self, gridui: "GridUI", ability: "AbilityBase", start, end, speed) -> None:
         """Start and end in grid coords."""
         super().__init__(gridui, ability)
-        self.screen_start = add(gridui.transform_grid_screen(start), smult(.5, STANDARD_UNIT_SIZE))
-        self.screen_end   = add(gridui.transform_grid_screen(  end), smult(.5, STANDARD_UNIT_SIZE))
+        half_size = STANDARD_UNIT_SIZE * .5
+        self.screen_start = gridui.transform_grid_screen(start) + half_size
+        self.screen_end = gridui.transform_grid_screen(end) + half_size
         self.speed = speed
         peak = ((self.screen_start[0] + self.screen_end[0])/2, (self.screen_end[1] + self.screen_start[1])/2 - 65)
         self.time = 0

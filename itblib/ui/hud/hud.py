@@ -1,12 +1,14 @@
 """Contains many on-screen compound elements that make up the HUD."""
 
 from typing import TYPE_CHECKING
+from pkg_resources import to_filename
 
 import pygame
 import pygame.font
 import pygame.image
 import pygame.sprite
 import pygame.transform
+from itblib.Vec import IVector2
 from itblib.components import TransformComponent
 from itblib.Game import Session
 from itblib.globals.Colors import (BLACK, DARK_GRAY, GRAY_ACCENT_DARK,
@@ -27,7 +29,6 @@ from itblib.ui.IGraphics import IGraphics
 from itblib.ui.TextureManager import Textures
 from itblib.ui.widgets.layout import HorizontalLayoutSurface
 from itblib.ui.widgets.ui_widget import TextBox, Widget
-from itblib.Vec import add, sub
 
 if TYPE_CHECKING:
     from typing import Generator
@@ -44,17 +45,17 @@ class Hud(IGraphics, InputAcceptor):
     the tile it is on, it's effects, etc.
     """
 
-    def __init__(self, size:"tuple[int,int]", gridui:GridUI, playerid:int, session:Session):
+    def __init__(self, size: IVector2, gridui: GridUI, playerid: int, session: Session):
         IGraphics.__init__(self)
         InputAcceptor.__init__(self)
         self.rect = pygame.Rect(0,0,*size)
-        self.selected_unit:"UnitBase|None" = None
-        self.selected_unitui:"UnitBaseUI|None" = None
+        self.selected_unit: "UnitBase|None" = None
+        self.selected_unitui: "UnitBaseUI|None" = None
         self.gridui = gridui
         self.gridui.phase_change_callback = self.update_phase
         self.font = pygame.font.Font('HighOneMono.ttf', 32)
-        self._cursorgridpos = (0,0)
-        self._cursorscreenpos = (0,0)
+        self._cursorgridpos = IVector2(0, 0)
+        self._cursorscreenpos = IVector2(0, 0)
         self.displayscale = 2
         self._unitdisplay = UnitDisplay()
         self._tiledisplay = TileDisplay()
@@ -64,8 +65,8 @@ class Hud(IGraphics, InputAcceptor):
         self._unitdisplay.rect.topleft = (self.rect.width - HUD.ELEM_WIDTH, 0)
         self.playerid = playerid
         self.session = session
-        self.blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
-        self.owner_blits:"list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
+        self.blits: "list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
+        self.owner_blits: "list[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]" = []
         self.cursor_blit = None
 
     def update_phase(self, newphase:int):
@@ -165,8 +166,9 @@ class Hud(IGraphics, InputAcceptor):
         if grid_unit is not display_unit:
             self._unitdisplay.set_displayunit(grid_unit)
 
-    def update_cursor(self, position:"tuple[int,int]|None"=None):
+    def update_cursor(self, position: "IVector2|None" = None):
         """Forward the new cursor position to a unit's according hooks"""
+        assert isinstance(position, (IVector2, type(None))), "Only IVector2 or None allowed, got: %s" % type(position)
         position = position if position else self._cursorgridpos
         self._tiledisplay.tile = self.gridui.get_tileui(position)
         self._tiledisplay.effects = self.gridui.get_tile_effectsui(position)
@@ -180,7 +182,7 @@ class Hud(IGraphics, InputAcceptor):
             self.cursor_blit = (
                 cursor_spritesheet[0],
                 pygame.Rect(*self._cursorscreenpos,64,64),
-                pygame.Rect(0,0,64,64)
+                pygame.Rect(0, 0, 64, 64)
             )
         self.blits.append(self.cursor_blit)
         if self.selected_unit:
@@ -218,8 +220,8 @@ class TileDisplay(Widget, InputAcceptor):
         Widget.__init__(self)
         InputAcceptor.__init__(self)
 
-        self._imagepos = (HUD.IMAGE_BORDER_WIDTH, HUD.IMAGE_BORDER_WIDTH)
-        self._tilenamepos = (TileDisplay.IMAGE_SIZE_BORDER[0],HUD.IMAGE_BORDER_WIDTH)
+        self._imagepos = IVector2(HUD.IMAGE_BORDER_WIDTH, HUD.IMAGE_BORDER_WIDTH)
+        self._tilenamepos = IVector2(TileDisplay.IMAGE_SIZE_BORDER[0], HUD.IMAGE_BORDER_WIDTH)
         self._tiledescpos = None
         self._tileseffectpos = None
 
@@ -262,11 +264,8 @@ class TileDisplay(Widget, InputAcceptor):
         self._tile = new_tile
         self._tilenametextbox.text = new_tile.get_display_name() if new_tile else ""
         self._tiledesctextbox.text = new_tile.get_display_description() if new_tile else ""
-        self._tiledescpos = add(self._tilenamepos, (0, self._tilenametextbox.image.get_height()+1))
-        self._effectdisplay.position = add(
-            self._tiledescpos,
-            (0, self._tiledesctextbox.image.get_height()+3)
-        )
+        self._tiledescpos = self._tilenamepos + IVector2(0, self._tilenametextbox.image.get_height()+1)
+        self._effectdisplay.position = self._tiledescpos + IVector2(0, self._tiledesctextbox.image.get_height()+3)
         self.update(0)
         self._draw_effect_separator()
 
@@ -283,14 +282,13 @@ class TileDisplay(Widget, InputAcceptor):
         yield from self._sub_blits
         yield from self._effectdisplay.get_blits()
 
-    #pylint: disable=missing-function-docstring
     def update(self, delta_time:float):
-        self.image.blit(self._tilenametextbox.image, self._tilenamepos)
-        self.image.blit(self._tiledesctextbox.image, self._tiledescpos)
+        self.image.blit(self._tilenametextbox.image, self._tilenamepos.c)
+        self.image.blit(self._tiledesctextbox.image, self._tiledescpos.c)
         self.image.fill(IMAGE_BACKGROUND, (*self._imagepos,*STANDARD_TILE_SIZE))
         self._sub_blits.clear()
         if self._tile:
-            tile_rect = pygame.Rect(self._imagepos, STANDARD_TILE_SIZE)
+            tile_rect = pygame.Rect(self._imagepos.c, STANDARD_TILE_SIZE)
             self.image.blits([(blit[0], tile_rect , blit[2]) for blit in self._tile.get_blits()])
             for effect in self._effects:
                 self.image.blits([(blit[0], tile_rect, blit[2]) for blit in effect.get_blits()])
@@ -308,9 +306,9 @@ class TileDisplay(Widget, InputAcceptor):
             )
 
     def _draw_effect_separator(self):
-        start = add(self._effectdisplay.position, (0,-2))
-        end = add(start, (TileDisplay.LABEL_SIZE[0]-1,0))
-        pygame.draw.line(self.image, WHITE, start, end)
+        start = self._effectdisplay.position + IVector2(0, -2)
+        end = start + IVector2(TileDisplay.LABEL_SIZE[0]-1, 0)
+        pygame.draw.line(self.image, WHITE, start.c, end.c)
 
 
 class UnitDisplay(IGraphics):
@@ -329,11 +327,11 @@ class UnitDisplay(IGraphics):
             UnitDisplay.SIZE[0] - UnitDisplay.IMAGE_SIZE[0] - HUD.IMAGE_BORDER_WIDTH,
             HUD.IMAGE_BORDER_WIDTH
         )
-        self.titlepos =           (0, UnitDisplay.LABEL_SIZE[1]*0   + 0)
-        self.abilityimagepos =    (0, UnitDisplay.LABEL_SIZE[1]*1   + 1)
-        self.abilityphasepos =    (0, UnitDisplay.LABEL_SIZE[1]*2   + 2)
-        self.abilitycooldownpos = (0, UnitDisplay.LABEL_SIZE[1]*2.5 + 4)
-        self.statuseffectpos =    (0, UnitDisplay.LABEL_SIZE[1]*3   + 4)
+        self.titlepos =           IVector2(0, UnitDisplay.LABEL_SIZE[1]*0   + 0)
+        self.abilityimagepos =    IVector2(0, UnitDisplay.LABEL_SIZE[1]*1   + 1)
+        self.abilityphasepos =    IVector2(0, UnitDisplay.LABEL_SIZE[1]*2   + 2)
+        self.abilitycooldownpos = IVector2(0, int(UnitDisplay.LABEL_SIZE[1]*2.5 + 4))
+        self.statuseffectpos =    IVector2(0, UnitDisplay.LABEL_SIZE[1]*3   + 4)
         self.defaultimagecolor =   (30,  0,  0, 255)
         self.defaulttextboxcolor = (50, 50, 50, 255)
         self.font =                pygame.font.Font('HighOne.ttf', HUD.TITLE_FONT_SIZE)
@@ -353,17 +351,14 @@ class UnitDisplay(IGraphics):
         self.displayunitui = unit_ui
         self.displayunit = unit_ui._parentelement if unit_ui else None
         if self.displayunit:
-            title_text = self.font.render(unit_ui.get_display_name(), True, (255,255,255,255))
-            self.image.blit(
-                title_text,
-                add(self.titlepos, (0, (self.LABEL_SIZE[1]-title_text.get_height())/2))
-            )
+            title_text = self.font.render(unit_ui.get_display_name(), True, WHITE)
+            pos = self.titlepos + IVector2(0, int( (self.LABEL_SIZE[1]-title_text.get_height()) / 2 ) )
+            self.image.blit(title_text, pos.c)
             for blit in unit_ui.get_blits():
                 self.image.blit(blit[0], pygame.Rect(self.imagepos, STANDARD_UNIT_SIZE) , blit[2])
             self.display_abilities()
             self.display_statuseffects()
 
-    #pylint: disable=missing-function-docstring
     def update(self, delta_time:float):
         self.image.fill(self.defaultimagecolor, (*self.imagepos, *STANDARD_UNIT_SIZE))
         if self.displayunit:
@@ -371,8 +366,7 @@ class UnitDisplay(IGraphics):
             if tfc:
                 unit_pos = tfc.get_position()
                 for surface, pos, size in self.displayunitui.get_blits():
-                    pos = pygame.Rect(
-                        add(sub(pos.topleft, unit_pos), self.imagepos),
+                    pos = pygame.Rect((IVector2(*pos.topleft) - unit_pos + IVector2(*self.imagepos)).c,
                         STANDARD_UNIT_SIZE
                     )
                     self.image.blit(surface, pos, size)
@@ -395,20 +389,18 @@ class UnitDisplay(IGraphics):
         for ability in abilities:
             if type(ability).__name__ in Textures.abilitytexturemapping.values():
                 abilityimage = Textures.get_spritesheet(type(ability).__name__)[0]
-                self.image.blit(abilityimage, add(self.abilityimagepos, (17*index, 2)), (0,0,16,16))
+                self.image.blit(abilityimage, (self.abilityimagepos + IVector2(17*index, 2)).c, (0,0,16,16))
             else:
                 log(f"HUD: Texture {type(ability).__name__} not found.", 2)
 
             self.image.fill(PHASECOLORS[ability.phase],
-                (*add(self.abilityphasepos, (17*index, 0)), 16, 12)
+                (*(self.abilityphasepos + IVector2(17*index, 0)).c, 16, 12)
             )
             if self.displayunit:
                 text = str(index+1)
                 ability_number_image = self.ability_number_font.render(text, True, WHITE)
-                ability_number_pos = add(
-                    self.abilityphasepos,
-                    (17*(index+1)-ability_number_image.get_width()-2, -1)
-                )
+                offset = IVector2(17*(index+1)-ability_number_image.get_width()-2, -1)
+                ability_number_pos = (offset + self.abilityphasepos).c
                 self.image.blit(ability_number_image, ability_number_pos)
 
             if ability.primed and ability.remainingcooldown == 0:
@@ -417,15 +409,13 @@ class UnitDisplay(IGraphics):
                 col = (150,150,150,255)
             else:
                 col = (150,100,100,255)
-            self.image.fill(col, (*add(self.abilitycooldownpos, (17*index, 0)), 16, 8))
+            self.image.fill(col, (*(self.abilitycooldownpos + IVector2(17*index, 0)).c, 16, 8))
             if self.displayunit:
                 text = str(ability.remainingcooldown)
                 cooldown_number_image = self.cooldown_font.render(text, True, GRAY_ACCENT_DARK)
-                cooldown_number_pos = add(
-                    self.abilitycooldownpos,
-                    (17*(index+1)-cooldown_number_image.get_width()-2, -1)
-                )
-                self.image.blit(cooldown_number_image, cooldown_number_pos)
+                offset = IVector2(17*(index+1)-cooldown_number_image.get_width()-2, -1)
+                cooldown_number_pos = self.abilitycooldownpos + offset
+                self.image.blit(cooldown_number_image, cooldown_number_pos.c)
             index += 1
 
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
@@ -450,14 +440,20 @@ class UnitDisplay(IGraphics):
         self.image.fill(self.defaulttextboxcolor, (*self.abilityphasepos, *UnitDisplay.LABEL_SIZE))
         self.image.fill(self.defaulttextboxcolor, (*self.statuseffectpos, *UnitDisplay.LABEL_SIZE))
         pygame.draw.line(
-            self.image, GRAY_ACCENT_LIGHT, add(self.abilityimagepos,(0,-1)),
-            add(self.abilityimagepos,(UnitDisplay.LABEL_SIZE[0],-1)))
+            self.image,
+            GRAY_ACCENT_LIGHT,
+            (self.abilityimagepos + IVector2(0,-1)).c,
+            (self.abilityimagepos + IVector2(UnitDisplay.LABEL_SIZE[0],-1)).c)
         pygame.draw.line(
-            self.image, GRAY_ACCENT_LIGHT, add(self.abilityphasepos,(0,-1)),
-            add(self.abilityphasepos,(UnitDisplay.LABEL_SIZE[0],-1)))
+            self.image,
+            GRAY_ACCENT_LIGHT,
+            (self.abilityphasepos + IVector2(0,-1)).c,
+            (self.abilityphasepos + IVector2(UnitDisplay.LABEL_SIZE[0],-1)).c)
         pygame.draw.line(
-            self.image, BLACK, add(self.statuseffectpos, (0,-2)),
-            add(self.statuseffectpos,(UnitDisplay.LABEL_SIZE[0],-2)), 2)
+            self.image,
+            BLACK,
+            (self.statuseffectpos + IVector2(0,-2)).c,
+            (self.statuseffectpos + IVector2(UnitDisplay.LABEL_SIZE[0]-2, -2)).c)
 
 
 class EffectInfoGroup(Widget, InputAcceptor):
@@ -478,7 +474,7 @@ class EffectInfoGroup(Widget, InputAcceptor):
         self.selection_index = 0
 
         self.title_tb = TextBox("", fontsize=16, bgcolor=(50,50,50), linewidth=width)
-        self.title_tb.position = (0,18)
+        self.title_tb.position = IVector2(0,18)
         self.title_tb.parent = self
 
         self.desc_tb = TextBox("", fontsize=16, bgcolor=(50,50,50), linewidth=width)
@@ -490,7 +486,7 @@ class EffectInfoGroup(Widget, InputAcceptor):
         if self.selection_index in range(len(self.effect_icons.children)):
             yield (self.selection_marker,
                 pygame.Rect(
-                    self.effect_icons.get_screen_child_pos(self.selection_index),
+                    self.effect_icons.get_screen_child_pos(self.selection_index).c,
                     self._marker_size
                 ),
                 pygame.Rect((0,0), self._marker_size),
@@ -524,7 +520,7 @@ class EffectInfoGroup(Widget, InputAcceptor):
         self.title_tb.text = name
         self.title_tb.update_textbox()
 
-        desc_pos = (0, self.title_tb.image.get_height()+1)
+        desc_pos = IVector2(0, self.title_tb.image.get_height()+1)
         self.desc_tb.text = desc
         self.desc_tb.get_component(TransformComponent).relative_position = desc_pos
         self.desc_tb.update_textbox()

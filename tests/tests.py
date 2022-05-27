@@ -4,18 +4,18 @@ import unittest
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/..")
 
-TEST_ALL = True
+TEST_ALL = False
 
 # Game sections
-TEST_GRID                = False
-TEST_UNIT                = False
-TEST_SESSION             = False
+TEST_GRID                = True
+TEST_UNIT                = True
+TEST_SESSION             = True
 
 # Components
 TEST_TRANSFORM_COMPONENT = False
 
 # Networking
-TEST_NETWORK             = True
+TEST_NETWORK             = False
 
 # Scenes
 TEST_SCENES              = True

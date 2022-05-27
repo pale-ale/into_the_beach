@@ -1,15 +1,20 @@
+from typing import TYPE_CHECKING
+from itblib.Vec import IVector2
+
 from itblib.globals.Enums import EFFECT_IDS, PHASES, TILE_IDS, UNIT_IDS
-from itblib.globals.GridElementFactory import GridElementFactory
-from itblib.gridelements.world_effects import WorldEffectBase
+from itblib.globals.factories import GridElementFactory
 from itblib.gridelements.GridElement import GridElement
 from itblib.gridelements.Tiles import TileBase
 from itblib.gridelements.units.UnitBase import UnitBase
+from itblib.gridelements.world_effects import WorldEffectBase
 from itblib.Log import log
 from itblib.Maps import Map
 from itblib.net.Connector import Connector
 from itblib.net.NetEvents import NetEvents
 from itblib.Serializable import Serializable
-from itblib.ui.IGridObserver import IGridObserver
+
+if TYPE_CHECKING:
+    from itblib.ui.IGridObserver import IGridObserver
 
 
 class Grid(Serializable):
@@ -29,7 +34,7 @@ class Grid(Serializable):
     
     def remake_grid(self, width, height) -> None:
         """Empty the grid lists and create new ones with the given dimensions."""
-        self.size:"tuple[int,int]" = (width, height)
+        self.size: IVector2 = IVector2(width, height)
         c = width * height
         self.tiles:"list[TileBase|None]" = [None]*c
         self.units:"list[UnitBase|None]" = [None]*c
@@ -52,7 +57,7 @@ class Grid(Serializable):
                 "tiles":customtiles, 
                 "units":customunits,
                 "worldeffects":customworldeffects,
-                "size":self.size
+                "size":self.size.c
             }
         )
     
@@ -72,7 +77,7 @@ class Grid(Serializable):
         self.tiles = new_tiles
         self.units = new_units
         self.remake_grid(new_x, new_y)
-        self.size = (new_x, new_y)
+        self.size = IVector2(new_x, new_y)
 
         for i in range(len(data["tiles"])):
             tiledata = data["tiles"][i]
@@ -108,7 +113,7 @@ class Grid(Serializable):
         self._insert_effect_data(data)
 
     def _insert_effect_data(self, effect_data):
-        new_effects:"list[list[WorldEffectBase]]" = [[] for c in range(self.size[0]*self.size[1])]
+        new_effects:"list[list[WorldEffectBase]]" = [[] for c in range(self.size.x*self.size.y)]
         old_effects = self.worldeffects
         self.worldeffects = new_effects
 
@@ -225,16 +230,17 @@ class Grid(Serializable):
     def load_map(self, new_map:Map) -> None:
         """Load a map, spawning all the required units, tiles, etc.."""
         self.remake_grid(new_map.width, new_map.height)
-        for pos, tileid, tileeffectids, unitid in new_map.iterate_tiles():
+        for coords, tileid, tileeffectids, unitid in new_map.iterate_tiles():
+            position = IVector2(*coords)
             if tileid:
-                self.add_tile(pos, tileid)
+                self.add_tile(position, tileid)
             if tileeffectids:
                 for tileeffectid in tileeffectids:
-                    self.add_worldeffect(pos, tileeffectid)
+                    self.add_worldeffect(position, tileeffectid)
             if unitid:
-                self.add_unit(pos, unitid, -1)
+                self.add_unit(position, unitid, -1)
 
-    def add_gridelement(self, pos:"tuple[int,int]", gridelement:GridElement) -> "TileBase|UnitBase|WorldEffectBase|None":
+    def add_gridelement(self, pos: IVector2, gridelement: GridElement) -> "TileBase|UnitBase|WorldEffectBase|None":
         """Helper to add an object at pos to the grid."""
         if not self.is_coord_in_bounds(pos):
             log("Grid: Tried to add element at", pos, "which is not on the grid.", 2)
@@ -256,30 +262,30 @@ class Grid(Serializable):
             exit(1)
         return gridelement
 
-    def add_tile(self, pos:"tuple[int,int]", tileid:int) -> "TileBase|None":
+    def add_tile(self, pos: IVector2, tileid: int) -> "TileBase|None":
         """Add a tile to the grid at given position."""
         tiletype:TileBase = GridElementFactory.find_tile_class(TILE_IDS[tileid])
         newtile:TileBase = tiletype(self, pos)
         return self.add_gridelement(pos, newtile)
 
-    def add_worldeffect(self, pos:"tuple[int,int]", worldeffectid:int) -> "WorldEffectBase|None":
+    def add_worldeffect(self, pos: IVector2, worldeffectid:int) -> "WorldEffectBase|None":
         """Add a world effect to the grid at given position."""
         effecttype:WorldEffectBase = GridElementFactory.find_effect_class(EFFECT_IDS[worldeffectid])     
         neweffect:WorldEffectBase = effecttype(self, pos)
         neweffect.on_spawn()
         return self.add_gridelement(pos, neweffect)
 
-    def add_unit(self, pos:"tuple[int,int]", unitid:int, ownerid:int) -> "UnitBase|None":
+    def add_unit(self, pos: IVector2, unitid:int, ownerid:int) -> "UnitBase|None":
         """Add a unit to the grid at given position, owned by ownerid."""
         unittype:UnitBase = GridElementFactory.find_unit_class(UNIT_IDS[unitid])
         newunit:UnitBase = unittype(self, pos, ownerid)
         return self.add_gridelement(pos, newunit)
 
-    def request_add_unit(self, pos:"tuple[int,int]", unitid:int, playerid:int) -> None:
+    def request_add_unit(self, pos: IVector2, unitid:int, playerid:int) -> None:
         """Request a unit with unitid to be spawned at (x,y), owned by a playerid."""
         NetEvents.snd_netunitspawn(unitid, pos, playerid)
     
-    def remove_gridelement(self, pos:"tuple[int,int]", effect:"WorldEffectBase|None"=None, rmflags=0b100) -> bool:
+    def remove_gridelement(self, pos: IVector2, effect:"WorldEffectBase|None"=None, rmflags=0b100) -> bool:
         """Remove a gridelement at given position. 
         Use the flags to specify Tiles, Units, and Effects respectively.
         When removing effects, effect shouldn't be None."""
@@ -315,19 +321,19 @@ class Grid(Serializable):
                 self.observer.on_remove_worldeffect(effect, pos)
         return True
 
-    def remove_tile(self, pos:"tuple[int,int]") -> bool:
+    def remove_tile(self, pos: IVector2) -> bool:
         """Remove a unit at given position."""
         return self.remove_gridelement(pos, rmflags=0b100)
     
-    def remove_unit(self, pos:"tuple[int,int]") -> bool:
+    def remove_unit(self, pos: IVector2) -> bool:
         """Remove a unit at given position."""
         return self.remove_gridelement(pos, rmflags=0b010)
     
-    def remove_worldeffect(self, effect:"WorldEffectBase", pos:"tuple[int,int]") -> bool:
+    def remove_worldeffect(self, effect:"WorldEffectBase", pos: IVector2) -> bool:
         """Remove an effect at given position."""
         return self.remove_gridelement(pos, effect=effect, rmflags=0b001)
 
-    def move_unit(self, from_pos:"tuple[int,int]", to_pos:"tuple[int,int]") -> bool:
+    def move_unit(self, from_pos: IVector2, to_pos: IVector2) -> bool:
         """Move a unit at from_pos to to_pos."""
         if self.is_space_empty(False, from_pos):
             log(f"Grid: Tried to move unit at {from_pos} which does not exist.", 2)
@@ -345,15 +351,15 @@ class Grid(Serializable):
             log(f"Grid: Unit would have fallen from the grid at {to_pos}.", 0)
             return False
 
-    def get_tile(self, pos:"tuple[int,int]") -> "TileBase|None":
+    def get_tile(self, pos: IVector2) -> "TileBase|None":
         """Return the tile at (x,y)."""
         return self.tiles[self.c_to_i(pos)]
    
-    def get_worldeffects(self, pos:"tuple[int,int]") -> "list[WorldEffectBase]":
+    def get_worldeffects(self, pos: IVector2) -> "list[WorldEffectBase]":
         """Return the world effects at (x,y)."""
         return self.worldeffects[self.c_to_i(pos)]
    
-    def get_unit(self, pos:"tuple[int,int]") -> "UnitBase|None":
+    def get_unit(self, pos: IVector2) -> "UnitBase|None":
         """Return the unit at (x,y)."""
         i = self.c_to_i(pos)
         if i >= 0 and i < len(self.units) :
@@ -361,27 +367,27 @@ class Grid(Serializable):
         else:
             return None
 
-    def c_to_i(self, coords:"tuple[int,int]") -> int:
+    def c_to_i(self, coords: IVector2) -> int:
         """Convert xy-coordinates to the corresponding index."""
-        return self.size[0]*coords[1] + coords[0]
+        return self.size.x*coords.y + coords.x
     
-    def i_to_c(self, i:int) -> "tuple[int,int]":
+    def i_to_c(self, i:int) ->  IVector2:
         """Convert index to the corresponding xy-coordinates."""
-        return (i%self.size[0], int(i/self.size[0]))
+        return IVector2(i%self.size.x, int(i/self.size.y))
 
-    def is_coord_in_bounds(self, pos:"tuple[int,int]") -> bool:
+    def is_coord_in_bounds(self, pos: IVector2) -> bool:
         """Check whether a coordinate is inside the grid space."""
-        return pos[0]>=0 and pos[0]<self.size[0] and pos[1]>=0 and pos[1]<self.size[1]
+        return pos.x >=0 and pos.x < self.size.x and pos.y >= 0 and pos.y < self.size.y
 
-    def is_space_empty(self, tiles:bool, pos:"tuple[int,int]") -> bool:
+    def is_space_empty(self, tiles:bool, pos: IVector2) -> bool:
         """Check whether a tile or a unit is at the given position."""
         return self.is_coord_in_bounds(pos) and \
             not (self.tiles if tiles else self.units)[self.c_to_i(pos)]
 
-    def get_neighbors(self, pos:"tuple[int,int]", ordinal=True, cardinal=False) -> "set[tuple[int,int]]":
+    def get_neighbors(self, pos: IVector2, ordinal=True, cardinal=False) -> "list[IVector2]":
         """Returns the coordinates of neighboring tiles when inside bounds."""
         x,y = pos
-        tiles_to_check = list()
+        tiles_to_check:list[tuple[int,int]] = list()
         ordinals = [(x-1,y), (x,y+1), (x+1,y), (x,y-1)]
         cardinals = [(x-1,y-1), (x-1,y+1), (x+1,y+1), (x+1,y-1)]
         lists = []
@@ -390,9 +396,14 @@ class Grid(Serializable):
         if ordinal:
             lists.append(ordinals)
         tiles_to_check = [elem for tup in zip(*lists) for elem in tup]
-        return {n for n in tiles_to_check if self.is_coord_in_bounds(n)}
+        result = []
+        for n_coords in tiles_to_check:
+            n_vector = IVector2(*n_coords)
+            if self.is_coord_in_bounds(n_vector):
+                result.append(n_vector)
+        return result
 
-    def get_ordinals(self, origin:"tuple[int,int]", dimensions:"tuple[int,int]"):
+    def get_ordinals(self, origin: IVector2, dimensions: IVector2):
         """Return the coordinates aling the ordinal lines of origin, up to dimensions in length."""
         max_x, max_y = origin
         ordinals:"set[tuple[int,int]]" = set()

@@ -33,7 +33,7 @@ class TestScenes(unittest.TestCase):
         rosterselectionscene = RosterSelectionScene(self.scenemanager, "playerdata1.json")
         self.scenemanager.add_scene("RosterSelectionScene", rosterselectionscene)
         self.scenemanager.load_scene("RosterSelectionScene")
-    
+
     def test_game_scene(self):
         session = Session(None)
         session.add_player(Player(0, None))

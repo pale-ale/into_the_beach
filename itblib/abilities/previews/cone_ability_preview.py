@@ -8,7 +8,7 @@ from itblib.abilities.previews.abilitiy_preview_base import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_TILE_SIZE, STANDARD_UNIT_SIZE
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.widgets.ui_widget import TextBox
-from itblib.Vec import add, deg_to_coord, mult2, smult, sub
+from itblib.Vec import deg_to_coord
 
 if TYPE_CHECKING:
     from typing import Callable, Generator

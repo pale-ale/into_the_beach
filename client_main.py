@@ -17,6 +17,7 @@ from itblib.scenes import (GameScene, LobbyScene, MainMenuScene,
                            SceneManager)
 from itblib.Selector import Selector
 from itblib.ui.TextureManager import Textures
+from itblib.Vec import IVector2
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = "0,0"
 
@@ -33,10 +34,10 @@ class Client:
 
         pygame.display.init()
         i = pygame.display.Info()
-        self.screen_size = (i.current_w, i.current_h)
-        self.scene_size = (int(self.screen_size[0]/PIXELSIZE), int(self.screen_size[1]/PIXELSIZE))
-        self.screen = pygame.display.set_mode(self.screen_size, pygame.NOFRAME)
-        self.scene_image = pygame.Surface(self.scene_size).convert_alpha()
+        self.screen_size = IVector2(i.current_w, i.current_h)
+        self.scene_size = IVector2(int(self.screen_size.x/PIXELSIZE), int(self.screen_size.y/PIXELSIZE))
+        self.screen = pygame.display.set_mode(self.screen_size.c, pygame.NOFRAME)
+        self.scene_image = pygame.Surface(self.scene_size.c).convert_alpha()
         Textures.load_textures()
         pygame.font.init()
 
@@ -51,7 +52,8 @@ class Client:
         lobbyscene = LobbyScene(self.scenemanager, self.session)
         mainmenuscene = MainMenuScene(self.scenemanager)
         gamescene = GameScene(self.scenemanager, self.session)
-        gamescene.gridui.update_pan( ((self.scene_image.get_width()-gamescene.gridui.board_size[0])/2, 0) )
+        x_center = (self.scene_image.get_width()-gamescene.gridui.board_size[0])/2
+        gamescene.gridui.update_pan(IVector2(int(x_center), 0))
         rosterselectionscene = RosterSelectionScene(self.scenemanager, self.playerfilepath)
         mapselectionscene = MapSelectionScene(self.scenemanager, self.playerfilepath)
 

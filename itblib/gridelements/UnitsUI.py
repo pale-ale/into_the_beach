@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Generator
 
 import pygame
+from itblib.Vec import IVector2
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
 from itblib.gridelements.status_effect import (StatusEffectBase,
                                                StatusEffectBurrowed)
@@ -9,7 +10,6 @@ from itblib.net.NetEvents import NetEvents
 from itblib.ui.widgets.game_widget import HealthBar, OwnerColorRhombus
 from itblib.ui.IDisplayable import IDisplayable
 from itblib.ui.TextureManager import Textures
-from itblib.Vec import add, smult, sub
 
 from .GridElementUI import GridElementUI
 
@@ -28,7 +28,7 @@ class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
         self.healthbar = HealthBar(self._parentelement)
         self.healthbar.parent = self
         barwidth = self.healthbar.get_size()[0]
-        offset = ((STANDARD_UNIT_SIZE[0]-barwidth)/2,STANDARD_UNIT_SIZE[1]*.7)
+        offset = IVector2(int((STANDARD_UNIT_SIZE[0]-barwidth)/2), int(STANDARD_UNIT_SIZE[1]*.7))
         self.healthbar.position = offset
         self.owner_color_rhombus = None
         if NetEvents.session:
@@ -36,35 +36,35 @@ class UnitBaseUI(GridElementUI, IDisplayable, IUnitObserver):
             self.owner_color_rhombus.attach_to_unit(self)
         self._parentelement.observer = self
     
-    def set_interp_movement(self, fromscreenpos:"tuple[int,int]", toscreenpos:"tuple[int,int]", speed:float):
+    def set_interp_movement(self, fromscreenpos: IVector2, toscreenpos: IVector2, speed: float):
         self.fromscreenpos = fromscreenpos
         self.toscreenpos = toscreenpos
         self.speed = speed
         self.movementtime = self._parentelement.age
 
-    def update(self, delta_time:float):
+    def update(self, delta_time: float):
         super().tick(delta_time)
         if self.fromscreenpos and self.toscreenpos:
-            diff = sub(self.toscreenpos, self.fromscreenpos)
-            timepercent = min((self._parentelement.age - self.movementtime) / self.speed, 1)
-            interp_screenpos = add(self.fromscreenpos, smult(timepercent, diff))
+            diff = self.toscreenpos - self.fromscreenpos
+            time_ratio = min((self._parentelement.age - self.movementtime) / self.speed, 1)
+            interp_screenpos = self.fromscreenpos + time_ratio * diff
             self.tfc.relative_position = interp_screenpos
-            if timepercent + 0e-4 >= 1:
+            if time_ratio + 0e-4 >= 1:
                 self.set_interp_movement(None, None, 0.0)
                 self.movementtime = 0.0
-    
+
     def get_display_name(self) -> str:
         return "UnitBaseUI"
-    
+
     def get_display_description(self) -> str:
         return "Another long description ------ weee------"
-  
+
     def get_blits(self) -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
         if self.owner_color_rhombus:
             yield from self.owner_color_rhombus.get_blits()
         yield from GridElementUI.get_blits(self)
         yield from self.healthbar.get_blits()
-    
+
     def on_add_status_effect(self, added_effect: "StatusEffectBase"):
         pass
 

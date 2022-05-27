@@ -1,7 +1,8 @@
 import unittest
 
-from itblib.Game import Session
 from itblib.Player import Player
+from itblib.Game import Session
+
 
 class TestSessionMethods(unittest.TestCase):
     def setUp(self):

@@ -11,7 +11,6 @@ from itblib.globals.Constants import STANDARD_UNIT_SIZE
 from itblib.globals.math_helpers import get_parabola_full
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.widgets.ui_widget import TextBox
-from itblib.Vec import add, smult, sub
 
 if TYPE_CHECKING:
     from typing import Callable, Generator

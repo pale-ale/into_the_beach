@@ -85,13 +85,13 @@ class Connector():
         @connection: The connection we want to transfer data over"""
         self._send(connection, prefix, content)
     
-    def send_server_all(self, players:"dict[int, Player]", prefix:str, content:str):
+    def send_server_all(self, players: "dict[int, Player]", prefix: str, content: str):
         """\"Broadcast\" to every player. Server only.
         @players: The players we want to send to"""
         for player in players.values():
             self.send_server_single(player.playersocket, prefix, content)
 
-    def _receive(self, connection:socket.socket):
+    def _receive(self, connection: socket.socket):
         if connection:
             prefix = ""
             content = ""

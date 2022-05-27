@@ -38,7 +38,6 @@ EFFECT_IDS = [
     "Mountain",
     "River",
     "Wheat",
-    "Town",
     "Heal",
     "StartingArea",
 ]

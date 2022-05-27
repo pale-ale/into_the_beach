@@ -1,5 +1,6 @@
 import json
 
+
 class Map:
     """Contains only serializable information, e.g. it's dimensions, unit|tile|effect-ids and so forth."""
 
@@ -62,9 +63,6 @@ class MapGrasslands(Map):
         for x in mountain:
             self.tileeffectids[x].append(3)
         self.tileeffectids[9].append(3)
-        town = [14, 15, 24, 25, 74, 75, 84, 85]
-        for x in town:
-            self.tileeffectids[x].append(6)
         wheat = [0, 1, 10, 89, 98, 99]
         for x in wheat:
             self.tileeffectids[x].append(5)

@@ -8,7 +8,7 @@ import pygame
 from itblib.abilities.base_abilities.target_ability_base import \
     TargetAbilityBase
 from itblib.globals.Constants import DIRECTIONS, PREVIEWS
-from itblib.Vec import deg_to_coord, sub, transform_vector, vector_between
+from itblib.Vec import deg_to_coord, transform_vector, vector_between
 
 if TYPE_CHECKING:
     from typing import Generator

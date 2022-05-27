@@ -4,8 +4,7 @@ from itblib.Grid import Grid
 from itblib.input.Input import InputAcceptor
 from itblib.Log import log
 from itblib.ui.hud.hud import Hud
-from itblib.Vec import add
-
+from itblib.Vec import IVector2
 
 class Selector(InputAcceptor):
     """A controller used to handle the player's input."""
@@ -24,14 +23,15 @@ class Selector(InputAcceptor):
             log("Selector: May only be initialized once.", 2)
         self.grid = grid
         self.hud = hud
-        self.cursorposition = (0,0)
+        self.cursorposition = IVector2(0, 0)
         self.hud.update_cursor(self.cursorposition)
         self._instance = self
 
-    def move_cursor(self, delta:tuple[int,int]) -> bool:
+    def move_cursor(self, delta: IVector2) -> bool:
         """Try moving cursor by delta. If it fails, return False.
         @delta: The amount in grid coordinates to move by."""
-        testpos = add(self.cursorposition, delta)
+        assert isinstance(delta, IVector2)
+        testpos = self.cursorposition + delta
         if self.grid.is_coord_in_bounds(testpos):
             self.cursorposition = testpos
             self.hud.update_cursor(self.cursorposition)
@@ -48,16 +48,16 @@ class Selector(InputAcceptor):
                 return True
             if not event.mod & pygame.KMOD_SHIFT:
             # navigate the grid
-                delta = (0,0)
+                x, y = 0, 0
                 if event.key == pygame.K_UP:
-                    delta = (-1,0)
+                    x = -1
                 elif event.key == pygame.K_RIGHT:
-                    delta = (0,1)
+                    y = 1
                 elif event.key == pygame.K_DOWN:
-                    delta = (1,0)
+                    x = 1
                 elif event.key == pygame.K_LEFT:
-                    delta = (0,-1)
-                if delta != (0,0):
-                    self.move_cursor(delta)
-                return delta != (0,0)
+                    y = -1
+                if not x == y == 0:
+                    self.move_cursor(IVector2(x, y))
+                    return True
         return False

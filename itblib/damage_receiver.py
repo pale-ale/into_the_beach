@@ -9,6 +9,7 @@ class DamageReceiver:
     """Adds methods which modify and retrieve healthpoints"""
     def __init__(self, max_hp:int, current_hp:int):
         self._max_hitpoints = max_hp
+        self._hp_update_callback:"Callable[[int],None]|None" = None
         self._hitpoints = current_hp
         self.resistances = {"physical": 0, "magical": 0, "collision": 0}
 

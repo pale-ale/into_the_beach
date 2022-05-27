@@ -9,7 +9,7 @@ class TestTransformComponentMethods(unittest.TestCase):
         self.acceptor_b = ComponentAcceptor()
         self.transform_component_a = TransformComponent()
         self.transform_component_b = TransformComponent()
-    
+
     def test_attach_and_remove(self):
         self.assertIsNone(self.acceptor_a.get_component(TransformComponent))
         self.transform_component_a.attach_component(self.acceptor_a)
@@ -18,8 +18,8 @@ class TestTransformComponentMethods(unittest.TestCase):
         self.assertIsNone(self.acceptor_a.get_component(TransformComponent))
 
     def test_transform_target(self):
-        default_pos = ( 0,  0)
-        move_pos    = (15,-10)
+        default_pos = (0,  0)
+        move_pos = (15, -10)
         self.transform_component_a.attach_component(self.acceptor_a)
         self.transform_component_b.attach_component(self.acceptor_b)
         self.transform_component_b.set_transform_target(self.acceptor_a)

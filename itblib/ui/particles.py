@@ -104,8 +104,8 @@ class TrailParticleSpawner(ParticleSpawner):
             self.particle_lifetimes[particle_index] += delta_time
             if self.particle_lifetimes[particle_index] > self.max_particle_lifetime:
                 self.particle_lifetimes[particle_index] = random.random()*self.max_particle_lifetime
-                self.particle_xs[particle_index] = self.position[0]
-                self.particle_ys[particle_index] = self.position[1]
+                self.particle_xs[particle_index] = self.position.x
+                self.particle_ys[particle_index] = self.position.y
                 self.particles[particle_index].fill((155,255,255))
                 continue
             if random.random() < delta_time*3:
