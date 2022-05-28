@@ -3,6 +3,8 @@ import os
 import random
 import sys
 
+from itblib.Vec import IVector2
+
 sys.path.append(os.path.expanduser('~/into_the_beach'))
 from typing import TYPE_CHECKING
 
@@ -39,7 +41,7 @@ PIXELSIZE = 2
 RUNNING = True
 FPS = 30
 CLOCK = pygame.time.Clock()
-UNIT_POS = (1,1)
+UNIT_POS = IVector2(1,1)
 
 pygame.display.init()
 pygame.font.init()
@@ -81,7 +83,7 @@ def setup_minigrids():
         ability.primed = True
         ABILITIES.append(ability)
         PREVIEWS.append(ABILITY_PREVIEW_CLASSES[i](ability))
-        mgui.update_pan((mgui.width*i, 0))
+        mgui.update_pan(IVector2(mgui.width*i, 0))
 
 
 def update_targets():
@@ -133,7 +135,7 @@ def main():
             ability.on_trigger()
         for g in MINIGRIDUIS:
             scene_image.blits(g.get_blits())
-            scene_image.blit(g.get_debug_surface(), g._pan)
+            scene_image.blit(g.get_debug_surface(), g._pan.c)
         [g.update(dt) for g in MINIGRIDUIS]
         ability.tick(dt)
         for i,p in enumerate(PREVIEWS):

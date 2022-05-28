@@ -26,6 +26,6 @@ class SerrateAbility(TargetAbilityBase):
     def _get_valid_targets(self) -> "set[tuple[int,int]]|None":
         owner = self.get_owner()
         if owner:
-            pos = owner.pos
+            pos = owner.position
             return owner.grid.get_neighbors(pos)
         return None

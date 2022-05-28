@@ -233,22 +233,24 @@ class KeyIcon(Widget):
         char_surface = self.font.render(self._char, True, WHITE)
         char_size = char_surface.get_size()
         size = IVector2(*self.image.get_size())
-        self.image.fill(BLACK)
+        self.image.fill(0)
 
         inner = self._outer_border + self._inner_border
         outer_rect_pos = self._outer_border
         outer_rect_size = size - 2 * self._outer_border
         inner_rect_pos = self._outer_border + self._inner_border
         inner_rect_size = size - 2 * inner
-        inner_rect = Rect(inner.c, (size - 2 * inner).c)
         if self.pressed:
             outer_rect_pos += IVector2(0, self._outer_border.y-1)
-            inner_rect_pos += inner + IVector2(0, self._outer_border.y-1)
+            inner_rect_pos += IVector2(0, self._outer_border.y-1)
         else:
-            lower_rect = Rect((self._outer_border + IVector2(0, self._outer_border.y-1)).c, (size - 2 * self._outer_border).c)
+            lower_rect_pos = self._outer_border + IVector2(0, self._outer_border.y-1)
+            lower_rect_size = size - 2 * self._outer_border
+            lower_rect = Rect(lower_rect_pos.c, lower_rect_size.c)
             pygame.draw.rect(self.image, LIGHT_GRAY, lower_rect, 2, 4)
-
-        outer_rect = Rect(*outer_rect_pos, *outer_rect_size)
+        
+        outer_rect = Rect(outer_rect_pos.c, outer_rect_size.c)
+        inner_rect = Rect(inner_rect_pos.c, inner_rect_size.c)
         self.image.fill(DARK_GRAY if self._enabled else (GRAY_ACCENT_LIGHT), inner_rect)
         pygame.draw.rect(self.image, KeyIcon.BUTTON_LIGHT_GRAY, outer_rect, 2, 4)
         self.image.blit(char_surface, (
@@ -270,7 +272,6 @@ class GridSelection(InputAcceptor, Widget):
         self._size = IVector2(500, 300)
         self._elem_size = IVector2(64, 64)
         self._cursor_colour = (0, 0, 255)
-
         self._cursorpos: IVector2 = IVector2(0,0)
         self._lines = 0
         self._cursor_frame_thickness = 2
@@ -328,24 +329,24 @@ class GridSelection(InputAcceptor, Widget):
             self._update_cursor_pos((-1, 0))
             return True
         elif event.key == pygame.K_RETURN:
-            i = self._cursorpos[1]*self._x_max_elements + self._cursorpos[0]
+            i = self._cursorpos.y * self._x_max_elements + self._cursorpos.x
             if self._get_elem_copy_count(i) < self._duplicate_count:
                 self._incr_elem_copy_count(i)
                 self._update_cursor_pos((0, 0))
             return True
         elif event.key == pygame.K_BACKSPACE:
-            i = self._cursorpos[1]*self._x_max_elements + self._cursorpos[0]
+            i = self._cursorpos.y * self._x_max_elements + self._cursorpos.x
             if i in self._selections:
                 self._decr_elem_copy_count(i)
                 self._update_cursor_pos((0, 0))
             return True
         return super().handle_key_event(event)
 
-    def _update_cursor_pos(self, delta: "tuple[int,int]"):
-        x,y = add(self._cursorpos, delta)
+    def _update_cursor_pos(self, delta: "IVector2|tuple[int,int]"):
+        x,y = self._cursorpos + delta
         safe_x = max(min(x,self._x_max_elements-1), 0)
         safe_y = max(min(y,self._lines-1), 0)
-        self._cursorpos = (safe_x, safe_y)
+        self._cursorpos = IVector2(safe_x, safe_y)
         self._redraw()
 
     def _c_to_s(self, coord: IVector2):

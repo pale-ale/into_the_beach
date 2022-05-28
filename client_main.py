@@ -33,6 +33,7 @@ class Client:
         self.playerfilepath = sys.argv[1]
 
         pygame.display.init()
+        pygame.mixer.init()
         i = pygame.display.Info()
         self.screen_size = IVector2(i.current_w, i.current_h)
         self.scene_size = IVector2(int(self.screen_size.x/PIXELSIZE), int(self.screen_size.y/PIXELSIZE))
@@ -52,7 +53,7 @@ class Client:
         lobbyscene = LobbyScene(self.scenemanager, self.session)
         mainmenuscene = MainMenuScene(self.scenemanager)
         gamescene = GameScene(self.scenemanager, self.session)
-        x_center = (self.scene_image.get_width()-gamescene.gridui.board_size[0])/2
+        x_center = (self.scene_image.get_width()-gamescene.gridui.board_size.x)/2
         gamescene.gridui.update_pan(IVector2(int(x_center), 0))
         rosterselectionscene = RosterSelectionScene(self.scenemanager, self.playerfilepath)
         mapselectionscene = MapSelectionScene(self.scenemanager, self.playerfilepath)
@@ -75,10 +76,10 @@ class Client:
         self.scenemanager.add_scene("MainMenuScene", mainmenuscene)
         self.scenemanager.add_scene("RosterSelectionScene", rosterselectionscene)
         self.scenemanager.add_scene("MapSelectionScene", mapselectionscene)
-        #self.scenemanager.load_scene("MapSelectionScene")
+        # self.scenemanager.load_scene("MainMenuScene")
         self.scenemanager.load_scene("LobbyScene")
-        #self.scenemanager.load_scene("MainMenuScene")
-        #self.scenemanager.load_scene("RosterSelectionScene")
+        # self.scenemanager.load_scene("MapSelectionScene")
+        # self.scenemanager.load_scene("RosterSelectionScene")
 
 if __name__ == '__main__':
     log("Starting client...", 0)

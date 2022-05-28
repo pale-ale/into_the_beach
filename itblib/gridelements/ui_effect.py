@@ -45,7 +45,7 @@ class EffectRiverUI(EffectBaseUI):
     def _update(self, delta_time:float):
         """Updates neighbors every tick."""
         grid = self._parentelement.grid
-        pos = self._parentelement.pos
+        pos = self._parentelement.position
         neighborposs = grid.get_neighbors(pos)
         riverposs = []
         for test_pos in neighborposs:

@@ -31,7 +31,7 @@ class EffectFire(WorldEffectBase):
         """Deal 1 physical damage to unit on this field."""
         super().on_update_phase(new_phase)
         if new_phase == PHASES.BATTLEPHASE:
-            unit = self.grid.get_unit(self.pos)
+            unit = self.grid.get_unit(self.position)
             if unit:
                 unit.change_hp(-1, "physical")
 
@@ -83,7 +83,7 @@ class EffectHeal(WorldEffectBase):
 
     def on_spawn(self):
         super().on_spawn()
-        unit = self.grid.get_unit(self.pos)
+        unit = self.grid.get_unit(self.position)
         if unit:
             unit.change_hp(1, "magic")
             bleed = unit.get_statuseffect("Bleeding")
@@ -94,7 +94,7 @@ class EffectHeal(WorldEffectBase):
         super().tick(delta_time)
         if self.age >= 2:
             self.done = True
-            self.grid.remove_worldeffect(self, self.pos)
+            self.grid.remove_worldeffect(self, self.position)
 
     def get_display_description(self) -> str:
         return ""
@@ -113,4 +113,4 @@ class EffectStartingArea(WorldEffectBase):
     def on_update_phase(self, new_phase: int):
         super().on_update_phase(new_phase)
         if new_phase > 0:
-            self.grid.remove_worldeffect(self, self.pos)
+            self.grid.remove_worldeffect(self, self.position)

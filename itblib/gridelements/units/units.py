@@ -51,7 +51,7 @@ class UnitHomebase(UnitBase):
     def on_update_phase(self, new_phase: int):
         super().on_update_phase(new_phase)
         if new_phase == PHASES.PREGAMEPHASE:
-            for neighbor in self.grid.get_neighbors(self.pos, ordinal=True, cardinal=True):
+            for neighbor in self.grid.get_neighbors(self.position, ordinal=True, cardinal=True):
                 effect:EffectStartingArea = self.grid.add_worldeffect(
                     neighbor, EFFECT_IDS.index("StartingArea")
                 )

@@ -130,7 +130,7 @@ class MainMenuScene(SceneBase):
         ki_left  = KeyIcon('←', size=IVector2(26,26), pos=IVector2(int(width/2-30), int(height*.85)), enabled=False, pressed=True)
         ki_right = KeyIcon('→', size=IVector2(26,26), pos=IVector2(int(width/2+30), int(height*.85)), enabled=False, pressed=True)
         ki_down  = KeyIcon('↓', size=IVector2(26,26), pos=IVector2(int(width/2   ), int(height*.9) ), enabled=False, pressed=True)
-        ki_f     = KeyIcon('F', size=IVector2(26,26), pos=IVector2(325,   5))
+        ki_f     = KeyIcon('F', size=IVector2(26,26), pos=IVector2(325,   5), enabled=False, pressed=True)
         ki_m     = KeyIcon('M', size=IVector2(26,26), pos=IVector2(350,  30))
         ki_r     = KeyIcon('R', size=IVector2(26,26), pos=IVector2(375,  55))
 

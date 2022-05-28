@@ -28,7 +28,7 @@ class PushAbility(AbilityBase):
         super().on_select_ability()
         owner = self.get_owner()
         if owner:
-            pos = owner.pos
+            pos = owner.position
             for neighbor in owner.grid.get_neighbors(pos):
                 self.area_of_effect.add((neighbor, PREVIEWS[0]))
 
@@ -37,7 +37,7 @@ class PushAbility(AbilityBase):
         owner = self.get_owner()
         if self.selected_targets and owner:
             targetpos = self.selected_targets[0]
-            unitposx, unitposy = owner.pos
+            unitposx, unitposy = owner.position
             newpos = (2*targetpos[0]-unitposx, 2*targetpos[1]-unitposy)
             targetunit = owner.grid.get_unit(targetpos)
             targetunit.on_receive_shove(newpos)
@@ -46,4 +46,4 @@ class PushAbility(AbilityBase):
 
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
         owner = self.get_owner()
-        return set(owner.grid.get_neighbors(owner.pos))
+        return set(owner.grid.get_neighbors(owner.position))

@@ -1,6 +1,8 @@
 import os
 import sys
 
+from itblib.Vec import IVector2
+
 sys.path.append(os.path.expanduser('~/into_the_beach'))
 
 import pygame
@@ -37,12 +39,13 @@ Textures.load_textures()
 tile_display = TileDisplay()
 unit_display = UnitDisplay()
 
-test_tile_ui = TileLavaUI(TileLava(None, (0,0)))
-test_tile_ui.frametime = 0.15
-test_unit_ui = UnitKnightUI(UnitKnight(None, (0,0), 0))
+test_tile_ui = TileLavaUI(TileLava(None, IVector2(0,0)))
+test_tile_ui._frametime = 0.15
+test_unit_ui = UnitKnightUI(UnitKnight(None, IVector2(0,0), 0))
+test_unit_ui._frametime = 0.15
 
-test_effect_1 = EffectFireUI(EffectFire(None, (0,0)))
-test_effect_2 = EffectMountainUI(EffectMountain(None, (0,0)))
+test_effect_1 = EffectFireUI(EffectFire(None, IVector2(0,0)))
+test_effect_2 = EffectMountainUI(EffectMountain(None, IVector2(0,0)))
 
 tile_display.tile = test_tile_ui
 tile_display.effects = [test_effect_1, test_effect_2]
@@ -71,6 +74,7 @@ def main():
         gtime += dt
         test_tile_ui.tick(dt)
         test_effect_1.tick(dt)
+        test_unit_ui.tick(dt)
         scene_image.blits(tile_display.get_blits())
         scene_image.blits(unit_display.get_blits())
         scene_image.blits(test_effect_1.get_blits())

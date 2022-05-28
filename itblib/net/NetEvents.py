@@ -1,5 +1,6 @@
 import json
 from typing import TYPE_CHECKING
+from itblib.Vec import IVector2
 
 from itblib.gridelements.world_effects import EffectStartingArea
 from itblib.Player import Player
@@ -35,8 +36,8 @@ class NetEvents():
         """Called when a unit spawn event was received. Server and Client."""
         unitspawntuple = json.loads(unitspawntuplestr)
         unitid, pos, ownerid = unitspawntuple
-        #convert pos from list to tuple
-        pos = tuple(pos)
+        #convert pos from list to IVector2
+        pos = IVector2(pos[0], pos[1])
         if NetEvents.connector.authority:
             #check whether this request is fulfillable, if not: return
             if NetEvents.grid.is_space_empty(False, pos):
@@ -44,7 +45,7 @@ class NetEvents():
                 for e in effects:
                     #check if our spawn area reches here
                     if isinstance(e, EffectStartingArea) and e.ownerid == ownerid:
-                        NetEvents.snd_netunitspawn(unitid, pos, ownerid)
+                        NetEvents.snd_netunitspawn(unitid, pos.c, ownerid)
                         NetEvents.grid.add_unit(pos, unitid, ownerid)
                         return
         else:
@@ -104,8 +105,9 @@ class NetEvents():
     @staticmethod
     def snd_netabilitytarget(ability:"AbilityBase"):
         """Send a user's targeting preference to the server. Client only."""
-        targets = ability.selected_targets
-        posnametargetsprimed = (ability._owning_component.owner.pos, type(ability).__name__,  targets, ability.primed)
+        owner = ability.get_owner()
+        targets = [v.c for v in ability.selected_targets]
+        posnametargetsprimed = (owner.position.c, type(ability).__name__,  targets, ability.primed)
         posnametargetsprimedjson = json.dumps(posnametargetsprimed)
         if not NetEvents.connector.authority:
             NetEvents.connector.send_client("NetAbilityTarget", posnametargetsprimedjson)
@@ -121,10 +123,11 @@ class NetEvents():
     def rcv_netabilitytarget(posnametargetsprimedjson):
         """Apply the user's target choice whne received. Server only."""
         obj = json.loads(posnametargetsprimedjson)
-        # targets will now be a list[list[int,int]], since tuples dont exist in json
-        # for consistency we convert them back to list[tuple[int,int]]
+        # Targets are now a list[list[int,int]], since tuples dont exist in json (let alone IVector2s).
+        # For consistency we convert them back to list[IVector2]
         unitpos, abilityname, targets, primed = obj
-        targets = [(x[0],x[1]) for x in targets]
+        unitpos = IVector2(*unitpos)
+        targets = [IVector2(*coord) for coord in targets]
         unit = NetEvents.grid.get_unit(unitpos)
         print("RCV AbilityTarget:", obj)
         if not unit:

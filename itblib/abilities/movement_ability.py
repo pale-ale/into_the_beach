@@ -1,11 +1,12 @@
 from typing import TYPE_CHECKING
+from itblib.Vec import IVector2
 
 from itblib.abilities.base_abilities.ability_base import AbilityBase
 from itblib.globals.Constants import DIRECTIONS, FLAGS, PREVIEWS
 from itblib.net.NetEvents import NetEvents
 
 if TYPE_CHECKING:
-    from itblib.components.AbilityComponent import AbilityComponent
+    from itblib.components import AbilityComponent
 
 class MovementAbility(AbilityBase):
     """
@@ -30,7 +31,7 @@ class MovementAbility(AbilityBase):
         if self.selected:
             self._collect_movement_info()
 
-    def set_targets(self, targets:"list[tuple[int,int]]"):
+    def set_targets(self, targets:"list[IVector2]"):
         super().set_targets(targets)
         if not NetEvents.connector.authority:
             self._collect_movement_info()
@@ -54,29 +55,31 @@ class MovementAbility(AbilityBase):
         tile = self.get_owner().grid.get_tile(pos)
         return tile and (tile.get_movement_requirements() & self.movement_flags)
 
-    def _get_valid_targets(self) -> "set[tuple[int,int]]":
+    def _get_valid_targets(self):
         owner = self.get_owner()
-        valid_targets = set()
+        valid_targets = []
         if owner:
-            pathwithself = [owner.pos] + self.selected_targets
+            pathwithself = [owner.position] + self.selected_targets
             test_targets = owner.grid.get_neighbors(pathwithself[-1])
-            valid_targets = {t_pos for t_pos in test_targets if self._can_move_at(t_pos)}
+            valid_targets = [t_pos for t_pos in test_targets if self._can_move_at(t_pos)]
         return valid_targets
 
     def _collect_movement_info(self):
         """Gather the tiles we can move to and add them to the displayed AOE."""
-        pathwithself = [self._owning_component.owner.pos] + self.selected_targets
+        owner = self.get_owner()
+        pathwithself = [owner.position] + self.selected_targets
         if len(pathwithself) <= self.moverange:
             pos = pathwithself[-1]
             for neighbor in self._get_valid_targets():
-                delta = (neighbor[0] - pos[0], neighbor[1] - pos[1])
-                coordwithpreviewid = (neighbor, PREVIEWS[delta])
-                self.area_of_effect.add(coordwithpreviewid)
+                delta = neighbor - pos
+                coordwithpreviewid = (neighbor, PREVIEWS[delta.c])
+                self.area_of_effect.append(coordwithpreviewid)
 
     def _update_path_display(self):
         """Display the new path using proximity textures."""
+        owner = self.get_owner()
         self.area_of_effect.clear()
-        pathwithself:list[tuple[int,int]] = [self._owning_component.owner.pos]
+        pathwithself = [owner.position]
         pathwithself.extend(self.selected_targets)
         if len(pathwithself) > 1:
             first = (pathwithself[0], PREVIEWS[1])
@@ -85,19 +88,21 @@ class MovementAbility(AbilityBase):
                 prev_pos = pathwithself[i-1]
                 curr_pos = pathwithself[i]
                 next_pos = pathwithself[i+1]
-                prevdelta = (curr_pos[0] - prev_pos[0], curr_pos[1] - prev_pos[1])
-                nextdelta = (next_pos[0] - curr_pos[0], next_pos[1] - curr_pos[1])
-                currentwithpreview = (curr_pos, PREVIEWS[(nextdelta, prevdelta)])
-                self.area_of_effect.add(currentwithpreview)
-            self.area_of_effect.add(first)
-            self.area_of_effect.add(last)
+                prevdelta = curr_pos - prev_pos
+                nextdelta = next_pos - curr_pos
+                currentwithpreview = (curr_pos, PREVIEWS[(nextdelta.c, prevdelta.c)])
+                self.area_of_effect.append(currentwithpreview)
+            self.area_of_effect.append(first)
+            self.area_of_effect.append(last)
         self._collect_movement_info()
 
-    def _add_to_movement(self, target:"tuple[int,int]"):
+    def _add_to_movement(self, target:IVector2):
         """Add a "step" to the path we want to take."""
-        pathwithself:list[tuple[int,int]] = [self._owning_component.owner.pos]
+        assert isinstance(target, IVector2)
+        owner = self.get_owner()
+        pathwithself = [owner.position]
         pathwithself.extend(self.selected_targets)
-        if target != pathwithself[-1]:
+        if target.c != pathwithself[-1]:
             new_targets = self.selected_targets + [target]
             self.set_targets(new_targets)
             if not NetEvents.connector.authority:
@@ -114,6 +119,6 @@ class MovementAbility(AbilityBase):
             cardinals = {DIRECTIONS.NORTHEAST, DIRECTIONS.SOUTHEAST, 
                          DIRECTIONS.NORTHWEST, DIRECTIONS.SOUTHWEST}
             valid_preview_lambda = lambda p: not p[1] in {PREVIEWS[c] for c in cardinals}
-            self.area_of_effect = set(filter(valid_preview_lambda, self.area_of_effect))
+            self.area_of_effect = list(filter(valid_preview_lambda, self.area_of_effect))
         else:
             self.reset()

@@ -1,24 +1,43 @@
 """Simple vector math methods"""
 
 from math import cos, sin
+from typing import Union
 
 from pygame.math import Vector2 as FVector2
 
-from dataclasses import dataclass
+from multipledispatch import dispatch
 
-@dataclass
+Number = Union[int,float]
+Vector = Union["IVector2", FVector2, tuple[Number, Number]]
+
 class IVector2():
     _x: int
     _y: int
 
-    def __init__(self, x: int = 0, y: int = 0):
-        assert isinstance(x, int), x
+    @dispatch((object, FVector2, tuple))
+    def __init__(self, vector: Vector):
+        x, y = vector
+        assert isinstance(x, int)
         assert isinstance(y, int)
         self._x, self._y = x, y
 
-    def __add__(self, vector: "FVector2|IVector2"):
-        x: "float|int" = vector.x
-        y: "float|int" = vector.y
+    @dispatch(int,int)
+    def __init__(self, x:int, y:int):
+        assert isinstance(x, int)
+        assert isinstance(y, int)
+        self._x, self._y = x, y
+    
+    @dispatch(int)
+    def __init__(self, x:int):
+        """
+        The autocomplete hint is a lie. 
+        Can be constructed with: int, (int,int), or another vector type
+        """
+        assert isinstance(x, int)
+        self._x, self._y = x, x
+
+    def __add__(self, vector: Vector):
+        x,y = vector
         assert isinstance(x, int) or x.is_integer()
         assert isinstance(y, int) or y.is_integer()
         return IVector2(self.x + int(x), self.y + int(y))
@@ -33,12 +52,25 @@ class IVector2():
     def __rmul__(self, scalar):
         return self * scalar
 
-    def __sub__(self, vector: "FVector2|IVector2"):
-        x: "float|int" = vector.x
-        y: "float|int" = vector.y
+    def __sub__(self, vector: Vector):
+        if isinstance(vector, tuple):
+            x,y = vector
+        else:
+            x: "float|int" = vector.x
+            y: "float|int" = vector.y
         assert isinstance(x, int) or x.is_integer()
         assert isinstance(y, int) or y.is_integer()
         return IVector2(self.x - int(x), self.y - int(y))
+    
+    def __eq__(self, other: Vector):
+        other = IVector2(other)
+        return self.c == other.c
+    
+    def __hash__(self):
+        return hash(self.c)
+    
+    def __str__(self):
+        return f"x:{self.x}, y:{self.y}"
 
     @property
     def x(self):
@@ -64,9 +96,9 @@ class IVector2():
         self._y = y
 
 
-def deg_to_coord(x: float) -> tuple[int, int]:
+def deg_to_coord(x: float):
     """@return: The vector with angle x in radians from the x axis CCW, length=1"""
-    return cos(x), sin(x)
+    return FVector2(cos(x), sin(x))
 
 
 def vector_between(a, b, x, s: float = 1e-1) -> bool:

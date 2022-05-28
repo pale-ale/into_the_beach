@@ -15,7 +15,7 @@ class ToggleAbilityBase(AbilityBase):
     def on_select_ability(self):
         owner = self.get_owner()
         if owner:
-            self.confirm_target(owner, not self.primed)
+            self.confirm_target(owner.position, not self.primed)
 
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
         return set()

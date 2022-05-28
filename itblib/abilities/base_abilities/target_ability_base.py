@@ -31,5 +31,5 @@ class TargetAbilityBase(AbilityBase):
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
         owner = self.get_owner()
         if owner:
-            return owner.grid.get_neighbors(owner.pos)
+            return owner.grid.get_neighbors(owner.position)
         return set()

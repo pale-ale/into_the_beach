@@ -8,7 +8,7 @@ import pygame
 from itblib.abilities.base_abilities.target_ability_base import \
     TargetAbilityBase
 from itblib.globals.Constants import DIRECTIONS, PREVIEWS
-from itblib.Vec import deg_to_coord, transform_vector, vector_between
+from itblib.Vec import IVector2, deg_to_coord, transform_vector, vector_between
 
 if TYPE_CHECKING:
     from typing import Generator
@@ -48,34 +48,34 @@ class ConeAbilityBase(TargetAbilityBase):
         for coord in self._get_valid_targets():
             self.area_of_effect.add((coord, PREVIEWS[0]))
 
-    def confirm_target(self, target: "tuple[int,int]"):
+    def confirm_target(self, target: "IVector2"):
         self.set_targets([t for t in self._get_valid_targets() if self._is_valid_target(t)])
         super().confirm_target(target)
 
-    def _get_valid_targets(self) -> "set[tuple[int,int]]":
+    def _get_valid_targets(self) -> "set[IVector2]":
         m = (DIRECTIONS.EAST, DIRECTIONS.NORTH)
         owner = self.get_owner()
-        pos = owner.pos
+        pos = owner.position
         possible_target_poss = ConeAbilityBase._get_circle(pos, self.cone_len_tiles + .5)
         dega = self.cone_direction + self.cone_spread_angle/2
         degb = self.cone_direction - self.cone_spread_angle/2
         a = transform_vector(m, deg_to_coord(dega))
         b = transform_vector(m, deg_to_coord(degb))
-        angle_target_pos = {p for p in possible_target_poss if vector_between(a,b, sub(p, pos))}
+        angle_target_pos = {p for p in possible_target_poss if vector_between(a,b, p -pos)}
         return angle_target_pos
 
     @staticmethod
-    def _get_circle(center:tuple[int,int], radius:float) -> "Generator[tuple[int,int]]":
+    def _get_circle(center:IVector2, radius:float) -> "Generator[IVector2]":
         """
         @c: circle center
         @r: radius
         @return: coordinates of potential tiles whose centers are within euclidean distance
         """
-        left = center[0] - int(radius)
-        right = center[0] + int(radius)
-        top = center[1] - int(radius)
-        bot = center[1] + int(radius)
+        left = center.x - int(radius)
+        right = center.x + int(radius)
+        top = center.y - int(radius)
+        bot = center.y + int(radius)
         for y in range(top, bot+1):
             for x in range(left, right+1):
-                if math.sqrt((center[0]-x)**2 + (center[1]-y)**2) <= radius:
-                    yield (x,y)
+                if math.sqrt((center.x-x)**2 + (center.y-y)**2) <= radius:
+                    yield IVector2(x,y)

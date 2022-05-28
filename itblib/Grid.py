@@ -164,13 +164,13 @@ class Grid(Serializable):
             if unit:
                 movementability = unit.get_movement_ability()
                 if not movementability or len(movementability.selected_targets) == 0:
-                    obstacles.append(unit.pos)
+                    obstacles.append(unit.position)
                     unit.done = True
                 else:
                     unit.get_movement_ability().on_trigger()
                     movingunits.append(unit)
         if len(movingunits) > 0:
-            nextpositions:dict[tuple[int,int],list[UnitBase]] = {} #position:[units that want to go here]
+            nextpositions:dict[IVector2,list[UnitBase]] = {} #position:[units that want to go here]
             # remove units whose path is already exhausted
             # and add their positions into obstacles
             for unit in movingunits[:]:
@@ -179,15 +179,16 @@ class Grid(Serializable):
                     movingunits.remove(unit)
                     unit.done = True
                     unit.get_movement_ability().selected_targets.clear()
-                    obstacles.append(unit.pos)
+                    obstacles.append(unit.position)
             # add each unit and their next move to the dict
             # and remove first path element
             for unit in movingunits[:]:
                 nextpos = unit.get_movement_ability().selected_targets.pop(0)
+                assert isinstance(nextpos, IVector2)
                 if nextpos in obstacles:
                     movingunits.remove(unit)
                     unit.done = True
-                    obstacles.append(unit.pos)
+                    obstacles.append(unit.position)
                 if nextpos in nextpositions:
                     nextpositions[nextpos].append(unit)
                 else:
@@ -200,10 +201,10 @@ class Grid(Serializable):
                     for unit in units:
                         if unit in movingunits:
                             movingunits.remove(unit)
-                            obstacles.append(unit.pos)
+                            obstacles.append(unit.position)
                             unit.done = True
                 elif len(units) == 1:
-                    self.move_unit(units[0].pos, position)
+                    self.move_unit(units[0].position, position)
 
     def change_phase(self, phase:int) -> None:
         """Set the phase to a certain number."""
@@ -283,7 +284,7 @@ class Grid(Serializable):
 
     def request_add_unit(self, pos: IVector2, unitid:int, playerid:int) -> None:
         """Request a unit with unitid to be spawned at (x,y), owned by a playerid."""
-        NetEvents.snd_netunitspawn(unitid, pos, playerid)
+        NetEvents.snd_netunitspawn(unitid, pos.c, playerid)
     
     def remove_gridelement(self, pos: IVector2, effect:"WorldEffectBase|None"=None, rmflags=0b100) -> bool:
         """Remove a gridelement at given position. 
@@ -342,7 +343,7 @@ class Grid(Serializable):
             unit = self.get_unit(from_pos)
             self.units[self.c_to_i(from_pos)] = None
             self.units[self.c_to_i(to_pos)] = unit
-            unit.pos = to_pos
+            unit.position = to_pos
             self.tiles[self.c_to_i(to_pos)].on_enter(unit)
             if self.observer:
                 self.observer.on_move_unit(from_pos, to_pos)

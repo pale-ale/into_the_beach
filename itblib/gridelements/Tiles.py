@@ -1,5 +1,6 @@
 from abc import ABC
 from typing import TYPE_CHECKING
+from itblib.Vec import IVector2
 
 from itblib.globals.Constants import FLAGS
 from itblib.gridelements.GridElement import GridElement
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
     from itblib.gridelements.units.UnitBase import UnitBase
 
 class TileBase(GridElement, Serializable, ABC):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="Base"):
+    def __init__(self, grid:"Grid", pos:"IVector2", age=0.0, done=True, name="Base"):
         GridElement.__init__(self, grid, pos, age, done, name)
         Serializable.__init__(self, ["name"])
     
@@ -22,12 +23,12 @@ class TileBase(GridElement, Serializable, ABC):
 
 
 class TileDirt(TileBase):
-    def __init__(self, grid: "Grid", pos: "tuple[int,int]", age=0, done=True, name="Dirt"):
+    def __init__(self, grid: "Grid", pos: "IVector2", age=0, done=True, name="Dirt"):
         super().__init__(grid, pos, age=age, done=done, name=name)
 
 
 class TileWater(TileBase):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="Water"):
+    def __init__(self, grid:"Grid", pos:"IVector2", age=0.0, done=True, name="Water"):
         super().__init__(grid, pos, age, done, name)
 
     def on_enter(self, unit:"UnitBase"):
@@ -39,7 +40,7 @@ class TileWater(TileBase):
 
 
 class TileLava(TileBase):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="Lava"):
+    def __init__(self, grid:"Grid", pos:"IVector2", age=0.0, done=True, name="Lava"):
         super().__init__(grid, pos, age, done, name)
     
     def on_enter(self, unit:"UnitBase"):
@@ -50,7 +51,7 @@ class TileLava(TileBase):
         return FLAGS.MOVEMENT_DEFAULT & FLAGS.MOVEMENT_WATER
 
 class TileRock(TileBase):
-    def __init__(self, grid:"Grid", pos:"tuple[int,int]", age=0.0, done=True, name="Rock"):
+    def __init__(self, grid:"Grid", pos:"IVector2", age=0.0, done=True, name="Rock"):
         super().__init__(grid, pos, age, done, name)
 
     def get_movement_requirements(self):

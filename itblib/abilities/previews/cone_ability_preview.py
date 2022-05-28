@@ -8,7 +8,8 @@ from itblib.abilities.previews.abilitiy_preview_base import AbilityPreviewBase
 from itblib.globals.Constants import STANDARD_TILE_SIZE, STANDARD_UNIT_SIZE
 from itblib.net.NetEvents import NetEvents
 from itblib.ui.widgets.ui_widget import TextBox
-from itblib.Vec import deg_to_coord
+from itblib.Vec import IVector2, deg_to_coord
+from pygame import Surface, Rect
 
 if TYPE_CHECKING:
     from typing import Callable, Generator
@@ -26,26 +27,29 @@ class ConeAttackAbilityPreview(AbilityPreviewBase):
         self._color:"tuple[int,int,int]" = NetEvents.session._players[owner.ownerid].color if NetEvents.session else [255,0,255]
 
     #pylint: disable=missing-function-docstring
-    def get_blit_func(self, transform_func: "Callable[[tuple[int,int]], tuple[int,int]]") -> "Generator[tuple[pygame.Surface, pygame.Rect, pygame.Rect]]":
+    def get_blit_func(self, transform_func: "Callable[[IVector2], IVector2]") -> "Generator[tuple[Surface, Rect, Rect]]":
         cone_length = self._ability.cone_len_tiles * STANDARD_TILE_SIZE[0]
         if self._ability.selected or self._ability.primed:
             owner = self._ability.get_owner()
-            if owner:
-                p_1 = add(transform_func(self._ability.get_owner().pos), smult(.5, STANDARD_UNIT_SIZE), (0,7))
-            size = (2*cone_length, 2*cone_length*self.yscale)
-            topleft = sub(p_1, smult(.5, size))
-            surf = pygame.Surface(size).convert_alpha()
+            p_1 = transform_func(self._ability.get_owner().position) + IVector2(STANDARD_UNIT_SIZE) * .5 + IVector2(0,7)
+            size = IVector2(int(2*cone_length), int(2*cone_length*self.yscale))
+            topleft = p_1 - size * .5
+            surf = pygame.Surface(size.c).convert_alpha()
             surf.fill(0)
-            self._draw_cone(surf, cone_length, smult(.5,size), self.yscale)
+            self._draw_cone(surf, cone_length, size * .5, self.yscale)
             yield from self._get_simple_preview_gen(transform_func)
-            yield surf, pygame.Rect(add(topleft,(0,-10)), (size[0],size[1])), surf.get_rect()
+            yield surf, pygame.Rect((topleft - (0,10)).c, size.c), surf.get_rect()
 
-    def _draw_cone(self, surface:pygame.Surface, cone_len, center, yscale):
-        langle = self._ability.cone_direction + .5*self._ability.cone_spread_angle
-        rangle = self._ability.cone_direction - .5*self._ability.cone_spread_angle
-        arc_left  = add(center, mult2((1,-yscale), smult(cone_len, deg_to_coord(langle))))
-        arc_right = add(center, mult2((1,-yscale), smult(cone_len, deg_to_coord(rangle))))
-        arc_rect2 = pygame.Rect((0,0), (2*cone_len, 2*cone_len*yscale))
-        pygame.draw.line(surface, self._color, arc_left, center)
-        pygame.draw.line(surface, self._color, arc_right, center)
+    def _draw_cone(self, surface:Surface, cone_len:float, center:IVector2, yscale:float):
+        langle = self._ability.cone_direction + .5 * self._ability.cone_spread_angle
+        rangle = self._ability.cone_direction - .5 * self._ability.cone_spread_angle
+        l = cone_len * deg_to_coord(langle)
+        l.y *= -yscale
+        r = cone_len * deg_to_coord(rangle)
+        r.y *= -yscale
+        arc_left  = center + IVector2(int(l.x), int(l.y))
+        arc_right = center + IVector2(int(r.x), int(r.y))
+        arc_rect2 = pygame.Rect((0,0), (2 * cone_len, 2 * cone_len * yscale))
+        pygame.draw.line(surface, self._color, arc_left.c, center.c)
+        pygame.draw.line(surface, self._color, arc_right.c, center.c)
         pygame.draw.arc(surface, self._color, arc_rect2, rangle, langle)

@@ -29,7 +29,7 @@ class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
         bottom_tile = self.transform_grid_world(IVector2(grid.size.x-1, grid.size.y-1))
         self.width = right_tile.x - left_tile.x + self.tile_size.x
         self.height = bottom_tile.y + self.tile_size.y
-        self.board_size = (self.width, self.height)
+        self.board_size = IVector2(self.width, self.height)
         self.ui_tiles: "list[TileBaseUI|None]" = [None]*grid.size.x*grid.size.y
         self.ui_worldeffects: "list[list[EffectBaseUI]]" = [[] for i in range(grid.size.x*grid.size.y)]
         self.ui_units: "list[UnitBaseUI|None]" = [None]*grid.size.x*grid.size.y
@@ -51,7 +51,7 @@ class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
         ui_tile_class = GridElementUIFactory.find_tile_class(type(tile).__name__ + "UI")
         if ui_tile_class:
             ui_tile = ui_tile_class(tile)
-            self.ui_tiles[self.grid.c_to_i(tile.pos)] = ui_tile
+            self.ui_tiles[self.grid.c_to_i(tile.position)] = ui_tile
             self.add_gridui_element(ui_tile)
 
     def update_pan(self, newpan: IVector2):
@@ -62,7 +62,7 @@ class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
 
     def add_gridui_element(self, elem: GridElementUI):
         elem_tfc = elem.get_component(TransformComponent)
-        elem_tfc.relative_position = self.transform_grid_screen(elem._parentelement.pos, apply_pan=False)
+        elem_tfc.relative_position = self.transform_grid_screen(elem._parentelement.position, apply_pan=False)
         elem_tfc.set_transform_target(self)
 
     def on_add_unit(self, unit: UnitBase):
@@ -70,14 +70,14 @@ class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
         ui_unit_class = GridElementUIFactory.find_unit_class(type(unit).__name__ + "UI")
         if ui_unit_class:   
             ui_unit:UnitBaseUI = ui_unit_class(unit)
-            self.ui_units[self.grid.c_to_i(unit.pos)] = ui_unit
+            self.ui_units[self.grid.c_to_i(unit.position)] = ui_unit
             self.add_gridui_element(ui_unit)
             tfc = ui_unit.get_component(TransformComponent)
             tfc.relative_position = tfc.relative_position + self.unit_draw_offset
     
     def on_add_worldeffect(self, effect: WorldEffectBase):
         """Add the UI version of the new effect added to the normal grid."""
-        gridindex = self.grid.c_to_i(effect.pos)
+        gridindex = self.grid.c_to_i(effect.position)
         ui_worldeffect_class = GridElementUIFactory.find_effect_class(type(effect).__name__ + "UI")
         if ui_worldeffect_class:
             ui_worldeffect = ui_worldeffect_class(effect)
@@ -89,8 +89,8 @@ class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
         assert isinstance(from_pos, IVector2)
         assert isinstance(to_pos, IVector2)
         uiunit = self.ui_units[self.grid.c_to_i(from_pos)]
-        fsp = add(self.transform_grid_screen(from_pos, apply_pan=False), self.unit_draw_offset)
-        tsp = add(self.transform_grid_screen(to_pos, apply_pan=False), self.unit_draw_offset)
+        fsp = self.transform_grid_screen(from_pos, apply_pan=False) + self.unit_draw_offset
+        tsp = self.transform_grid_screen(to_pos, apply_pan=False) + self.unit_draw_offset
         uiunit.set_interp_movement(fsp, tsp, .5)
         self.ui_units[self.grid.c_to_i(from_pos)] = None
         self.ui_units[self.grid.c_to_i(to_pos)] = uiunit
@@ -143,6 +143,7 @@ class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
 
     def transform_grid_screen(self, gridpos: IVector2, apply_pan: bool = True):
         """Return the screen position of a given grid coordinate (can apply camera and center _pan)."""
+        assert isinstance(gridpos, IVector2)
         gw = self.transform_grid_world(gridpos)
         screennopan = IVector2(int(gw.x + (self.width-self.tile_size.x)/2), gw.y+5)
         return (screennopan + self._pan) if apply_pan else screennopan
@@ -162,24 +163,24 @@ class GridUI(IGraphics, ComponentAcceptor, IGridObserver):
                 yield from grid_element.get_blits()
 
     def _add_get_clear_blit(self):
-        s = pygame.Surface(self.board_size)
+        s = pygame.Surface(self.board_size.c)
         s.fill((0))
         self.blits.append((s, s.get_rect().move(self._pan.c), s.get_rect()))
 
     def get_debug_surface(self):
         if self._dbgsurf:
             return self._dbgsurf
-        self._dbgsurf = pygame.Surface(add(self.board_size, (2,2))).convert_alpha()
+        self._dbgsurf = pygame.Surface((self.board_size + (2,2)).c).convert_alpha()
         self._dbgsurf.fill(0)
-        offset = (32,8)
+        offset = IVector2(32,8)
         for x in range(0, self.grid.size.x+1):
             pygame.draw.line(self._dbgsurf, (255,0,255), 
-                add(self.transform_grid_screen((x,                0), apply_pan=False), offset),
-                add(self.transform_grid_screen((x,self.grid.size.y), apply_pan=False), offset),
+                (offset + self.transform_grid_screen(IVector2(x, 0), apply_pan=False)).c,
+                (offset + self.transform_grid_screen(IVector2(x,self.grid.size.y), apply_pan=False)).c,
                 1)
         for y in range(0, self.grid.size.y+1):
             pygame.draw.line(self._dbgsurf, (255,0,255), 
-                add(self.transform_grid_screen((0,                y), apply_pan=False), offset), 
-                add(self.transform_grid_screen((self.grid.size.x,y), apply_pan=False), offset),
+                (offset + self.transform_grid_screen(IVector2(0, y), apply_pan=False)).c, 
+                (offset + self.transform_grid_screen(IVector2(self.grid.size.x,y), apply_pan=False)).c,
                 1)
         return self._dbgsurf

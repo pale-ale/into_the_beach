@@ -88,7 +88,7 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, Inp
     
     def drown(self):
         """Called when a unit drowns."""
-        self.grid.remove_unit(self.pos)
+        self.grid.remove_unit(self.position)
 
     def attack(self, target:"tuple[int,int]", damage:int, damagetype:str):
         """Attack target position with damage amount and damage type."""
@@ -110,14 +110,14 @@ class UnitBase(GridElement, DamageReceiver, Serializable, ComponentAcceptor, Inp
         """Called when this unit's hitpoints are reduced to <= 0"""
         for ability in self.ability_component._abilities:
             ability.on_death()
-        self.grid.remove_unit(self.pos)
+        self.grid.remove_unit(self.position)
     
     def on_receive_shove(self, to:"tuple[int,int]"):
         """Called when a shoving attack hits this unit, trying to push it to "to"."""
         if not self.grid.is_coord_in_bounds(to) or self.grid.is_space_empty(True, to):
             return
         if self.grid.is_space_empty(False, to):
-            self.grid.move_unit(self.pos, to)
+            self.grid.move_unit(self.position, to)
             self.get_movement_ability().selected_targets.clear()
         else:
             #we collide with a different unit or object

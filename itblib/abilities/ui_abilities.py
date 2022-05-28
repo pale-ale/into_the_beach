@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, TypeVar
 import pygame
 from pygame import Rect, Surface
 from itblib.Log import log
+from itblib.Vec import IVector2
 from itblib.globals.Constants import STANDARD_UNIT_SIZE
 from itblib.globals.math_helpers import get_parabola_time
 from itblib.ui.animations import ProjectileAnimation
@@ -42,11 +43,13 @@ class AbilityProjectileUI(AbilityBaseUI):
     def __init__(self, gridui: "GridUI", ability: "AbilityBase", start, end, speed) -> None:
         """Start and end in grid coords."""
         super().__init__(gridui, ability)
-        half_size = STANDARD_UNIT_SIZE * .5
+        half_size = IVector2(STANDARD_UNIT_SIZE) * .5
         self.screen_start = gridui.transform_grid_screen(start) + half_size
         self.screen_end = gridui.transform_grid_screen(end) + half_size
         self.speed = speed
-        peak = ((self.screen_start[0] + self.screen_end[0])/2, (self.screen_end[1] + self.screen_start[1])/2 - 65)
+        peak_x = (self.screen_start.x + self.screen_end.x)/2
+        peak_y = (self.screen_end.y + self.screen_start.y)/2 - 65
+        peak = IVector2(int(peak_x), int(peak_y))
         self.time = 0
         para = get_parabola_time(peak, self.screen_start, self.screen_end)
         timescaled_para = lambda time: para(time*speed) 
@@ -77,7 +80,7 @@ class AbilityUIBuilder():
     classes = {AbilityProjectileUI}
     @classmethod
     def construct_ability_ui(cls, ability:"AbilityBase", ability_ui_cls:"Type[T]", *other_args) -> "T|None":
-        assert cls.hud and cls.gridui, f"{cls.__name__} needs a valid gridui and hud in order to create abilityuis." 
+        assert cls.gridui, "%s needs a valid gridui to create abilityuis." % AbilityUIBuilder.__name__
         if ability_ui_cls not in cls.classes:
             log(f"AbilityUIBuilder: Couldn't find class '{ability_ui_cls.__name__}'.", 2)
             return None

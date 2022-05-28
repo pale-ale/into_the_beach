@@ -88,7 +88,7 @@ class AbilityComponent(ComponentBase, Serializable):
         for abilitydata in data["_abilities"]:
             for ability in self._abilities:
                 if type(ability).__name__ == abilitydata["name"]:
-                    abilitydata["selected_targets"] = [(x, y) for x, y in abilitydata["selected_targets"]]
+                    abilitydata["selected_targets"] = [IVector2(x, y) for x, y in abilitydata["selected_targets"]]
                     ability.insert_data(abilitydata, exclude=["name"])
 
     def add_ability(self, ability_class: "Type[A]") -> "A|None":

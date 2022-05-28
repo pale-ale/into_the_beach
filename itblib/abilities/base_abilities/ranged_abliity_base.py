@@ -43,7 +43,7 @@ class RangedAbilityBase(AbilityBase):
                 ui_ability = AbilityUIBuilder.construct_ability_ui(
                     self,
                     AbilityProjectileUI,
-                    self.get_owner().pos,
+                    self.get_owner().position,
                     self.selected_targets[0],
                     projectile_speed
                 )
@@ -59,7 +59,7 @@ class RangedAbilityBase(AbilityBase):
     def _get_valid_targets(self) -> "set[tuple[int,int]]":
         owner = self.get_owner()
         if owner:
-            pos = owner.pos
+            pos = owner.position
             coords = owner.grid.get_ordinals(pos, owner.grid.size)
             coords = coords.difference(owner.grid.get_neighbors(pos))
         return coords

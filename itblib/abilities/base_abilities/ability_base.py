@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
+from itblib.Vec import IVector2
 from itblib.abilities.ui_abilities import AbilityBaseUI
 
 from itblib.input.Input import InputAcceptor
@@ -34,8 +35,8 @@ class AbilityBase(Serializable, InputAcceptor, ABC):
         self.needstarget = False
         self.trigger_causes_cooldown = True
         self.reduce_cooldown_each_turn = True
-        self.area_of_effect:"set[tuple[tuple[int,int],str]]" = set()
-        self.selected_targets:"list[tuple[int,int]]" = []
+        self.area_of_effect:"list[tuple[IVector2,str]]" = []
+        self.selected_targets:"list[IVector2]" = []
         self.remainingcooldown = 0
 
     def get_owner(self) -> "UnitBase|None":
@@ -54,14 +55,15 @@ class AbilityBase(Serializable, InputAcceptor, ABC):
         if self.observer: 
             self.observer.on_trigger()
 
-    def set_targets(self, targets:"list[tuple[int,int]]"):
+    def set_targets(self, targets:"list[IVector2]"):
         """Set selected_targets to the specified coordinates."""
         self.selected_targets = targets
         log(f"AbilityBase: Set targets of {type(self).__name__} to {targets}", 0)
 
-    def confirm_target(self, target:"tuple[int,int]", primed=True):
+    def confirm_target(self, target: IVector2, primed=True):
         """Called when the players confirms the target(s) with ENTER,
         passing along the position where the cursor was when ENTER was pressed"""
+        assert isinstance(target, IVector2)
         self.primed = primed
         NetEvents.snd_netabilitytarget(self)
         log(f"AbilityBase: Confirmed targets of {type(self).__name__}: {self.selected_targets}", 0)
@@ -75,7 +77,9 @@ class AbilityBase(Serializable, InputAcceptor, ABC):
 
     def reset_to_targets(self):
         """Remove the ability's previews, keeping the selected targets"""
-        self.area_of_effect = set(filter(lambda e: e[0] in self.selected_targets, self.area_of_effect))
+        self.area_of_effect = list(filter(lambda e: e[0] in self.selected_targets, self.area_of_effect))
+        for e in self.area_of_effect:
+            assert isinstance(e, tuple)
 
     def on_select_ability(self):
         """Called when a player selects this ability. Use to e.g. show target outlines"""
@@ -126,5 +130,5 @@ class AbilityBase(Serializable, InputAcceptor, ABC):
         return target in self._get_valid_targets()
 
     def extract_data(self, custom_fields: "dict[str,any]" = ...) -> dict:
-        custom_fields = {"name":type(self).__name__, "selected_targets":self.selected_targets}
+        custom_fields = {"name":type(self).__name__, "selected_targets":[v.c for v in self.selected_targets]}
         return super().extract_data(custom_fields=custom_fields)
